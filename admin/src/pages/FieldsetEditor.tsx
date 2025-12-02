@@ -12,6 +12,14 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { Switch } from '../components/ui/switch';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '../components/ui/select';
 import {
 	Drawer,
 	DrawerClose,
@@ -45,8 +53,8 @@ import {
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, ChevronDown, Trash2, Plus } from 'lucide-react';
-import type { Field, FieldType } from '../types';
+import { GripVertical, ChevronDown, Trash2, Plus, X, Filter } from 'lucide-react';
+import type { Field, FieldType, ConditionalRule, LocationGroup } from '../types';
 
 const FIELD_TYPES: { type: FieldType; label: string; category: string }[] = [
 	{ type: 'text', label: 'Text', category: 'Basic' },
@@ -76,6 +84,7 @@ const FIELD_TYPES: { type: FieldType; label: string; category: string }[] = [
 
 interface SortableFieldProps {
 	field: Field;
+	allFields: Field[];
 	onUpdate: (id: number, data: Partial<Field>) => void;
 	onDelete: (id: number) => void;
 }
@@ -85,11 +94,43 @@ interface FieldsetEditorProps {
 	isNew?: boolean;
 }
 
-function SortableField({ field, onUpdate, onDelete }: SortableFieldProps) {
+const CONDITION_OPERATORS = [
+	{ value: '==', label: 'is equal to' },
+	{ value: '!=', label: 'is not equal to' },
+	{ value: 'contains', label: 'contains' },
+	{ value: 'empty', label: 'is empty' },
+	{ value: 'not_empty', label: 'is not empty' },
+];
+
+const WIDTH_OPTIONS = [
+	{ value: '25', label: '25%' },
+	{ value: '33', label: '33%' },
+	{ value: '50', label: '50%' },
+	{ value: '66', label: '66%' },
+	{ value: '75', label: '75%' },
+	{ value: '100', label: '100%' },
+];
+
+function SortableField({ field, allFields, onUpdate, onDelete }: SortableFieldProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [label, setLabel] = useState(field.label || '');
 	const [name, setName] = useState(field.name || '');
 	const [hasError, setHasError] = useState(false);
+	
+	// Wrapper settings
+	const [wrapperWidth, setWrapperWidth] = useState(field.settings?.wrapper?.width || '100');
+	const [wrapperClass, setWrapperClass] = useState(field.settings?.wrapper?.class || '');
+	
+	// Conditional logic - stored as ConditionalRule[][] in settings
+	const hasConditionalLogic = field.settings?.conditional_logic && field.settings.conditional_logic.length > 0;
+	const [conditionalEnabled, setConditionalEnabled] = useState(hasConditionalLogic);
+	const [conditionalRules, setConditionalRules] = useState<ConditionalRule[]>(
+		field.settings?.conditional_logic?.[0] || []
+	);
+	const [conditionalLogicType, setConditionalLogicType] = useState<'and' | 'or'>('and');
+
+	// Other fields for conditional logic dropdown (exclude self)
+	const otherFields = allFields.filter((f) => f.id !== field.id);
 
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
 		useSortable({ id: field.id });
@@ -123,6 +164,17 @@ function SortableField({ field, onUpdate, onDelete }: SortableFieldProps) {
 		}
 	};
 
+	// Save conditional logic to backend
+	const saveConditionalLogic = (rules: ConditionalRule[]) => {
+		const conditionalLogicData = rules.length > 0 ? [rules] : undefined;
+		onUpdate(field.id, {
+			settings: {
+				...field.settings,
+				conditional_logic: conditionalLogicData,
+			},
+		});
+	};
+
 	return (
 		<div ref={setNodeRef} style={style} className="mb-2">
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -142,6 +194,12 @@ function SortableField({ field, onUpdate, onDelete }: SortableFieldProps) {
 									<Badge variant="outline" className="text-xs">
 										{field.type}
 									</Badge>
+									{hasConditionalLogic && (
+										<Badge variant="secondary" className="text-xs">
+											<Filter className="h-3 w-3 mr-1" />
+											Conditional
+										</Badge>
+									)}
 								</div>
 								<div className="text-xs text-gray-500">{field.name}</div>
 							</div>
@@ -159,37 +217,218 @@ function SortableField({ field, onUpdate, onDelete }: SortableFieldProps) {
 						</button>
 					</div>
 					<CollapsibleContent>
-						<div className="px-3 pb-3 space-y-3 border-t pt-3">
+						<div className="px-3 pb-3 space-y-4 border-t pt-3">
 							{hasError && (
 								<div className="text-sm text-red-600 bg-red-50 p-2 rounded">
 									Field label and name cannot be empty
 								</div>
 							)}
-							<div>
-								<Label htmlFor={`label-${field.id}`}>Field Label</Label>
-								<Input
-									id={`label-${field.id}`}
-									value={label}
-									onChange={(e) => setLabel(e.target.value)}
-									onBlur={handleLabelBlur}
-									placeholder="Enter field label"
-									className={hasError && !label.trim() ? 'border-red-500' : ''}
-								/>
+							
+							{/* Basic Settings */}
+							<div className="grid grid-cols-2 gap-3">
+								<div>
+									<Label htmlFor={`label-${field.id}`}>Field Label</Label>
+									<Input
+										id={`label-${field.id}`}
+										value={label}
+										onChange={(e) => setLabel(e.target.value)}
+										onBlur={handleLabelBlur}
+										placeholder="Enter field label"
+										className={hasError && !label.trim() ? 'border-red-500' : ''}
+									/>
+								</div>
+								<div>
+									<Label htmlFor={`name-${field.id}`}>Field Name</Label>
+									<Input
+										id={`name-${field.id}`}
+										value={name}
+										onChange={(e) => setName(e.target.value)}
+										onBlur={handleNameBlur}
+										placeholder="field_name"
+										className={hasError && !name.trim() ? 'border-red-500' : ''}
+									/>
+								</div>
 							</div>
-							<div>
-								<Label htmlFor={`name-${field.id}`}>Field Name</Label>
-								<Input
-									id={`name-${field.id}`}
-									value={name}
-									onChange={(e) => setName(e.target.value)}
-									onBlur={handleNameBlur}
-									placeholder="field_name"
-									className={hasError && !name.trim() ? 'border-red-500' : ''}
-								/>
+							
+							{/* Wrapper Settings */}
+							<div className="border-t pt-4">
+								<h4 className="text-sm font-medium mb-3">Wrapper Settings</h4>
+								<div className="grid grid-cols-2 gap-3">
+									<div>
+										<Label htmlFor={`width-${field.id}`}>Width</Label>
+										<Select
+											value={wrapperWidth}
+											onValueChange={(value) => {
+												setWrapperWidth(value);
+												onUpdate(field.id, {
+													settings: {
+														...field.settings,
+														wrapper: {
+															...field.settings?.wrapper,
+															width: value,
+														},
+													},
+												});
+											}}
+										>
+											<SelectTrigger id={`width-${field.id}`}>
+												<SelectValue placeholder="Select width" />
+											</SelectTrigger>
+											<SelectContent>
+												{WIDTH_OPTIONS.map((opt) => (
+													<SelectItem key={opt.value} value={opt.value}>
+														{opt.label}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</div>
+									<div>
+										<Label htmlFor={`class-${field.id}`}>CSS Class</Label>
+										<Input
+											id={`class-${field.id}`}
+											value={wrapperClass}
+											onChange={(e) => setWrapperClass(e.target.value)}
+											onBlur={() => {
+												onUpdate(field.id, {
+													settings: {
+														...field.settings,
+														wrapper: {
+															...field.settings?.wrapper,
+															class: wrapperClass,
+														},
+													},
+												});
+											}}
+											placeholder="custom-class"
+										/>
+									</div>
+								</div>
 							</div>
-							<div>
-								<Label>Field Type</Label>
-								<div className="text-sm text-gray-600">{field.type}</div>
+							
+							{/* Conditional Logic */}
+							<div className="border-t pt-4">
+								<div className="flex items-center justify-between mb-3">
+									<h4 className="text-sm font-medium">Conditional Logic</h4>
+									<Switch
+										checked={conditionalEnabled}
+										onCheckedChange={(checked) => {
+											setConditionalEnabled(checked);
+											if (!checked) {
+												setConditionalRules([]);
+												onUpdate(field.id, {
+													settings: {
+														...field.settings,
+														conditional_logic: undefined,
+													},
+												});
+											}
+										}}
+									/>
+								</div>
+								
+								{conditionalEnabled && (
+									<div className="space-y-3 bg-gray-50 p-3 rounded-lg">
+										<p className="text-xs text-gray-600">
+											Show this field if{' '}
+											<button
+												type="button"
+												onClick={() => setConditionalLogicType(conditionalLogicType === 'and' ? 'or' : 'and')}
+												className="font-semibold text-blue-600 hover:underline"
+											>
+												{conditionalLogicType === 'and' ? 'ALL' : 'ANY'}
+											</button>{' '}
+											conditions match
+										</p>
+										
+										{conditionalRules.map((rule, index) => (
+											<div key={index} className="flex items-center gap-2">
+												<Select
+													value={rule.field}
+													onValueChange={(value) => {
+														const newRules = [...conditionalRules];
+														newRules[index] = { field: value, operator: rule.operator, value: rule.value };
+														setConditionalRules(newRules);
+														saveConditionalLogic(newRules);
+													}}
+												>
+													<SelectTrigger className="w-[140px]">
+														<SelectValue placeholder="Select field" />
+													</SelectTrigger>
+													<SelectContent>
+														{otherFields.map((f) => (
+															<SelectItem key={f.id} value={f.name}>
+																{f.label}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												
+												<Select
+													value={rule.operator}
+													onValueChange={(value) => {
+														const newRules = [...conditionalRules];
+														newRules[index] = { field: rule.field, operator: value as ConditionalRule['operator'], value: rule.value };
+														setConditionalRules(newRules);
+														saveConditionalLogic(newRules);
+													}}
+												>
+													<SelectTrigger className="w-[130px]">
+														<SelectValue placeholder="Operator" />
+													</SelectTrigger>
+													<SelectContent>
+														{CONDITION_OPERATORS.map((op) => (
+															<SelectItem key={op.value} value={op.value}>
+																{op.label}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												
+												{!['empty', 'not_empty'].includes(rule.operator) && (
+													<Input
+														value={rule.value}
+														onChange={(e) => {
+															const newRules = [...conditionalRules];
+															newRules[index] = { field: rule.field, operator: rule.operator, value: e.target.value };
+															setConditionalRules(newRules);
+														}}
+														onBlur={() => saveConditionalLogic(conditionalRules)}
+														placeholder="Value"
+														className="w-[120px]"
+													/>
+												)}
+												
+												<button
+													type="button"
+													onClick={() => {
+														const newRules = conditionalRules.filter((_, i) => i !== index);
+														setConditionalRules(newRules);
+														saveConditionalLogic(newRules);
+													}}
+													className="p-1 text-gray-400 hover:text-red-600"
+												>
+													<X className="h-4 w-4" />
+												</button>
+											</div>
+										))}
+										
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() => {
+												setConditionalRules([
+													...conditionalRules,
+													{ field: '', operator: '==', value: '' },
+												]);
+											}}
+										>
+											<Plus className="h-3 w-3 mr-1" />
+											Add Rule
+										</Button>
+									</div>
+								)}
 							</div>
 						</div>
 					</CollapsibleContent>
@@ -205,6 +444,8 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	const { showToast } = useUIStore();
 	const [title, setTitle] = useState('');
 	const [slug, setSlug] = useState('');
+	const [description, setDescription] = useState('');
+	const [isActive, setIsActive] = useState(true);
 	const [isSaving, setIsSaving] = useState(false);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [selectedFieldType, setSelectedFieldType] = useState<FieldType | null>(null);
@@ -214,6 +455,11 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	const [localFields, setLocalFields] = useState<Field[]>([]);
 	const [initialized, setInitialized] = useState(false);
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	
+	// Location rules state
+	const [locationGroups, setLocationGroups] = useState<LocationGroup[]>([
+		{ id: '1', rules: [{ type: '', operator: '==', value: '' }] }
+	]);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -245,7 +491,9 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	useEffect(() => {
 		if (currentFieldset) {
 			setTitle(currentFieldset.title);
-			setSlug(currentFieldset.title.toLowerCase().replace(/[^a-z0-9]+/g, '_'));
+			setSlug(currentFieldset.field_key || currentFieldset.title.toLowerCase().replace(/[^a-z0-9]+/g, '_'));
+			setDescription(currentFieldset.description || '');
+			setIsActive(currentFieldset.is_active !== false);
 			fetchFields(currentFieldset.id);
 		}
 	}, [currentFieldset?.id]);
@@ -257,10 +505,14 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	// Track changes
 	useEffect(() => {
 		if (currentFieldset) {
-			const changed = title !== currentFieldset.title;
+			const changed = 
+				title !== currentFieldset.title ||
+				slug !== (currentFieldset.field_key || '') ||
+				description !== (currentFieldset.description || '') ||
+				isActive !== (currentFieldset.is_active !== false);
 			setHasUnsavedChanges(changed);
 		}
-	}, [title, currentFieldset]);
+	}, [title, slug, description, isActive, currentFieldset]);
 
 	const handleSave = async () => {
 		if (!currentFieldset) return;
@@ -272,7 +524,12 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 
 		setIsSaving(true);
 		try {
-			await updateFieldset(currentFieldset.id, { title });
+			await updateFieldset(currentFieldset.id, { 
+				title, 
+				field_key: slug,
+				description,
+				is_active: isActive,
+			});
 			setHasUnsavedChanges(false);
 			showToast('success', 'Fieldset saved successfully');
 		} catch (error) {
@@ -422,6 +679,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 								<SortableField
 									key={field.id}
 									field={field}
+									allFields={localFields}
 									onUpdate={handleUpdateField}
 									onDelete={handleDeleteField}
 								/>
@@ -525,22 +783,42 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 					<h2 className="text-lg font-semibold mb-4">Settings</h2>
 					<Card className="p-4">
 						<div className="space-y-4">
+							<div className="flex items-center justify-between pb-4 border-b">
+								<div>
+									<Label htmlFor="active">Active</Label>
+									<p className="text-xs text-gray-500">Enable or disable this fieldset</p>
+								</div>
+								<Switch
+									id="active"
+									checked={isActive}
+									onCheckedChange={(checked) => {
+										setIsActive(checked);
+										setHasUnsavedChanges(true);
+									}}
+								/>
+							</div>
 							<div>
 								<Label htmlFor="slug">Fieldset Slug</Label>
 								<Input
 									id="slug"
 									value={slug}
-									onChange={(e) => setSlug(e.target.value)}
+									onChange={(e) => {
+										setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'));
+										setHasUnsavedChanges(true);
+									}}
 									placeholder="fieldset_slug"
-									disabled
-									className="bg-gray-50"
 								/>
-								<p className="text-xs text-gray-500 mt-1">Auto-generated from title</p>
+								<p className="text-xs text-gray-500 mt-1">Used for programmatic access</p>
 							</div>
 							<div>
 								<Label htmlFor="description">Description</Label>
 								<Input
 									id="description"
+									value={description}
+									onChange={(e) => {
+										setDescription(e.target.value);
+										setHasUnsavedChanges(true);
+									}}
 									placeholder="Optional description for this fieldset"
 								/>
 							</div>
@@ -553,19 +831,208 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 					<h2 className="text-lg font-semibold mb-4">Location Rules</h2>
 					<Card className="p-4">
 						<p className="text-sm text-gray-600 mb-4">
-							Set the rules where this fieldset will appear
+							Show this fieldset when the following rules match
 						</p>
-						<div className="space-y-3">
-							<div>
-								<Label>Show this fieldset if</Label>
-								<select className="w-full mt-1 px-3 py-2 border rounded-md">
-									<option value="">Select location type...</option>
-									<option value="post_type">Post Type</option>
-									<option value="taxonomy">Taxonomy</option>
-									<option value="user">User</option>
-								</select>
+						
+						{locationGroups.map((group, groupIndex) => (
+							<div key={group.id} className="mb-4">
+								{groupIndex > 0 && (
+									<div className="flex items-center gap-2 my-3">
+										<div className="flex-1 border-t"></div>
+										<span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">OR</span>
+										<div className="flex-1 border-t"></div>
+									</div>
+								)}
+								
+								<div className="bg-gray-50 p-3 rounded-lg space-y-2">
+									{group.rules.map((rule, ruleIndex) => (
+										<div key={ruleIndex}>
+											{ruleIndex > 0 && (
+												<div className="text-xs font-medium text-gray-500 text-center my-2">AND</div>
+											)}
+											<div className="flex items-center gap-2">
+												<Select
+													value={rule.type}
+													onValueChange={(value) => {
+														const newGroups = [...locationGroups];
+														const targetGroup = newGroups[groupIndex];
+														if (targetGroup && targetGroup.rules[ruleIndex]) {
+															targetGroup.rules[ruleIndex].type = value;
+															targetGroup.rules[ruleIndex].value = '';
+															setLocationGroups(newGroups);
+															setHasUnsavedChanges(true);
+														}
+													}}
+												>
+													<SelectTrigger className="w-[160px]">
+														<SelectValue placeholder="Select type" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="post_type">Post Type</SelectItem>
+														<SelectItem value="page_template">Page Template</SelectItem>
+														<SelectItem value="taxonomy">Taxonomy</SelectItem>
+														<SelectItem value="user_role">User Role</SelectItem>
+													</SelectContent>
+												</Select>
+												
+												<Select
+													value={rule.operator}
+													onValueChange={(value) => {
+														const newGroups = [...locationGroups];
+														const targetGroup = newGroups[groupIndex];
+														if (targetGroup && targetGroup.rules[ruleIndex]) {
+															targetGroup.rules[ruleIndex].operator = value as '==' | '!=';
+															setLocationGroups(newGroups);
+															setHasUnsavedChanges(true);
+														}
+													}}
+												>
+													<SelectTrigger className="w-[130px]">
+														<SelectValue />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="==">is equal to</SelectItem>
+														<SelectItem value="!=">is not equal to</SelectItem>
+													</SelectContent>
+												</Select>
+												
+												<Select
+													value={rule.value}
+													onValueChange={(value) => {
+														const newGroups = [...locationGroups];
+														const targetGroup = newGroups[groupIndex];
+														if (targetGroup && targetGroup.rules[ruleIndex]) {
+															targetGroup.rules[ruleIndex].value = value;
+															setLocationGroups(newGroups);
+															setHasUnsavedChanges(true);
+														}
+													}}
+												>
+													<SelectTrigger className="flex-1">
+														<SelectValue placeholder="Select value" />
+													</SelectTrigger>
+													<SelectContent>
+														{rule.type === 'post_type' && (
+															<>
+																{(window.openfieldsAdmin?.postTypes || []).map((pt) => (
+																	<SelectItem key={pt.name} value={pt.name}>
+																		{pt.label}
+																	</SelectItem>
+																))}
+																{(!window.openfieldsAdmin?.postTypes || window.openfieldsAdmin.postTypes.length === 0) && (
+																	<>
+																		<SelectItem value="post">Post</SelectItem>
+																		<SelectItem value="page">Page</SelectItem>
+																	</>
+																)}
+															</>
+														)}
+														{rule.type === 'taxonomy' && (
+															<>
+																{(window.openfieldsAdmin?.taxonomies || []).map((tax) => (
+																	<SelectItem key={tax.name} value={tax.name}>
+																		{tax.label}
+																	</SelectItem>
+																))}
+																{(!window.openfieldsAdmin?.taxonomies || window.openfieldsAdmin.taxonomies.length === 0) && (
+																	<>
+																		<SelectItem value="category">Category</SelectItem>
+																		<SelectItem value="post_tag">Tag</SelectItem>
+																	</>
+																)}
+															</>
+														)}
+														{rule.type === 'user_role' && (
+															<>
+																{(window.openfieldsAdmin?.userRoles || []).map((role) => (
+																	<SelectItem key={role.name} value={role.name}>
+																		{role.label}
+																	</SelectItem>
+																))}
+																{(!window.openfieldsAdmin?.userRoles || window.openfieldsAdmin.userRoles.length === 0) && (
+																	<>
+																		<SelectItem value="administrator">Administrator</SelectItem>
+																		<SelectItem value="editor">Editor</SelectItem>
+																		<SelectItem value="author">Author</SelectItem>
+																	</>
+																)}
+															</>
+														)}
+														{rule.type === 'page_template' && (
+															<>
+																<SelectItem value="default">Default Template</SelectItem>
+																<SelectItem value="full-width">Full Width</SelectItem>
+															</>
+														)}
+														</SelectContent>
+												</Select>
+												
+												{(group.rules.length > 1 || locationGroups.length > 1) && (
+													<button
+														type="button"
+														onClick={() => {
+															const newGroups = [...locationGroups];
+															const targetGroup = newGroups[groupIndex];
+															if (targetGroup) {
+																if (group.rules.length > 1) {
+																	targetGroup.rules = group.rules.filter((_, i) => i !== ruleIndex);
+																} else {
+																	// Remove entire group
+																	newGroups.splice(groupIndex, 1);
+																}
+															}
+															if (newGroups.length === 0) {
+																newGroups.push({ id: Date.now().toString(), rules: [{ type: '', operator: '==', value: '' }] });
+															}
+															setLocationGroups(newGroups);
+															setHasUnsavedChanges(true);
+														}}
+														className="p-1 text-gray-400 hover:text-red-600"
+													>
+														<X className="h-4 w-4" />
+													</button>
+												)}
+											</div>
+										</div>
+									))}
+									
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={() => {
+											const newGroups = [...locationGroups];
+											const targetGroup = newGroups[groupIndex];
+											if (targetGroup) {
+												targetGroup.rules.push({ type: '', operator: '==', value: '' });
+												setLocationGroups(newGroups);
+												setHasUnsavedChanges(true);
+											}
+										}}
+										className="mt-2"
+									>
+										<Plus className="h-3 w-3 mr-1" />
+										Add AND rule
+									</Button>
+								</div>
 							</div>
-						</div>
+						))}
+						
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => {
+								setLocationGroups([
+									...locationGroups,
+									{ id: Date.now().toString(), rules: [{ type: '', operator: '==', value: '' }] }
+								]);
+								setHasUnsavedChanges(true);
+							}}
+						>
+							<Plus className="h-3 w-3 mr-1" />
+							Add OR rule group
+						</Button>
 					</Card>
 				</div>
 			</div>
