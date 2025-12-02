@@ -1,0 +1,201 @@
+/**
+ * Tools Page
+ *
+ * @package OpenFields
+ */
+
+import { useState } from 'react';
+import { Download, Upload, RefreshCw } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { fieldsetApi } from '../api';
+
+export default function Tools() {
+	const [isExporting, setIsExporting] = useState(false);
+	const [isImporting, setIsImporting] = useState(false);
+	const [importResult, setImportResult] = useState<string | null>(null);
+
+	const handleExport = async () => {
+		setIsExporting(true);
+		try {
+			// Get all fieldsets - in a real implementation, we'd have an export all endpoint
+			const fieldsets = await fieldsetApi.getAll();
+			const exportData = {
+				version: '1.0.0',
+				plugin: 'openfields',
+				fieldsets: fieldsets,
+				exported_at: new Date().toISOString(),
+			};
+
+			// Download as JSON file
+			const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+				type: 'application/json',
+			});
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `openfields-export-${Date.now()}.json`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		} catch (error) {
+			console.error('Export failed:', error);
+		} finally {
+			setIsExporting(false);
+		}
+	};
+
+	const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		setIsImporting(true);
+		setImportResult(null);
+
+		try {
+			const text = await file.text();
+			const data = JSON.parse(text);
+
+			const result = await fieldsetApi.import(data);
+			setImportResult(`Successfully imported ${result.imported} field group(s).`);
+		} catch (error) {
+			setImportResult(
+				`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		} finally {
+			setIsImporting(false);
+			// Reset file input
+			event.target.value = '';
+		}
+	};
+
+	return (
+		<div className="p-6 max-w-4xl">
+			<div className="mb-6">
+				<h1 className="text-2xl font-bold text-gray-900">Tools</h1>
+				<p className="text-gray-600 mt-1">
+					Import, export, and manage your OpenFields data
+				</p>
+			</div>
+
+			<div className="grid gap-6 md:grid-cols-2">
+				{/* Export */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<Download className="h-5 w-5" />
+							Export
+						</CardTitle>
+						<CardDescription>
+							Export all field groups as a JSON file
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-gray-600 mb-4">
+							Download all your field groups, including fields and settings,
+							as a portable JSON file that can be imported into another site.
+						</p>
+						<Button onClick={handleExport} disabled={isExporting}>
+							{isExporting ? (
+								<>
+									<RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+									Exporting...
+								</>
+							) : (
+								<>
+									<Download className="h-4 w-4 mr-2" />
+									Export Field Groups
+								</>
+							)}
+						</Button>
+					</CardContent>
+				</Card>
+
+				{/* Import */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<Upload className="h-5 w-5" />
+							Import
+						</CardTitle>
+						<CardDescription>
+							Import field groups from a JSON file
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-gray-600 mb-4">
+							Upload a previously exported JSON file to import field groups.
+							Existing groups with the same key will be skipped.
+						</p>
+						<div>
+							<input
+								type="file"
+								accept=".json"
+								onChange={handleImport}
+								disabled={isImporting}
+								className="hidden"
+								id="import-file"
+							/>
+							<Button asChild disabled={isImporting}>
+								<label htmlFor="import-file" className="cursor-pointer">
+									{isImporting ? (
+										<>
+											<RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+											Importing...
+										</>
+									) : (
+										<>
+											<Upload className="h-4 w-4 mr-2" />
+											Choose File
+										</>
+									)}
+								</label>
+							</Button>
+						</div>
+						{importResult && (
+							<p
+								className={`mt-4 text-sm ${
+									importResult.includes('failed')
+										? 'text-red-600'
+										: 'text-green-600'
+								}`}
+							>
+								{importResult}
+							</p>
+						)}
+					</CardContent>
+				</Card>
+			</div>
+
+			{/* Info */}
+			<Card className="mt-6">
+				<CardHeader>
+					<CardTitle>About OpenFields</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="space-y-2 text-sm text-gray-600">
+						<p>
+							<strong>Version:</strong> {window.openfieldsAdmin?.version || '1.0.0'}
+						</p>
+						<p>
+							<strong>Documentation:</strong>{' '}
+							<a
+								href="https://github.com/novincode/openfields"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-primary hover:underline"
+							>
+								GitHub Repository
+							</a>
+						</p>
+						<p className="pt-2">
+							OpenFields is a free, open-source custom fields plugin for WordPress.
+							If you find it useful, consider contributing to the project!
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
+	);
+}

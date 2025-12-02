@@ -1,0 +1,762 @@
+<?php
+/**
+ * REST API handler.
+ *
+ * @package OpenFields
+ * @since   1.0.0
+ */
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * OpenFields REST API class.
+ *
+ * @since 1.0.0
+ */
+class OpenFields_REST_API {
+
+	/**
+	 * REST namespace.
+	 *
+	 * @var string
+	 */
+	const NAMESPACE = 'openfields/v1';
+
+	/**
+	 * Instance.
+	 *
+	 * @var OpenFields_REST_API|null
+	 */
+	private static $instance = null;
+
+	/**
+	 * Get instance.
+	 *
+	 * @since  1.0.0
+	 * @return OpenFields_REST_API
+	 */
+	public static function instance() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+	}
+
+	/**
+	 * Register REST routes.
+	 *
+	 * @since 1.0.0
+	 */
+	public function register_routes() {
+		// Fieldsets routes.
+		register_rest_route(
+			self::NAMESPACE,
+			'/fieldsets',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_fieldsets' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_fieldset' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+					'args'                => $this->get_fieldset_args(),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/fieldsets/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_fieldset' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_fieldset' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+					'args'                => $this->get_fieldset_args(),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_fieldset' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+				),
+			)
+		);
+
+		// Fields routes.
+		register_rest_route(
+			self::NAMESPACE,
+			'/fieldsets/(?P<fieldset_id>\d+)/fields',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_fields' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_field' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+					'args'                => $this->get_field_args(),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/fields/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_field' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+					'args'                => $this->get_field_args(),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_field' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+				),
+			)
+		);
+
+		// Bulk fields update.
+		register_rest_route(
+			self::NAMESPACE,
+			'/fieldsets/(?P<fieldset_id>\d+)/fields/bulk',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'bulk_update_fields' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
+		// Field types.
+		register_rest_route(
+			self::NAMESPACE,
+			'/field-types',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_field_types' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
+		// Export/Import.
+		register_rest_route(
+			self::NAMESPACE,
+			'/export/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'export_fieldset' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/import',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'import_fieldset' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
+		// Location types.
+		register_rest_route(
+			self::NAMESPACE,
+			'/locations/types',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_location_types' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+	}
+
+	/**
+	 * Check admin permission.
+	 *
+	 * @since  1.0.0
+	 * @return bool|WP_Error
+	 */
+	public function check_admin_permission() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error(
+				'openfields_rest_forbidden',
+				__( 'You do not have permission to access this resource.', 'openfields' ),
+				array( 'status' => 403 )
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Get all fieldsets.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_fieldsets( $request ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'openfields_fieldsets';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fieldsets = $wpdb->get_results(
+			"SELECT * FROM {$table} ORDER BY menu_order ASC, id ASC",
+			ARRAY_A
+		);
+
+		return rest_ensure_response( $fieldsets );
+	}
+
+	/**
+	 * Get single fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_fieldset( $request ) {
+		global $wpdb;
+
+		$id    = absint( $request['id'] );
+		$table = $wpdb->prefix . 'openfields_fieldsets';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fieldset = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
+			ARRAY_A
+		);
+
+		if ( ! $fieldset ) {
+			return new WP_Error(
+				'openfields_not_found',
+				__( 'Fieldset not found.', 'openfields' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Get fields.
+		$fields_table       = $wpdb->prefix . 'openfields_fields';
+		$fieldset['fields'] = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$fields_table} WHERE fieldset_id = %d ORDER BY menu_order ASC",
+				$id
+			),
+			ARRAY_A
+		);
+
+		// Get locations.
+		$locations_table       = $wpdb->prefix . 'openfields_locations';
+		$fieldset['locations'] = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$locations_table} WHERE fieldset_id = %d ORDER BY group_id ASC, id ASC",
+				$id
+			),
+			ARRAY_A
+		);
+
+		return rest_ensure_response( $fieldset );
+	}
+
+	/**
+	 * Create fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function create_fieldset( $request ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$now   = current_time( 'mysql' );
+
+		$data = array(
+			'title'      => sanitize_text_field( $request['title'] ),
+			'field_key'  => sanitize_key( $request['field_key'] ?? 'fieldset_' . uniqid() ),
+			'description' => sanitize_textarea_field( $request['description'] ?? '' ),
+			'status'     => sanitize_key( $request['status'] ?? 'active' ),
+			'custom_css' => wp_strip_all_tags( $request['custom_css'] ?? '' ),
+			'settings'   => wp_json_encode( $request['settings'] ?? array() ),
+			'menu_order' => absint( $request['menu_order'] ?? 0 ),
+			'created_at' => $now,
+			'updated_at' => $now,
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$result = $wpdb->insert( $table, $data );
+
+		if ( false === $result ) {
+			return new WP_Error(
+				'openfields_create_failed',
+				__( 'Failed to create fieldset.', 'openfields' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$data['id'] = $wpdb->insert_id;
+
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Update fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function update_fieldset( $request ) {
+		global $wpdb;
+
+		$id    = absint( $request['id'] );
+		$table = $wpdb->prefix . 'openfields_fieldsets';
+
+		$data = array(
+			'title'       => sanitize_text_field( $request['title'] ),
+			'description' => sanitize_textarea_field( $request['description'] ?? '' ),
+			'status'      => sanitize_key( $request['status'] ?? 'active' ),
+			'custom_css'  => wp_strip_all_tags( $request['custom_css'] ?? '' ),
+			'settings'    => wp_json_encode( $request['settings'] ?? array() ),
+			'menu_order'  => absint( $request['menu_order'] ?? 0 ),
+			'updated_at'  => current_time( 'mysql' ),
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->update( $table, $data, array( 'id' => $id ) );
+
+		if ( false === $result ) {
+			return new WP_Error(
+				'openfields_update_failed',
+				__( 'Failed to update fieldset.', 'openfields' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		// Update locations if provided.
+		if ( isset( $request['locations'] ) ) {
+			$this->update_locations( $id, $request['locations'] );
+		}
+
+		return $this->get_fieldset( $request );
+	}
+
+	/**
+	 * Delete fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function delete_fieldset( $request ) {
+		global $wpdb;
+
+		$id = absint( $request['id'] );
+
+		// Delete fields first.
+		$fields_table = $wpdb->prefix . 'openfields_fields';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete( $fields_table, array( 'fieldset_id' => $id ) );
+
+		// Delete locations.
+		$locations_table = $wpdb->prefix . 'openfields_locations';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
+
+		// Delete fieldset.
+		$table = $wpdb->prefix . 'openfields_fieldsets';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->delete( $table, array( 'id' => $id ) );
+
+		if ( false === $result ) {
+			return new WP_Error(
+				'openfields_delete_failed',
+				__( 'Failed to delete fieldset.', 'openfields' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response( array( 'deleted' => true ) );
+	}
+
+	/**
+	 * Get fields for a fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_fields( $request ) {
+		global $wpdb;
+
+		$fieldset_id = absint( $request['fieldset_id'] );
+		$table       = $wpdb->prefix . 'openfields_fields';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fields = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE fieldset_id = %d ORDER BY menu_order ASC",
+				$fieldset_id
+			),
+			ARRAY_A
+		);
+
+		return rest_ensure_response( $fields );
+	}
+
+	/**
+	 * Create field.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function create_field( $request ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'openfields_fields';
+		$now   = current_time( 'mysql' );
+
+		$data = array(
+			'fieldset_id'       => absint( $request['fieldset_id'] ),
+			'parent_id'         => ! empty( $request['parent_id'] ) ? absint( $request['parent_id'] ) : null,
+			'label'             => sanitize_text_field( $request['label'] ),
+			'name'              => sanitize_key( $request['name'] ),
+			'field_key'         => sanitize_key( $request['field_key'] ?? 'field_' . uniqid() ),
+			'type'              => sanitize_key( $request['type'] ),
+			'instructions'      => sanitize_textarea_field( $request['instructions'] ?? '' ),
+			'required'          => absint( $request['required'] ?? 0 ),
+			'default_value'     => sanitize_text_field( $request['default_value'] ?? '' ),
+			'placeholder'       => sanitize_text_field( $request['placeholder'] ?? '' ),
+			'conditional_logic' => wp_json_encode( $request['conditional_logic'] ?? array() ),
+			'wrapper_config'    => wp_json_encode( $request['wrapper_config'] ?? array() ),
+			'field_config'      => wp_json_encode( $request['field_config'] ?? array() ),
+			'menu_order'        => absint( $request['menu_order'] ?? 0 ),
+			'created_at'        => $now,
+			'updated_at'        => $now,
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$result = $wpdb->insert( $table, $data );
+
+		if ( false === $result ) {
+			return new WP_Error(
+				'openfields_create_failed',
+				__( 'Failed to create field.', 'openfields' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$data['id'] = $wpdb->insert_id;
+
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Update field.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function update_field( $request ) {
+		global $wpdb;
+
+		$id    = absint( $request['id'] );
+		$table = $wpdb->prefix . 'openfields_fields';
+
+		$data = array(
+			'label'             => sanitize_text_field( $request['label'] ),
+			'name'              => sanitize_key( $request['name'] ),
+			'type'              => sanitize_key( $request['type'] ),
+			'instructions'      => sanitize_textarea_field( $request['instructions'] ?? '' ),
+			'required'          => absint( $request['required'] ?? 0 ),
+			'default_value'     => sanitize_text_field( $request['default_value'] ?? '' ),
+			'placeholder'       => sanitize_text_field( $request['placeholder'] ?? '' ),
+			'conditional_logic' => wp_json_encode( $request['conditional_logic'] ?? array() ),
+			'wrapper_config'    => wp_json_encode( $request['wrapper_config'] ?? array() ),
+			'field_config'      => wp_json_encode( $request['field_config'] ?? array() ),
+			'menu_order'        => absint( $request['menu_order'] ?? 0 ),
+			'updated_at'        => current_time( 'mysql' ),
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->update( $table, $data, array( 'id' => $id ) );
+
+		if ( false === $result ) {
+			return new WP_Error(
+				'openfields_update_failed',
+				__( 'Failed to update field.', 'openfields' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$data['id'] = $id;
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Delete field.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function delete_field( $request ) {
+		global $wpdb;
+
+		$id    = absint( $request['id'] );
+		$table = $wpdb->prefix . 'openfields_fields';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->delete( $table, array( 'id' => $id ) );
+
+		if ( false === $result ) {
+			return new WP_Error(
+				'openfields_delete_failed',
+				__( 'Failed to delete field.', 'openfields' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response( array( 'deleted' => true ) );
+	}
+
+	/**
+	 * Bulk update fields.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function bulk_update_fields( $request ) {
+		$fields = $request->get_param( 'fields' );
+
+		if ( ! is_array( $fields ) ) {
+			return new WP_Error(
+				'openfields_invalid_data',
+				__( 'Invalid fields data.', 'openfields' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		foreach ( $fields as $index => $field ) {
+			$field_request = new WP_REST_Request( 'PUT' );
+			$field_request->set_param( 'id', $field['id'] );
+			$field_request->set_param( 'menu_order', $index );
+
+			foreach ( $field as $key => $value ) {
+				$field_request->set_param( $key, $value );
+			}
+
+			$this->update_field( $field_request );
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Get field types.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_field_types( $request ) {
+		$field_types = OpenFields_Field_Registry::instance()->get_field_types_for_admin();
+		return rest_ensure_response( $field_types );
+	}
+
+	/**
+	 * Export fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function export_fieldset( $request ) {
+		$fieldset = $this->get_fieldset( $request );
+
+		if ( is_wp_error( $fieldset ) ) {
+			return $fieldset;
+		}
+
+		$export_data = array(
+			'version'  => OPENFIELDS_VERSION,
+			'exported' => current_time( 'mysql' ),
+			'fieldset' => $fieldset->get_data(),
+		);
+
+		return rest_ensure_response( $export_data );
+	}
+
+	/**
+	 * Import fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function import_fieldset( $request ) {
+		$import_data = $request->get_json_params();
+
+		if ( ! isset( $import_data['fieldset'] ) ) {
+			return new WP_Error(
+				'openfields_invalid_import',
+				__( 'Invalid import data.', 'openfields' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Create fieldset.
+		$create_request = new WP_REST_Request( 'POST' );
+		$fieldset_data  = $import_data['fieldset'];
+
+		// Generate new key to avoid conflicts.
+		$fieldset_data['field_key'] = 'fieldset_' . uniqid();
+
+		foreach ( $fieldset_data as $key => $value ) {
+			if ( 'id' !== $key && 'fields' !== $key && 'locations' !== $key ) {
+				$create_request->set_param( $key, $value );
+			}
+		}
+
+		$result = $this->create_fieldset( $create_request );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$new_fieldset = $result->get_data();
+
+		// Import fields.
+		if ( ! empty( $fieldset_data['fields'] ) ) {
+			foreach ( $fieldset_data['fields'] as $field ) {
+				$field_request = new WP_REST_Request( 'POST' );
+				$field_request->set_param( 'fieldset_id', $new_fieldset['id'] );
+				$field['field_key'] = 'field_' . uniqid();
+
+				foreach ( $field as $key => $value ) {
+					if ( 'id' !== $key && 'fieldset_id' !== $key ) {
+						$field_request->set_param( $key, $value );
+					}
+				}
+
+				$this->create_field( $field_request );
+			}
+		}
+
+		return rest_ensure_response( array( 'imported' => true, 'id' => $new_fieldset['id'] ) );
+	}
+
+	/**
+	 * Update locations for a fieldset.
+	 *
+	 * @since 1.0.0
+	 * @param int   $fieldset_id Fieldset ID.
+	 * @param array $locations   Locations data.
+	 */
+	private function update_locations( $fieldset_id, $locations ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'openfields_locations';
+
+		// Delete existing locations.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete( $table, array( 'fieldset_id' => $fieldset_id ) );
+
+		// Insert new locations.
+		foreach ( $locations as $location ) {
+			$data = array(
+				'fieldset_id' => $fieldset_id,
+				'param'       => sanitize_key( $location['param'] ),
+				'operator'    => sanitize_key( $location['operator'] ),
+				'value'       => sanitize_text_field( $location['value'] ),
+				'group_id'    => absint( $location['group_id'] ?? 0 ),
+			);
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->insert( $table, $data );
+		}
+	}
+
+	/**
+	 * Get fieldset arguments for validation.
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_fieldset_args() {
+		return array(
+			'title' => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+		);
+	}
+
+	/**
+	 * Get field arguments for validation.
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_field_args() {
+		return array(
+			'label' => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'name'  => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+			),
+			'type'  => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+			),
+		);
+	}
+
+	/**
+	 * Get location types.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_location_types( $request ) {
+		$manager = OpenFields_Location_Manager::instance();
+		$types   = $manager->get_location_types_for_api();
+
+		return rest_ensure_response( $types );
+	}
+}

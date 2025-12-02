@@ -1,0 +1,45 @@
+# OpenFields
+
+node_modules/
+vendor/
+.wp-env.json.local
+
+# Build outputs
+assets/admin/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# WordPress
+wp-content/
+wordpress/
+.wp-env-home/
+
+# Misc
+*.zip
+*.tar.gz

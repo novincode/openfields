@@ -1,0 +1,160 @@
+/**
+ * OpenFields Admin Styles
+ *
+ * @package OpenFields
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 0 0% 100%;
+		--foreground: 222.2 84% 4.9%;
+		--card: 0 0% 100%;
+		--card-foreground: 222.2 84% 4.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 222.2 84% 4.9%;
+		--primary: 222.2 47.4% 11.2%;
+		--primary-foreground: 210 40% 98%;
+		--secondary: 210 40% 96.1%;
+		--secondary-foreground: 222.2 47.4% 11.2%;
+		--muted: 210 40% 96.1%;
+		--muted-foreground: 215.4 16.3% 46.9%;
+		--accent: 210 40% 96.1%;
+		--accent-foreground: 222.2 47.4% 11.2%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214.3 31.8% 91.4%;
+		--input: 214.3 31.8% 91.4%;
+		--ring: 222.2 84% 4.9%;
+		--radius: 0.5rem;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+/* WordPress admin overrides */
+.openfields-admin {
+	@apply -ml-5 -mt-2.5;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+.openfields-admin *,
+.openfields-admin *::before,
+.openfields-admin *::after {
+	box-sizing: border-box;
+}
+
+/* Remove WordPress button styles */
+.openfields-admin .button,
+.openfields-admin button {
+	all: unset;
+}
+
+/* Field specific styles */
+.openfields-field {
+	@apply mb-4;
+}
+
+.openfields-field__label {
+	@apply flex items-center gap-1 mb-1;
+}
+
+.openfields-field__label label {
+	@apply font-medium text-sm;
+}
+
+.openfields-field__required {
+	@apply text-red-500;
+}
+
+.openfields-field__description {
+	@apply text-xs text-gray-500 mt-1;
+}
+
+.openfields-field__input input,
+.openfields-field__input select,
+.openfields-field__input textarea {
+	@apply w-full;
+}
+
+/* Radio/Checkbox groups */
+.openfields-radio-group,
+.openfields-checkbox-group {
+	@apply flex flex-col gap-2;
+}
+
+.openfields-radio-group label,
+.openfields-checkbox-group label {
+	@apply flex items-center gap-2 cursor-pointer;
+}
+
+/* Switch field */
+.openfields-switch {
+	@apply relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 cursor-pointer transition-colors;
+}
+
+.openfields-switch:has(input:checked) {
+	@apply bg-primary;
+}
+
+.openfields-switch input {
+	@apply sr-only;
+}
+
+.openfields-switch__slider {
+	@apply absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform;
+}
+
+.openfields-switch input:checked + .openfields-switch__slider {
+	@apply translate-x-5;
+}
+
+/* Image/File field */
+.openfields-image-field,
+.openfields-file-field {
+	@apply flex items-center gap-3;
+}
+
+.openfields-image-preview {
+	@apply w-20 h-20 bg-gray-100 rounded flex items-center justify-center overflow-hidden;
+}
+
+.openfields-image-preview img {
+	@apply w-full h-full object-cover;
+}
+
+/* Conditional logic - hidden fields */
+.openfields-field--hidden {
+	@apply hidden;
+}
+
+/* Meta box styles */
+.openfields-meta-box {
+	@apply p-2;
+}
+
+/* Animations */
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-slide-in {
+	animation: slideIn 0.2s ease-out;
+}
