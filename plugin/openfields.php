@@ -28,6 +28,9 @@ define( 'OPENFIELDS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OPENFIELDS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'OPENFIELDS_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
+// Require the installer class first (needed for activation hook).
+require_once OPENFIELDS_PLUGIN_DIR . 'includes/class-openfields-installer.php';
+
 // Require the main plugin class.
 require_once OPENFIELDS_PLUGIN_DIR . 'includes/class-openfields.php';
 

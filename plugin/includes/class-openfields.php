@@ -88,6 +88,9 @@ final class OpenFields_Plugin {
 	private function init_hooks() {
 		add_action( 'init', array( $this, 'init' ), 0 );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		// Initialize REST API early - rest_api_init fires before init on REST requests.
+		OpenFields_REST_API::instance();
 	}
 
 	/**
@@ -98,7 +101,6 @@ final class OpenFields_Plugin {
 	public function init() {
 		// Initialize components.
 		OpenFields_Assets::instance();
-		OpenFields_REST_API::instance();
 		OpenFields_Field_Registry::instance();
 		OpenFields_Storage_Manager::instance();
 		OpenFields_Location_Manager::instance();

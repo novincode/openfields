@@ -231,11 +231,17 @@ export interface WPUser {
 declare global {
 	interface Window {
 		openfieldsAdmin: {
-			apiUrl: string;
+			restUrl: string;
 			nonce: string;
 			adminUrl: string;
 			pluginUrl: string;
 			version: string;
+			ajaxUrl: string;
+			postTypes: { name: string; label: string }[];
+			taxonomies: { name: string; label: string }[];
+			userRoles: { name: string; label: string }[];
+			fieldTypes: { key: string; label: string }[];
+			i18n: Record<string, string>;
 		};
 	}
 }
