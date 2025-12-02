@@ -6,10 +6,6 @@
   "author": "OpenFields Contributors",
   "license": "GPL-2.0-or-later",
   "packageManager": "pnpm@10.24.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/novincode/openfields.git"
-  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
