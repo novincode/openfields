@@ -11,6 +11,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import {
 	Drawer,
 	DrawerClose,
@@ -136,10 +137,13 @@ function SortableField({ field, onUpdate, onDelete }: SortableFieldProps) {
 						</button>
 						<CollapsibleTrigger className="flex-1 flex items-center justify-between gap-2 text-left">
 							<div className="flex-1">
-								<div className="font-medium text-sm">
+								<div className="font-medium text-sm flex items-center gap-2">
 									{field.label || <span className="text-red-500">Label required</span>}
+									<Badge variant="outline" className="text-xs">
+										{field.type}
+									</Badge>
 								</div>
-								<div className="text-xs text-gray-500">{field.type}</div>
+								<div className="text-xs text-gray-500">{field.name}</div>
 							</div>
 							<ChevronDown
 								className={`h-4 w-4 transition-transform ${
@@ -200,7 +204,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		useFieldsetStore();
 	const { showToast } = useUIStore();
 	const [title, setTitle] = useState('');
-	const [status, setStatus] = useState<'active' | 'inactive'>('active');
+	const [slug, setSlug] = useState('');
 	const [isSaving, setIsSaving] = useState(false);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [selectedFieldType, setSelectedFieldType] = useState<FieldType | null>(null);
@@ -209,6 +213,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	const [showFieldDialog, setShowFieldDialog] = useState(false);
 	const [localFields, setLocalFields] = useState<Field[]>([]);
 	const [initialized, setInitialized] = useState(false);
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -240,7 +245,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	useEffect(() => {
 		if (currentFieldset) {
 			setTitle(currentFieldset.title);
-			setStatus('active'); // Default to active
+			setSlug(currentFieldset.title.toLowerCase().replace(/[^a-z0-9]+/g, '_'));
 			fetchFields(currentFieldset.id);
 		}
 	}, [currentFieldset?.id]);
@@ -248,6 +253,14 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	useEffect(() => {
 		setLocalFields(fields);
 	}, [fields]);
+
+	// Track changes
+	useEffect(() => {
+		if (currentFieldset) {
+			const changed = title !== currentFieldset.title;
+			setHasUnsavedChanges(changed);
+		}
+	}, [title, currentFieldset]);
 
 	const handleSave = async () => {
 		if (!currentFieldset) return;
@@ -260,6 +273,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		setIsSaving(true);
 		try {
 			await updateFieldset(currentFieldset.id, { title });
+			setHasUnsavedChanges(false);
 			showToast('success', 'Fieldset saved successfully');
 		} catch (error) {
 			showToast('error', 'Failed to save fieldset');
@@ -335,6 +349,13 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		}
 	};
 
+	const handleFieldDialogKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleAddField();
+		}
+	};
+
 	// Show loading state
 	if (!initialized || isLoading) {
 		return (
@@ -372,15 +393,10 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 						/>
 					</div>
 					<div className="flex items-center gap-3">
-						<select
-							value={status}
-							onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
-							className="px-3 py-2 border rounded-md"
+						<Button 
+							onClick={handleSave} 
+							disabled={isSaving || !hasUnsavedChanges}
 						>
-							<option value="active">Active</option>
-							<option value="inactive">Inactive</option>
-						</select>
-						<Button onClick={handleSave} disabled={isSaving}>
 							{isSaving ? 'Saving...' : 'Save Changes'}
 						</Button>
 					</div>
@@ -463,7 +479,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 								<h3 className="text-lg font-semibold mb-4">
 									Add {FIELD_TYPES.find((ft) => ft.type === selectedFieldType)?.label} Field
 								</h3>
-								<div className="space-y-4">
+								<div className="space-y-4" onKeyDown={handleFieldDialogKeyDown}>
 									<div>
 										<Label htmlFor="new-field-label">Field Label</Label>
 										<Input
@@ -471,6 +487,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 											value={newFieldLabel}
 											onChange={(e) => setNewFieldLabel(e.target.value)}
 											placeholder="Enter field label"
+											autoFocus
 										/>
 									</div>
 									<div>
@@ -497,6 +514,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 									</Button>
 									<Button onClick={handleAddField}>Add Field</Button>
 								</div>
+								<p className="text-xs text-gray-500 mt-2">Press Enter to add</p>
 							</div>
 						</div>
 					)}
@@ -507,6 +525,18 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 					<h2 className="text-lg font-semibold mb-4">Settings</h2>
 					<Card className="p-4">
 						<div className="space-y-4">
+							<div>
+								<Label htmlFor="slug">Fieldset Slug</Label>
+								<Input
+									id="slug"
+									value={slug}
+									onChange={(e) => setSlug(e.target.value)}
+									placeholder="fieldset_slug"
+									disabled
+									className="bg-gray-50"
+								/>
+								<p className="text-xs text-gray-500 mt-1">Auto-generated from title</p>
+							</div>
 							<div>
 								<Label htmlFor="description">Description</Label>
 								<Input
@@ -527,9 +557,9 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 						</p>
 						<div className="space-y-3">
 							<div>
-								<Label>Show on</Label>
+								<Label>Show this fieldset if</Label>
 								<select className="w-full mt-1 px-3 py-2 border rounded-md">
-									<option value="">Select location</option>
+									<option value="">Select location type...</option>
 									<option value="post_type">Post Type</option>
 									<option value="taxonomy">Taxonomy</option>
 									<option value="user">User</option>
