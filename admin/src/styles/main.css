@@ -55,10 +55,7 @@
 }
 
 /* Remove WordPress button styles */
-.openfields-admin .button,
-.openfields-admin button {
-	all: unset;
-}
+
 
 /* Field specific styles */
 .openfields-field {

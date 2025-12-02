@@ -129,7 +129,7 @@ class OpenFields_REST_API {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_field' ),
 					'permission_callback' => array( $this, 'check_admin_permission' ),
-					'args'                => $this->get_field_args(),
+					'args'                => $this->get_field_update_args(),
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
@@ -489,20 +489,44 @@ class OpenFields_REST_API {
 		$id    = absint( $request['id'] );
 		$table = $wpdb->prefix . 'openfields_fields';
 
+		// Only update fields that are actually provided in the request.
 		$data = array(
-			'label'             => sanitize_text_field( $request['label'] ),
-			'name'              => sanitize_key( $request['name'] ),
-			'type'              => sanitize_key( $request['type'] ),
-			'instructions'      => sanitize_textarea_field( $request['instructions'] ?? '' ),
-			'required'          => absint( $request['required'] ?? 0 ),
-			'default_value'     => sanitize_text_field( $request['default_value'] ?? '' ),
-			'placeholder'       => sanitize_text_field( $request['placeholder'] ?? '' ),
-			'conditional_logic' => wp_json_encode( $request['conditional_logic'] ?? array() ),
-			'wrapper_config'    => wp_json_encode( $request['wrapper_config'] ?? array() ),
-			'field_config'      => wp_json_encode( $request['field_config'] ?? array() ),
-			'menu_order'        => absint( $request['menu_order'] ?? 0 ),
-			'updated_at'        => current_time( 'mysql' ),
+			'updated_at' => current_time( 'mysql' ),
 		);
+
+		if ( isset( $request['label'] ) ) {
+			$data['label'] = sanitize_text_field( $request['label'] );
+		}
+		if ( isset( $request['name'] ) ) {
+			$data['name'] = sanitize_key( $request['name'] );
+		}
+		if ( isset( $request['type'] ) ) {
+			$data['type'] = sanitize_key( $request['type'] );
+		}
+		if ( isset( $request['instructions'] ) ) {
+			$data['instructions'] = sanitize_textarea_field( $request['instructions'] );
+		}
+		if ( isset( $request['required'] ) ) {
+			$data['required'] = absint( $request['required'] );
+		}
+		if ( isset( $request['default_value'] ) ) {
+			$data['default_value'] = sanitize_text_field( $request['default_value'] );
+		}
+		if ( isset( $request['placeholder'] ) ) {
+			$data['placeholder'] = sanitize_text_field( $request['placeholder'] );
+		}
+		if ( isset( $request['conditional_logic'] ) ) {
+			$data['conditional_logic'] = wp_json_encode( $request['conditional_logic'] );
+		}
+		if ( isset( $request['wrapper_config'] ) ) {
+			$data['wrapper_config'] = wp_json_encode( $request['wrapper_config'] );
+		}
+		if ( isset( $request['field_config'] ) ) {
+			$data['field_config'] = wp_json_encode( $request['field_config'] );
+		}
+		if ( isset( $request['menu_order'] ) ) {
+			$data['menu_order'] = absint( $request['menu_order'] );
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->update( $table, $data, array( 'id' => $id ) );
@@ -515,8 +539,14 @@ class OpenFields_REST_API {
 			);
 		}
 
-		$data['id'] = $id;
-		return rest_ensure_response( $data );
+		// Return the updated field.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$field = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
+			ARRAY_A
+		);
+
+		return rest_ensure_response( $field );
 	}
 
 	/**
@@ -742,6 +772,37 @@ class OpenFields_REST_API {
 				'required'          => true,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_key',
+			),
+		);
+	}
+
+	/**
+	 * Get field update args (all optional for partial updates).
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_field_update_args() {
+		return array(
+			'label' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'name'  => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+			),
+			'type'  => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+			),
+			'menu_order' => array(
+				'required'          => false,
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
 			),
 		);
 	}

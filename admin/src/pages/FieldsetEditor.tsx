@@ -1,20 +1,32 @@
 /**
- * Fieldset Editor Page
+ * Fieldset Editor Page - Completely Redesigned
  *
  * @package OpenFields
  */
 
 import { useEffect, useState } from 'react';
+import { useFieldsetStore } from '../stores/fieldset-store';
+import { useUIStore } from '../stores/ui-store';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Card } from '../components/ui/card';
 import {
-	ArrowLeft,
-	Save,
-	Settings,
-	MapPin,
-	GripVertical,
-	Trash2,
-	ChevronDown,
-	ChevronRight,
-} from 'lucide-react';
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from '../components/ui/drawer';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '../components/ui/collapsible';
+import { ScrollArea } from '../components/ui/scroll-area';
 import {
 	DndContext,
 	closestCenter,
@@ -32,56 +44,171 @@ import {
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { useFieldsetStore } from '../stores';
+import { GripVertical, ChevronDown, Trash2, Plus } from 'lucide-react';
 import type { Field, FieldType } from '../types';
+
+const FIELD_TYPES: { type: FieldType; label: string; category: string }[] = [
+	{ type: 'text', label: 'Text', category: 'Basic' },
+	{ type: 'textarea', label: 'Text Area', category: 'Basic' },
+	{ type: 'number', label: 'Number', category: 'Basic' },
+	{ type: 'email', label: 'Email', category: 'Basic' },
+	{ type: 'url', label: 'URL', category: 'Basic' },
+	{ type: 'wysiwyg', label: 'WYSIWYG Editor', category: 'Content' },
+	{ type: 'image', label: 'Image', category: 'Content' },
+	{ type: 'gallery', label: 'Gallery', category: 'Content' },
+	{ type: 'file', label: 'File', category: 'Content' },
+	{ type: 'select', label: 'Select', category: 'Choice' },
+	{ type: 'radio', label: 'Radio', category: 'Choice' },
+	{ type: 'checkbox', label: 'Checkbox', category: 'Choice' },
+	{ type: 'switch', label: 'Switch', category: 'Choice' },
+	{ type: 'date', label: 'Date Picker', category: 'Advanced' },
+	{ type: 'datetime', label: 'Date Time', category: 'Advanced' },
+	{ type: 'time', label: 'Time', category: 'Advanced' },
+	{ type: 'color', label: 'Color Picker', category: 'Advanced' },
+	{ type: 'link', label: 'Link', category: 'Relational' },
+	{ type: 'post', label: 'Post', category: 'Relational' },
+	{ type: 'taxonomy', label: 'Taxonomy', category: 'Relational' },
+	{ type: 'user', label: 'User', category: 'Relational' },
+	{ type: 'repeater', label: 'Repeater', category: 'Layout' },
+	{ type: 'group', label: 'Group', category: 'Layout' },
+];
+
+interface SortableFieldProps {
+	field: Field;
+	onUpdate: (id: number, data: Partial<Field>) => void;
+	onDelete: (id: number) => void;
+}
 
 interface FieldsetEditorProps {
 	fieldsetId?: number;
+	isNew?: boolean;
 }
 
-const FIELD_TYPES: { key: FieldType; label: string; icon: string }[] = [
-	{ key: 'text', label: 'Text', icon: 'T' },
-	{ key: 'textarea', label: 'Textarea', icon: '¶' },
-	{ key: 'number', label: 'Number', icon: '#' },
-	{ key: 'email', label: 'Email', icon: '@' },
-	{ key: 'url', label: 'URL', icon: '🔗' },
-	{ key: 'select', label: 'Select', icon: '▼' },
-	{ key: 'checkbox', label: 'Checkbox', icon: '☑' },
-	{ key: 'radio', label: 'Radio', icon: '◉' },
-	{ key: 'switch', label: 'Switch', icon: '⊙' },
-	{ key: 'wysiwyg', label: 'WYSIWYG', icon: '📝' },
-	{ key: 'image', label: 'Image', icon: '🖼' },
-	{ key: 'file', label: 'File', icon: '📎' },
-	{ key: 'date', label: 'Date', icon: '📅' },
-	{ key: 'color', label: 'Color', icon: '🎨' },
-];
+function SortableField({ field, onUpdate, onDelete }: SortableFieldProps) {
+	const [isOpen, setIsOpen] = useState(false);
+	const [label, setLabel] = useState(field.label || '');
+	const [name, setName] = useState(field.name || '');
+	const [hasError, setHasError] = useState(false);
 
-export default function FieldsetEditor({ fieldsetId }: FieldsetEditorProps) {
-	const {
-		currentFieldset,
-		fields,
-		isLoading,
-		fetchFieldset,
-		createFieldset,
-		updateFieldset,
-		addField,
-		updateField,
-		deleteField,
-		reorderFields,
-	} = useFieldsetStore();
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+		useSortable({ id: field.id });
 
-	const [title, setTitle] = useState('');
-	const [fieldKey, setFieldKey] = useState('');
-	const [activeTab, setActiveTab] = useState<'fields' | 'settings' | 'location'>(
-		'fields'
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1,
+	};
+
+	// Real-time update on blur
+	const handleLabelBlur = () => {
+		if (!label.trim()) {
+			setHasError(true);
+			return;
+		}
+		setHasError(false);
+		if (label !== field.label) {
+			onUpdate(field.id, { label });
+		}
+	};
+
+	const handleNameBlur = () => {
+		if (!name.trim()) {
+			setHasError(true);
+			return;
+		}
+		setHasError(false);
+		if (name !== field.name) {
+			onUpdate(field.id, { name });
+		}
+	};
+
+	return (
+		<div ref={setNodeRef} style={style} className="mb-2">
+			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
+				<Card className={`${hasError ? 'border-red-500' : ''}`}>
+					<div className="flex items-center gap-2 p-3">
+						<button
+							{...attributes}
+							{...listeners}
+							className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
+						>
+							<GripVertical className="h-4 w-4" />
+						</button>
+						<CollapsibleTrigger className="flex-1 flex items-center justify-between gap-2 text-left">
+							<div className="flex-1">
+								<div className="font-medium text-sm">
+									{field.label || <span className="text-red-500">Label required</span>}
+								</div>
+								<div className="text-xs text-gray-500">{field.type}</div>
+							</div>
+							<ChevronDown
+								className={`h-4 w-4 transition-transform ${
+									isOpen ? 'rotate-180' : ''
+								}`}
+							/>
+						</CollapsibleTrigger>
+						<button
+							onClick={() => onDelete(field.id)}
+							className="p-1 text-gray-400 hover:text-red-600"
+						>
+							<Trash2 className="h-4 w-4" />
+						</button>
+					</div>
+					<CollapsibleContent>
+						<div className="px-3 pb-3 space-y-3 border-t pt-3">
+							{hasError && (
+								<div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+									Field label and name cannot be empty
+								</div>
+							)}
+							<div>
+								<Label htmlFor={`label-${field.id}`}>Field Label</Label>
+								<Input
+									id={`label-${field.id}`}
+									value={label}
+									onChange={(e) => setLabel(e.target.value)}
+									onBlur={handleLabelBlur}
+									placeholder="Enter field label"
+									className={hasError && !label.trim() ? 'border-red-500' : ''}
+								/>
+							</div>
+							<div>
+								<Label htmlFor={`name-${field.id}`}>Field Name</Label>
+								<Input
+									id={`name-${field.id}`}
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+									onBlur={handleNameBlur}
+									placeholder="field_name"
+									className={hasError && !name.trim() ? 'border-red-500' : ''}
+								/>
+							</div>
+							<div>
+								<Label>Field Type</Label>
+								<div className="text-sm text-gray-600">{field.type}</div>
+							</div>
+						</div>
+					</CollapsibleContent>
+				</Card>
+			</Collapsible>
+		</div>
 	);
-	const [localFields, setLocalFields] = useState<Field[]>([]);
-	const [selectedFieldId, setSelectedFieldId] = useState<number | null>(null);
+}
+
+export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
+	const { currentFieldset, fields, fetchFieldset, createFieldset, updateFieldset, fetchFields, addField, updateField, deleteField, reorderFields, isLoading } =
+		useFieldsetStore();
+	const { showToast } = useUIStore();
+	const [title, setTitle] = useState('');
+	const [status, setStatus] = useState<'active' | 'inactive'>('active');
 	const [isSaving, setIsSaving] = useState(false);
+	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [selectedFieldType, setSelectedFieldType] = useState<FieldType | null>(null);
+	const [newFieldLabel, setNewFieldLabel] = useState('');
+	const [newFieldName, setNewFieldName] = useState('');
+	const [showFieldDialog, setShowFieldDialog] = useState(false);
+	const [localFields, setLocalFields] = useState<Field[]>([]);
+	const [initialized, setInitialized] = useState(false);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -90,429 +217,328 @@ export default function FieldsetEditor({ fieldsetId }: FieldsetEditorProps) {
 		})
 	);
 
+	// Fetch fieldset on mount if editing existing
 	useEffect(() => {
-		if (fieldsetId) {
-			fetchFieldset(fieldsetId);
-		}
-	}, [fieldsetId, fetchFieldset]);
+		const init = async () => {
+			if (fieldsetId && !isNew) {
+				await fetchFieldset(fieldsetId);
+			} else if (isNew) {
+				// Create a new fieldset immediately
+				try {
+					const newFieldset = await createFieldset({ title: 'New Fieldset' });
+					// Redirect to edit page
+					window.location.href = `admin.php?page=openfields&action=edit&id=${newFieldset.id}`;
+				} catch (error) {
+					showToast('error', 'Failed to create fieldset');
+				}
+			}
+			setInitialized(true);
+		};
+		init();
+	}, [fieldsetId, isNew]);
 
 	useEffect(() => {
 		if (currentFieldset) {
 			setTitle(currentFieldset.title);
-			setFieldKey(currentFieldset.field_key);
+			setStatus('active'); // Default to active
+			fetchFields(currentFieldset.id);
 		}
-	}, [currentFieldset]);
+	}, [currentFieldset?.id]);
 
 	useEffect(() => {
 		setLocalFields(fields);
 	}, [fields]);
 
 	const handleSave = async () => {
+		if (!currentFieldset) return;
+		
+		if (!title.trim()) {
+			showToast('error', 'Fieldset title is required');
+			return;
+		}
+
 		setIsSaving(true);
 		try {
-			if (fieldsetId && currentFieldset) {
-				await updateFieldset(fieldsetId, { title, field_key: fieldKey });
-			} else {
-				const newFieldset = await createFieldset({
-					title,
-					field_key: fieldKey || generateKey(title),
-				});
-				// Redirect to edit page
-				const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
-				window.location.href = `${adminUrl}admin.php?page=openfields&action=edit&id=${newFieldset.id}`;
-			}
+			await updateFieldset(currentFieldset.id, { title });
+			showToast('success', 'Fieldset saved successfully');
+		} catch (error) {
+			showToast('error', 'Failed to save fieldset');
 		} finally {
 			setIsSaving(false);
 		}
 	};
 
-	const handleAddField = async (type: FieldType) => {
-		if (!fieldsetId) return;
-
-		const newField = await addField(fieldsetId, {
-			type,
-			label: `New ${type} field`,
-			name: generateKey(`new_${type}_${Date.now()}`),
-			settings: {},
-			menu_order: localFields.length,
-		});
-
-		setSelectedFieldId(newField.id);
-	};
-
-	const handleDragEnd = (event: DragEndEvent) => {
+	const handleDragEnd = async (event: DragEndEvent) => {
 		const { active, over } = event;
+		if (!over || !currentFieldset) return;
 
-		if (over && active.id !== over.id) {
+		if (active.id !== over.id) {
 			const oldIndex = localFields.findIndex((f) => f.id === active.id);
 			const newIndex = localFields.findIndex((f) => f.id === over.id);
+			const newOrder = arrayMove(localFields, oldIndex, newIndex);
+			setLocalFields(newOrder);
 
-			const newFields = arrayMove(localFields, oldIndex, newIndex);
-			setLocalFields(newFields);
-
-			// Update order in backend
-			if (fieldsetId) {
-				const updates = newFields.map((f, i) => ({ id: f.id, menu_order: i }));
-				reorderFields(fieldsetId, updates);
-			}
+			// Update backend
+			const updates = newOrder.map((field, index) => ({
+				id: field.id,
+				menu_order: index,
+			}));
+			await reorderFields(currentFieldset.id, updates);
 		}
 	};
 
-	const goBack = () => {
-		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
-		window.location.href = `${adminUrl}admin.php?page=openfields`;
+	const handleAddField = async () => {
+		if (!selectedFieldType || !currentFieldset) return;
+		if (!newFieldLabel.trim() || !newFieldName.trim()) {
+			showToast('error', 'Field label and name are required');
+			return;
+		}
+
+		try {
+			await addField(currentFieldset.id, {
+				type: selectedFieldType,
+				label: newFieldLabel,
+				name: newFieldName,
+				menu_order: fields.length,
+			});
+			setDrawerOpen(false);
+			setShowFieldDialog(false);
+			setSelectedFieldType(null);
+			setNewFieldLabel('');
+			setNewFieldName('');
+			showToast('success', 'Field added successfully');
+		} catch (error) {
+			showToast('error', 'Failed to add field');
+		}
 	};
 
-	const selectedField = localFields.find((f) => f.id === selectedFieldId);
+	const handleFieldTypeSelect = (type: FieldType) => {
+		setSelectedFieldType(type);
+		setDrawerOpen(false);
+		setShowFieldDialog(true);
+	};
+
+	const handleUpdateField = async (id: number, data: Partial<Field>) => {
+		try {
+			await updateField(id, data);
+		} catch (error) {
+			showToast('error', 'Failed to update field');
+		}
+	};
+
+	const handleDeleteField = async (id: number) => {
+		try {
+			await deleteField(id);
+			showToast('success', 'Field deleted');
+		} catch (error) {
+			showToast('error', 'Failed to delete field');
+		}
+	};
+
+	// Show loading state
+	if (!initialized || isLoading) {
+		return (
+			<div className="flex items-center justify-center h-64">
+				<p className="text-gray-500">Loading...</p>
+			</div>
+		);
+	}
+
+	if (!currentFieldset) {
+		return (
+			<div className="flex items-center justify-center h-64">
+				<p className="text-gray-500">Fieldset not found</p>
+			</div>
+		);
+	}
+
+	const groupedFieldTypes = FIELD_TYPES.reduce((acc, ft) => {
+		if (!acc[ft.category]) acc[ft.category] = [];
+		acc[ft.category]!.push(ft);
+		return acc;
+	}, {} as Record<string, typeof FIELD_TYPES>);
 
 	return (
-		<div className="flex flex-col h-full">
-			{/* Header */}
-			<div className="flex items-center justify-between px-6 py-4 border-b bg-white">
-				<div className="flex items-center gap-4">
-					<Button variant="ghost" size="icon" onClick={goBack}>
-						<ArrowLeft className="h-5 w-5" />
-					</Button>
-					<div>
+		<div className="flex min-h-screen flex-col">
+			{/* Sticky Header */}
+			<div className="sticky top-0 z-10 bg-white border-b px-6 py-4">
+				<div className="flex items-center justify-between">
+					<div className="flex-1 max-w-2xl">
 						<Input
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
-							placeholder="Field Group Title"
-							className="text-xl font-semibold border-0 p-0 h-auto focus-visible:ring-0"
+							placeholder="Enter fieldset title"
+							className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0"
 						/>
 					</div>
-				</div>
-				<div className="flex items-center gap-2">
-					<Button onClick={handleSave} disabled={isSaving || !title}>
-						<Save className="h-4 w-4 mr-2" />
-						{isSaving ? 'Saving...' : 'Save'}
-					</Button>
+					<div className="flex items-center gap-3">
+						<select
+							value={status}
+							onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
+							className="px-3 py-2 border rounded-md"
+						>
+							<option value="active">Active</option>
+							<option value="inactive">Inactive</option>
+						</select>
+						<Button onClick={handleSave} disabled={isSaving}>
+							{isSaving ? 'Saving...' : 'Save Changes'}
+						</Button>
+					</div>
 				</div>
 			</div>
 
 			{/* Main Content */}
-			<div className="flex flex-1 overflow-hidden">
-				{/* Sidebar - Field Types */}
-				<div className="w-64 border-r bg-gray-50 overflow-y-auto">
-					<div className="p-4">
-						<h3 className="font-medium text-sm text-gray-500 mb-3">
-							Add Field
-						</h3>
-						<div className="grid grid-cols-2 gap-2">
-							{FIELD_TYPES.map((type) => (
-								<button
-									key={type.key}
-									onClick={() => handleAddField(type.key)}
-									disabled={!fieldsetId}
-									className="flex flex-col items-center justify-center p-3 bg-white border rounded-lg hover:border-primary hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-								>
-									<span className="text-lg mb-1">{type.icon}</span>
-									<span className="text-xs text-gray-600">
-										{type.label}
-									</span>
-								</button>
+			<div className="flex-auto px-6 py-6 max-w-5xl w-full mx-auto">
+				{/* Fields Section */}
+				<div className="mb-8">
+					<h2 className="text-lg font-semibold mb-4">Fields</h2>
+					
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCenter}
+						onDragEnd={handleDragEnd}
+					>
+						<SortableContext
+							items={localFields.map((f) => f.id)}
+							strategy={verticalListSortingStrategy}
+						>
+							{localFields.map((field) => (
+								<SortableField
+									key={field.id}
+									field={field}
+									onUpdate={handleUpdateField}
+									onDelete={handleDeleteField}
+								/>
 							))}
-						</div>
-					</div>
-				</div>
+						</SortableContext>
+					</DndContext>
 
-				{/* Field List */}
-				<div className="flex-1 overflow-y-auto p-6">
-					{/* Tabs */}
-					<div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
-						<button
-							onClick={() => setActiveTab('fields')}
-							className={`px-4 py-2 text-sm rounded-md transition-colors ${
-								activeTab === 'fields'
-									? 'bg-white shadow text-gray-900'
-									: 'text-gray-600 hover:text-gray-900'
-							}`}
-						>
-							Fields
-						</button>
-						<button
-							onClick={() => setActiveTab('settings')}
-							className={`px-4 py-2 text-sm rounded-md transition-colors flex items-center gap-2 ${
-								activeTab === 'settings'
-									? 'bg-white shadow text-gray-900'
-									: 'text-gray-600 hover:text-gray-900'
-							}`}
-						>
-							<Settings className="h-4 w-4" />
-							Settings
-						</button>
-						<button
-							onClick={() => setActiveTab('location')}
-							className={`px-4 py-2 text-sm rounded-md transition-colors flex items-center gap-2 ${
-								activeTab === 'location'
-									? 'bg-white shadow text-gray-900'
-									: 'text-gray-600 hover:text-gray-900'
-							}`}
-						>
-							<MapPin className="h-4 w-4" />
-							Location
-						</button>
-					</div>
-
-					{activeTab === 'fields' && (
-						<>
-							{isLoading && (
-								<div className="flex justify-center py-12">
-									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-								</div>
-							)}
-
-							{!isLoading && localFields.length === 0 && (
-								<div className="text-center py-12">
-									<p className="text-gray-500 mb-4">
-										{fieldsetId
-											? 'No fields yet. Add your first field from the sidebar.'
-											: 'Save the field group first, then add fields.'}
-									</p>
-								</div>
-							)}
-
-							{!isLoading && localFields.length > 0 && (
-								<DndContext
-									sensors={sensors}
-									collisionDetection={closestCenter}
-									onDragEnd={handleDragEnd}
-								>
-									<SortableContext
-										items={localFields.map((f) => f.id)}
-										strategy={verticalListSortingStrategy}
-									>
-										<div className="space-y-2">
-											{localFields.map((field) => (
-												<SortableFieldItem
-													key={field.id}
-													field={field}
-													isSelected={
-														selectedFieldId === field.id
-													}
-													onSelect={() =>
-														setSelectedFieldId(
-															selectedFieldId === field.id
-																? null
-																: field.id
-														)
-													}
-													onDelete={() =>
-														deleteField(field.id)
-													}
-												/>
+					{/* Add Field Area */}
+					<Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+						<DrawerTrigger asChild>
+							<button className="w-full mt-4 p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-gray-600">
+								<Plus className="h-5 w-5" />
+								<span>Add Field</span>
+							</button>
+						</DrawerTrigger>
+						<DrawerContent>
+							<DrawerHeader>
+								<DrawerTitle>Select Field Type</DrawerTitle>
+								<DrawerDescription>
+									Choose the type of field you want to add
+								</DrawerDescription>
+							</DrawerHeader>
+							<ScrollArea className="h-96 px-6">
+								{Object.entries(groupedFieldTypes).map(([category, types]) => (
+									<div key={category} className="mb-6">
+										<h3 className="text-sm font-semibold text-gray-700 mb-2">
+											{category}
+										</h3>
+										<div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+											{types.map((ft) => (
+												<button
+													key={ft.type}
+													onClick={() => handleFieldTypeSelect(ft.type)}
+													className="p-3 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+												>
+													<div className="font-medium text-sm">{ft.label}</div>
+												</button>
 											))}
 										</div>
-									</SortableContext>
-								</DndContext>
-							)}
-						</>
-					)}
+									</div>
+								))}
+							</ScrollArea>
+							<DrawerFooter>
+								<DrawerClose asChild>
+									<Button variant="outline">Cancel</Button>
+								</DrawerClose>
+							</DrawerFooter>
+						</DrawerContent>
+					</Drawer>
 
-					{activeTab === 'settings' && (
-						<Card>
-							<CardHeader>
-								<CardTitle>Field Group Settings</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<div>
-									<Label htmlFor="field-key">Field Key</Label>
-									<Input
-										id="field-key"
-										value={fieldKey}
-										onChange={(e) =>
-											setFieldKey(
-												e.target.value
-													.toLowerCase()
-													.replace(/[^a-z0-9_]/g, '_')
-											)
-										}
-										placeholder="group_my_fields"
-									/>
-									<p className="text-xs text-gray-500 mt-1">
-										Unique identifier for this field group
-									</p>
+					{/* Field Creation Dialog */}
+					{showFieldDialog && selectedFieldType && (
+						<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+							<div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+								<h3 className="text-lg font-semibold mb-4">
+									Add {FIELD_TYPES.find((ft) => ft.type === selectedFieldType)?.label} Field
+								</h3>
+								<div className="space-y-4">
+									<div>
+										<Label htmlFor="new-field-label">Field Label</Label>
+										<Input
+											id="new-field-label"
+											value={newFieldLabel}
+											onChange={(e) => setNewFieldLabel(e.target.value)}
+											placeholder="Enter field label"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="new-field-name">Field Name</Label>
+										<Input
+											id="new-field-name"
+											value={newFieldName}
+											onChange={(e) => setNewFieldName(e.target.value)}
+											placeholder="field_name"
+										/>
+									</div>
 								</div>
-							</CardContent>
-						</Card>
+								<div className="flex justify-end gap-2 mt-6">
+									<Button
+										variant="outline"
+										onClick={() => {
+											setShowFieldDialog(false);
+											setSelectedFieldType(null);
+											setNewFieldLabel('');
+											setNewFieldName('');
+										}}
+									>
+										Cancel
+									</Button>
+									<Button onClick={handleAddField}>Add Field</Button>
+								</div>
+							</div>
+						</div>
 					)}
-
-					{activeTab === 'location' && (
-						<Card>
-							<CardHeader>
-								<CardTitle>Location Rules</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<p className="text-gray-500">
-									Location rules determine where this field group will
-									appear. Coming soon...
-								</p>
-							</CardContent>
-						</Card>
-					)}
 				</div>
 
-				{/* Field Settings Panel */}
-				{selectedField && (
-					<div className="w-80 border-l bg-white overflow-y-auto p-4">
-						<FieldSettingsPanel
-							field={selectedField}
-							onUpdate={(data) => updateField(selectedField.id, data)}
-							onClose={() => setSelectedFieldId(null)}
-						/>
-					</div>
-				)}
+				{/* Settings Section */}
+				<div className="mb-8">
+					<h2 className="text-lg font-semibold mb-4">Settings</h2>
+					<Card className="p-4">
+						<div className="space-y-4">
+							<div>
+								<Label htmlFor="description">Description</Label>
+								<Input
+									id="description"
+									placeholder="Optional description for this fieldset"
+								/>
+							</div>
+						</div>
+					</Card>
+				</div>
+
+				{/* Location Rules */}
+				<div className="mb-8">
+					<h2 className="text-lg font-semibold mb-4">Location Rules</h2>
+					<Card className="p-4">
+						<p className="text-sm text-gray-600 mb-4">
+							Set the rules where this fieldset will appear
+						</p>
+						<div className="space-y-3">
+							<div>
+								<Label>Show on</Label>
+								<select className="w-full mt-1 px-3 py-2 border rounded-md">
+									<option value="">Select location</option>
+									<option value="post_type">Post Type</option>
+									<option value="taxonomy">Taxonomy</option>
+									<option value="user">User</option>
+								</select>
+							</div>
+						</div>
+					</Card>
+				</div>
 			</div>
 		</div>
 	);
-}
-
-interface SortableFieldItemProps {
-	field: Field;
-	isSelected: boolean;
-	onSelect: () => void;
-	onDelete: () => void;
-}
-
-function SortableFieldItem({
-	field,
-	isSelected,
-	onSelect,
-	onDelete,
-}: SortableFieldItemProps) {
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({ id: field.id });
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-	};
-
-	return (
-		<div
-			ref={setNodeRef}
-			style={style}
-			className={`flex items-center gap-2 p-3 bg-white border rounded-lg ${
-				isDragging ? 'opacity-50' : ''
-			} ${isSelected ? 'ring-2 ring-primary' : ''}`}
-		>
-			<button
-				{...attributes}
-				{...listeners}
-				className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
-			>
-				<GripVertical className="h-4 w-4" />
-			</button>
-
-			<button
-				onClick={onSelect}
-				className="flex-1 text-left flex items-center gap-3"
-			>
-				<span className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center text-sm">
-					{FIELD_TYPES.find((t) => t.key === field.type)?.icon || '?'}
-				</span>
-				<div>
-					<div className="font-medium text-sm">{field.label}</div>
-					<div className="text-xs text-gray-500">{field.name}</div>
-				</div>
-			</button>
-
-			<button
-				onClick={onSelect}
-				className="p-1 text-gray-400 hover:text-gray-600"
-			>
-				{isSelected ? (
-					<ChevronDown className="h-4 w-4" />
-				) : (
-					<ChevronRight className="h-4 w-4" />
-				)}
-			</button>
-
-			<button
-				onClick={onDelete}
-				className="p-1 text-gray-400 hover:text-red-600"
-			>
-				<Trash2 className="h-4 w-4" />
-			</button>
-		</div>
-	);
-}
-
-interface FieldSettingsPanelProps {
-	field: Field;
-	onUpdate: (data: Partial<Field>) => void;
-	onClose: () => void;
-}
-
-function FieldSettingsPanel({
-	field,
-	onUpdate,
-	onClose,
-}: FieldSettingsPanelProps) {
-	const [label, setLabel] = useState(field.label);
-	const [name, setName] = useState(field.name);
-
-	const handleSave = () => {
-		onUpdate({ label, name });
-	};
-
-	return (
-		<div>
-			<div className="flex items-center justify-between mb-4">
-				<h3 className="font-semibold">Field Settings</h3>
-				<Button variant="ghost" size="sm" onClick={onClose}>
-					×
-				</Button>
-			</div>
-
-			<div className="space-y-4">
-				<div>
-					<Label htmlFor="field-label">Label</Label>
-					<Input
-						id="field-label"
-						value={label}
-						onChange={(e) => setLabel(e.target.value)}
-					/>
-				</div>
-
-				<div>
-					<Label htmlFor="field-name">Name</Label>
-					<Input
-						id="field-name"
-						value={name}
-						onChange={(e) =>
-							setName(
-								e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_')
-							)
-						}
-					/>
-					<p className="text-xs text-gray-500 mt-1">
-						Used in template: get_field('{name}')
-					</p>
-				</div>
-
-				<div>
-					<Label>Type</Label>
-					<div className="text-sm text-gray-600 mt-1">{field.type}</div>
-				</div>
-
-				<Button onClick={handleSave} className="w-full">
-					Update Field
-				</Button>
-			</div>
-		</div>
-	);
-}
-
-function generateKey(str: string): string {
-	return str
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, '_')
-		.replace(/^_|_$/g, '');
 }

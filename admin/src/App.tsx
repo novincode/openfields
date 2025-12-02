@@ -7,7 +7,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from './components/ui/toaster';
 import FieldsetList from './pages/FieldsetList';
-import FieldsetEditor from './pages/FieldsetEditor';
+import { FieldsetEditor } from '@/pages/FieldsetEditor';
 import Tools from './pages/Tools';
 
 // Create a query client
@@ -51,7 +51,7 @@ function OpenFieldsRouter() {
 			return <FieldsetEditor fieldsetId={parseInt(id, 10)} />;
 		}
 		if (action === 'new') {
-			return <FieldsetEditor />;
+			return <FieldsetEditor isNew />;
 		}
 		return <FieldsetList />;
 	}

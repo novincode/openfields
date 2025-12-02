@@ -11,6 +11,7 @@ import type { UIStore, Notification } from '../types';
 interface ExtendedUIStore extends UIStore {
 	theme: 'light' | 'dark' | 'system';
 	setTheme: (theme: 'light' | 'dark' | 'system') => void;
+	showToast: (type: 'success' | 'error' | 'warning' | 'info', message: string) => void;
 }
 
 export const useUIStore = create<ExtendedUIStore>()(
@@ -60,6 +61,17 @@ export const useUIStore = create<ExtendedUIStore>()(
 
 				setTheme: (theme) => {
 					set({ theme });
+				},
+
+				showToast: (type, message) => {
+					set((state) => ({
+						notifications: [...state.notifications, {
+							id: crypto.randomUUID(),
+							type,
+							message,
+							duration: 5000,
+						}],
+					}));
 				},
 			}),
 			{
