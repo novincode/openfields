@@ -175,7 +175,7 @@ class OpenFields_REST_API {
 		// Export/Import.
 		register_rest_route(
 			self::NAMESPACE,
-			'/export/(?P<id>\d+)',
+			'/fieldsets/(?P<id>\d+)/export',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'export_fieldset' ),
@@ -313,13 +313,19 @@ class OpenFields_REST_API {
 		$table = $wpdb->prefix . 'openfields_fieldsets';
 		$now   = current_time( 'mysql' );
 
+		// Ensure settings is always an array (not a JSON string that would be double-encoded)
+		$settings = $request['settings'] ?? array();
+		if ( is_string( $settings ) ) {
+			$settings = json_decode( $settings, true ) ?: array();
+		}
+
 		$data = array(
 			'title'      => sanitize_text_field( $request['title'] ),
 			'field_key'  => sanitize_key( $request['field_key'] ?? 'fieldset_' . uniqid() ),
 			'description' => sanitize_textarea_field( $request['description'] ?? '' ),
 			'status'     => sanitize_key( $request['status'] ?? 'active' ),
 			'custom_css' => wp_strip_all_tags( $request['custom_css'] ?? '' ),
-			'settings'   => wp_json_encode( $request['settings'] ?? array() ),
+			'settings'   => wp_json_encode( $settings ),
 			'menu_order' => absint( $request['menu_order'] ?? 0 ),
 			'created_at' => $now,
 			'updated_at' => $now,
@@ -358,7 +364,11 @@ class OpenFields_REST_API {
 		error_log( 'OpenFields Debug - Full request params: ' . print_r( $request->get_params(), true ) );
 
 		// Extract location_groups from settings for saving to locations table
+		// Ensure settings is always an array (not a JSON string that would be double-encoded)
 		$settings = $request['settings'] ?? array();
+		if ( is_string( $settings ) ) {
+			$settings = json_decode( $settings, true ) ?: array();
+		}
 		$location_groups = $settings['location_groups'] ?? array();
 
 		error_log( 'OpenFields Debug - update_fieldset called for ID: ' . $id );
@@ -380,6 +390,9 @@ class OpenFields_REST_API {
 			'menu_order'  => absint( $request['menu_order'] ?? 0 ),
 			'updated_at'  => current_time( 'mysql' ),
 		);
+		
+		error_log( 'OpenFields Debug - Encoded settings being saved: ' . $data['settings'] );
+		error_log( 'OpenFields Debug - Encoded settings length: ' . strlen( $data['settings'] ) );
 
 		// Update field_key if provided
 		if ( ! empty( $request['field_key'] ) ) {
@@ -883,7 +896,7 @@ class OpenFields_REST_API {
 			);
 		}
 
-		// Get fields - return as raw database data (JSON strings, not decoded)
+		// Get fields
 		$fields_table = $wpdb->prefix . 'openfields_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
@@ -893,6 +906,21 @@ class OpenFields_REST_API {
 			),
 			ARRAY_A
 		);
+
+		// Decode JSON fields in each field record
+		$decoded_fields = array();
+		foreach ( $fields as $field ) {
+			$decoded_field = $field;
+			
+			// Decode JSON columns in fields
+			foreach ( array( 'conditional_logic', 'wrapper_config', 'field_config' ) as $json_col ) {
+				if ( ! empty( $field[ $json_col ] ) && is_string( $field[ $json_col ] ) ) {
+					$decoded_field[ $json_col ] = $this->safe_json_decode( $field[ $json_col ] );
+				}
+			}
+			
+			$decoded_fields[] = $decoded_field;
+		}
 
 		// Get locations
 		$locations_table = $wpdb->prefix . 'openfields_locations';
@@ -905,6 +933,16 @@ class OpenFields_REST_API {
 			ARRAY_A
 		);
 
+		// Safely decode settings - handle multiple levels of encoding corruption
+		$raw_settings = $fieldset['settings'] ?? '';
+		$settings = $this->safe_json_decode( $raw_settings );
+		
+		// Remove location_groups from settings for export since it's duplicated in the locations table
+		// The locations table is the source of truth
+		if ( isset( $settings['location_groups'] ) ) {
+			unset( $settings['location_groups'] );
+		}
+
 		$export_data = array(
 			'version'  => OPENFIELDS_VERSION,
 			'exported' => current_time( 'mysql' ),
@@ -914,9 +952,9 @@ class OpenFields_REST_API {
 				'description' => $fieldset['description'],
 				'status'      => $fieldset['status'],
 				'custom_css'  => $fieldset['custom_css'],
-				'settings'    => ! empty( $fieldset['settings'] ) ? json_decode( $fieldset['settings'], true ) : array(),
+				'settings'    => $settings,
 				'menu_order'  => $fieldset['menu_order'],
-				'fields'      => $fields,
+				'fields'      => $decoded_fields,
 				'locations'   => $locations,
 			),
 		);
@@ -1228,28 +1266,16 @@ class OpenFields_REST_API {
 	 * @return array
 	 */
 	private function transform_field( $field ) {
-		if ( ! empty( $field['conditional_logic'] ) && is_string( $field['conditional_logic'] ) ) {
-			$field['conditional_logic'] = json_decode( $field['conditional_logic'], true ) ?: array();
-		} else {
-			$field['conditional_logic'] = array();
-		}
-		if ( ! empty( $field['wrapper_config'] ) && is_string( $field['wrapper_config'] ) ) {
-			$field['wrapper_config'] = json_decode( $field['wrapper_config'], true ) ?: array();
-		} else {
-			$field['wrapper_config'] = array();
-		}
+		// Use safe_json_decode for all JSON fields to handle multi-encoded data
+		$field['conditional_logic'] = $this->safe_json_decode( $field['conditional_logic'] ?? '' );
+		$field['wrapper_config'] = $this->safe_json_decode( $field['wrapper_config'] ?? '' );
+		
 		// Transform field_config to settings for frontend
-		if ( ! empty( $field['field_config'] ) && is_string( $field['field_config'] ) ) {
-			$field['settings'] = json_decode( $field['field_config'], true ) ?: array();
-		} else {
-			$field['settings'] = array();
-		}
+		$field['settings'] = $this->safe_json_decode( $field['field_config'] ?? '' );
+		
 		// Keep field_config for backwards compatibility
-		if ( ! empty( $field['field_config'] ) && is_string( $field['field_config'] ) ) {
-			$field['field_config'] = json_decode( $field['field_config'], true ) ?: array();
-		} else {
-			$field['field_config'] = array();
-		}
+		$field['field_config'] = $this->safe_json_decode( $field['field_config'] ?? '' );
+		
 		return $field;
 	}
 
@@ -1270,12 +1296,8 @@ class OpenFields_REST_API {
 		// Map status to is_active
 		$fieldset['is_active'] = $fieldset['status'] !== 'inactive';
 
-		// Parse JSON fields
-		if ( ! empty( $fieldset['settings'] ) && is_string( $fieldset['settings'] ) ) {
-			$fieldset['settings'] = json_decode( $fieldset['settings'], true ) ?: array();
-		} elseif ( empty( $fieldset['settings'] ) ) {
-			$fieldset['settings'] = array();
-		}
+		// Parse JSON fields - use safe_json_decode to handle multi-encoded data
+		$fieldset['settings'] = $this->safe_json_decode( $fieldset['settings'] ?? '' );
 
 		// Parse field data if present
 		if ( ! empty( $fieldset['fields'] ) && is_array( $fieldset['fields'] ) ) {
@@ -1310,5 +1332,59 @@ class OpenFields_REST_API {
 		$types   = $manager->get_location_types_for_api();
 
 		return rest_ensure_response( $types );
+	}
+
+	/**
+	 * Safely decode JSON that may have been multi-encoded.
+	 *
+	 * This handles cases where JSON strings were accidentally double or triple encoded.
+	 * It keeps decoding until we get an array/object or can't decode anymore.
+	 *
+	 * @since  1.0.0
+	 * @param  mixed $value The value to decode.
+	 * @return array The decoded array, or empty array if decoding fails.
+	 */
+	private function safe_json_decode( $value ) {
+		// If already an array, return it
+		if ( is_array( $value ) ) {
+			return $value;
+		}
+
+		// If empty or not a string, return empty array
+		if ( empty( $value ) || ! is_string( $value ) ) {
+			return array();
+		}
+
+		// Keep decoding while we have a string that looks like JSON
+		$max_iterations = 10; // Safety limit
+		$current = $value;
+		
+		for ( $i = 0; $i < $max_iterations; $i++ ) {
+			// Try to decode
+			$decoded = json_decode( $current, true );
+			
+			// If decode failed or returned null, we're done
+			if ( json_last_error() !== JSON_ERROR_NONE || $decoded === null ) {
+				// If we never successfully decoded to an array, return empty array
+				return is_array( $current ) ? $current : array();
+			}
+			
+			// If we got an array, we're done
+			if ( is_array( $decoded ) ) {
+				return $decoded;
+			}
+			
+			// If we got another string, it might be multi-encoded - keep going
+			if ( is_string( $decoded ) ) {
+				$current = $decoded;
+				continue;
+			}
+			
+			// For any other type (int, bool, etc), return empty array
+			return array();
+		}
+
+		// Safety fallback
+		return array();
 	}
 }

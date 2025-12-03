@@ -260,9 +260,10 @@ function FieldsetCard({
 											? 'text-red-600'
 											: 'text-gray-700'
 									}`}
-									onClick={() => {
+									onClick={(e) => {
+										e.stopPropagation();
 										onDelete();
-										if (!isDeleteConfirm) setShowMenu(false);
+										setShowMenu(false);
 									}}
 								>
 									<Trash2 className="h-4 w-4" />

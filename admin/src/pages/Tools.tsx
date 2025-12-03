@@ -18,12 +18,18 @@ export default function Tools() {
 	const handleExport = async () => {
 		setIsExporting(true);
 		try {
-			// Get all fieldsets - in a real implementation, we'd have an export all endpoint
+			// Get all fieldsets
 			const fieldsets = await fieldsetApi.getAll();
+			
+			// Export each fieldset individually to get clean, optimized data
+			const exportFieldsets = await Promise.all(
+				fieldsets.map(fs => fieldsetApi.export(fs.id))
+			);
+
 			const exportData = {
 				version: '1.0.0',
 				plugin: 'openfields',
-				fieldsets: fieldsets,
+				fieldsets: exportFieldsets,
 				exported_at: new Date().toISOString(),
 			};
 
@@ -57,8 +63,31 @@ export default function Tools() {
 			const text = await file.text();
 			const data = JSON.parse(text);
 
-			const result = await fieldsetApi.import(data);
-			setImportResult(`Successfully imported ${result.imported} field group(s).`);
+			// Handle batch export format (array of individual exports)
+			if (Array.isArray(data.fieldsets)) {
+				let importedCount = 0;
+				let failedCount = 0;
+
+				for (const exportData of data.fieldsets) {
+					try {
+						await fieldsetApi.import(exportData);
+						importedCount++;
+					} catch (error) {
+						console.error('Failed to import fieldset:', error);
+						failedCount++;
+					}
+				}
+
+				let message = `Successfully imported ${importedCount} field group(s).`;
+				if (failedCount > 0) {
+					message += ` (${failedCount} failed)`;
+				}
+				setImportResult(message);
+			} else {
+				// Handle single export format
+				await fieldsetApi.import(data);
+				setImportResult(`Successfully imported 1 field group.`);
+			}
 		} catch (error) {
 			setImportResult(
 				`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`

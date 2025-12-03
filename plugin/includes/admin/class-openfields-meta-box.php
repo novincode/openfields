@@ -204,10 +204,10 @@ class OpenFields_Meta_Box {
 		$config = array(
 			'label'             => $field->label,
 			'name'              => $field->name,
-			'instructions'      => $settings['instructions'] ?? '',
-			'required'          => (bool) ( $settings['required'] ?? false ),
+			'instructions'      => $field->instructions ?? '',
+			'required'          => (bool) ( $field->required ?? false ),
 			'default_value'     => $field->default_value ?? '',
-			'placeholder'       => $settings['placeholder'] ?? '',
+			'placeholder'       => $field->placeholder ?? '',
 			'conditional_logic' => $settings['conditional_logic'] ?? array(),
 			'wrapper_config'    => array(
 				'width' => isset( $settings['width'] ) ? intval( $settings['width'] ) : 100,
@@ -282,17 +282,17 @@ class OpenFields_Meta_Box {
 	private function render_input( $field, $value, $field_id, $field_name, $settings ) {
 		switch ( $field->type ) {
 			case 'text':
-				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
+				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
 				echo '<input type="text" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
 				break;
 
 			case 'email':
-				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
+				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
 				echo '<input type="email" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
 				break;
 
 			case 'url':
-				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
+				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
 				echo '<input type="url" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
 				break;
 
@@ -300,7 +300,7 @@ class OpenFields_Meta_Box {
 				$min         = OpenFields_Field_Settings::get_setting( $settings, 'min', '' );
 				$max         = OpenFields_Field_Settings::get_setting( $settings, 'max', '' );
 				$step        = OpenFields_Field_Settings::get_setting( $settings, 'step', OpenFields_Field_Settings::get_default_for_setting( 'number', 'step' ) );
-				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
+				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
 				
 				$atts = ' id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" class="widefat"';
 				if ( $min !== '' ) {
@@ -320,7 +320,7 @@ class OpenFields_Meta_Box {
 
 			case 'textarea':
 				$rows        = OpenFields_Field_Settings::get_setting( $settings, 'rows', OpenFields_Field_Settings::get_default_for_setting( 'textarea', 'rows' ) );
-				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
+				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
 				echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" rows="' . esc_attr( $rows ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat">' . esc_textarea( $value ) . '</textarea>';
 				break;
 

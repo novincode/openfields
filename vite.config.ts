@@ -11,7 +11,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'plugin/assets/admin',
-    emptyOutDir: true,
+    emptyOutDir: false, // Don't delete fields.js and fields.css
     rollupOptions: {
       input: {
         admin: path.resolve(__dirname, 'admin/src/main.tsx'),

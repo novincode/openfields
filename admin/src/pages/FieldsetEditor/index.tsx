@@ -122,13 +122,13 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		setIsSaving(true);
 		try {
 			// Save fieldset details
+			// Only include location_groups in settings - don't spread old settings to avoid nesting corruption
 			await updateFieldset(currentFieldset.id, {
 				title,
 				field_key: slug,
 				description,
 				is_active: isActive,
 				settings: {
-					...(currentFieldset.settings || {}),
 					location_groups: locationGroups,
 				},
 			});
