@@ -13,6 +13,7 @@ import Tools from './pages/Tools';
 
 // Register all field type settings components
 import './fields';
+import { cn } from './lib/utils';
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -27,7 +28,10 @@ const queryClient = new QueryClient({
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<div className="openfields-admin">
+			<div className={cn(
+				'openfields-admin',
+				''
+			)}>
 				<OpenFieldsRouter />
 			</div>
 			<Toaster />

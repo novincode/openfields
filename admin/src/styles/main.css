@@ -30,6 +30,10 @@
 		--input: 214.3 31.8% 91.4%;
 		--ring: 222.2 84% 4.9%;
 		--radius: 0.5rem;
+
+		/* WordPress menu heights */
+		--wp-menu-height-mobile: 46px;
+		--wp-menu-height-desktop: 32px;
 	}
 }
 
@@ -37,6 +41,7 @@
 	* {
 		@apply border-border;
 	}
+
 	body {
 		@apply bg-background text-foreground;
 	}
@@ -112,7 +117,7 @@
 	@apply absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform;
 }
 
-.openfields-switch input:checked + .openfields-switch__slider {
+.openfields-switch input:checked+.openfields-switch__slider {
 	@apply translate-x-5;
 }
 
@@ -146,6 +151,7 @@
 		opacity: 0;
 		transform: translateY(-10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
@@ -155,3 +161,7 @@
 .animate-slide-in {
 	animation: slideIn 0.2s ease-out;
 }
+
+
+
+/* LAYOUT OVERRIDES */

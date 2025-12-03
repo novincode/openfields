@@ -194,9 +194,9 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	}
 
 	return (
-		<div className="flex min-h-screen flex-col">
+		<div className="flex flex-col">
 			{/* Sticky Header */}
-			<div className="sticky top-0 z-10 bg-white border-b px-6 py-4">
+			<div className="sticky top-[42px] md:top-[32px] z-[30] bg-background border-b px-6 py-4">
 				<div className="flex items-center justify-between">
 					<div className="flex-1 max-w-2xl">
 						<Input
