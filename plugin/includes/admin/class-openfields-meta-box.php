@@ -56,6 +56,9 @@ class OpenFields_Meta_Box {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 3 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+
+		// Include repeater field renderer.
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/repeater.php';
 	}
 
 	/**
@@ -77,11 +80,28 @@ class OpenFields_Meta_Box {
 			OPENFIELDS_VERSION
 		);
 
+		// Enqueue repeater styles.
+		wp_enqueue_style(
+			'openfields-repeater',
+			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/css/repeater.css',
+			array( 'openfields-fields' ),
+			OPENFIELDS_VERSION
+		);
+
 		// Enqueue field JavaScript.
 		wp_enqueue_script(
 			'openfields-fields',
 			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/js/fields.js',
 			array(),
+			OPENFIELDS_VERSION,
+			true
+		);
+
+		// Enqueue repeater JavaScript.
+		wp_enqueue_script(
+			'openfields-repeater',
+			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/js/repeater.js',
+			array( 'openfields-fields' ),
 			OPENFIELDS_VERSION,
 			true
 		);
@@ -148,11 +168,12 @@ class OpenFields_Meta_Box {
 		// Nonce for security.
 		wp_nonce_field( 'openfields_save_' . $fieldset_id, 'openfields_nonce_' . $fieldset_id );
 
-		// Get fields from database.
+		// Get ROOT-LEVEL fields only (no parent_id) from database.
+		// Sub-fields are rendered by their parent repeater/group field.
 		global $wpdb;
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d ORDER BY menu_order ASC",
+				"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
 				$fieldset_id
 			)
 		);
@@ -260,7 +281,7 @@ class OpenFields_Meta_Box {
 
 		// Render the input field.
 		echo '<div class="openfields-field-input">';
-		$this->render_input( $field, $value, self::META_PREFIX . $field->name, self::META_PREFIX . $field->name, $settings );
+		$this->render_input( $field, $value, self::META_PREFIX . $field->name, self::META_PREFIX . $field->name, $settings, $post_id );
 		echo '</div>';
 
 		// Render description if present.
@@ -280,9 +301,16 @@ class OpenFields_Meta_Box {
 	 * @param string $field_id   HTML ID attribute.
 	 * @param string $field_name HTML name attribute.
 	 * @param array  $settings   Field settings from JSON.
+	 * @param int    $post_id    Post ID for sub-field value retrieval.
 	 */
-	private function render_input( $field, $value, $field_id, $field_name, $settings ) {
+	private function render_input( $field, $value, $field_id, $field_name, $settings, $post_id = 0 ) {
 		switch ( $field->type ) {
+			case 'repeater':
+				// Repeater fields use ACF-compatible format.
+				// Field name is passed WITHOUT prefix for internal naming.
+				openfields_render_repeater_field( $field, $value, $field_id, $field->name, $settings, $post_id );
+				break;
+
 			case 'text':
 				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
 				echo '<input type="text" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
@@ -496,44 +524,163 @@ class OpenFields_Meta_Box {
 
 			error_log( 'OpenFields: Processing fieldset ' . $fieldset->id . ': ' . $fieldset->title );
 
-			// Get fields.
+			// Get ALL fields including sub-fields for saving.
 			global $wpdb;
-			$fields = $wpdb->get_results(
+			$all_fields = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d",
 					$fieldset->id
 				)
 			);
 
-			error_log( 'OpenFields: Fieldset has ' . count( $fields ) . ' fields' );
+			// Separate root fields from sub-fields.
+			$root_fields = array();
+			$sub_fields_map = array(); // parent_id => array of sub-fields
+			foreach ( $all_fields as $f ) {
+				if ( empty( $f->parent_id ) ) {
+					$root_fields[] = $f;
+				} else {
+					if ( ! isset( $sub_fields_map[ $f->parent_id ] ) ) {
+						$sub_fields_map[ $f->parent_id ] = array();
+					}
+					$sub_fields_map[ $f->parent_id ][] = $f;
+				}
+			}
 
-			// Save each field - get from $_POST directly since fields render with of_ prefix.
-			foreach ( $fields as $field ) {
-				$field_name = $field->name;
-				$meta_key   = self::META_PREFIX . $field_name;
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$raw_value  = isset( $_POST[ $meta_key ] ) ? wp_unslash( $_POST[ $meta_key ] ) : '';
+			error_log( 'OpenFields: Fieldset has ' . count( $root_fields ) . ' root fields' );
 
-				error_log( 'OpenFields: Processing field "' . $field_name . '" (type: ' . $field->type . ')' );
-				error_log( 'OpenFields: Raw value: ' . print_r( $raw_value, true ) );
+			// Save each ROOT field.
+			foreach ( $root_fields as $field ) {
+				if ( $field->type === 'repeater' ) {
+					// Handle repeater field in ACF format.
+					$this->save_repeater_field( $post_id, $field, $sub_fields_map );
+				} else {
+					// Standard field save.
+					$field_name = $field->name;
+					$meta_key   = self::META_PREFIX . $field_name;
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$raw_value  = isset( $_POST[ $meta_key ] ) ? wp_unslash( $_POST[ $meta_key ] ) : '';
 
-				// Sanitize the value.
-				$sanitized_value = $this->sanitize_value( $raw_value, $field->type );
+					error_log( 'OpenFields: Processing field "' . $field_name . '" (type: ' . $field->type . ')' );
+					error_log( 'OpenFields: Raw value: ' . print_r( $raw_value, true ) );
 
-				error_log( 'OpenFields: Sanitized value: ' . print_r( $sanitized_value, true ) );
+					// Sanitize the value.
+					$sanitized_value = $this->sanitize_value( $raw_value, $field->type );
 
-				// Update postmeta with native WordPress function.
-				$result = update_post_meta( $post_id, $meta_key, $sanitized_value );
+					error_log( 'OpenFields: Sanitized value: ' . print_r( $sanitized_value, true ) );
 
-				error_log( 'OpenFields: update_post_meta result: ' . ( $result ? 'SUCCESS' : 'NO_CHANGE' ) );
+					// Update postmeta with native WordPress function.
+					$result = update_post_meta( $post_id, $meta_key, $sanitized_value );
 
-				// Verify it was saved.
-				$verify = get_post_meta( $post_id, $meta_key, true );
-				error_log( 'OpenFields: Verify read back: ' . print_r( $verify, true ) );
+					error_log( 'OpenFields: update_post_meta result: ' . ( $result ? 'SUCCESS' : 'NO_CHANGE' ) );
+
+					// Verify it was saved.
+					$verify = get_post_meta( $post_id, $meta_key, true );
+					error_log( 'OpenFields: Verify read back: ' . print_r( $verify, true ) );
+				}
 			}
 		}
 
 		error_log( 'OpenFields: save_post completed for post_id=' . $post_id );
+	}
+
+	/**
+	 * Save a repeater field and its sub-fields in ACF-compatible format.
+	 *
+	 * ACF Format:
+	 * - of_{field} = row count
+	 * - of_{field}_{index}_{subfield} = value
+	 *
+	 * @since 1.0.0
+	 * @param int    $post_id        Post ID.
+	 * @param object $field          Repeater field object.
+	 * @param array  $sub_fields_map Map of parent_id => sub-fields.
+	 */
+	private function save_repeater_field( $post_id, $field, $sub_fields_map ) {
+		$field_name = $field->name;
+		$meta_key   = self::META_PREFIX . $field_name;
+
+		// Get row count from POST (stored in hidden input).
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
+
+		error_log( 'OpenFields: Saving repeater "' . $field_name . '" with ' . $row_count . ' rows' );
+
+		// Save row count (ACF format).
+		update_post_meta( $post_id, $meta_key, $row_count );
+
+		// Get sub-fields for this repeater.
+		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
+
+		if ( empty( $sub_fields ) ) {
+			error_log( 'OpenFields: No sub-fields found for repeater ' . $field_name );
+			return;
+		}
+
+		// First, clean up old repeater data that might have higher indices.
+		$this->cleanup_repeater_meta( $post_id, $field_name, $sub_fields, $row_count );
+
+		// Save each row's sub-field values.
+		for ( $i = 0; $i < $row_count; $i++ ) {
+			foreach ( $sub_fields as $sub_field ) {
+				// ACF format: {parent}_{index}_{subfield}
+				$sub_meta_key = $field_name . '_' . $i . '_' . $sub_field->name;
+
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$raw_value = isset( $_POST[ $sub_meta_key ] ) ? wp_unslash( $_POST[ $sub_meta_key ] ) : '';
+
+				// Handle nested repeaters recursively.
+				if ( $sub_field->type === 'repeater' ) {
+					$this->save_repeater_field( $post_id, (object) array(
+						'id'   => $sub_field->id,
+						'name' => $sub_meta_key,
+						'type' => 'repeater',
+					), $sub_fields_map );
+				} else {
+					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
+					update_post_meta( $post_id, self::META_PREFIX . $sub_meta_key, $sanitized );
+					error_log( 'OpenFields: Saved ' . self::META_PREFIX . $sub_meta_key . ' = ' . print_r( $sanitized, true ) );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Cleanup old repeater meta values when rows are removed.
+	 *
+	 * @since 1.0.0
+	 * @param int    $post_id    Post ID.
+	 * @param string $field_name Repeater field name.
+	 * @param array  $sub_fields Sub-field objects.
+	 * @param int    $row_count  Current row count.
+	 */
+	private function cleanup_repeater_meta( $post_id, $field_name, $sub_fields, $row_count ) {
+		global $wpdb;
+
+		// Find all meta keys matching this repeater's pattern.
+		$pattern = self::META_PREFIX . $field_name . '_%';
+		$existing_keys = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT meta_key FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key LIKE %s",
+				$post_id,
+				$pattern
+			)
+		);
+
+		foreach ( $existing_keys as $key ) {
+			// Extract index from key: of_{field}_{index}_{subfield}
+			$prefix_removed = str_replace( self::META_PREFIX . $field_name . '_', '', $key );
+			$parts = explode( '_', $prefix_removed, 2 );
+
+			if ( isset( $parts[0] ) && is_numeric( $parts[0] ) ) {
+				$index = (int) $parts[0];
+				// Delete if index is >= new row count.
+				if ( $index >= $row_count ) {
+					delete_post_meta( $post_id, $key );
+					error_log( 'OpenFields: Cleaned up old meta: ' . $key );
+				}
+			}
+		}
 	}
 
 	/**

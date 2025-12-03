@@ -16,6 +16,7 @@ import { TextareaFieldSettings } from './TextareaFieldSettings';
 import { NumberFieldSettings } from './NumberFieldSettings';
 import { SelectFieldSettings } from './SelectFieldSettings';
 import { SwitchFieldSettings } from './SwitchFieldSettings';
+import { RepeaterFieldSettings } from './RepeaterFieldSettings';
 
 /**
  * Register all field types with their settings components
@@ -110,6 +111,22 @@ export function registerFieldSettings() {
 			defaultSettings: {
 				choices: [],
 				layout: 'vertical',
+			},
+		});
+	}
+
+	// Repeater - supports nested sub-fields
+	const repeaterDef = fieldRegistry.get('repeater');
+	if (repeaterDef) {
+		fieldRegistry.register({
+			...repeaterDef,
+			SettingsComponent: RepeaterFieldSettings as React.ComponentType<FieldSettingsProps>,
+			hasSubFields: true,
+			defaultSettings: {
+				min: 0,
+				max: 0,
+				layout: 'table',
+				button_label: 'Add Row',
 			},
 		});
 	}

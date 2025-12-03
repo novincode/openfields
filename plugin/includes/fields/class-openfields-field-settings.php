@@ -114,6 +114,11 @@ class OpenFields_Field_Settings {
 			'category' => 'basic',
 			'settings' => array( 'default_value', 'enable_opacity' ),
 		),
+		'repeater' => array(
+			'label' => 'Repeater',
+			'category' => 'layout',
+			'settings' => array( 'min', 'max', 'layout', 'button_label' ),
+		),
 	);
 
 	/**

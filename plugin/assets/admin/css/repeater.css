@@ -1,0 +1,409 @@
+/**
+ * OpenFields Repeater Field Styles
+ *
+ * Clean, WordPress-native styling for repeater fields.
+ * Supports table, block, and row layouts.
+ *
+ * @package OpenFields
+ * @since   1.0.0
+ */
+
+/* ==========================================================================
+   REPEATER CONTAINER
+   ========================================================================== */
+
+.openfields-repeater {
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.openfields-repeater-empty {
+	padding: 20px;
+	text-align: center;
+	color: #646970;
+	font-style: italic;
+}
+
+/* ==========================================================================
+   ROWS CONTAINER
+   ========================================================================== */
+
+.openfields-repeater-rows:empty::before {
+	content: 'No rows yet. Click "Add Row" to begin.';
+	display: block;
+	padding: 20px;
+	text-align: center;
+	color: #646970;
+	font-style: italic;
+}
+
+/* ==========================================================================
+   INDIVIDUAL ROW
+   ========================================================================== */
+
+.openfields-repeater-row {
+	border-bottom: 1px solid #c3c4c7;
+	background: #fff;
+	transition: background-color 0.2s ease;
+}
+
+.openfields-repeater-row:last-child {
+	border-bottom: none;
+}
+
+.openfields-repeater-row:hover {
+	background: #f9f9f9;
+}
+
+.openfields-repeater-row.is-dragging {
+	opacity: 0.5;
+	background: #e5e5e5;
+}
+
+/* Row Placeholder (during drag) */
+.openfields-repeater-row-placeholder {
+	border: 2px dashed #0073aa;
+	background: #f0f6fc;
+	border-radius: 2px;
+	margin: 4px 0;
+}
+
+/* ==========================================================================
+   ROW HEADER
+   ========================================================================== */
+
+.openfields-repeater-row-header {
+	display: flex;
+	align-items: center;
+	padding: 8px 12px;
+	background: #f6f7f7;
+	border-bottom: 1px solid #e2e4e7;
+	gap: 8px;
+}
+
+/* Drag Handle */
+.openfields-repeater-row-handle {
+	cursor: grab;
+	padding: 4px;
+	color: #787c82;
+	opacity: 0.6;
+	transition: opacity 0.2s;
+}
+
+.openfields-repeater-row-handle:hover {
+	opacity: 1;
+	color: #2271b1;
+}
+
+.openfields-repeater-row-handle:active {
+	cursor: grabbing;
+}
+
+.openfields-repeater-row-handle .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+/* Row Number */
+.openfields-repeater-row-number {
+	font-weight: 600;
+	color: #1d2327;
+	font-size: 13px;
+	min-width: 24px;
+	text-align: center;
+}
+
+/* Spacer */
+.openfields-repeater-row-spacer {
+	flex: 1;
+}
+
+/* Remove Button */
+.openfields-repeater-row-remove {
+	background: none;
+	border: none;
+	padding: 4px;
+	cursor: pointer;
+	color: #787c82;
+	opacity: 0.6;
+	transition: opacity 0.2s, color 0.2s;
+}
+
+.openfields-repeater-row-remove:hover {
+	opacity: 1;
+	color: #d63638;
+}
+
+.openfields-repeater-row-remove:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+
+.openfields-repeater-row-remove .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+/* ==========================================================================
+   ROW CONTENT
+   ========================================================================== */
+
+.openfields-repeater-row-content {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	padding: 16px;
+}
+
+/* ==========================================================================
+   SUB-FIELDS
+   ========================================================================== */
+
+.openfields-repeater-subfield {
+	min-width: 0; /* Prevent flex items from overflowing */
+	box-sizing: border-box;
+}
+
+.openfields-repeater-subfield-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.openfields-repeater-subfield-label .openfields-field-required {
+	color: #d63638;
+	margin-left: 2px;
+}
+
+.openfields-repeater-subfield-input {
+	margin-bottom: 4px;
+}
+
+.openfields-repeater-subfield-input input[type="text"],
+.openfields-repeater-subfield-input input[type="email"],
+.openfields-repeater-subfield-input input[type="url"],
+.openfields-repeater-subfield-input input[type="number"],
+.openfields-repeater-subfield-input input[type="date"],
+.openfields-repeater-subfield-input input[type="datetime-local"],
+.openfields-repeater-subfield-input textarea,
+.openfields-repeater-subfield-input select {
+	width: 100%;
+	max-width: 100%;
+}
+
+.openfields-repeater-subfield .openfields-field-description {
+	font-size: 12px;
+	color: #646970;
+	margin: 4px 0 0;
+}
+
+/* ==========================================================================
+   ACTIONS BAR
+   ========================================================================== */
+
+.openfields-repeater-actions {
+	padding: 12px;
+	background: #f6f7f7;
+	border-top: 1px solid #c3c4c7;
+}
+
+.openfields-repeater-add {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.openfields-repeater-add .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.openfields-repeater-add:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* ==========================================================================
+   NOTICE
+   ========================================================================== */
+
+.openfields-repeater-notice {
+	margin: 0 !important;
+	border-radius: 0 !important;
+	border-left-width: 4px;
+}
+
+.openfields-repeater-notice p {
+	margin: 8px 0;
+	padding: 0;
+}
+
+/* ==========================================================================
+   LAYOUT: TABLE
+   ========================================================================== */
+
+.openfields-repeater-layout-table .openfields-repeater-row-content {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.openfields-repeater-layout-table .openfields-repeater-subfield {
+	display: table-cell;
+	padding: 8px;
+	vertical-align: top;
+}
+
+/* ==========================================================================
+   LAYOUT: BLOCK
+   ========================================================================== */
+
+.openfields-repeater-layout-block .openfields-repeater-subfield {
+	width: 100% !important;
+	margin-bottom: 12px;
+}
+
+.openfields-repeater-layout-block .openfields-repeater-subfield:last-child {
+	margin-bottom: 0;
+}
+
+/* ==========================================================================
+   LAYOUT: ROW
+   ========================================================================== */
+
+.openfields-repeater-layout-row .openfields-repeater-row-content {
+	flex-wrap: nowrap;
+}
+
+.openfields-repeater-layout-row .openfields-repeater-subfield {
+	flex: 1;
+	min-width: 100px;
+}
+
+/* ==========================================================================
+   NESTED REPEATERS
+   ========================================================================== */
+
+.openfields-repeater .openfields-repeater {
+	margin: 0;
+	border-color: #dcdcde;
+}
+
+.openfields-repeater .openfields-repeater .openfields-repeater-row-header {
+	background: #fafafa;
+}
+
+/* ==========================================================================
+   SWITCH FIELD IN REPEATER
+   ========================================================================== */
+
+.openfields-repeater-subfield .openfields-switch-wrapper {
+	display: inline-flex;
+	align-items: center;
+}
+
+.openfields-repeater-subfield .openfields-switch-input {
+	display: none;
+}
+
+.openfields-repeater-subfield .openfields-switch-track {
+	position: relative;
+	width: 44px;
+	height: 24px;
+	background: #8c8f94;
+	border-radius: 12px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.openfields-repeater-subfield .openfields-switch-track:hover {
+	background: #787c82;
+}
+
+.openfields-repeater-subfield .openfields-switch-input:checked + .openfields-switch-track {
+	background: #2271b1;
+}
+
+.openfields-repeater-subfield .openfields-switch-thumb {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 20px;
+	height: 20px;
+	background: #fff;
+	border-radius: 50%;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+	transition: transform 0.2s ease;
+}
+
+.openfields-repeater-subfield .openfields-switch-input:checked + .openfields-switch-track .openfields-switch-thumb {
+	transform: translateX(20px);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	.openfields-repeater-row-content {
+		flex-direction: column;
+	}
+
+	.openfields-repeater-subfield {
+		width: 100% !important;
+	}
+
+	.openfields-repeater-layout-table .openfields-repeater-row-content {
+		display: flex;
+	}
+
+	.openfields-repeater-layout-table .openfields-repeater-subfield {
+		display: block;
+	}
+}
+
+/* ==========================================================================
+   ACCESSIBILITY
+   ========================================================================== */
+
+.openfields-repeater-row-handle:focus,
+.openfields-repeater-row-remove:focus,
+.openfields-repeater-add:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 1px;
+}
+
+/* Screen reader text */
+.openfields-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT (if WP Admin dark mode plugin active)
+   ========================================================================== */
+
+body.admin-color-modern .openfields-repeater {
+	border-color: #50575e;
+}
+
+body.admin-color-modern .openfields-repeater-row-header {
+	background: #2c3338;
+}
+
+body.admin-color-modern .openfields-repeater-row:hover {
+	background: #32373c;
+}

@@ -251,6 +251,41 @@ class OpenFields_Field_Registry {
 			),
 		) );
 
+		$this->register( 'repeater', array(
+			'label'          => __( 'Repeater', 'openfields' ),
+			'description'    => __( 'Repeatable group of sub-fields.', 'openfields' ),
+			'category'       => 'layout',
+			'icon'           => 'list',
+			'has_sub_fields' => true,
+			'schema'         => array(
+				'min'          => array(
+					'type'    => 'number',
+					'label'   => __( 'Minimum Rows', 'openfields' ),
+					'default' => 0,
+				),
+				'max'          => array(
+					'type'    => 'number',
+					'label'   => __( 'Maximum Rows', 'openfields' ),
+					'default' => 0,
+				),
+				'layout'       => array(
+					'type'    => 'select',
+					'label'   => __( 'Layout', 'openfields' ),
+					'choices' => array(
+						'table' => __( 'Table', 'openfields' ),
+						'block' => __( 'Block', 'openfields' ),
+						'row'   => __( 'Row', 'openfields' ),
+					),
+					'default' => 'table',
+				),
+				'button_label' => array(
+					'type'    => 'text',
+					'label'   => __( 'Button Label', 'openfields' ),
+					'default' => __( 'Add Row', 'openfields' ),
+				),
+			),
+		) );
+
 		/**
 		 * Fires after default field types are registered.
 		 *
