@@ -10,6 +10,9 @@ import FieldsetList from './pages/FieldsetList';
 import { FieldsetEditor } from '@/pages/FieldsetEditor';
 import Tools from './pages/Tools';
 
+// Register all field type settings components
+import './fields';
+
 // Create a query client
 const queryClient = new QueryClient({
 	defaultOptions: {
