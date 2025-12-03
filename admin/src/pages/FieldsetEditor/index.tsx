@@ -34,7 +34,6 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	const unsavedChanges = useFieldsetStore((state) => state.unsavedChanges);
 	const setUnsavedChanges = useFieldsetStore((state) => state.setUnsavedChanges);
 	const saveAllChanges = useFieldsetStore((state) => state.saveAllChanges);
-	const isLoading = useFieldsetStore((state) => state.isLoading);
 	const { showToast } = useUIStore();
 
 	// Local state for fieldset-level properties
@@ -147,8 +146,8 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		}
 	};
 
-	// Loading state
-	if (!initialized || isLoading) {
+	// Loading state - only show on initial load, NOT when saving
+	if (!initialized) {
 		return (
 			<div className="flex items-center justify-center h-64">
 				<p className="text-gray-500">Loading...</p>

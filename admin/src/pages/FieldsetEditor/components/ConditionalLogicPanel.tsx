@@ -48,12 +48,16 @@ export function ConditionalLogicPanel({
 	);
 	const [logicType, setLogicType] = useState<'and' | 'or'>('and');
 
-	// Sync with field prop
+	// Sync with field prop - but ONLY sync if the field data actually changed
+	// Not when we're just toggling locally
 	useEffect(() => {
 		const hasLogic =
 			field.settings?.conditional_logic && field.settings.conditional_logic.length > 0;
-		setEnabled(hasLogic || false);
-		setRules(field.settings?.conditional_logic?.[0] || []);
+		// Only sync from field if we have actual rules, otherwise trust local state
+		if (hasLogic) {
+			setEnabled(true);
+			setRules(field.settings?.conditional_logic?.[0] || []);
+		}
 	}, [field.settings?.conditional_logic]);
 
 	// Save logic changes
@@ -69,8 +73,12 @@ export function ConditionalLogicPanel({
 	const handleToggle = (checked: boolean) => {
 		setEnabled(checked);
 		if (checked) {
-			// When turning ON, save current rules (or empty array if none)
-			saveLogic(rules);
+			// When turning ON, create a default empty rule so user can configure
+			const defaultRules = rules.length > 0 ? rules : [{ field: '', operator: '==' as const, value: '' }];
+			setRules(defaultRules);
+			// Don't save yet - user needs to configure the rule first
+			// Just mark as having conditional logic enabled
+			onConditionalLogicChange([defaultRules]);
 		} else {
 			// When turning OFF, clear rules
 			setRules([]);

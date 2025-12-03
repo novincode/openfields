@@ -255,15 +255,13 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 					currentFieldset,
 				} = get();
 				
-				if (!currentFieldset) {
-					throw new Error('No fieldset selected');
-				}
+			if (!currentFieldset) {
+				throw new Error('No fieldset selected');
+			}
 
-				try {
-					set({ isLoading: true });
-					const promises: Promise<any>[] = [];
-
-					// Delete fields marked for deletion
+			try {
+				// Don't set isLoading - we don't want the whole page to re-render
+				const promises: Promise<any>[] = [];					// Delete fields marked for deletion
 					for (const fieldId of pendingFieldDeletions) {
 						// Only delete if it's not a new field (temp ID)
 						if (!fieldId.startsWith('temp-')) {
@@ -319,21 +317,17 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 				// Wait for all operations
 				await Promise.all(promises);
 
-				// Fetch fresh data to confirm
-				await get().fetchFields(currentFieldset.id);
-
-				// Clear pending changes
+				// DO NOT refetch - keep UI state intact
+				// Just clear pending changes since everything was saved
 				set({
 					pendingFieldChanges: new Map(),
 					pendingFieldAdditions: [],
 					pendingFieldDeletions: [],
 					unsavedChanges: false,
-					isLoading: false,
 				});
 			} catch (error) {
 				set({
 					error: error instanceof Error ? error.message : 'Failed to save fields',
-					isLoading: false,
 				});
 				throw error;
 			}
