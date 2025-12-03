@@ -29,10 +29,11 @@ class OpenFields_Storage_Manager {
 
 	/**
 	 * Meta prefix.
+	 * Empty for ACF compatibility - fields save directly with their name.
 	 *
 	 * @var string
 	 */
-	const META_PREFIX = 'of_';
+	const META_PREFIX = '';
 
 	/**
 	 * Get instance.

@@ -29,10 +29,11 @@ class OpenFields_Meta_Box {
 
 	/**
 	 * Meta prefix.
+	 * Empty string for ACF compatibility - fields save directly with their name.
 	 *
 	 * @var string
 	 */
-	const META_PREFIX = 'of_';
+	const META_PREFIX = '';
 
 	/**
 	 * Get instance.
@@ -317,13 +318,19 @@ class OpenFields_Meta_Box {
 				break;
 
 			case 'email':
-				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-				echo '<input type="email" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
+				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : 'email@example.com';
+				echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
+				echo '<span class="openfields-input-icon dashicons dashicons-email"></span>';
+				echo '<input type="email" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat openfields-input-has-icon" data-validate="email" />';
+				echo '</div>';
 				break;
 
 			case 'url':
-				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-				echo '<input type="url" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
+				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : 'https://';
+				echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
+				echo '<span class="openfields-input-icon dashicons dashicons-admin-links"></span>';
+				echo '<input type="url" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat openfields-input-has-icon" data-validate="url" />';
+				echo '</div>';
 				break;
 
 			case 'number':
@@ -587,9 +594,9 @@ class OpenFields_Meta_Box {
 	/**
 	 * Save a repeater field and its sub-fields in ACF-compatible format.
 	 *
-	 * ACF Format:
-	 * - of_{field} = row count
-	 * - of_{field}_{index}_{subfield} = value
+	 * ACF Format (no prefix, 0-based index):
+	 * - {field} = row count
+	 * - {field}_{index}_{subfield} = value
 	 *
 	 * @since 1.0.0
 	 * @param int    $post_id        Post ID.
@@ -604,15 +611,16 @@ class OpenFields_Meta_Box {
 			$base_name = $field->name;
 		}
 
-		$meta_key = self::META_PREFIX . $base_name;
+		// No prefix for ACF compatibility.
+		$meta_key = $base_name;
 
-		// Get row count from POST (stored in hidden input with of_ prefix).
+		// Get row count from POST (stored in hidden input without prefix).
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
 
 		error_log( 'OpenFields: Saving repeater "' . $base_name . '" with ' . $row_count . ' rows (meta_key: ' . $meta_key . ')' );
 
-		// Save row count (ACF format).
+		// Save row count (ACF format - no prefix).
 		update_post_meta( $post_id, $meta_key, $row_count );
 
 		// Get sub-fields for this repeater.
@@ -629,22 +637,40 @@ class OpenFields_Meta_Box {
 		// Save each row's sub-field values.
 		for ( $i = 0; $i < $row_count; $i++ ) {
 			foreach ( $sub_fields as $sub_field ) {
-				// Full name: base_index_subfield (e.g., team_0_name or team_0_skills_1_level)
-				$full_name = $base_name . '_' . $i . '_' . $sub_field->name;
-				$sub_meta_key = self::META_PREFIX . $full_name;
+				// Get raw sub-field name (strip parent prefix if present).
+				$raw_sub_name = $this->get_raw_subfield_name( $sub_field->name, $base_name );
+				
+				// Full name: base_index_subfield (e.g., team_0_name)
+				$full_name = $base_name . '_' . $i . '_' . $raw_sub_name;
 
 				// Handle nested repeaters recursively.
 				if ( $sub_field->type === 'repeater' ) {
 					$this->save_repeater_field( $post_id, $sub_field, $sub_fields_map, $full_name );
 				} else {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$raw_value = isset( $_POST[ $sub_meta_key ] ) ? wp_unslash( $_POST[ $sub_meta_key ] ) : '';
+					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
-					update_post_meta( $post_id, $sub_meta_key, $sanitized );
-					error_log( 'OpenFields: Saved ' . $sub_meta_key . ' = ' . print_r( $sanitized, true ) );
+					update_post_meta( $post_id, $full_name, $sanitized );
+					error_log( 'OpenFields: Saved ' . $full_name . ' = ' . print_r( $sanitized, true ) );
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get raw sub-field name without parent prefix.
+	 *
+	 * @since 1.0.0
+	 * @param string $sub_field_name Full sub-field name.
+	 * @param string $parent_name    Parent field name.
+	 * @return string Raw name.
+	 */
+	private function get_raw_subfield_name( $sub_field_name, $parent_name ) {
+		$prefix = $parent_name . '_';
+		if ( strpos( $sub_field_name, $prefix ) === 0 ) {
+			return substr( $sub_field_name, strlen( $prefix ) );
+		}
+		return $sub_field_name;
 	}
 
 	/**
@@ -659,8 +685,8 @@ class OpenFields_Meta_Box {
 	private function cleanup_repeater_meta( $post_id, $field_name, $sub_fields, $row_count ) {
 		global $wpdb;
 
-		// Find all meta keys matching this repeater's pattern.
-		$pattern = self::META_PREFIX . $field_name . '_%';
+		// Find all meta keys matching this repeater's pattern (no prefix).
+		$pattern = $field_name . '_%';
 		$existing_keys = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT meta_key FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key LIKE %s",
@@ -670,8 +696,8 @@ class OpenFields_Meta_Box {
 		);
 
 		foreach ( $existing_keys as $key ) {
-			// Extract index from key: of_{field}_{index}_{subfield}
-			$prefix_removed = str_replace( self::META_PREFIX . $field_name . '_', '', $key );
+			// Extract index from key: {field}_{index}_{subfield}
+			$prefix_removed = str_replace( $field_name . '_', '', $key );
 			$parts = explode( '_', $prefix_removed, 2 );
 
 			if ( isset( $parts[0] ) && is_numeric( $parts[0] ) ) {

@@ -7,6 +7,7 @@
  * - Field validation and error handling
  * - File upload preview management
  * - Dynamic field interactions
+ * - Headless validation system (reusable everywhere)
  *
  * @package OpenFields
  * @since   1.0.0
@@ -14,6 +15,260 @@
 
 (function() {
 	'use strict';
+
+	/**
+	 * OpenFields Validator
+	 *
+	 * Headless, scalable validation system that works with:
+	 * - Classic Editor meta boxes
+	 * - Gutenberg sidebar panels
+	 * - Taxonomy term forms
+	 * - User profile fields
+	 * - Frontend forms
+	 *
+	 * Uses native HTML5 validation API + custom validators.
+	 */
+	const Validator = {
+		/**
+		 * Validation rules registry.
+		 */
+		rules: {
+			email: {
+				pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+				message: 'Please enter a valid email address',
+			},
+			url: {
+				pattern: /^https?:\/\/.+/,
+				message: 'Please enter a valid URL starting with http:// or https://',
+			},
+			number: {
+				validate: (value, settings) => {
+					if (value === '') return true; // Empty is handled by required
+					const num = parseFloat(value);
+					if (isNaN(num)) return false;
+					if (settings?.min !== undefined && num < settings.min) return false;
+					if (settings?.max !== undefined && num > settings.max) return false;
+					return true;
+				},
+				message: 'Please enter a valid number',
+			},
+			required: {
+				validate: (value) => value !== null && value !== undefined && String(value).trim() !== '',
+				message: 'This field is required',
+			},
+			minLength: {
+				validate: (value, settings) => !value || String(value).length >= (settings?.minLength || 0),
+				message: 'Value is too short',
+			},
+			maxLength: {
+				validate: (value, settings) => !value || String(value).length <= (settings?.maxLength || Infinity),
+				message: 'Value is too long',
+			},
+			phone: {
+				pattern: /^[\d\s\-+()]{7,20}$/,
+				message: 'Please enter a valid phone number',
+			},
+		},
+
+		/**
+		 * Register a custom validation rule.
+		 *
+		 * @param {string} name - Rule name.
+		 * @param {Object} rule - Rule object with pattern/validate and message.
+		 */
+		registerRule(name, rule) {
+			this.rules[name] = rule;
+		},
+
+		/**
+		 * Validate a single value against a rule.
+		 *
+		 * @param {*} value - The value to validate.
+		 * @param {string} ruleName - The rule to use.
+		 * @param {Object} settings - Optional settings for the rule.
+		 * @returns {Object} { valid: boolean, message: string }
+		 */
+		validate(value, ruleName, settings = {}) {
+			const rule = this.rules[ruleName];
+			if (!rule) {
+				console.warn(`[OpenFields] Unknown validation rule: ${ruleName}`);
+				return { valid: true, message: '' };
+			}
+
+			let isValid = true;
+
+			if (rule.pattern) {
+				isValid = rule.pattern.test(String(value || ''));
+			} else if (rule.validate) {
+				isValid = rule.validate(value, settings);
+			}
+
+			return {
+				valid: isValid,
+				message: isValid ? '' : rule.message,
+			};
+		},
+
+		/**
+		 * Validate a form element based on data-validate attribute.
+		 *
+		 * @param {HTMLElement} element - The input element.
+		 * @returns {Object} { valid: boolean, errors: string[] }
+		 */
+		validateElement(element) {
+			const errors = [];
+			const value = element.value;
+			const validationType = element.dataset.validate;
+
+			// Check required first
+			if (element.hasAttribute('required') || element.dataset.required === 'true') {
+				const result = this.validate(value, 'required');
+				if (!result.valid) {
+					errors.push(result.message);
+					return { valid: false, errors };
+				}
+			}
+
+			// If empty and not required, skip other validations
+			if (!value || value.trim() === '') {
+				return { valid: true, errors: [] };
+			}
+
+			// Validate based on type
+			if (validationType) {
+				const types = validationType.split(',').map(t => t.trim());
+				for (const type of types) {
+					const settings = this.getElementSettings(element);
+					const result = this.validate(value, type, settings);
+					if (!result.valid) {
+						errors.push(result.message);
+					}
+				}
+			}
+
+			// Use native HTML5 validation as fallback
+			if (element.validity && !element.validity.valid) {
+				if (element.validationMessage && !errors.includes(element.validationMessage)) {
+					errors.push(element.validationMessage);
+				}
+			}
+
+			return {
+				valid: errors.length === 0,
+				errors,
+			};
+		},
+
+		/**
+		 * Extract settings from element attributes.
+		 *
+		 * @param {HTMLElement} element - The input element.
+		 * @returns {Object} Settings object.
+		 */
+		getElementSettings(element) {
+			return {
+				min: element.hasAttribute('min') ? parseFloat(element.min) : undefined,
+				max: element.hasAttribute('max') ? parseFloat(element.max) : undefined,
+				minLength: element.hasAttribute('minlength') ? parseInt(element.minLength, 10) : undefined,
+				maxLength: element.hasAttribute('maxlength') ? parseInt(element.maxLength, 10) : undefined,
+			};
+		},
+
+		/**
+		 * Apply validation state to an element (add/remove classes).
+		 *
+		 * @param {HTMLElement} element - The input element.
+		 * @param {Object} result - Validation result { valid, errors }.
+		 */
+		applyValidationState(element, result) {
+			const wrapper = element.closest('.openfields-field-wrapper') ||
+			                element.closest('.openfields-repeater-subfield') ||
+			                element.parentElement;
+
+			// Remove existing states
+			element.classList.remove('is-valid', 'is-invalid');
+
+			// Remove existing messages
+			const existingMsg = wrapper?.querySelector('.openfields-validation-message');
+			if (existingMsg) {
+				existingMsg.remove();
+			}
+
+			if (result.valid) {
+				if (element.value && element.value.trim() !== '') {
+					element.classList.add('is-valid');
+				}
+			} else {
+				element.classList.add('is-invalid');
+
+				// Add error message
+				if (wrapper && result.errors.length > 0) {
+					const msgEl = document.createElement('div');
+					msgEl.className = 'openfields-validation-message is-error';
+					msgEl.textContent = result.errors[0];
+					
+					const inputContainer = element.closest('.openfields-field-input') ||
+					                        element.closest('.openfields-repeater-subfield-input') ||
+					                        element.parentElement;
+					if (inputContainer) {
+						inputContainer.appendChild(msgEl);
+					}
+				}
+			}
+
+			return result.valid;
+		},
+
+		/**
+		 * Validate all fields in a container and prevent form submission if invalid.
+		 *
+		 * @param {HTMLElement} container - The container to validate.
+		 * @returns {boolean} Whether all fields are valid.
+		 */
+		validateContainer(container) {
+			const inputs = container.querySelectorAll('[data-validate], [required]');
+			let allValid = true;
+
+			inputs.forEach(input => {
+				const result = this.validateElement(input);
+				if (!result.valid) {
+					allValid = false;
+					this.applyValidationState(input, result);
+				}
+			});
+
+			return allValid;
+		},
+
+		/**
+		 * Setup live validation on inputs.
+		 *
+		 * @param {HTMLElement} container - Container to setup validation in.
+		 */
+		setupLiveValidation(container) {
+			const inputs = container.querySelectorAll('[data-validate], input[type="email"], input[type="url"], input[type="number"]');
+
+			inputs.forEach(input => {
+				// Validate on blur (when leaving field)
+				input.addEventListener('blur', () => {
+					const result = this.validateElement(input);
+					this.applyValidationState(input, result);
+				});
+
+				// Clear invalid state on input
+				input.addEventListener('input', () => {
+					if (input.classList.contains('is-invalid')) {
+						input.classList.remove('is-invalid');
+						const wrapper = input.closest('.openfields-field-wrapper') ||
+						                input.closest('.openfields-repeater-subfield') ||
+						                input.parentElement;
+						const msg = wrapper?.querySelector('.openfields-validation-message');
+						if (msg) msg.remove();
+					}
+				});
+			});
+		},
+	};
 
 	/**
 	 * OpenFields Fields Manager
@@ -28,9 +283,101 @@
 			this.initSwitchFields();
 			this.initConditionalLogic();
 			this.initFileFields();
+			this.initValidation();
 			this.bindEvents();
 
 			console.log('[OpenFields] Fields manager initialized');
+		},
+
+		/**
+		 * Initialize validation on all meta boxes.
+		 */
+		initValidation() {
+			const metaBoxes = document.querySelectorAll('.openfields-meta-box');
+			
+			metaBoxes.forEach(box => {
+				Validator.setupLiveValidation(box);
+			});
+
+			// Also setup on any repeater containers
+			const repeaters = document.querySelectorAll('.openfields-repeater');
+			repeaters.forEach(repeater => {
+				Validator.setupLiveValidation(repeater);
+			});
+
+			// Intercept form submission to validate
+			this.setupFormSubmitValidation();
+
+			console.log('[OpenFields] Validation system initialized');
+		},
+
+		/**
+		 * Setup form submission validation.
+		 */
+		setupFormSubmitValidation() {
+			const form = document.getElementById('post') || document.querySelector('form.edit-form');
+			if (!form) return;
+
+			form.addEventListener('submit', (e) => {
+				const metaBoxes = form.querySelectorAll('.openfields-meta-box');
+				let isValid = true;
+
+				metaBoxes.forEach(box => {
+					if (!Validator.validateContainer(box)) {
+						isValid = false;
+					}
+				});
+
+				if (!isValid) {
+					e.preventDefault();
+					
+					// Scroll to first error
+					const firstError = form.querySelector('.is-invalid');
+					if (firstError) {
+						firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+						firstError.focus();
+					}
+
+					// Show notice
+					this.showNotice('Please fix the validation errors before saving.', 'error');
+				}
+			});
+		},
+
+		/**
+		 * Show a WordPress-style admin notice.
+		 *
+		 * @param {string} message - The message to show.
+		 * @param {string} type - Notice type: 'error', 'warning', 'success', 'info'.
+		 */
+		showNotice(message, type = 'info') {
+			// Remove existing OpenFields notices
+			const existing = document.querySelectorAll('.openfields-notice');
+			existing.forEach(n => n.remove());
+
+			const notice = document.createElement('div');
+			notice.className = `notice notice-${type} is-dismissible openfields-notice`;
+			notice.innerHTML = `<p>${message}</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss</span></button>`;
+
+			const heading = document.querySelector('.wrap > h1, .wrap > h2');
+			if (heading) {
+				heading.after(notice);
+			} else {
+				document.querySelector('.wrap')?.prepend(notice);
+			}
+
+			// Add dismiss handler
+			notice.querySelector('.notice-dismiss')?.addEventListener('click', () => {
+				notice.remove();
+			});
+
+			// Auto-dismiss after 5 seconds
+			setTimeout(() => {
+				if (notice.parentElement) {
+					notice.style.opacity = '0';
+					setTimeout(() => notice.remove(), 300);
+				}
+			}, 5000);
 		},
 
 		/**
@@ -440,4 +787,5 @@
 	 * Export for testing or external use.
 	 */
 	window.OpenFieldsManager = FieldsManager;
+	window.OpenFieldsValidator = Validator;
 })();

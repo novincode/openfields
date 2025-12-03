@@ -407,15 +407,16 @@
 				const closestRow = input.closest('.openfields-repeater-row');
 				if (closestRow !== row) return;
 
-				// Update name: of_{base}_{oldIndex}_{subfield} -> of_{base}_{newIndex}_{subfield}
+				// Update name: {base}_{oldIndex}_{subfield} -> {base}_{newIndex}_{subfield}
+				// No prefix for ACF compatibility
 				if (input.name) {
-					const pattern = new RegExp(`^(of_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+					const pattern = new RegExp(`^(${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
 					input.name = input.name.replace(pattern, `$1${newIndex}$2`);
 				}
 
 				// Update ID
 				if (input.id) {
-					const pattern = new RegExp(`^(of_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+					const pattern = new RegExp(`(${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
 					input.id = input.id.replace(pattern, `$1${newIndex}$2`);
 				}
 			});
@@ -427,7 +428,7 @@
 				if (closestRow !== row) return;
 
 				const forAttr = label.getAttribute('for');
-				const pattern = new RegExp(`^(of_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+				const pattern = new RegExp(`(${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
 				label.setAttribute('for', forAttr.replace(pattern, `$1${newIndex}$2`));
 			});
 
@@ -441,10 +442,10 @@
 					const newName = nestedName.replace(pattern, `${baseName}_${newIndex}_`);
 					nested.dataset.name = newName;
 
-					// Update count input name
+					// Update count input name (no prefix for ACF compatibility)
 					const countInput = nested.querySelector(':scope > input.openfields-repeater-count');
 					if (countInput) {
-						countInput.name = `of_${newName}`;
+						countInput.name = newName;
 					}
 
 					// Update config
@@ -468,16 +469,17 @@
 			const inputs = repeater.querySelectorAll('input, textarea, select');
 
 			inputs.forEach((input) => {
+				// No prefix for ACF compatibility
 				if (input.name) {
 					input.name = input.name.replace(
-						`of_${oldBaseName}_`,
-						`of_${newBaseName}_`
+						`${oldBaseName}_`,
+						`${newBaseName}_`
 					);
 				}
 				if (input.id) {
 					input.id = input.id.replace(
-						`of_${oldBaseName}_`,
-						`of_${newBaseName}_`
+						`${oldBaseName}_`,
+						`${newBaseName}_`
 					);
 				}
 			});
@@ -485,7 +487,7 @@
 			const labels = repeater.querySelectorAll('label[for]');
 			labels.forEach((label) => {
 				const forAttr = label.getAttribute('for');
-				label.setAttribute('for', forAttr.replace(`of_${oldBaseName}_`, `of_${newBaseName}_`));
+				label.setAttribute('for', forAttr.replace(`${oldBaseName}_`, `${newBaseName}_`));
 			});
 		},
 

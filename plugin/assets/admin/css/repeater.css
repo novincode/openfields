@@ -298,9 +298,7 @@
    ========================================================================== */
 
 @media screen and (max-width: 782px) {
-	.openfields-repeater-row-content {
-		flex-direction: column;
-	}
+
 
 	.openfields-repeater-subfield {
 		flex: 0 0 100% !important;

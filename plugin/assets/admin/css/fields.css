@@ -77,26 +77,33 @@
 	margin: 0;
 	padding: 0;
 	flex-shrink: 0;
-
-	/* Default full width */
-	width: 100%;
+	/* Width is set via inline style from PHP */
 }
 
-/* Width responsive classes for common breakpoints */
-.openfields-field-wrapper--width-100 {
-	width: 100%;
+/* Use calc to account for gap when multiple fields are on same row */
+.openfields-field-wrapper[style*="width: 50%"] {
+	width: calc(50% - var(--of-spacing-lg) / 2) !important;
 }
 
-.openfields-field-wrapper--width-50 {
-	width: calc(50% - calc(var(--of-spacing-lg) / 2));
+.openfields-field-wrapper[style*="width: 33%"] {
+	width: calc(33.333% - var(--of-spacing-lg) * 2 / 3) !important;
 }
 
-.openfields-field-wrapper--width-33 {
-	width: calc(33.333% - calc(var(--of-spacing-lg) * 2 / 3));
+.openfields-field-wrapper[style*="width: 25%"] {
+	width: calc(25% - var(--of-spacing-lg) * 3 / 4) !important;
 }
 
-.openfields-field-wrapper--width-25 {
-	width: calc(25% - calc(var(--of-spacing-lg) * 3 / 4));
+.openfields-field-wrapper[style*="width: 75%"] {
+	width: calc(75% - var(--of-spacing-lg) / 4) !important;
+}
+
+.openfields-field-wrapper[style*="width: 66%"] {
+	width: calc(66.666% - var(--of-spacing-lg) / 3) !important;
+}
+
+/* Keep 100% as full width */
+.openfields-field-wrapper[style*="width: 100%"] {
+	width: 100% !important;
 }
 
 /* ============================================================================
@@ -592,3 +599,99 @@
 		transform: rotate(360deg);
 	}
 }
+
+/* ============================================================================
+   Input with Icon (Email, URL, etc.)
+   ============================================================================ */
+
+.openfields-input-with-icon {
+	position: relative;
+	display: flex;
+	align-items: stretch;
+}
+
+.openfields-input-icon {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--of-text-secondary);
+	pointer-events: none;
+	z-index: 1;
+	font-size: 16px;
+}
+
+.openfields-input-icon-left .openfields-input-icon {
+	left: 10px;
+}
+
+.openfields-input-icon-right .openfields-input-icon {
+	right: 10px;
+}
+
+.openfields-input-icon-left .openfields-input-has-icon {
+	padding-left: 36px !important;
+}
+
+.openfields-input-icon-right .openfields-input-has-icon {
+	padding-right: 36px !important;
+}
+
+/* Icon color changes on focus */
+.openfields-input-with-icon:focus-within .openfields-input-icon {
+	color: var(--of-primary);
+}
+
+/* ============================================================================
+   Validation States
+   ============================================================================ */
+
+/* Valid input */
+.openfields-field-input input.is-valid,
+.openfields-field-input textarea.is-valid,
+.openfields-field-input select.is-valid {
+	border-color: var(--of-success);
+}
+
+.openfields-input-with-icon:has(input.is-valid) .openfields-input-icon {
+	color: var(--of-success);
+}
+
+/* Invalid input */
+.openfields-field-input input.is-invalid,
+.openfields-field-input textarea.is-invalid,
+.openfields-field-input select.is-invalid {
+	border-color: var(--of-error);
+	background-color: var(--of-error-bg);
+}
+
+.openfields-input-with-icon:has(input.is-invalid) .openfields-input-icon {
+	color: var(--of-error);
+}
+
+/* Validation message */
+.openfields-validation-message {
+	display: none;
+	margin: var(--of-spacing-xs) 0 0 0;
+	padding: var(--of-spacing-xs) var(--of-spacing-sm);
+	font-size: 12px;
+	border-radius: var(--of-radius);
+	line-height: 1.4;
+}
+
+.openfields-validation-message.is-error {
+	display: block;
+	color: var(--of-error);
+	background-color: var(--of-error-bg);
+}
+
+.openfields-validation-message.is-success {
+	display: block;
+	color: var(--of-success);
+	background-color: #e8f5e9;
+}
+

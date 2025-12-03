@@ -5,13 +5,13 @@
  * Renders repeater fields with ACF-compatible data storage format.
  * Supports nested repeaters through recursive rendering.
  *
- * ACF Data Format:
- * - of_{field_name} = count (integer)
- * - of_{field_name}_{index}_{subfield} = value
+ * ACF Data Format (no prefix, 0-based index):
+ * - {field_name} = count (integer)
+ * - {field_name}_{index}_{subfield} = value
  *
  * For nested repeaters:
- * - of_{parent}_{i}_{child} = count
- * - of_{parent}_{i}_{child}_{j}_{subfield} = value
+ * - {parent}_{i}_{child} = count
+ * - {parent}_{i}_{child}_{j}_{subfield} = value
  *
  * @package OpenFields
  * @since   1.0.0
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param object $field       Field object from database.
  * @param mixed  $value       Current row count.
  * @param string $field_id    HTML field ID.
- * @param string $base_name   Base name for this repeater (without of_ prefix).
+ * @param string $base_name   Base name for this repeater.
  * @param array  $settings    Field settings array.
  * @param int    $post_id     Post ID for fetching sub-field values.
  */
@@ -77,10 +77,10 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 		data-max="<?php echo esc_attr( $max ); ?>"
 		data-layout="<?php echo esc_attr( $layout ); ?>"
 	>
-		<!-- Hidden count input -->
+		<!-- Hidden count input - NO PREFIX for ACF compatibility -->
 		<input 
 			type="hidden" 
-			name="of_<?php echo esc_attr( $base_name ); ?>" 
+			name="<?php echo esc_attr( $base_name ); ?>" 
 			value="<?php echo esc_attr( $row_count ); ?>"
 			class="openfields-repeater-count"
 		/>
@@ -155,6 +155,25 @@ function openfields_render_repeater_row( $field, $sub_fields, $index, $base_name
 }
 
 /**
+ * Get raw sub-field name (without parent prefix).
+ *
+ * Sub-fields in the database are stored with parent prefix (e.g., "field_3_field_1").
+ * For ACF-compatible data format, we need the raw name (e.g., "field_1").
+ *
+ * @param string $sub_field_name Full sub-field name from database.
+ * @param string $parent_name    Parent repeater name.
+ * @return string Raw sub-field name.
+ */
+function openfields_get_raw_subfield_name( $sub_field_name, $parent_name ) {
+	// If the sub-field name starts with parent name + underscore, strip it.
+	$prefix = $parent_name . '_';
+	if ( strpos( $sub_field_name, $prefix ) === 0 ) {
+		return substr( $sub_field_name, strlen( $prefix ) );
+	}
+	return $sub_field_name;
+}
+
+/**
  * Render a sub-field within a repeater row.
  *
  * @param object $sub_field   Sub-field object.
@@ -170,20 +189,20 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $p
 		$settings = is_array( $decoded ) ? $decoded : array();
 	}
 
+	// Get the raw sub-field name (without parent prefix that DB might have).
+	// The database stores sub-fields as "parent_subfield", we need just "subfield".
+	$raw_name = openfields_get_raw_subfield_name( $sub_field->name, $base_name );
+
 	// Build the full field name: base_index_subfield
-	// For nested repeaters this becomes: parent_0_child_1_subfield
-	$full_name = $base_name . '_' . $index . '_' . $sub_field->name;
-	$field_id  = 'of_' . str_replace( array( '[', ']', '{{', '}}' ), '_', $full_name );
+	// ACF format: repeater_0_subfield (no prefix)
+	$full_name = $base_name . '_' . $index . '_' . $raw_name;
+	$field_id  = 'field_' . str_replace( array( '[', ']', '{{', '}}' ), '_', $full_name );
 
 	// Get value (only for real rows, not template).
 	$value = '';
 	if ( ! $is_template && $post_id && is_numeric( $index ) ) {
-		// Try with of_ prefix first.
-		$value = get_post_meta( $post_id, 'of_' . $full_name, true );
-		// Fallback to ACF format (without prefix).
-		if ( $value === '' ) {
-			$value = get_post_meta( $post_id, $full_name, true );
-		}
+		// ACF format (no prefix).
+		$value = get_post_meta( $post_id, $full_name, true );
 	}
 
 	// Default value.
@@ -209,7 +228,7 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $p
 
 		<div class="openfields-repeater-subfield-input">
 			<?php
-			openfields_render_field_input( $sub_field, $value, $field_id, $full_name, $settings, $post_id, $is_template );
+			openfields_render_field_input( $sub_field, $value, $field_id, $full_name, $settings, $post_id, $is_template, $base_name );
 			?>
 		</div>
 
@@ -226,14 +245,15 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $p
  * @param object $field       Field database object.
  * @param mixed  $value       Current value.
  * @param string $field_id    HTML ID attribute.
- * @param string $full_name   Full field name (parent_index_subfield format).
+ * @param string $full_name   Full field name (parent_index_subfield format) - NO PREFIX.
  * @param array  $settings    Field settings.
  * @param int    $post_id     Post ID.
  * @param bool   $is_template Whether rendering as template.
+ * @param string $parent_name Parent repeater name for nested repeaters.
  */
-function openfields_render_field_input( $field, $value, $field_id, $full_name, $settings, $post_id, $is_template = false ) {
-	// The HTML name attribute always includes of_ prefix for saving.
-	$html_name = 'of_' . $full_name;
+function openfields_render_field_input( $field, $value, $field_id, $full_name, $settings, $post_id, $is_template = false, $parent_name = '' ) {
+	// The HTML name attribute is the full_name directly (no prefix for ACF compatibility).
+	$html_name = $full_name;
 
 	// Nested repeater - recurse.
 	if ( $field->type === 'repeater' ) {
@@ -255,24 +275,30 @@ function openfields_render_field_input( $field, $value, $field_id, $full_name, $
 
 		case 'email':
 			$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
+			echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
+			echo '<span class="openfields-input-icon dashicons dashicons-email"></span>';
 			printf(
-				'<input type="email" id="%s" name="%s" value="%s" placeholder="%s" class="widefat" />',
+				'<input type="email" id="%s" name="%s" value="%s" placeholder="%s" class="widefat openfields-input-has-icon" data-validate="email" />',
 				esc_attr( $field_id ),
 				esc_attr( $html_name ),
 				esc_attr( $value ),
-				esc_attr( $placeholder )
+				esc_attr( $placeholder ?: 'email@example.com' )
 			);
+			echo '</div>';
 			break;
 
 		case 'url':
 			$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
+			echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
+			echo '<span class="openfields-input-icon dashicons dashicons-admin-links"></span>';
 			printf(
-				'<input type="url" id="%s" name="%s" value="%s" placeholder="%s" class="widefat" />',
+				'<input type="url" id="%s" name="%s" value="%s" placeholder="%s" class="widefat openfields-input-has-icon" data-validate="url" />',
 				esc_attr( $field_id ),
 				esc_attr( $html_name ),
 				esc_attr( $value ),
-				esc_attr( $placeholder )
+				esc_attr( $placeholder ?: 'https://' )
 			);
+			echo '</div>';
 			break;
 
 		case 'number':
@@ -280,7 +306,7 @@ function openfields_render_field_input( $field, $value, $field_id, $full_name, $
 			$max  = isset( $settings['max'] ) ? $settings['max'] : '';
 			$step = isset( $settings['step'] ) ? $settings['step'] : 1;
 			printf(
-				'<input type="number" id="%s" name="%s" value="%s" class="widefat" %s %s %s />',
+				'<input type="number" id="%s" name="%s" value="%s" class="widefat" %s %s %s data-validate="number" />',
 				esc_attr( $field_id ),
 				esc_attr( $html_name ),
 				esc_attr( $value ),
@@ -431,38 +457,26 @@ function openfields_detect_repeater_rows( $post_id, $base_name, $sub_fields ) {
 	global $wpdb;
 
 	// Use first sub-field for detection.
-	$first_sub = $sub_fields[0]->name;
+	// Get raw name without parent prefix.
+	$first_sub_raw = openfields_get_raw_subfield_name( $sub_fields[0]->name, $base_name );
 
-	// Pattern: of_{base}_{index}_{subfield}
-	$pattern = 'of_' . $base_name . '_%_' . $first_sub;
-	
+	// Pattern: {base}_{index}_{subfield} (no prefix)
 	$keys = $wpdb->get_col(
 		$wpdb->prepare(
 			"SELECT meta_key FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key REGEXP %s",
 			$post_id,
-			'^of_' . preg_quote( $base_name, '/' ) . '_[0-9]+_' . preg_quote( $first_sub, '/' ) . '$'
+			'^' . preg_quote( $base_name, '/' ) . '_[0-9]+_' . preg_quote( $first_sub_raw, '/' ) . '$'
 		)
 	);
 
-	// Also check ACF format (without of_ prefix).
-	$acf_keys = $wpdb->get_col(
-		$wpdb->prepare(
-			"SELECT meta_key FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key REGEXP %s",
-			$post_id,
-			'^' . preg_quote( $base_name, '/' ) . '_[0-9]+_' . preg_quote( $first_sub, '/' ) . '$'
-		)
-	);
-
-	$all_keys = array_merge( $keys, $acf_keys );
-
-	if ( empty( $all_keys ) ) {
+	if ( empty( $keys ) ) {
 		return 0;
 	}
 
 	// Extract max index.
 	$max_index = -1;
-	foreach ( $all_keys as $key ) {
-		if ( preg_match( '/^(?:of_)?' . preg_quote( $base_name, '/' ) . '_(\d+)_/', $key, $m ) ) {
+	foreach ( $keys as $key ) {
+		if ( preg_match( '/^' . preg_quote( $base_name, '/' ) . '_(\d+)_/', $key, $m ) ) {
 			$idx = (int) $m[1];
 			if ( $idx > $max_index ) {
 				$max_index = $idx;

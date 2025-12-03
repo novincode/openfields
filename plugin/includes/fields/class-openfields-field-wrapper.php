@@ -63,9 +63,9 @@ class OpenFields_Field_Wrapper {
 	 * @param OpenFields_Base_Field $field       Field instance.
 	 * @param mixed                 $value       Current field value.
 	 * @param string                $field_name  Field name/ID.
-	 * @param string                $meta_prefix Meta prefix for database storage.
+	 * @param string                $meta_prefix Meta prefix for database storage (empty for ACF compatibility).
 	 */
-	public function __construct( $field, $value, $field_name, $meta_prefix = 'of_' ) {
+	public function __construct( $field, $value, $field_name, $meta_prefix = '' ) {
 		$this->field         = $field;
 		$this->value         = $value;
 		$this->field_name    = $field_name;
