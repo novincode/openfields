@@ -485,26 +485,58 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 
 			try {
 				// Don't set isLoading - we don't want the whole page to re-render
-				const promises: Promise<any>[] = [];					// Delete fields marked for deletion
-					for (const fieldId of pendingFieldDeletions) {
-						// Only delete if it's not a new field (temp ID)
-						if (!fieldId.startsWith('temp-')) {
-							promises.push(fieldApi.delete(Number(fieldId)));
-						}
+				
+				// Step 1: Delete fields marked for deletion
+				const deletePromises: Promise<any>[] = [];
+				for (const fieldId of pendingFieldDeletions) {
+					// Only delete if it's not a new field (temp ID)
+					if (!fieldId.startsWith('temp-')) {
+						deletePromises.push(fieldApi.delete(Number(fieldId)));
 					}
+				}
+				await Promise.all(deletePromises);
 
-				// Add new fields
-				for (const newField of pendingFieldAdditions) {
-					// Check if this new field has been modified - merge changes
+				// Step 2: Create new fields IN ORDER - parents first, then children
+				// Build a map to track temp ID -> real ID mappings
+				const tempIdToRealId = new Map<string, number>();
+				
+				// Sort additions: root level first, then by depth
+				const sortedAdditions = [...pendingFieldAdditions].sort((a, b) => {
+					const getDepth = (f: Field): number => {
+						if (!f.parent_id) return 0;
+						const parent = fields.find(p => String(p.id) === String(f.parent_id));
+						return parent ? 1 + getDepth(parent) : 0;
+					};
+					return getDepth(a) - getDepth(b);
+				});
+				
+				// Create fields sequentially to ensure parents exist before children
+				for (const newField of sortedAdditions) {
 					const fieldIdStr = String(newField.id);
 					const changes = pendingFieldChanges.get(fieldIdStr);
 					
-					// Get the latest version from fields state (which has all updates applied)
+					// Get the latest version from fields state
 					const latestField = fields.find((f) => String(f.id) === fieldIdStr) || newField;
 					
+					// Resolve parent_id: if it's a temp ID, use the real ID we got from creating it
+					let resolvedParentId: number | null = null;
+					if (latestField.parent_id) {
+						const parentIdStr = String(latestField.parent_id);
+						if (parentIdStr.startsWith('temp-')) {
+							// Parent was also new - use the real ID we mapped
+							resolvedParentId = tempIdToRealId.get(parentIdStr) ?? null;
+						} else {
+							resolvedParentId = Number(latestField.parent_id);
+						}
+					}
+					
 					// Calculate proper menu_order based on position within parent context
-					const siblings = latestField.parent_id 
-						? getChildFields(fields, latestField.parent_id)
+					const siblings = resolvedParentId 
+						? fields.filter(f => {
+							const pid = String(f.parent_id);
+							return pid === String(latestField.parent_id) || 
+								(pid.startsWith('temp-') && tempIdToRealId.get(pid) === resolvedParentId);
+						})
 						: getRootFields(fields);
 					const menuOrder = siblings.findIndex(f => String(f.id) === fieldIdStr);
 					
@@ -514,42 +546,69 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 						type: changes?.type || latestField.type || newField.type,
 						settings: latestField.settings || newField.settings || {},
 						menu_order: menuOrder >= 0 ? menuOrder : latestField.menu_order,
-						parent_id: latestField.parent_id ?? null,
+						parent_id: resolvedParentId,
 					};
-					promises.push(
-						fieldApi.create(currentFieldset.id, fieldData).then((createdField) => {
-							// Update temp ID with real ID, also update children's parent_id
-							const oldId = newField.id;
-							set((state) => ({
-								fields: state.fields.map((f) => {
-									if (f.id === oldId) {
-										return { ...createdField, parent_id: createdField.parent_id ?? null };
-									}
-									// Update children that reference this temp ID
-									if (String(f.parent_id) === String(oldId)) {
-										return { ...f, parent_id: createdField.id };
-									}
-									return f;
-								}),
-							}));
-							return createdField;
-						})
-					);
-				}				// Update modified fields
+					
+					// Create and wait for the result
+					const createdField = await fieldApi.create(currentFieldset.id, fieldData);
+					
+					// Map temp ID to real ID
+					tempIdToRealId.set(fieldIdStr, createdField.id as number);
+					
+					// Update local state with real ID
+					set((state) => ({
+						fields: state.fields.map((f) => {
+							if (String(f.id) === fieldIdStr) {
+								return { ...createdField, parent_id: createdField.parent_id ?? null };
+							}
+							return f;
+						}),
+					}));
+				}
+				
+				// Step 3: Update children's parent_id references in local state
+				// (for any children that referenced temp IDs)
+				set((state) => ({
+					fields: state.fields.map((f) => {
+						if (f.parent_id && String(f.parent_id).startsWith('temp-')) {
+							const realParentId = tempIdToRealId.get(String(f.parent_id));
+							if (realParentId) {
+								return { ...f, parent_id: realParentId };
+							}
+						}
+						return f;
+					}),
+				}));
+				
+				// Step 4: Update modified existing fields
+				// Get fresh fields state after all the creates
+				const currentFields = get().fields;
+				const updatePromises: Promise<any>[] = [];
 				pendingFieldChanges.forEach((changes, fieldId) => {
-					// Only update if it's not a new field
+					// Only update if it's not a new field (those were already created above)
 					if (!fieldId.startsWith('temp-')) {
 						const numericId = Number(fieldId);
-						const field = fields.find((f) => String(f.id) === fieldId);
+						const field = currentFields.find((f) => String(f.id) === fieldId);
 						if (field) {
-							// Merge settings - keep all values including empty strings
-							// The API transform will handle the conversion
+							// Merge settings
 							const mergedSettings = { ...field.settings, ...changes.settings };
 							
-							// Calculate proper menu_order based on position within parent context
-							const siblings = field.parent_id 
-								? getChildFields(fields, field.parent_id)
-								: getRootFields(fields);
+							// Use the field's current parent_id (which reflects any moves)
+							// Resolve if it's a temp ID
+							let resolvedParentId: number | null = null;
+							if (field.parent_id) {
+								const parentIdStr = String(field.parent_id);
+								if (parentIdStr.startsWith('temp-')) {
+									resolvedParentId = tempIdToRealId.get(parentIdStr) ?? null;
+								} else {
+									resolvedParentId = Number(field.parent_id);
+								}
+							}
+							
+							// Calculate proper menu_order
+							const siblings = resolvedParentId 
+								? getChildFields(currentFields, resolvedParentId)
+								: getRootFields(currentFields);
 							const menuOrder = siblings.findIndex(f => String(f.id) === fieldId);
 							
 							const mergedData = {
@@ -558,18 +617,16 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 								type: changes.type || field.type,
 								settings: mergedSettings,
 								menu_order: menuOrder >= 0 ? menuOrder : field.menu_order,
-								parent_id: field.parent_id ?? null,
+								parent_id: resolvedParentId,
 							};
-							promises.push(fieldApi.update(numericId, mergedData));
+							updatePromises.push(fieldApi.update(numericId, mergedData));
 						}
 					}
 				});
+				
+				await Promise.all(updatePromises);
 
-				// Wait for all operations
-				await Promise.all(promises);
-
-				// DO NOT refetch - keep UI state intact
-				// Just clear pending changes since everything was saved
+				// Clear pending changes
 				set({
 					pendingFieldChanges: new Map(),
 					pendingFieldAdditions: [],

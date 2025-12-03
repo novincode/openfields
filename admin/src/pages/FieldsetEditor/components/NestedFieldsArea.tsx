@@ -23,7 +23,7 @@ import {
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Plus } from 'lucide-react';
+import { Plus, Copy } from 'lucide-react';
 
 import { useFieldsetStore } from '../../../stores/fieldset-store';
 import { useUIStore } from '../../../stores/ui-store';
@@ -40,6 +40,7 @@ import {
 	DrawerTrigger,
 } from '../../../components/ui/drawer';
 import { fieldRegistry } from '../../../lib/field-registry';
+import { CopyFieldDialog } from './CopyFieldDialog';
 import type { Field, FieldType } from '../../../types';
 
 // Import FieldItem type for the render prop pattern
@@ -73,9 +74,11 @@ export function NestedFieldsArea({
 	const addFieldLocal = useFieldsetStore((state) => state.addFieldLocal);
 	const reorderFieldsLocal = useFieldsetStore((state) => state.reorderFieldsLocal);
 	const getChildFields = useFieldsetStore((state) => state.getChildFields);
+	const currentFieldset = useFieldsetStore((state) => state.currentFieldset);
 	const { showToast } = useUIStore();
 	
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [copyDialogOpen, setCopyDialogOpen] = useState(false);
 	
 	// Get child fields for this parent
 	const childFields = getChildFields(parentField.id);
@@ -142,6 +145,18 @@ export function NestedFieldsArea({
 		
 		setDrawerOpen(false);
 		showToast('success', `${fieldLabel} added to ${parentField.label}`);
+	};
+	
+	// Handle copying a field from another location
+	const handleCopyField = (copiedField: Field) => {
+		// The copied field already has parent_id set to this parent
+		// Just add it to the store
+		addFieldLocal({
+			...copiedField,
+			// Ensure parent_id is set (should already be from CopyFieldDialog)
+			parent_id: parentField.id,
+		}, parentField.id);
+		showToast('success', `${copiedField.label} copied to ${parentField.label}`);
 	};
 	
 	return (
@@ -242,6 +257,25 @@ export function NestedFieldsArea({
 					</DrawerFooter>
 				</DrawerContent>
 			</Drawer>
+			
+			{/* Copy Field Button & Dialog */}
+			<button 
+				onClick={() => setCopyDialogOpen(true)}
+				className="w-full mt-2 p-2 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-gray-500 text-sm"
+			>
+				<Copy className="h-4 w-4" />
+				<span>Copy from other field</span>
+			</button>
+			
+			{currentFieldset && (
+				<CopyFieldDialog
+					open={copyDialogOpen}
+					onOpenChange={setCopyDialogOpen}
+					targetParentId={parentField.id}
+					currentFieldsetId={currentFieldset.id}
+					onCopy={handleCopyField}
+				/>
+			)}
 		</div>
 	);
 }

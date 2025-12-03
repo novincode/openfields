@@ -38,11 +38,12 @@ import {
 	sortableKeyboardCoordinates,
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Plus } from 'lucide-react';
+import { Plus, Copy } from 'lucide-react';
 
 import { FieldItem } from './FieldItem';
+import { CopyFieldDialog } from './CopyFieldDialog';
 import { fieldRegistry } from '../../../lib/field-registry';
-import type { FieldType } from '../../../types';
+import type { Field, FieldType } from '../../../types';
 
 export function FieldsSection() {
 	// Use selectors for proper subscription
@@ -58,6 +59,7 @@ export function FieldsSection() {
 	const groupedFieldTypes = fieldRegistry.getGroupedByCategory();
 
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [copyDialogOpen, setCopyDialogOpen] = useState(false);
 	
 	// Get only root-level fields (no parent)
 	const rootFields = getRootFields();
@@ -120,6 +122,16 @@ export function FieldsSection() {
 
 		setDrawerOpen(false);
 		showToast('success', `${fieldLabel} added (will be saved when you click Save Changes)`);
+	};
+
+	// Handle copying a field from another location
+	const handleCopyField = (copiedField: Field) => {
+		// The copied field already has parent_id set to null (root level)
+		addFieldLocal({
+			...copiedField,
+			parent_id: null, // Ensure it goes to root
+		}, null);
+		showToast('success', `${copiedField.label} copied to root level`);
 	};
 
 	return (
@@ -196,6 +208,25 @@ export function FieldsSection() {
 					</DrawerFooter>
 				</DrawerContent>
 			</Drawer>
+			
+			{/* Copy Field Button & Dialog */}
+			<button 
+				onClick={() => setCopyDialogOpen(true)}
+				className="w-full mt-2 p-3 border border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-gray-600"
+			>
+				<Copy className="h-4 w-4" />
+				<span>Copy from other field</span>
+			</button>
+			
+			{currentFieldset && (
+				<CopyFieldDialog
+					open={copyDialogOpen}
+					onOpenChange={setCopyDialogOpen}
+					targetParentId={null}
+					currentFieldsetId={currentFieldset.id}
+					onCopy={handleCopyField}
+				/>
+			)}
 		</div>
 	);
 }
