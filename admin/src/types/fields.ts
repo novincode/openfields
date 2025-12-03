@@ -32,8 +32,10 @@ export const FIELD_TYPES = [
 	'color',
 	'link',
 	'post',
+	'post_object',
 	'taxonomy',
 	'user',
+	'relationship',
 	'repeater',
 	'group',
 ] as const;
@@ -314,8 +316,10 @@ export interface FieldSettingsMap {
 	color: ColorFieldSettings;
 	link: LinkFieldSettings;
 	post: PostFieldSettings;
+	post_object: PostFieldSettings;
 	taxonomy: TaxonomyFieldSettings;
 	user: UserFieldSettings;
+	relationship: PostFieldSettings;
 	repeater: RepeaterFieldSettings;
 	group: GroupFieldSettings;
 }
@@ -425,8 +429,10 @@ export function getDefaultSettings<T extends FieldType>(type: T): FieldSettingsM
 		color: { enable_opacity: false },
 		link: { return_format: 'array' },
 		post: { post_type: ['post'], multiple: false },
+		post_object: { post_type: ['post'], multiple: false },
 		taxonomy: { taxonomy: 'category', field_type: 'select' },
 		user: { role: [], multiple: false },
+		relationship: { post_type: ['post'], multiple: true },
 		repeater: { sub_fields: [], min: 0, max: 0, layout: 'table', button_label: 'Add Row' },
 		group: { sub_fields: [], layout: 'block' },
 	};

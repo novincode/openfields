@@ -58,8 +58,11 @@ class OpenFields_Meta_Box {
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 3 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
-		// Include repeater field renderer.
+		// Include field renderers.
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/repeater.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/post-object.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/taxonomy.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/user.php';
 	}
 
 	/**
@@ -89,6 +92,14 @@ class OpenFields_Meta_Box {
 			OPENFIELDS_VERSION
 		);
 
+		// Enqueue relational field styles.
+		wp_enqueue_style(
+			'openfields-relational',
+			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/css/relational-fields.css',
+			array( 'openfields-fields', 'dashicons' ),
+			OPENFIELDS_VERSION
+		);
+
 		// Enqueue field JavaScript.
 		wp_enqueue_script(
 			'openfields-fields',
@@ -107,13 +118,24 @@ class OpenFields_Meta_Box {
 			true
 		);
 
+		// Enqueue relational fields JavaScript.
+		wp_enqueue_script(
+			'openfields-relational',
+			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/js/relational-fields.js',
+			array( 'openfields-fields' ),
+			OPENFIELDS_VERSION,
+			true
+		);
+
 		// Localize script with any necessary data.
 		wp_localize_script(
 			'openfields-fields',
 			'openfieldsConfig',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'openfields_ajax' ),
+				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+				'nonce'     => wp_create_nonce( 'openfields_ajax' ),
+				'restUrl'   => rest_url(),
+				'restNonce' => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}
@@ -228,15 +250,15 @@ class OpenFields_Meta_Box {
 		$config = array(
 			'label'             => $field->label,
 			'name'              => $field->name,
-			'instructions'      => $field->instructions ?? '',
-			'required'          => (bool) ( $field->required ?? false ),
+			'instructions'      => $settings['instructions'] ?? ( $field->instructions ?? '' ),
+			'required'          => ! empty( $settings['required'] ) || ! empty( $field->required ),
 			'default_value'     => $field->default_value ?? '',
 			'placeholder'       => $field->placeholder ?? '',
 			'conditional_logic' => $settings['conditional_logic'] ?? array(),
 			'wrapper_config'    => array(
-				'width' => isset( $settings['width'] ) ? intval( $settings['width'] ) : 100,
-				'class' => $settings['wrapper_class'] ?? '',
-				'id'    => $settings['wrapper_id'] ?? '',
+				'width' => isset( $settings['wrapper']['width'] ) ? intval( $settings['wrapper']['width'] ) : ( isset( $settings['width'] ) ? intval( $settings['width'] ) : 100 ),
+				'class' => $settings['wrapper']['class'] ?? ( $settings['wrapper_class'] ?? '' ),
+				'id'    => $settings['wrapper']['id'] ?? ( $settings['wrapper_id'] ?? '' ),
 			),
 			'field_config'      => $settings,
 		);

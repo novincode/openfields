@@ -286,6 +286,174 @@ class OpenFields_Field_Registry {
 			),
 		) );
 
+		// Relational fields.
+		$this->register( 'post_object', array(
+			'label'       => __( 'Post Object', 'openfields' ),
+			'description' => __( 'Select posts from a searchable dropdown.', 'openfields' ),
+			'category'    => 'relational',
+			'icon'        => 'file-text',
+			'schema'      => array(
+				'post_type'     => array(
+					'type'    => 'select',
+					'label'   => __( 'Post Type', 'openfields' ),
+					'choices' => array(), // Dynamically populated.
+					'default' => 'post',
+					'multiple' => true,
+				),
+				'multiple'      => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Select Multiple', 'openfields' ),
+					'default' => false,
+				),
+				'return_format' => array(
+					'type'    => 'select',
+					'label'   => __( 'Return Format', 'openfields' ),
+					'choices' => array(
+						'object' => __( 'Post Object', 'openfields' ),
+						'id'     => __( 'Post ID', 'openfields' ),
+					),
+					'default' => 'object',
+				),
+				'allow_null'    => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Allow Null', 'openfields' ),
+					'default' => false,
+				),
+			),
+		) );
+
+		$this->register( 'taxonomy', array(
+			'label'       => __( 'Taxonomy', 'openfields' ),
+			'description' => __( 'Select taxonomy terms.', 'openfields' ),
+			'category'    => 'relational',
+			'icon'        => 'folder-tree',
+			'schema'      => array(
+				'taxonomy'      => array(
+					'type'    => 'select',
+					'label'   => __( 'Taxonomy', 'openfields' ),
+					'choices' => array(), // Dynamically populated.
+					'default' => 'category',
+				),
+				'field_type'    => array(
+					'type'    => 'select',
+					'label'   => __( 'Appearance', 'openfields' ),
+					'choices' => array(
+						'select'   => __( 'Select', 'openfields' ),
+						'checkbox' => __( 'Checkbox', 'openfields' ),
+						'radio'    => __( 'Radio Buttons', 'openfields' ),
+					),
+					'default' => 'select',
+				),
+				'multiple'      => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Select Multiple', 'openfields' ),
+					'default' => false,
+				),
+				'return_format' => array(
+					'type'    => 'select',
+					'label'   => __( 'Return Format', 'openfields' ),
+					'choices' => array(
+						'object' => __( 'Term Object', 'openfields' ),
+						'id'     => __( 'Term ID', 'openfields' ),
+					),
+					'default' => 'id',
+				),
+				'add_term'      => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Allow Add Term', 'openfields' ),
+					'default' => false,
+				),
+				'load_terms'    => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Load Value from Post Terms', 'openfields' ),
+					'default' => false,
+				),
+				'save_terms'    => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Connect Selected Terms to Post', 'openfields' ),
+					'default' => false,
+				),
+			),
+		) );
+
+		$this->register( 'user', array(
+			'label'       => __( 'User', 'openfields' ),
+			'description' => __( 'Select users from a searchable dropdown.', 'openfields' ),
+			'category'    => 'relational',
+			'icon'        => 'user',
+			'schema'      => array(
+				'role'          => array(
+					'type'     => 'select',
+					'label'    => __( 'Filter by Role', 'openfields' ),
+					'choices'  => array(), // Dynamically populated.
+					'default'  => '',
+					'multiple' => true,
+				),
+				'multiple'      => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Select Multiple', 'openfields' ),
+					'default' => false,
+				),
+				'return_format' => array(
+					'type'    => 'select',
+					'label'   => __( 'Return Format', 'openfields' ),
+					'choices' => array(
+						'object' => __( 'User Object', 'openfields' ),
+						'id'     => __( 'User ID', 'openfields' ),
+						'array'  => __( 'User Array', 'openfields' ),
+					),
+					'default' => 'array',
+				),
+				'allow_null'    => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Allow Null', 'openfields' ),
+					'default' => false,
+				),
+			),
+		) );
+
+		$this->register( 'relationship', array(
+			'label'       => __( 'Relationship', 'openfields' ),
+			'description' => __( 'A dual-column interface to select multiple posts.', 'openfields' ),
+			'category'    => 'relational',
+			'icon'        => 'git-branch',
+			'schema'      => array(
+				'post_type'     => array(
+					'type'     => 'select',
+					'label'    => __( 'Post Type', 'openfields' ),
+					'choices'  => array(), // Dynamically populated.
+					'default'  => array( 'post' ),
+					'multiple' => true,
+				),
+				'taxonomy'      => array(
+					'type'     => 'select',
+					'label'    => __( 'Filter by Taxonomy', 'openfields' ),
+					'choices'  => array(), // Dynamically populated.
+					'default'  => '',
+					'multiple' => true,
+				),
+				'min'           => array(
+					'type'    => 'number',
+					'label'   => __( 'Minimum Posts', 'openfields' ),
+					'default' => 0,
+				),
+				'max'           => array(
+					'type'    => 'number',
+					'label'   => __( 'Maximum Posts', 'openfields' ),
+					'default' => 0,
+				),
+				'return_format' => array(
+					'type'    => 'select',
+					'label'   => __( 'Return Format', 'openfields' ),
+					'choices' => array(
+						'object' => __( 'Post Object', 'openfields' ),
+						'id'     => __( 'Post ID', 'openfields' ),
+					),
+					'default' => 'object',
+				),
+			),
+		) );
+
 		/**
 		 * Fires after default field types are registered.
 		 *

@@ -1,0 +1,243 @@
+/**
+ * OpenFields Relational Fields Styles.
+ *
+ * Styles for post object, taxonomy, and user fields.
+ *
+ * @package OpenFields
+ * @since   1.0.0
+ */
+
+/* Base containers */
+.openfields-post-object-field,
+.openfields-user-field {
+	position: relative;
+}
+
+/* Selected items container */
+.openfields-selected-items {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.openfields-selected-items:empty {
+	margin-bottom: 0;
+}
+
+/* Individual selected item */
+.openfields-selected-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	background: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.openfields-selected-item:hover {
+	border-color: #8c8f94;
+}
+
+.openfields-item-title {
+	font-weight: 500;
+	color: #1d2327;
+}
+
+.openfields-item-type {
+	color: #646970;
+	font-size: 12px;
+}
+
+.openfields-remove-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	border: none;
+	background: none;
+	color: #8c8f94;
+	cursor: pointer;
+	border-radius: 50%;
+	transition: all 0.15s ease;
+}
+
+.openfields-remove-item:hover {
+	color: #d63638;
+	background: rgba(214, 54, 56, 0.1);
+}
+
+.openfields-remove-item .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+/* User avatar in selected items */
+.openfields-selected-item .openfields-user-avatar {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+}
+
+/* Search container */
+.openfields-search-container {
+	position: relative;
+}
+
+.openfields-search-input {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	font-size: 14px;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.openfields-search-input:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+/* Search results dropdown */
+.openfields-search-results {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	max-height: 300px;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	z-index: 100;
+	display: none;
+}
+
+.openfields-search-results.active {
+	display: block;
+}
+
+/* Loading and empty states */
+.openfields-search-loading,
+.openfields-search-empty,
+.openfields-search-error {
+	padding: 12px 16px;
+	color: #646970;
+	font-size: 13px;
+	text-align: center;
+}
+
+.openfields-search-error {
+	color: #d63638;
+}
+
+/* Individual search result */
+.openfields-search-result {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 16px;
+	cursor: pointer;
+	border-bottom: 1px solid #f0f0f1;
+	transition: background-color 0.1s ease;
+}
+
+.openfields-search-result:last-child {
+	border-bottom: none;
+}
+
+.openfields-search-result:hover {
+	background: #f6f7f7;
+}
+
+.openfields-result-title {
+	flex: 1;
+	font-weight: 500;
+	color: #1d2327;
+}
+
+.openfields-result-type {
+	color: #646970;
+	font-size: 12px;
+	background: #f0f0f1;
+	padding: 2px 8px;
+	border-radius: 10px;
+}
+
+.openfields-result-email {
+	color: #646970;
+	font-size: 12px;
+}
+
+/* User avatar in search results */
+.openfields-search-result .openfields-user-avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+/* Taxonomy field styles */
+.openfields-taxonomy-field {
+	width: 100%;
+}
+
+.openfields-taxonomy-checkbox,
+.openfields-taxonomy-radio {
+	max-height: 200px;
+	overflow-y: auto;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 8px;
+	background: #fff;
+}
+
+.openfields-checkbox-label,
+.openfields-radio-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: background-color 0.1s ease;
+}
+
+.openfields-checkbox-label:hover,
+.openfields-radio-label:hover {
+	background: #f6f7f7;
+}
+
+.openfields-term-count {
+	color: #646970;
+	font-size: 12px;
+	margin-left: auto;
+}
+
+/* Searchable select enhancement */
+.openfields-searchable-select {
+	min-height: 38px;
+}
+
+/* Multiple select styling */
+.openfields-searchable-select[multiple] {
+	min-height: 150px;
+}
+
+/* Error state */
+.openfields-error {
+	color: #d63638;
+	background: #fcf0f1;
+	padding: 8px 12px;
+	border-radius: 4px;
+	border: 1px solid #d63638;
+}

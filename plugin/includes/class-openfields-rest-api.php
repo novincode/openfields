@@ -214,6 +214,141 @@ class OpenFields_REST_API {
 				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
+
+		// -----------------------------------------------------------------
+		// Relational field search endpoints.
+		// -----------------------------------------------------------------
+
+		// Search posts for Post Object / Relationship fields.
+		register_rest_route(
+			self::NAMESPACE,
+			'/search/posts',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'search_posts' ),
+				'permission_callback' => array( $this, 'check_edit_permission' ),
+				'args'                => array(
+					's'         => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'post_type' => array(
+						'type'    => array( 'string', 'array' ),
+						'default' => 'post',
+					),
+					'include'   => array(
+						'type' => 'array',
+					),
+					'exclude'   => array(
+						'type' => 'array',
+					),
+					'per_page'  => array(
+						'type'    => 'integer',
+						'default' => 20,
+					),
+					'paged'     => array(
+						'type'    => 'integer',
+						'default' => 1,
+					),
+				),
+			)
+		);
+
+		// Search taxonomy terms.
+		register_rest_route(
+			self::NAMESPACE,
+			'/search/terms',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'search_terms' ),
+				'permission_callback' => array( $this, 'check_edit_permission' ),
+				'args'                => array(
+					's'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'taxonomy' => array(
+						'type'     => 'string',
+						'default'  => 'category',
+						'required' => true,
+					),
+					'include'  => array(
+						'type' => 'array',
+					),
+					'exclude'  => array(
+						'type' => 'array',
+					),
+					'per_page' => array(
+						'type'    => 'integer',
+						'default' => 20,
+					),
+				),
+			)
+		);
+
+		// Search users.
+		register_rest_route(
+			self::NAMESPACE,
+			'/search/users',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'search_users' ),
+				'permission_callback' => array( $this, 'check_edit_permission' ),
+				'args'                => array(
+					's'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'role'     => array(
+						'type'    => array( 'string', 'array' ),
+						'default' => '',
+					),
+					'include'  => array(
+						'type' => 'array',
+					),
+					'exclude'  => array(
+						'type' => 'array',
+					),
+					'per_page' => array(
+						'type'    => 'integer',
+						'default' => 20,
+					),
+				),
+			)
+		);
+
+		// Get available post types.
+		register_rest_route(
+			self::NAMESPACE,
+			'/options/post-types',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_post_types' ),
+				'permission_callback' => array( $this, 'check_edit_permission' ),
+			)
+		);
+
+		// Get available taxonomies.
+		register_rest_route(
+			self::NAMESPACE,
+			'/options/taxonomies',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_taxonomies' ),
+				'permission_callback' => array( $this, 'check_edit_permission' ),
+			)
+		);
+
+		// Get available user roles.
+		register_rest_route(
+			self::NAMESPACE,
+			'/options/roles',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_user_roles' ),
+				'permission_callback' => array( $this, 'check_edit_permission' ),
+			)
+		);
 	}
 
 	/**
@@ -224,6 +359,23 @@ class OpenFields_REST_API {
 	 */
 	public function check_admin_permission() {
 		if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error(
+				'openfields_rest_forbidden',
+				__( 'You do not have permission to access this resource.', 'openfields' ),
+				array( 'status' => 403 )
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Check edit permission (for relational field searches).
+	 *
+	 * @since  1.0.0
+	 * @return bool|WP_Error
+	 */
+	public function check_edit_permission() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'openfields_rest_forbidden',
 				__( 'You do not have permission to access this resource.', 'openfields' ),
@@ -1386,5 +1538,288 @@ class OpenFields_REST_API {
 
 		// Safety fallback
 		return array();
+	}
+
+	// -----------------------------------------------------------------
+	// Relational Field Search Methods.
+	// -----------------------------------------------------------------
+
+	/**
+	 * Search posts for Post Object / Relationship fields.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function search_posts( $request ) {
+		$search    = $request->get_param( 's' );
+		$post_type = $request->get_param( 'post_type' );
+		$include   = $request->get_param( 'include' );
+		$exclude   = $request->get_param( 'exclude' );
+		$per_page  = $request->get_param( 'per_page' );
+		$paged     = $request->get_param( 'paged' );
+
+		// Ensure post_type is an array.
+		if ( ! is_array( $post_type ) ) {
+			$post_type = array_filter( explode( ',', $post_type ) );
+		}
+		if ( empty( $post_type ) ) {
+			$post_type = array( 'post' );
+		}
+
+		$args = array(
+			'post_type'      => $post_type,
+			'post_status'    => 'publish',
+			'posts_per_page' => min( $per_page, 100 ),
+			'paged'          => $paged,
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+		);
+
+		// Search query.
+		if ( ! empty( $search ) ) {
+			$args['s'] = $search;
+		}
+
+		// Include specific IDs.
+		if ( ! empty( $include ) && is_array( $include ) ) {
+			$args['post__in'] = array_map( 'absint', $include );
+			$args['orderby']  = 'post__in';
+		}
+
+		// Exclude specific IDs.
+		if ( ! empty( $exclude ) && is_array( $exclude ) ) {
+			$args['post__not_in'] = array_map( 'absint', $exclude );
+		}
+
+		$query = new WP_Query( $args );
+		$posts = array();
+
+		foreach ( $query->posts as $post ) {
+			$posts[] = array(
+				'id'         => $post->ID,
+				'title'      => $post->post_title,
+				'type'       => $post->post_type,
+				'type_label' => get_post_type_object( $post->post_type )->labels->singular_name ?? $post->post_type,
+				'status'     => $post->post_status,
+				'date'       => $post->post_date,
+				'link'       => get_permalink( $post->ID ),
+				'edit_link'  => get_edit_post_link( $post->ID, 'raw' ),
+			);
+		}
+
+		return rest_ensure_response( array(
+			'results'     => $posts,
+			'total'       => $query->found_posts,
+			'total_pages' => $query->max_num_pages,
+		) );
+	}
+
+	/**
+	 * Search taxonomy terms.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function search_terms( $request ) {
+		$search   = $request->get_param( 's' );
+		$taxonomy = $request->get_param( 'taxonomy' );
+		$include  = $request->get_param( 'include' );
+		$exclude  = $request->get_param( 'exclude' );
+		$per_page = $request->get_param( 'per_page' );
+
+		// Validate taxonomy.
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			return new WP_Error(
+				'invalid_taxonomy',
+				__( 'Invalid taxonomy.', 'openfields' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$args = array(
+			'taxonomy'   => $taxonomy,
+			'hide_empty' => false,
+			'number'     => min( $per_page, 100 ),
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+		);
+
+		// Search query.
+		if ( ! empty( $search ) ) {
+			$args['search'] = $search;
+		}
+
+		// Include specific IDs.
+		if ( ! empty( $include ) && is_array( $include ) ) {
+			$args['include'] = array_map( 'absint', $include );
+		}
+
+		// Exclude specific IDs.
+		if ( ! empty( $exclude ) && is_array( $exclude ) ) {
+			$args['exclude'] = array_map( 'absint', $exclude );
+		}
+
+		$terms  = get_terms( $args );
+		$result = array();
+
+		if ( is_wp_error( $terms ) ) {
+			return rest_ensure_response( array(
+				'results' => array(),
+				'total'   => 0,
+			) );
+		}
+
+		foreach ( $terms as $term ) {
+			$result[] = array(
+				'id'       => $term->term_id,
+				'name'     => $term->name,
+				'slug'     => $term->slug,
+				'taxonomy' => $term->taxonomy,
+				'parent'   => $term->parent,
+				'count'    => $term->count,
+			);
+		}
+
+		// Get total count.
+		$count_args          = $args;
+		$count_args['count'] = true;
+		unset( $count_args['number'] );
+		$total = wp_count_terms( $count_args );
+
+		return rest_ensure_response( array(
+			'results' => $result,
+			'total'   => is_wp_error( $total ) ? count( $result ) : $total,
+		) );
+	}
+
+	/**
+	 * Search users.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function search_users( $request ) {
+		$search   = $request->get_param( 's' );
+		$role     = $request->get_param( 'role' );
+		$include  = $request->get_param( 'include' );
+		$exclude  = $request->get_param( 'exclude' );
+		$per_page = $request->get_param( 'per_page' );
+
+		$args = array(
+			'number'  => min( $per_page, 100 ),
+			'orderby' => 'display_name',
+			'order'   => 'ASC',
+		);
+
+		// Search query.
+		if ( ! empty( $search ) ) {
+			$args['search']         = '*' . $search . '*';
+			$args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
+		}
+
+		// Filter by role.
+		if ( ! empty( $role ) ) {
+			if ( is_array( $role ) ) {
+				$args['role__in'] = $role;
+			} else {
+				$args['role'] = $role;
+			}
+		}
+
+		// Include specific IDs.
+		if ( ! empty( $include ) && is_array( $include ) ) {
+			$args['include'] = array_map( 'absint', $include );
+		}
+
+		// Exclude specific IDs.
+		if ( ! empty( $exclude ) && is_array( $exclude ) ) {
+			$args['exclude'] = array_map( 'absint', $exclude );
+		}
+
+		$query = new WP_User_Query( $args );
+		$users = array();
+
+		foreach ( $query->get_results() as $user ) {
+			$users[] = array(
+				'id'           => $user->ID,
+				'display_name' => $user->display_name,
+				'user_login'   => $user->user_login,
+				'user_email'   => $user->user_email,
+				'avatar'       => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
+				'roles'        => $user->roles,
+			);
+		}
+
+		return rest_ensure_response( array(
+			'results' => $users,
+			'total'   => $query->get_total(),
+		) );
+	}
+
+	/**
+	 * Get available post types.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_post_types( $request ) {
+		$post_types = get_post_types( array( 'public' => true ), 'objects' );
+		$result     = array();
+
+		foreach ( $post_types as $slug => $type ) {
+			$result[] = array(
+				'value' => $slug,
+				'label' => $type->labels->singular_name,
+				'icon'  => $type->menu_icon ?? 'dashicons-admin-post',
+			);
+		}
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Get available taxonomies.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_taxonomies( $request ) {
+		$taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
+		$result     = array();
+
+		foreach ( $taxonomies as $slug => $taxonomy ) {
+			$result[] = array(
+				'value' => $slug,
+				'label' => $taxonomy->labels->singular_name,
+			);
+		}
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Get available user roles.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_user_roles( $request ) {
+		global $wp_roles;
+
+		$result = array();
+		foreach ( $wp_roles->roles as $slug => $role ) {
+			$result[] = array(
+				'value' => $slug,
+				'label' => $role['name'],
+			);
+		}
+
+		return rest_ensure_response( $result );
 	}
 }

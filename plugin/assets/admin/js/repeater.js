@@ -169,17 +169,26 @@
 				if (!row || row.parentElement !== rowsContainer) return;
 
 				row.draggable = true;
+				
+				// Stop propagation to prevent parent repeaters from also activating drag
+				e.stopPropagation();
 			});
 
-			rowsContainer.addEventListener('mouseup', () => {
+			rowsContainer.addEventListener('mouseup', (e) => {
 				const rows = this.getRows(repeater);
 				rows.forEach((row) => (row.draggable = false));
 			});
 
 			rowsContainer.addEventListener('dragstart', (e) => {
 				const row = e.target.closest('.openfields-repeater-row');
-				// Only drag direct children
-				if (!row || row.parentElement !== rowsContainer) return;
+				// Only drag direct children - critical for nested repeaters
+				if (!row || row.parentElement !== rowsContainer) {
+					e.preventDefault();
+					return;
+				}
+
+				// Stop propagation immediately to prevent parent repeaters from receiving this event
+				e.stopImmediatePropagation();
 
 				draggedRow = row;
 				row.classList.add('is-dragging');
@@ -200,6 +209,8 @@
 
 			rowsContainer.addEventListener('dragover', (e) => {
 				e.preventDefault();
+				e.stopPropagation(); // Prevent parent repeaters from handling
+				
 				if (!placeholder || !draggedRow) return;
 
 				const afterElement = this.getDragAfterElement(rowsContainer, e.clientY, repeater);
@@ -210,7 +221,9 @@
 				}
 			});
 
-			rowsContainer.addEventListener('dragend', () => {
+			rowsContainer.addEventListener('dragend', (e) => {
+				e.stopPropagation(); // Prevent bubbling to parent repeaters
+				
 				if (!draggedRow) return;
 
 				draggedRow.classList.remove('is-dragging');
@@ -232,6 +245,16 @@
 
 			rowsContainer.addEventListener('drop', (e) => {
 				e.preventDefault();
+				e.stopPropagation(); // Prevent bubbling
+			});
+			
+			// Prevent drag events from parent repeaters interfering
+			rowsContainer.addEventListener('dragenter', (e) => {
+				e.stopPropagation();
+			});
+			
+			rowsContainer.addEventListener('dragleave', (e) => {
+				e.stopPropagation();
 			});
 		},
 

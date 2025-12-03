@@ -17,6 +17,9 @@ import { NumberFieldSettings } from './NumberFieldSettings';
 import { SelectFieldSettings } from './SelectFieldSettings';
 import { SwitchFieldSettings } from './SwitchFieldSettings';
 import { RepeaterFieldSettings } from './RepeaterFieldSettings';
+import { PostObjectFieldSettings } from './PostObjectFieldSettings';
+import { TaxonomyFieldSettings } from './TaxonomyFieldSettings';
+import { UserFieldSettings } from './UserFieldSettings';
 
 /**
  * Register all field types with their settings components
@@ -127,6 +130,53 @@ export function registerFieldSettings() {
 				max: 0,
 				layout: 'table',
 				button_label: 'Add Row',
+			},
+		});
+	}
+
+	// Post Object - searchable post selector
+	const postObjectDef = fieldRegistry.get('post_object');
+	if (postObjectDef) {
+		fieldRegistry.register({
+			...postObjectDef,
+			SettingsComponent: PostObjectFieldSettings as React.ComponentType<FieldSettingsProps>,
+			defaultSettings: {
+				post_type: ['post'],
+				multiple: false,
+				return_format: 'object',
+				allow_null: false,
+			},
+		});
+	}
+
+	// Taxonomy - term selector
+	const taxonomyDef = fieldRegistry.get('taxonomy');
+	if (taxonomyDef) {
+		fieldRegistry.register({
+			...taxonomyDef,
+			SettingsComponent: TaxonomyFieldSettings as React.ComponentType<FieldSettingsProps>,
+			defaultSettings: {
+				taxonomy: ['category'],
+				field_type: 'select',
+				multiple: false,
+				return_format: 'id',
+				save_terms: false,
+				load_terms: false,
+			},
+		});
+	}
+
+	// User - searchable user selector
+	const userDef = fieldRegistry.get('user');
+	if (userDef) {
+		fieldRegistry.register({
+			...userDef,
+			SettingsComponent: UserFieldSettings as React.ComponentType<FieldSettingsProps>,
+			defaultSettings: {
+				role: '',
+				multiple: false,
+				return_format: 'array',
+				allow_null: false,
 			},
 		});
 	}

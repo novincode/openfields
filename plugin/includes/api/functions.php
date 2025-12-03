@@ -16,13 +16,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Get a field value.
  *
+ * For repeater fields, if the value is an integer (ACF format row count),
+ * this function returns the reconstructed array of rows.
+ *
+ * @since 1.0.0
+ *
+ * @param  string   $field_name   Field name.
+ * @param  int|null $object_id    Object ID. Defaults to current post.
+ * @param  bool     $format_value Whether to format the value (future use).
+ * @return mixed    Field value.
+ */
+function get_field( $field_name, $object_id = null, $format_value = true ) {
+	$context = openfields_detect_context( $object_id );
+	$value   = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+
+	// Check if this is a repeater field (value is integer row count).
+	// ACF stores row count as integer, OpenFields does the same.
+	if ( is_numeric( $value ) && (int) $value > 0 ) {
+		// Check if there are sub-fields by looking for {field}_0_ pattern.
+		$all_meta = openfields_get_all_meta( $context['id'], $context['type'] );
+		$test_key = $field_name . '_0_';
+
+		foreach ( $all_meta as $key => $v ) {
+			if ( strpos( $key, $test_key ) === 0 ) {
+				// This is a repeater field, return rows array.
+				return get_rows( $field_name, $object_id );
+			}
+		}
+	}
+
+	return $value;
+}
+
+/**
+ * Get a field value without formatting (raw value from database).
+ *
  * @since 1.0.0
  *
  * @param  string   $field_name Field name.
  * @param  int|null $object_id  Object ID. Defaults to current post.
- * @return mixed    Field value.
+ * @return mixed    Raw field value.
  */
-function get_field( $field_name, $object_id = null ) {
+function get_field_raw( $field_name, $object_id = null ) {
 	$context = openfields_detect_context( $object_id );
 	return OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
 }
@@ -38,6 +73,12 @@ function get_field( $field_name, $object_id = null ) {
  */
 function the_field( $field_name, $object_id = null ) {
 	$value = get_field( $field_name, $object_id );
+
+	// Don't echo arrays/objects (like repeater data).
+	if ( is_array( $value ) || is_object( $value ) ) {
+		return;
+	}
+
 	echo esc_html( $value );
 }
 
@@ -114,6 +155,10 @@ function have_field( $field_name, $object_id = null ) {
 /**
  * Check if repeater has rows.
  *
+ * Works with both OpenFields and ACF data formats:
+ * - ACF format: {field} = count, {field}_{index}_{subfield} = value
+ * - Legacy format: Serialized array
+ *
  * @since 1.0.0
  *
  * @param  string   $field_name Field name.
@@ -121,12 +166,37 @@ function have_field( $field_name, $object_id = null ) {
  * @return bool
  */
 function have_rows( $field_name, $object_id = null ) {
-	$value = get_field( $field_name, $object_id );
-	return is_array( $value ) && ! empty( $value );
+	global $openfields_rows, $openfields_row_index;
+
+	// If already initialized in a loop, check if more rows.
+	if ( isset( $openfields_rows[ $field_name ] ) ) {
+		$index = $openfields_row_index[ $field_name ] ?? 0;
+		return $index < count( $openfields_rows[ $field_name ] );
+	}
+
+	// Get row count from meta (ACF format stores count as integer).
+	$context   = openfields_detect_context( $object_id );
+	$row_count = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+
+	// If it's an integer, it's the row count (ACF format).
+	if ( is_numeric( $row_count ) ) {
+		return (int) $row_count > 0;
+	}
+
+	// If it's an array, it's legacy format.
+	if ( is_array( $row_count ) ) {
+		return ! empty( $row_count );
+	}
+
+	return false;
 }
 
 /**
- * Get repeater rows.
+ * Get repeater rows as an array.
+ *
+ * Works with both OpenFields and ACF data formats:
+ * - ACF format: Reconstructs rows from flat meta keys
+ * - Legacy format: Returns serialized array directly
  *
  * @since 1.0.0
  *
@@ -135,8 +205,45 @@ function have_rows( $field_name, $object_id = null ) {
  * @return array
  */
 function get_rows( $field_name, $object_id = null ) {
-	$value = get_field( $field_name, $object_id );
-	return is_array( $value ) ? $value : array();
+	$context   = openfields_detect_context( $object_id );
+	$row_count = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+
+	// If it's an array (legacy format), return directly.
+	if ( is_array( $row_count ) ) {
+		return $row_count;
+	}
+
+	// If it's not a positive integer, no rows.
+	if ( ! is_numeric( $row_count ) || (int) $row_count <= 0 ) {
+		return array();
+	}
+
+	$count = (int) $row_count;
+	$rows  = array();
+
+	// Reconstruct rows from flat meta keys (ACF format).
+	// We need to discover sub-field names by pattern matching.
+	$all_meta = openfields_get_all_meta( $context['id'], $context['type'] );
+
+	// Find all keys that start with {field}_{index}_
+	$prefix_pattern = '/^' . preg_quote( $field_name, '/' ) . '_(\d+)_(.+)$/';
+	$sub_fields     = array();
+
+	foreach ( $all_meta as $key => $value ) {
+		if ( preg_match( $prefix_pattern, $key, $matches ) ) {
+			$index      = (int) $matches[1];
+			$sub_field  = $matches[2];
+
+			if ( ! isset( $rows[ $index ] ) ) {
+				$rows[ $index ] = array();
+			}
+			$rows[ $index ][ $sub_field ] = $value;
+		}
+	}
+
+	// Re-index to ensure sequential array.
+	ksort( $rows );
+	return array_values( $rows );
 }
 
 /**
@@ -161,27 +268,59 @@ function get_sub_field( $field_name ) {
  * @return void
  */
 function the_sub_field( $field_name ) {
-	echo esc_html( get_sub_field( $field_name ) );
+	$value = get_sub_field( $field_name );
+	if ( is_array( $value ) || is_object( $value ) ) {
+		// Don't echo arrays/objects.
+		return;
+	}
+	echo esc_html( $value );
+}
+
+/**
+ * Check if a sub-field has a value.
+ *
+ * @since 1.0.0
+ *
+ * @param  string $field_name Sub-field name.
+ * @return bool
+ */
+function have_sub_field( $field_name ) {
+	$value = get_sub_field( $field_name );
+	return ! empty( $value );
 }
 
 /**
  * Iterate through repeater rows.
  *
  * Usage:
- * while ( the_row( 'my_repeater' ) ) {
+ * while ( have_rows( 'my_repeater' ) ) {
+ *     the_row();
  *     echo get_sub_field( 'text_field' );
  * }
  *
+ * Note: Use have_rows() as the loop condition, then call the_row() inside.
+ *
  * @since 1.0.0
  *
- * @param  string   $field_name Field name.
+ * @param  string   $field_name Field name (optional, uses current row context).
  * @param  int|null $object_id  Object ID.
  * @return bool
  */
-function the_row( $field_name, $object_id = null ) {
-	global $openfields_rows, $openfields_row_index, $openfields_row;
+function the_row( $field_name = '', $object_id = null ) {
+	global $openfields_rows, $openfields_row_index, $openfields_row, $openfields_current_field;
 
-	// Initialize.
+	// If field_name is provided, use it. Otherwise use current context.
+	if ( ! empty( $field_name ) ) {
+		$openfields_current_field = $field_name;
+	} else {
+		$field_name = $openfields_current_field ?? '';
+	}
+
+	if ( empty( $field_name ) ) {
+		return false;
+	}
+
+	// Initialize if needed.
 	if ( ! isset( $openfields_rows[ $field_name ] ) ) {
 		$openfields_rows[ $field_name ]      = get_rows( $field_name, $object_id );
 		$openfields_row_index[ $field_name ] = 0;
@@ -199,6 +338,7 @@ function the_row( $field_name, $object_id = null ) {
 	// Reset for next loop.
 	unset( $openfields_rows[ $field_name ], $openfields_row_index[ $field_name ] );
 	$openfields_row = null;
+	$openfields_current_field = null;
 
 	return false;
 }
@@ -309,6 +449,38 @@ function openfields_detect_context( $object_id = null ) {
 		'type' => 'post',
 		'id'   => $object_id ?? get_the_ID(),
 	);
+}
+
+/**
+ * Get all meta for an object.
+ *
+ * @since 1.0.0
+ *
+ * @param  int    $object_id Object ID.
+ * @param  string $type      Context type (post, user, term).
+ * @return array
+ */
+function openfields_get_all_meta( $object_id, $type = 'post' ) {
+	switch ( $type ) {
+		case 'post':
+			$all = get_post_meta( $object_id );
+			break;
+		case 'user':
+			$all = get_user_meta( $object_id );
+			break;
+		case 'term':
+			$all = get_term_meta( $object_id );
+			break;
+		default:
+			return array();
+	}
+
+	// WordPress stores meta as arrays, flatten to single values.
+	$result = array();
+	foreach ( $all as $key => $values ) {
+		$result[ $key ] = maybe_unserialize( $values[0] ?? '' );
+	}
+	return $result;
 }
 
 /**
