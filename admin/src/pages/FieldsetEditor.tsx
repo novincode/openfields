@@ -173,6 +173,10 @@ function SortableField({ field, allFields, onUpdate, onDelete }: SortableFieldPr
 				conditional_logic: conditionalLogicData,
 			},
 		});
+		// Signal parent to enable save
+		if (typeof window !== 'undefined') {
+			window.dispatchEvent(new CustomEvent('fieldChanged'));
+		}
 	};
 
 	return (
@@ -284,7 +288,7 @@ function SortableField({ field, allFields, onUpdate, onDelete }: SortableFieldPr
 										</Select>
 									</div>
 									<div>
-										<Label htmlFor={`class-${field.id}`}>CSS Class</Label>
+												<Label htmlFor={`class-${field.id}`}>CSS Class</Label>
 										<Input
 											id={`class-${field.id}`}
 											value={wrapperClass}
@@ -299,6 +303,9 @@ function SortableField({ field, allFields, onUpdate, onDelete }: SortableFieldPr
 														},
 													},
 												});
+												if (typeof window !== 'undefined') {
+													window.dispatchEvent(new CustomEvent('fieldChanged'));
+												}
 											}}
 											placeholder="custom-class"
 										/>
@@ -494,6 +501,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			setSlug(currentFieldset.field_key || currentFieldset.title.toLowerCase().replace(/[^a-z0-9]+/g, '_'));
 			setDescription(currentFieldset.description || '');
 			setIsActive(currentFieldset.is_active !== false);
+			setLocationGroups(currentFieldset.settings?.location_groups || [{ id: '1', rules: [{ type: '', operator: '==', value: '' }] }]);
 			fetchFields(currentFieldset.id);
 		}
 	}, [currentFieldset?.id]);
@@ -502,17 +510,30 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		setLocalFields(fields);
 	}, [fields]);
 
-	// Track changes
+	// Track changes to any field
+	useEffect(() => {
+		if (!initialized || !currentFieldset) return;
+		
+		const titleChanged = title !== currentFieldset.title;
+		const slugChanged = slug !== (currentFieldset.field_key || currentFieldset.title.toLowerCase().replace(/[^a-z0-9]+/g, '_'));
+		const descriptionChanged = description !== (currentFieldset.description || '');
+		const isActiveChanged = isActive !== (currentFieldset.is_active !== false);
+		const locationGroupsChanged = JSON.stringify(locationGroups) !== JSON.stringify(currentFieldset.settings?.location_groups || [{ id: '1', rules: [{ type: '', operator: '==', value: '' }] }]);
+		
+		setHasUnsavedChanges(titleChanged || slugChanged || descriptionChanged || isActiveChanged || locationGroupsChanged);
+	}, [title, slug, description, isActive, locationGroups, currentFieldset, initialized]);
+
 	useEffect(() => {
 		if (currentFieldset) {
 			const changed = 
 				title !== currentFieldset.title ||
 				slug !== (currentFieldset.field_key || '') ||
 				description !== (currentFieldset.description || '') ||
-				isActive !== (currentFieldset.is_active !== false);
+				isActive !== (currentFieldset.is_active !== false) ||
+				JSON.stringify(locationGroups) !== JSON.stringify(currentFieldset.settings?.location_groups || []);
 			setHasUnsavedChanges(changed);
 		}
-	}, [title, slug, description, isActive, currentFieldset]);
+	}, [title, slug, description, isActive, locationGroups, currentFieldset]);
 
 	const handleSave = async () => {
 		if (!currentFieldset) return;
@@ -524,15 +545,22 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 
 		setIsSaving(true);
 		try {
+			// Save fieldset details including location rules in settings
 			await updateFieldset(currentFieldset.id, { 
 				title, 
 				field_key: slug,
 				description,
 				is_active: isActive,
+				settings: {
+					...(currentFieldset.settings || {}),
+					location_groups: locationGroups,
+				},
 			});
+			
 			setHasUnsavedChanges(false);
 			showToast('success', 'Fieldset saved successfully');
 		} catch (error) {
+			console.error('Save error:', error);
 			showToast('error', 'Failed to save fieldset');
 		} finally {
 			setIsSaving(false);
@@ -548,6 +576,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			const newIndex = localFields.findIndex((f) => f.id === over.id);
 			const newOrder = arrayMove(localFields, oldIndex, newIndex);
 			setLocalFields(newOrder);
+			setHasUnsavedChanges(true);
 
 			// Update backend
 			const updates = newOrder.map((field, index) => ({

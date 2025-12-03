@@ -16,6 +16,7 @@ import {
 	CardTitle,
 } from '../components/ui/card';
 import { useFieldsetStore } from '../stores';
+import { fieldApi } from '../api';
 import type { Fieldset } from '../types';
 
 export default function FieldsetList() {
@@ -29,10 +30,32 @@ export default function FieldsetList() {
 	} = useFieldsetStore();
 	const [searchTerm, setSearchTerm] = useState('');
 	const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+	const [fieldCounts, setFieldCounts] = useState<Record<number, number>>({});
 
 	useEffect(() => {
 		fetchFieldsets();
 	}, [fetchFieldsets]);
+
+	// Fetch field counts for all fieldsets
+	useEffect(() => {
+		const loadFieldCounts = async () => {
+			const counts: Record<number, number> = {};
+			for (const fs of fieldsets) {
+				try {
+					const fields = await fieldApi.getByFieldset(fs.id);
+					counts[fs.id] = fields.length;
+				} catch (error) {
+					console.error(`Failed to fetch fields for fieldset ${fs.id}:`, error);
+					counts[fs.id] = 0;
+				}
+			}
+			setFieldCounts(counts);
+		};
+		
+		if (fieldsets.length > 0) {
+			loadFieldCounts();
+		}
+	}, [fieldsets]);
 
 	const filteredFieldsets = fieldsets.filter(
 		(fs) =>
@@ -145,6 +168,7 @@ export default function FieldsetList() {
 						<FieldsetCard
 							key={fieldset.id}
 							fieldset={fieldset}
+							fieldCount={fieldCounts[fieldset.id] || 0}
 							onEdit={() => navigateToEdit(fieldset.id)}
 							onDuplicate={() => handleDuplicate(fieldset.id)}
 							onDelete={() => handleDelete(fieldset.id)}
@@ -159,6 +183,7 @@ export default function FieldsetList() {
 
 interface FieldsetCardProps {
 	fieldset: Fieldset;
+	fieldCount: number;
 	onEdit: () => void;
 	onDuplicate: () => void;
 	onDelete: () => void;
@@ -167,6 +192,7 @@ interface FieldsetCardProps {
 
 function FieldsetCard({
 	fieldset,
+	fieldCount,
 	onEdit,
 	onDuplicate,
 	onDelete,
@@ -250,8 +276,8 @@ function FieldsetCard({
 			<CardContent>
 				<div className="flex items-center gap-4 text-sm text-gray-500">
 					<span>
-						{fieldset.fields?.length || 0} field
-						{(fieldset.fields?.length || 0) !== 1 ? 's' : ''}
+						{fieldCount} field
+						{fieldCount !== 1 ? 's' : ''}
 					</span>
 					<span
 						className={`px-2 py-0.5 rounded text-xs ${

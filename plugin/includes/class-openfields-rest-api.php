@@ -229,6 +229,9 @@ class OpenFields_REST_API {
 			ARRAY_A
 		);
 
+		// Transform fieldsets to frontend format
+		$fieldsets = array_map( array( $this, 'transform_fieldset' ), $fieldsets );
+
 		return rest_ensure_response( $fieldsets );
 	}
 
@@ -269,15 +272,8 @@ class OpenFields_REST_API {
 			ARRAY_A
 		);
 
-		// Get locations.
-		$locations_table       = $wpdb->prefix . 'openfields_locations';
-		$fieldset['locations'] = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$locations_table} WHERE fieldset_id = %d ORDER BY group_id ASC, id ASC",
-				$id
-			),
-			ARRAY_A
-		);
+		// Transform to frontend format
+		$fieldset = $this->transform_fieldset( $fieldset );
 
 		return rest_ensure_response( $fieldset );
 	}
@@ -339,12 +335,17 @@ class OpenFields_REST_API {
 		$data = array(
 			'title'       => sanitize_text_field( $request['title'] ),
 			'description' => sanitize_textarea_field( $request['description'] ?? '' ),
-			'status'      => sanitize_key( $request['status'] ?? 'active' ),
+			'status'      => isset( $request['is_active'] ) && $request['is_active'] === false ? 'inactive' : 'active',
 			'custom_css'  => wp_strip_all_tags( $request['custom_css'] ?? '' ),
 			'settings'    => wp_json_encode( $request['settings'] ?? array() ),
 			'menu_order'  => absint( $request['menu_order'] ?? 0 ),
 			'updated_at'  => current_time( 'mysql' ),
 		);
+
+		// Update field_key if provided
+		if ( ! empty( $request['field_key'] ) ) {
+			$data['field_key'] = sanitize_key( $request['field_key'] );
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->update( $table, $data, array( 'id' => $id ) );
@@ -355,11 +356,6 @@ class OpenFields_REST_API {
 				__( 'Failed to update fieldset.', 'openfields' ),
 				array( 'status' => 500 )
 			);
-		}
-
-		// Update locations if provided.
-		if ( isset( $request['locations'] ) ) {
-			$this->update_locations( $id, $request['locations'] );
 		}
 
 		return $this->get_fieldset( $request );
@@ -425,6 +421,9 @@ class OpenFields_REST_API {
 			ARRAY_A
 		);
 
+		// Transform fields to frontend format
+		$fields = array_map( array( $this, 'transform_field' ), $fields );
+
 		return rest_ensure_response( $fields );
 	}
 
@@ -472,6 +471,9 @@ class OpenFields_REST_API {
 		}
 
 		$data['id'] = $wpdb->insert_id;
+
+		// Transform to frontend format
+		$data = $this->transform_field( $data );
 
 		return rest_ensure_response( $data );
 	}
@@ -545,6 +547,9 @@ class OpenFields_REST_API {
 			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
 			ARRAY_A
 		);
+
+		// Transform to frontend format
+		$field = $this->transform_field( $field );
 
 		return rest_ensure_response( $field );
 	}
@@ -805,6 +810,64 @@ class OpenFields_REST_API {
 				'sanitize_callback' => 'absint',
 			),
 		);
+	}
+
+	/**
+	 * Transform field for API response.
+	 *
+	 * Parse JSON fields in field objects.
+	 *
+	 * @since  1.0.0
+	 * @param  array $field Field array.
+	 * @return array
+	 */
+	private function transform_field( $field ) {
+		if ( ! empty( $field['conditional_logic'] ) && is_string( $field['conditional_logic'] ) ) {
+			$field['conditional_logic'] = json_decode( $field['conditional_logic'], true ) ?: array();
+		} else {
+			$field['conditional_logic'] = array();
+		}
+		if ( ! empty( $field['wrapper_config'] ) && is_string( $field['wrapper_config'] ) ) {
+			$field['wrapper_config'] = json_decode( $field['wrapper_config'], true ) ?: array();
+		} else {
+			$field['wrapper_config'] = array();
+		}
+		if ( ! empty( $field['field_config'] ) && is_string( $field['field_config'] ) ) {
+			$field['field_config'] = json_decode( $field['field_config'], true ) ?: array();
+		} else {
+			$field['field_config'] = array();
+		}
+		return $field;
+	}
+
+	/**
+	 * Transform fieldset for API response.
+	 *
+	 * Maps database format to frontend format:
+	 * - status → is_active
+	 * - Parse JSON fields
+	 *
+	 * @since  1.0.0
+	 * @param  array $fieldset Fieldset array.
+	 * @return array
+	 */
+	private function transform_fieldset( $fieldset ) {
+		// Map status to is_active
+		$fieldset['is_active'] = $fieldset['status'] !== 'inactive';
+
+		// Parse JSON fields
+		if ( ! empty( $fieldset['settings'] ) && is_string( $fieldset['settings'] ) ) {
+			$fieldset['settings'] = json_decode( $fieldset['settings'], true ) ?: array();
+		} elseif ( empty( $fieldset['settings'] ) ) {
+			$fieldset['settings'] = array();
+		}
+
+		// Parse field data if present
+		if ( ! empty( $fieldset['fields'] ) && is_array( $fieldset['fields'] ) ) {
+			$fieldset['fields'] = array_map( array( $this, 'transform_field' ), $fieldset['fields'] );
+		}
+
+		return $fieldset;
 	}
 
 	/**

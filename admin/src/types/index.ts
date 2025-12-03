@@ -123,6 +123,7 @@ export interface FieldsetSettings {
 	style?: 'default' | 'seamless';
 	label_placement?: 'top' | 'left';
 	instruction_placement?: 'label' | 'field';
+	location_groups?: LocationGroup[];
 }
 
 // Location Rules
