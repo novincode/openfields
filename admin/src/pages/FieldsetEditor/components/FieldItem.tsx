@@ -29,6 +29,7 @@ import {
 	CollapsibleTrigger,
 } from '../../../components/ui/collapsible';
 import { GripVertical, ChevronDown, Trash2, Filter } from 'lucide-react';
+import { sanitizeFieldName, isFieldNameDuplicate } from '../../../utils/field-name-validator';
 
 import { ConditionalLogicPanel } from './ConditionalLogicPanel';
 import { TypeSpecificSettings } from './TypeSpecificSettings';
@@ -57,6 +58,7 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [label, setLabel] = useState(field.label || '');
 	const [name, setName] = useState(field.name || '');
+	const [nameError, setNameError] = useState<string>('');
 	const [hasError, setHasError] = useState(false);
 
 	// Wrapper settings
@@ -109,19 +111,34 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 		}
 	};
 
-	// Name change - save immediately
+	// Name change - auto-sanitize and check for duplicates
 	const handleNameChange = (value: string) => {
-		setName(value);
-		// Save immediately if not empty
-		if (value.trim()) {
-			setHasError(false);
-			handleUpdate({ name: value });
+		// Auto-sanitize: spaces to underscores, lowercase, remove invalid chars
+		const sanitized = sanitizeFieldName(value);
+		setName(sanitized || value); // Keep original if sanitization results in empty
+		
+		// Check for duplicates among other fields in this fieldset
+		const otherFieldNames = allFields
+			.filter(f => f.id !== field.id)
+			.map(f => f.name);
+		
+		if (sanitized && isFieldNameDuplicate(sanitized, otherFieldNames.map(n => ({ name: n })))) {
+			setNameError('This field name is already used in this fieldset');
+		} else if (!sanitized) {
+			setNameError('Field name is required and must contain only letters, numbers, hyphens, or underscores');
+		} else {
+			setNameError('');
 		}
 	};
 
 	const handleNameBlur = () => {
-		if (!name.trim()) {
-			setHasError(true);
+		const sanitized = sanitizeFieldName(name);
+		if (sanitized) {
+			// Save the sanitized version
+			handleUpdate({ name: sanitized });
+			setName(sanitized);
+		} else {
+			setNameError('Field name cannot be empty');
 		}
 	};
 
@@ -254,15 +271,27 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 									/>
 								</div>
 								<div>
-									<Label htmlFor={`name-${field.id}`}>Field Name</Label>
+									<Label htmlFor={`name-${field.id}`}>
+										Field Name / Meta Key Slug
+										<span className="text-xs text-gray-500 block font-normal mt-1">
+											Used as WordPress postmeta key with prefix "of_"
+										</span>
+									</Label>
 									<Input
 										id={`name-${field.id}`}
 										value={name}
 										onChange={(e) => handleNameChange(e.target.value)}
 										onBlur={handleNameBlur}
-										placeholder="field_name"
-										className={hasError && !name.trim() ? 'border-red-500' : ''}
+										placeholder="my_field_name"
+										className={nameError ? 'border-red-500' : ''}
+										disabled={false}
 									/>
+									{nameError && (
+										<p className="text-xs text-red-600 mt-1">{nameError}</p>
+									)}
+									<p className="text-xs text-gray-500 mt-1">
+										Only letters, numbers, hyphens (-), underscores (_). Spaces converted to underscores.
+									</p>
 								</div>
 							</div>
 

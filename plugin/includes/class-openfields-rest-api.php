@@ -478,11 +478,39 @@ class OpenFields_REST_API {
 		$table = $wpdb->prefix . 'openfields_fields';
 		$now   = current_time( 'mysql' );
 
+		// Sanitize and validate field name (becomes meta key).
+		$field_name = sanitize_key( $request['name'] );
+		if ( empty( $field_name ) ) {
+			return new WP_Error(
+				'openfields_invalid_field_name',
+				__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'openfields' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Check for duplicate field names in this fieldset.
+		$fieldset_id = absint( $request['fieldset_id'] );
+		$existing = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$table} WHERE fieldset_id = %d AND name = %s",
+				$fieldset_id,
+				$field_name
+			)
+		);
+
+		if ( $existing > 0 ) {
+			return new WP_Error(
+				'openfields_duplicate_field_name',
+				__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'openfields' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$data = array(
-			'fieldset_id'       => absint( $request['fieldset_id'] ),
+			'fieldset_id'       => $fieldset_id,
 			'parent_id'         => ! empty( $request['parent_id'] ) ? absint( $request['parent_id'] ) : null,
 			'label'             => sanitize_text_field( $request['label'] ),
-			'name'              => sanitize_key( $request['name'] ),
+			'name'              => $field_name,
 			'field_key'         => sanitize_key( $request['field_key'] ?? 'field_' . uniqid() ),
 			'type'              => sanitize_key( $request['type'] ),
 			'instructions'      => sanitize_textarea_field( $request['instructions'] ?? '' ),
@@ -493,8 +521,8 @@ class OpenFields_REST_API {
 			'wrapper_config'    => wp_json_encode( $request['wrapper_config'] ?? array() ),
 			'field_config'      => wp_json_encode( $request['field_config'] ?? array() ),
 			'menu_order'        => absint( $request['menu_order'] ?? 0 ),
-			'created_at'        => $now,
-			'updated_at'        => $now,
+			'created_at'        => current_time( 'mysql' ),
+			'updated_at'        => current_time( 'mysql' ),
 		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -538,9 +566,46 @@ class OpenFields_REST_API {
 		if ( isset( $request['label'] ) ) {
 			$data['label'] = sanitize_text_field( $request['label'] );
 		}
+		
+		// If name is being changed, validate it.
 		if ( isset( $request['name'] ) ) {
-			$data['name'] = sanitize_key( $request['name'] );
+			$new_name = sanitize_key( $request['name'] );
+			
+			if ( empty( $new_name ) ) {
+				return new WP_Error(
+					'openfields_invalid_field_name',
+					__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'openfields' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			// Check if this name is already used by another field in the same fieldset.
+			$field = $wpdb->get_row(
+				$wpdb->prepare( "SELECT fieldset_id FROM {$table} WHERE id = %d", $id )
+			);
+
+			if ( $field ) {
+				$duplicate = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM {$table} WHERE fieldset_id = %d AND name = %s AND id != %d",
+						$field->fieldset_id,
+						$new_name,
+						$id
+					)
+				);
+
+				if ( $duplicate > 0 ) {
+					return new WP_Error(
+						'openfields_duplicate_field_name',
+						__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'openfields' ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+
+			$data['name'] = $new_name;
 		}
+		
 		if ( isset( $request['type'] ) ) {
 			$data['type'] = sanitize_key( $request['type'] );
 		}
