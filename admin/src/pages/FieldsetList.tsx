@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, Copy, Trash2, Edit, MoreVertical, Search } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import {
@@ -15,6 +16,17 @@ import {
 	CardHeader,
 	CardTitle,
 } from '../components/ui/card';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '../components/ui/alert-dialog';
 import { useFieldsetStore } from '../stores';
 import { fieldApi } from '../api';
 import type { Fieldset } from '../types';
@@ -29,7 +41,6 @@ export default function FieldsetList() {
 		duplicateFieldset,
 	} = useFieldsetStore();
 	const [searchTerm, setSearchTerm] = useState('');
-	const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 	const [fieldCounts, setFieldCounts] = useState<Record<number, number>>({});
 
 	useEffect(() => {
@@ -64,17 +75,23 @@ export default function FieldsetList() {
 	);
 
 	const handleDelete = async (id: number) => {
-		if (deleteConfirm === id) {
+		try {
 			await deleteFieldset(id);
-			setDeleteConfirm(null);
-		} else {
-			setDeleteConfirm(id);
-			setTimeout(() => setDeleteConfirm(null), 3000);
+			toast.success('Field group deleted successfully');
+		} catch (error) {
+			console.error('Delete error:', error);
+			toast.error('Failed to delete field group');
 		}
 	};
 
 	const handleDuplicate = async (id: number) => {
-		await duplicateFieldset(id);
+		try {
+			await duplicateFieldset(id);
+			toast.success('Field group duplicated successfully');
+		} catch (error) {
+			console.error('Duplicate error:', error);
+			toast.error('Failed to duplicate field group');
+		}
 	};
 
 	const navigateToEdit = (id: number) => {
@@ -172,7 +189,6 @@ export default function FieldsetList() {
 							onEdit={() => navigateToEdit(fieldset.id)}
 							onDuplicate={() => handleDuplicate(fieldset.id)}
 							onDelete={() => handleDelete(fieldset.id)}
-							isDeleteConfirm={deleteConfirm === fieldset.id}
 						/>
 					))}
 				</div>
@@ -187,7 +203,6 @@ interface FieldsetCardProps {
 	onEdit: () => void;
 	onDuplicate: () => void;
 	onDelete: () => void;
-	isDeleteConfirm: boolean;
 }
 
 function FieldsetCard({
@@ -196,7 +211,6 @@ function FieldsetCard({
 	onEdit,
 	onDuplicate,
 	onDelete,
-	isDeleteConfirm,
 }: FieldsetCardProps) {
 	const [showMenu, setShowMenu] = useState(false);
 
@@ -254,21 +268,36 @@ function FieldsetCard({
 									<Copy className="h-4 w-4" />
 									Duplicate
 								</button>
-								<button
-									className={`flex items-center gap-2 px-3 py-2 text-sm w-full hover:bg-gray-50 ${
-										isDeleteConfirm
-											? 'text-red-600'
-											: 'text-gray-700'
-									}`}
-									onClick={(e) => {
-										e.stopPropagation();
-										onDelete();
-										setShowMenu(false);
-									}}
-								>
-									<Trash2 className="h-4 w-4" />
-									{isDeleteConfirm ? 'Click to confirm' : 'Delete'}
-								</button>
+								<AlertDialog>
+									<AlertDialogTrigger asChild>
+										<button
+											className="flex items-center gap-2 px-3 py-2 text-sm w-full hover:bg-gray-50 text-red-600"
+										>
+											<Trash2 className="h-4 w-4" />
+											Delete
+										</button>
+									</AlertDialogTrigger>
+									<AlertDialogContent onClick={(e) => e.stopPropagation()}>
+										<AlertDialogHeader>
+											<AlertDialogTitle>Delete Field Group</AlertDialogTitle>
+											<AlertDialogDescription>
+												Are you sure you want to delete "{fieldset.title}"? This action cannot be undone.
+											</AlertDialogDescription>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel onClick={() => setShowMenu(false)}>Cancel</AlertDialogCancel>
+											<AlertDialogAction
+												className="bg-red-600 hover:bg-red-700"
+												onClick={() => {
+													onDelete();
+													setShowMenu(false);
+												}}
+											>
+												Delete
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
 							</div>
 						)}
 					</div>

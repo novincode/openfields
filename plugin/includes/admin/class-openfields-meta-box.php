@@ -191,12 +191,14 @@ class OpenFields_Meta_Box {
 
 		// Get value from postmeta.
 		$meta_key = self::META_PREFIX . $field->name;
-		$value    = get_post_meta( $post_id, $meta_key, true );
+		
+		// Check if meta key exists in database (not just if it has a value)
+		$meta_exists = metadata_exists( 'post', $post_id, $meta_key );
+		$value = get_post_meta( $post_id, $meta_key, true );
 
-		// Use default value if meta doesn't exist (not just empty).
-		// Note: We check for empty string specifically because get_post_meta returns '' when meta doesn't exist.
-		// We don't use empty() because '0' is a valid value (e.g., for unchecked switches).
-		if ( $value === '' && ! empty( $field->default_value ) ) {
+		// Only use default value if meta key doesn't exist at all in the database
+		// If user saved an empty value, the meta key WILL exist (just with empty value)
+		if ( ! $meta_exists && ! empty( $field->default_value ) ) {
 			$value = $field->default_value;
 		}
 
