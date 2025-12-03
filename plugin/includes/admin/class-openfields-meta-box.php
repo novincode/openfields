@@ -595,16 +595,22 @@ class OpenFields_Meta_Box {
 	 * @param int    $post_id        Post ID.
 	 * @param object $field          Repeater field object.
 	 * @param array  $sub_fields_map Map of parent_id => sub-fields.
+	 * @param string $base_name      Optional base name for nested repeaters.
 	 */
-	private function save_repeater_field( $post_id, $field, $sub_fields_map ) {
-		$field_name = $field->name;
-		$meta_key   = self::META_PREFIX . $field_name;
+	private function save_repeater_field( $post_id, $field, $sub_fields_map, $base_name = '' ) {
+		// Base name is just the field name for root repeaters,
+		// or parent_index_fieldname for nested repeaters.
+		if ( empty( $base_name ) ) {
+			$base_name = $field->name;
+		}
 
-		// Get row count from POST (stored in hidden input).
+		$meta_key = self::META_PREFIX . $base_name;
+
+		// Get row count from POST (stored in hidden input with of_ prefix).
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
 
-		error_log( 'OpenFields: Saving repeater "' . $field_name . '" with ' . $row_count . ' rows' );
+		error_log( 'OpenFields: Saving repeater "' . $base_name . '" with ' . $row_count . ' rows (meta_key: ' . $meta_key . ')' );
 
 		// Save row count (ACF format).
 		update_post_meta( $post_id, $meta_key, $row_count );
@@ -613,33 +619,29 @@ class OpenFields_Meta_Box {
 		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
 
 		if ( empty( $sub_fields ) ) {
-			error_log( 'OpenFields: No sub-fields found for repeater ' . $field_name );
+			error_log( 'OpenFields: No sub-fields found for repeater ' . $base_name );
 			return;
 		}
 
 		// First, clean up old repeater data that might have higher indices.
-		$this->cleanup_repeater_meta( $post_id, $field_name, $sub_fields, $row_count );
+		$this->cleanup_repeater_meta( $post_id, $base_name, $sub_fields, $row_count );
 
 		// Save each row's sub-field values.
 		for ( $i = 0; $i < $row_count; $i++ ) {
 			foreach ( $sub_fields as $sub_field ) {
-				// ACF format: {parent}_{index}_{subfield}
-				$sub_meta_key = $field_name . '_' . $i . '_' . $sub_field->name;
-
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$raw_value = isset( $_POST[ $sub_meta_key ] ) ? wp_unslash( $_POST[ $sub_meta_key ] ) : '';
+				// Full name: base_index_subfield (e.g., team_0_name or team_0_skills_1_level)
+				$full_name = $base_name . '_' . $i . '_' . $sub_field->name;
+				$sub_meta_key = self::META_PREFIX . $full_name;
 
 				// Handle nested repeaters recursively.
 				if ( $sub_field->type === 'repeater' ) {
-					$this->save_repeater_field( $post_id, (object) array(
-						'id'   => $sub_field->id,
-						'name' => $sub_meta_key,
-						'type' => 'repeater',
-					), $sub_fields_map );
+					$this->save_repeater_field( $post_id, $sub_field, $sub_fields_map, $full_name );
 				} else {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$raw_value = isset( $_POST[ $sub_meta_key ] ) ? wp_unslash( $_POST[ $sub_meta_key ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
-					update_post_meta( $post_id, self::META_PREFIX . $sub_meta_key, $sanitized );
-					error_log( 'OpenFields: Saved ' . self::META_PREFIX . $sub_meta_key . ' = ' . print_r( $sanitized, true ) );
+					update_post_meta( $post_id, $sub_meta_key, $sanitized );
+					error_log( 'OpenFields: Saved ' . $sub_meta_key . ' = ' . print_r( $sanitized, true ) );
 				}
 			}
 		}

@@ -2,8 +2,8 @@
  * OpenFields Repeater Field Handler
  *
  * Clean, scalable JavaScript for managing repeater fields.
- * Uses native HTML5 Drag and Drop API for row reordering.
- * ACF-compatible data format: {field}_{index}_{subfield}
+ * Supports nested repeaters with proper event delegation.
+ * Uses native HTML5 Drag and Drop API.
  *
  * @package OpenFields
  * @since   1.0.0
@@ -13,160 +13,196 @@
 	'use strict';
 
 	/**
-	 * RepeaterManager - Singleton controller for all repeater fields
+	 * Repeater Controller
 	 */
-	const RepeaterManager = {
+	const Repeater = {
 		/**
-		 * Initialize all repeaters on page load
+		 * Initialize
 		 */
 		init() {
+			this.bindEvents();
 			this.initAllRepeaters();
-			this.bindGlobalEvents();
-			console.log('[OpenFields] Repeater manager initialized');
 		},
 
 		/**
-		 * Initialize all repeater fields in the document or a container
-		 * @param {HTMLElement} container - Container to search within
+		 * Bind global event listeners using delegation
 		 */
-		initAllRepeaters(container = document) {
-			const repeaters = container.querySelectorAll('.openfields-repeater:not([data-initialized])');
-			repeaters.forEach((repeater) => this.initRepeater(repeater));
-		},
-
-		/**
-		 * Initialize a single repeater field
-		 * @param {HTMLElement} repeater - The repeater container element
-		 */
-		initRepeater(repeater) {
-			// Mark as initialized
-			repeater.setAttribute('data-initialized', 'true');
-
-			// Store config
-			const config = {
-				fieldName: repeater.dataset.fieldName,
-				min: parseInt(repeater.dataset.min, 10) || 0,
-				max: parseInt(repeater.dataset.max, 10) || 0,
-				layout: repeater.dataset.layout || 'table',
-			};
-
-			// Store on element for later access
-			repeater._config = config;
-
-			// Bind events
-			this.bindRepeaterEvents(repeater);
-
-			// Initialize drag and drop
-			this.initDragDrop(repeater);
-
-			// Initialize existing rows
-			this.initRows(repeater);
-
-			// Update UI state
-			this.updateRepeaterState(repeater);
-		},
-
-		/**
-		 * Bind event listeners for a repeater
-		 * @param {HTMLElement} repeater
-		 */
-		bindRepeaterEvents(repeater) {
-			// Add row button
-			const addBtn = repeater.querySelector('.openfields-repeater-add');
-			if (addBtn) {
-				addBtn.addEventListener('click', (e) => {
-					e.preventDefault();
-					this.addRow(repeater);
-				});
-			}
-
-			// Event delegation for row actions
-			repeater.addEventListener('click', (e) => {
+		bindEvents() {
+			// Use event delegation on document for all repeater interactions
+			// This ensures nested repeaters work correctly
+			document.addEventListener('click', (e) => {
 				const target = e.target;
 
-				// Remove row
-				if (target.closest('.openfields-repeater-row-remove')) {
+				// Add row button
+				const addBtn = target.closest('.openfields-repeater-add');
+				if (addBtn) {
 					e.preventDefault();
-					const row = target.closest('.openfields-repeater-row');
-					if (row) {
+					e.stopPropagation();
+					const repeater = addBtn.closest('.openfields-repeater');
+					if (repeater) {
+						this.addRow(repeater);
+					}
+					return;
+				}
+
+				// Remove row button
+				const removeBtn = target.closest('.openfields-repeater-row-remove');
+				if (removeBtn) {
+					e.preventDefault();
+					e.stopPropagation();
+					const row = removeBtn.closest('.openfields-repeater-row');
+					const repeater = this.getClosestRepeater(row);
+					if (row && repeater) {
 						this.removeRow(repeater, row);
 					}
+					return;
+				}
+
+				// Toggle/collapse button
+				const toggleBtn = target.closest('.openfields-repeater-row-toggle');
+				if (toggleBtn) {
+					e.preventDefault();
+					e.stopPropagation();
+					const row = toggleBtn.closest('.openfields-repeater-row');
+					if (row) {
+						this.toggleRow(row);
+					}
+					return;
 				}
 			});
 		},
 
 		/**
-		 * Initialize all rows in a repeater
+		 * Get the immediate parent repeater of an element
+		 * @param {HTMLElement} element
+		 * @returns {HTMLElement|null}
+		 */
+		getClosestRepeater(element) {
+			// Get the row first
+			const row = element.closest('.openfields-repeater-row');
+			if (!row) return null;
+
+			// The repeater is the parent of .openfields-repeater-rows which contains this row
+			const rowsContainer = row.parentElement;
+			if (!rowsContainer || !rowsContainer.classList.contains('openfields-repeater-rows')) {
+				return null;
+			}
+
+			return rowsContainer.closest('.openfields-repeater');
+		},
+
+		/**
+		 * Initialize all repeaters
+		 * @param {HTMLElement} container
+		 */
+		initAllRepeaters(container = document) {
+			const repeaters = container.querySelectorAll('.openfields-repeater:not([data-init])');
+			repeaters.forEach((repeater) => this.initRepeater(repeater));
+		},
+
+		/**
+		 * Initialize a single repeater
 		 * @param {HTMLElement} repeater
 		 */
-		initRows(repeater) {
-			const rows = repeater.querySelectorAll('.openfields-repeater-row');
-			rows.forEach((row, index) => {
-				row.setAttribute('data-row-index', index);
-				// Initialize nested repeaters
+		initRepeater(repeater) {
+			repeater.setAttribute('data-init', 'true');
+
+			// Store config
+			repeater._config = {
+				name: repeater.dataset.name || '',
+				min: parseInt(repeater.dataset.min, 10) || 0,
+				max: parseInt(repeater.dataset.max, 10) || 0,
+				layout: repeater.dataset.layout || 'block',
+			};
+
+			// Init drag and drop
+			this.initDragDrop(repeater);
+
+			// Update state
+			this.updateState(repeater);
+
+			// Initialize nested repeaters inside existing rows
+			const rows = this.getRows(repeater);
+			rows.forEach((row) => {
 				this.initAllRepeaters(row);
 			});
 		},
 
 		/**
-		 * Initialize HTML5 drag and drop for row reordering
+		 * Get direct child rows of a repeater
+		 * @param {HTMLElement} repeater
+		 * @returns {NodeList}
+		 */
+		getRows(repeater) {
+			const rowsContainer = repeater.querySelector(':scope > .openfields-repeater-rows');
+			if (!rowsContainer) return [];
+			return rowsContainer.querySelectorAll(':scope > .openfields-repeater-row');
+		},
+
+		/**
+		 * Get rows container
+		 * @param {HTMLElement} repeater
+		 * @returns {HTMLElement|null}
+		 */
+		getRowsContainer(repeater) {
+			return repeater.querySelector(':scope > .openfields-repeater-rows');
+		},
+
+		/**
+		 * Initialize drag and drop for a repeater
 		 * @param {HTMLElement} repeater
 		 */
 		initDragDrop(repeater) {
-			const rowsContainer = repeater.querySelector('.openfields-repeater-rows');
+			const rowsContainer = this.getRowsContainer(repeater);
 			if (!rowsContainer) return;
 
 			let draggedRow = null;
 			let placeholder = null;
 
-			// Make rows draggable via handle
+			// Enable dragging via handle
 			rowsContainer.addEventListener('mousedown', (e) => {
 				const handle = e.target.closest('.openfields-repeater-row-handle');
 				if (!handle) return;
 
 				const row = handle.closest('.openfields-repeater-row');
-				if (!row) return;
+				// Ensure this row belongs to THIS repeater (not a nested one)
+				if (!row || row.parentElement !== rowsContainer) return;
 
-				row.setAttribute('draggable', 'true');
+				row.draggable = true;
 			});
 
 			rowsContainer.addEventListener('mouseup', () => {
-				const rows = rowsContainer.querySelectorAll('.openfields-repeater-row');
-				rows.forEach((row) => row.removeAttribute('draggable'));
+				const rows = this.getRows(repeater);
+				rows.forEach((row) => (row.draggable = false));
 			});
 
-			// Drag start
 			rowsContainer.addEventListener('dragstart', (e) => {
 				const row = e.target.closest('.openfields-repeater-row');
-				if (!row) return;
+				// Only drag direct children
+				if (!row || row.parentElement !== rowsContainer) return;
 
 				draggedRow = row;
 				row.classList.add('is-dragging');
 
 				// Create placeholder
 				placeholder = document.createElement('div');
-				placeholder.className = 'openfields-repeater-row-placeholder';
+				placeholder.className = 'openfields-repeater-placeholder';
 				placeholder.style.height = row.offsetHeight + 'px';
 
-				// Use setTimeout to allow the drag image to be captured
 				setTimeout(() => {
 					row.style.display = 'none';
-					row.parentNode.insertBefore(placeholder, row);
+					rowsContainer.insertBefore(placeholder, row);
 				}, 0);
 
 				e.dataTransfer.effectAllowed = 'move';
 				e.dataTransfer.setData('text/plain', '');
 			});
 
-			// Drag over
 			rowsContainer.addEventListener('dragover', (e) => {
 				e.preventDefault();
-				e.dataTransfer.dropEffect = 'move';
+				if (!placeholder || !draggedRow) return;
 
-				if (!placeholder) return;
-
-				const afterElement = this.getDragAfterElement(rowsContainer, e.clientY);
-
+				const afterElement = this.getDragAfterElement(rowsContainer, e.clientY, repeater);
 				if (afterElement) {
 					rowsContainer.insertBefore(placeholder, afterElement);
 				} else {
@@ -174,13 +210,12 @@
 				}
 			});
 
-			// Drag end
-			rowsContainer.addEventListener('dragend', (e) => {
+			rowsContainer.addEventListener('dragend', () => {
 				if (!draggedRow) return;
 
 				draggedRow.classList.remove('is-dragging');
 				draggedRow.style.display = '';
-				draggedRow.removeAttribute('draggable');
+				draggedRow.draggable = false;
 
 				if (placeholder && placeholder.parentNode) {
 					placeholder.parentNode.insertBefore(draggedRow, placeholder);
@@ -190,335 +225,308 @@
 				placeholder = null;
 				draggedRow = null;
 
-				// Reindex all rows
+				// Reindex rows
 				this.reindexRows(repeater);
-				this.updateRepeaterState(repeater);
-
-				// Trigger change event
-				this.triggerChange(repeater);
+				this.updateState(repeater);
 			});
 
-			// Drop (cleanup)
 			rowsContainer.addEventListener('drop', (e) => {
 				e.preventDefault();
 			});
 		},
 
 		/**
-		 * Get the element to insert before during drag
+		 * Get element to insert before during drag
 		 * @param {HTMLElement} container
-		 * @param {number} y - Mouse Y position
+		 * @param {number} y
+		 * @param {HTMLElement} repeater
 		 * @returns {HTMLElement|null}
 		 */
-		getDragAfterElement(container, y) {
-			const draggableElements = [
-				...container.querySelectorAll('.openfields-repeater-row:not(.is-dragging)'),
-			];
+		getDragAfterElement(container, y, repeater) {
+			const rows = [...this.getRows(repeater)].filter(
+				(row) => !row.classList.contains('is-dragging')
+			);
 
-			return draggableElements.reduce(
+			return rows.reduce(
 				(closest, child) => {
 					const box = child.getBoundingClientRect();
 					const offset = y - box.top - box.height / 2;
 
 					if (offset < 0 && offset > closest.offset) {
-						return { offset: offset, element: child };
-					} else {
-						return closest;
+						return { offset, element: child };
 					}
+					return closest;
 				},
 				{ offset: Number.NEGATIVE_INFINITY }
 			).element;
 		},
 
 		/**
-		 * Add a new row to the repeater
+		 * Add a new row
 		 * @param {HTMLElement} repeater
 		 */
 		addRow(repeater) {
 			const config = repeater._config;
-			const rowsContainer = repeater.querySelector('.openfields-repeater-rows');
-			const currentRows = rowsContainer.querySelectorAll('.openfields-repeater-row');
+			const rowsContainer = this.getRowsContainer(repeater);
+			const rows = this.getRows(repeater);
 
 			// Check max limit
-			if (config.max > 0 && currentRows.length >= config.max) {
-				this.showNotice(repeater, `Maximum ${config.max} rows allowed.`, 'warning');
+			if (config.max > 0 && rows.length >= config.max) {
 				return;
 			}
 
 			// Get template
-			const templateScript = repeater.querySelector('script[type="text/template"]');
-			if (!templateScript) {
-				console.error('[OpenFields] Row template not found');
+			const template = repeater.querySelector(':scope > template.openfields-repeater-template');
+			if (!template) {
+				console.error('[OpenFields] No template found for repeater:', config.name);
 				return;
 			}
 
 			// Get next index
-			const nextIndex = this.getNextRowIndex(repeater);
+			const nextIndex = rows.length;
 
-			// Clone template and replace index placeholder
-			let html = templateScript.innerHTML.replace(/__INDEX__/g, nextIndex);
+			// Clone template content
+			let html = template.innerHTML;
+			html = html.replace(/\{\{INDEX\}\}/g, nextIndex);
 
-			// Create temp container
+			// Create element
 			const temp = document.createElement('div');
 			temp.innerHTML = html.trim();
 			const newRow = temp.firstElementChild;
 
 			if (!newRow) return;
 
+			// Update row index attribute
+			newRow.setAttribute('data-index', nextIndex);
+
 			// Add to container
 			rowsContainer.appendChild(newRow);
 
-			// Initialize the new row (nested repeaters, etc.)
+			// Initialize nested repeaters in the new row
 			this.initAllRepeaters(newRow);
 
-			// Reindex and update state
+			// Reindex and update
 			this.reindexRows(repeater);
-			this.updateRepeaterState(repeater);
+			this.updateState(repeater);
 
-			// Focus first input in new row
-			const firstInput = newRow.querySelector('input, textarea, select');
+			// Focus first input
+			const firstInput = newRow.querySelector('input:not([type="hidden"]), textarea, select');
 			if (firstInput) {
 				firstInput.focus();
 			}
 
-			// Trigger change event
-			this.triggerChange(repeater);
-
-			// Scroll to new row
+			// Scroll into view
 			newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 		},
 
 		/**
-		 * Remove a row from the repeater
+		 * Remove a row
 		 * @param {HTMLElement} repeater
 		 * @param {HTMLElement} row
 		 */
 		removeRow(repeater, row) {
 			const config = repeater._config;
-			const rowsContainer = repeater.querySelector('.openfields-repeater-rows');
-			const currentRows = rowsContainer.querySelectorAll('.openfields-repeater-row');
+			const rows = this.getRows(repeater);
 
 			// Check min limit
-			if (config.min > 0 && currentRows.length <= config.min) {
-				this.showNotice(repeater, `Minimum ${config.min} rows required.`, 'warning');
+			if (config.min > 0 && rows.length <= config.min) {
 				return;
 			}
 
-			// Confirm removal
-			if (!confirm('Remove this row?')) {
-				return;
-			}
-
-			// Animate out
-			row.style.transition = 'opacity 0.2s, transform 0.2s';
+			// Animate and remove
 			row.style.opacity = '0';
 			row.style.transform = 'translateX(-10px)';
+			row.style.transition = 'opacity 0.15s, transform 0.15s';
 
 			setTimeout(() => {
 				row.remove();
 				this.reindexRows(repeater);
-				this.updateRepeaterState(repeater);
-				this.triggerChange(repeater);
-			}, 200);
+				this.updateState(repeater);
+			}, 150);
 		},
 
 		/**
-		 * Reindex all rows and their field names
+		 * Toggle row collapsed state
+		 * @param {HTMLElement} row
+		 */
+		toggleRow(row) {
+			row.classList.toggle('is-collapsed');
+			const icon = row.querySelector('.openfields-repeater-row-toggle .dashicons');
+			if (icon) {
+				icon.classList.toggle('dashicons-arrow-up-alt2');
+				icon.classList.toggle('dashicons-arrow-down-alt2');
+			}
+		},
+
+		/**
+		 * Reindex all rows and update field names
 		 * @param {HTMLElement} repeater
 		 */
 		reindexRows(repeater) {
 			const config = repeater._config;
-			const rowsContainer = repeater.querySelector('.openfields-repeater-rows');
-			const rows = rowsContainer.querySelectorAll(':scope > .openfields-repeater-row');
+			const rows = this.getRows(repeater);
 
 			rows.forEach((row, newIndex) => {
-				const oldIndex = row.getAttribute('data-row-index');
+				const oldIndex = row.getAttribute('data-index');
 
 				// Update row index
-				row.setAttribute('data-row-index', newIndex);
+				row.setAttribute('data-index', newIndex);
 
 				// Update row number display
-				const rowNumber = row.querySelector('.openfields-repeater-row-number');
-				if (rowNumber) {
-					rowNumber.textContent = newIndex + 1;
+				const indexDisplay = row.querySelector(':scope > .openfields-repeater-row-handle .openfields-repeater-row-index');
+				if (indexDisplay) {
+					indexDisplay.textContent = newIndex + 1;
 				}
 
-				// Update field names and IDs
+				// Update field names if index changed
 				if (oldIndex !== null && oldIndex !== String(newIndex)) {
-					this.updateFieldIndices(row, config.fieldName, oldIndex, newIndex);
+					this.updateFieldNames(row, config.name, oldIndex, newIndex);
 				}
 			});
 
 			// Update count input
-			const countInput = repeater.querySelector('.openfields-repeater-count');
+			const countInput = repeater.querySelector(':scope > input.openfields-repeater-count');
 			if (countInput) {
 				countInput.value = rows.length;
 			}
 		},
 
 		/**
-		 * Update field name indices within a row
+		 * Update field names within a row when index changes
 		 * @param {HTMLElement} row
-		 * @param {string} fieldName - Parent repeater field name
+		 * @param {string} baseName
 		 * @param {string} oldIndex
 		 * @param {number} newIndex
 		 */
-		updateFieldIndices(row, fieldName, oldIndex, newIndex) {
+		updateFieldNames(row, baseName, oldIndex, newIndex) {
+			// Update all inputs in this row (but not in nested repeater rows)
 			const inputs = row.querySelectorAll('input, textarea, select');
 
 			inputs.forEach((input) => {
-				// Update name attribute
+				// Skip if this input is inside a nested repeater row
+				const closestRow = input.closest('.openfields-repeater-row');
+				if (closestRow !== row) return;
+
+				// Update name: of_{base}_{oldIndex}_{subfield} -> of_{base}_{newIndex}_{subfield}
 				if (input.name) {
-					// Pattern: {parent}_{oldIndex}_{subfield} -> {parent}_{newIndex}_{subfield}
-					const namePattern = new RegExp(`(${this.escapeRegex(fieldName)})_${oldIndex}_`);
-					input.name = input.name.replace(namePattern, `$1_${newIndex}_`);
+					const pattern = new RegExp(`^(of_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+					input.name = input.name.replace(pattern, `$1${newIndex}$2`);
 				}
 
-				// Update ID attribute
+				// Update ID
 				if (input.id) {
-					const idPattern = new RegExp(`(${this.escapeRegex(fieldName)})_${oldIndex}_`);
-					input.id = input.id.replace(idPattern, `$1_${newIndex}_`);
+					const pattern = new RegExp(`^(of_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+					input.id = input.id.replace(pattern, `$1${newIndex}$2`);
 				}
 			});
 
 			// Update labels
 			const labels = row.querySelectorAll('label[for]');
 			labels.forEach((label) => {
-				const idPattern = new RegExp(`(${this.escapeRegex(fieldName)})_${oldIndex}_`);
-				label.setAttribute('for', label.getAttribute('for').replace(idPattern, `$1_${newIndex}_`));
+				const closestRow = label.closest('.openfields-repeater-row');
+				if (closestRow !== row) return;
+
+				const forAttr = label.getAttribute('for');
+				const pattern = new RegExp(`^(of_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+				label.setAttribute('for', forAttr.replace(pattern, `$1${newIndex}$2`));
+			});
+
+			// Also update nested repeater data-name and their count inputs
+			const nestedRepeaters = row.querySelectorAll(':scope > .openfields-repeater-row-content .openfields-repeater');
+			nestedRepeaters.forEach((nested) => {
+				const nestedName = nested.dataset.name;
+				if (nestedName) {
+					// Update the base name: {parent}_{oldIndex}_{child} -> {parent}_{newIndex}_{child}
+					const pattern = new RegExp(`^${this.escapeRegex(baseName)}_${oldIndex}_`);
+					const newName = nestedName.replace(pattern, `${baseName}_${newIndex}_`);
+					nested.dataset.name = newName;
+
+					// Update count input name
+					const countInput = nested.querySelector(':scope > input.openfields-repeater-count');
+					if (countInput) {
+						countInput.name = `of_${newName}`;
+					}
+
+					// Update config
+					if (nested._config) {
+						nested._config.name = newName;
+					}
+
+					// Recursively update all fields inside
+					this.updateNestedFieldNames(nested, nestedName, newName);
+				}
 			});
 		},
 
 		/**
-		 * Get the next available row index
+		 * Update all field names inside a nested repeater when parent index changes
 		 * @param {HTMLElement} repeater
-		 * @returns {number}
+		 * @param {string} oldBaseName
+		 * @param {string} newBaseName
 		 */
-		getNextRowIndex(repeater) {
-			const rowsContainer = repeater.querySelector('.openfields-repeater-rows');
-			const rows = rowsContainer.querySelectorAll('.openfields-repeater-row');
+		updateNestedFieldNames(repeater, oldBaseName, newBaseName) {
+			const inputs = repeater.querySelectorAll('input, textarea, select');
 
-			if (rows.length === 0) return 0;
-
-			// Find highest existing index
-			let maxIndex = -1;
-			rows.forEach((row) => {
-				const idx = parseInt(row.getAttribute('data-row-index'), 10);
-				if (!isNaN(idx) && idx > maxIndex) {
-					maxIndex = idx;
+			inputs.forEach((input) => {
+				if (input.name) {
+					input.name = input.name.replace(
+						`of_${oldBaseName}_`,
+						`of_${newBaseName}_`
+					);
+				}
+				if (input.id) {
+					input.id = input.id.replace(
+						`of_${oldBaseName}_`,
+						`of_${newBaseName}_`
+					);
 				}
 			});
 
-			return maxIndex + 1;
+			const labels = repeater.querySelectorAll('label[for]');
+			labels.forEach((label) => {
+				const forAttr = label.getAttribute('for');
+				label.setAttribute('for', forAttr.replace(`of_${oldBaseName}_`, `of_${newBaseName}_`));
+			});
 		},
 
 		/**
-		 * Update repeater UI state (button disabled states, etc.)
+		 * Update UI state (button disabled states)
 		 * @param {HTMLElement} repeater
 		 */
-		updateRepeaterState(repeater) {
+		updateState(repeater) {
 			const config = repeater._config;
-			const rowsContainer = repeater.querySelector('.openfields-repeater-rows');
-			const rows = rowsContainer.querySelectorAll('.openfields-repeater-row');
-			const addBtn = repeater.querySelector('.openfields-repeater-add');
+			const rows = this.getRows(repeater);
+			const addBtn = repeater.querySelector(':scope > .openfields-repeater-footer > .openfields-repeater-add');
 
-			// Update add button
+			// Add button state
 			if (addBtn) {
-				if (config.max > 0 && rows.length >= config.max) {
-					addBtn.disabled = true;
-					addBtn.title = `Maximum ${config.max} rows reached`;
-				} else {
-					addBtn.disabled = false;
-					addBtn.title = '';
-				}
+				addBtn.disabled = config.max > 0 && rows.length >= config.max;
 			}
 
-			// Update remove buttons
-			const removeBtns = repeater.querySelectorAll('.openfields-repeater-row-remove');
+			// Remove button states
+			const removeBtns = repeater.querySelectorAll(':scope > .openfields-repeater-rows > .openfields-repeater-row > .openfields-repeater-row-actions > .openfields-repeater-row-remove');
 			removeBtns.forEach((btn) => {
-				if (config.min > 0 && rows.length <= config.min) {
-					btn.disabled = true;
-					btn.title = `Minimum ${config.min} rows required`;
-				} else {
-					btn.disabled = false;
-					btn.title = 'Remove row';
-				}
+				btn.disabled = config.min > 0 && rows.length <= config.min;
 			});
 		},
 
 		/**
-		 * Show a temporary notice
-		 * @param {HTMLElement} repeater
-		 * @param {string} message
-		 * @param {string} type - 'info', 'warning', 'error'
-		 */
-		showNotice(repeater, message, type = 'info') {
-			// Remove existing notice
-			const existing = repeater.querySelector('.openfields-repeater-notice');
-			if (existing) existing.remove();
-
-			const notice = document.createElement('div');
-			notice.className = `openfields-repeater-notice notice notice-${type}`;
-			notice.innerHTML = `<p>${message}</p>`;
-
-			repeater.insertBefore(notice, repeater.firstChild);
-
-			setTimeout(() => {
-				notice.style.transition = 'opacity 0.3s';
-				notice.style.opacity = '0';
-				setTimeout(() => notice.remove(), 300);
-			}, 3000);
-		},
-
-		/**
-		 * Trigger change event on repeater
-		 * @param {HTMLElement} repeater
-		 */
-		triggerChange(repeater) {
-			const event = new CustomEvent('openfields:repeater:change', {
-				bubbles: true,
-				detail: {
-					fieldName: repeater._config?.fieldName,
-					rowCount: repeater.querySelectorAll('.openfields-repeater-row').length,
-				},
-			});
-			repeater.dispatchEvent(event);
-		},
-
-		/**
-		 * Escape string for use in RegExp
+		 * Escape string for RegExp
 		 * @param {string} str
 		 * @returns {string}
 		 */
 		escapeRegex(str) {
 			return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 		},
-
-		/**
-		 * Bind global events
-		 */
-		bindGlobalEvents() {
-			// Re-init when Gutenberg/block editor loads new content
-			if (typeof wp !== 'undefined' && wp.data) {
-				const unsubscribe = wp.data.subscribe(() => {
-					this.initAllRepeaters();
-				});
-			}
-
-			// Re-init on AJAX complete (for dynamic content)
-			document.addEventListener('ajaxComplete', () => {
-				this.initAllRepeaters();
-			});
-		},
 	};
 
 	// Initialize on DOM ready
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', () => RepeaterManager.init());
+		document.addEventListener('DOMContentLoaded', () => Repeater.init());
 	} else {
-		RepeaterManager.init();
+		Repeater.init();
 	}
 
-	// Export for external access
-	window.OpenFieldsRepeater = RepeaterManager;
+	// Export
+	window.OpenFieldsRepeater = Repeater;
 })();
