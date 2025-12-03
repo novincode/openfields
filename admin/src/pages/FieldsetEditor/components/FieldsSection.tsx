@@ -45,14 +45,14 @@ import { useFieldRegistry } from '../../../lib/field-registry';
 import type { Field, FieldType } from '../../../types';
 
 export function FieldsSection() {
-	const {
-		currentFieldset,
-		fields,
-		fetchFields,
-		addField,
-		reorderFields,
-		setUnsavedChanges,
-	} = useFieldsetStore();
+	// Use selectors for proper subscription
+	const currentFieldset = useFieldsetStore((state) => state.currentFieldset);
+	const fields = useFieldsetStore((state) => state.fields);
+	const fetchFields = useFieldsetStore((state) => state.fetchFields);
+	const addField = useFieldsetStore((state) => state.addField);
+	const reorderFields = useFieldsetStore((state) => state.reorderFields);
+	const setUnsavedChanges = useFieldsetStore((state) => state.setUnsavedChanges);
+	
 	const { showToast } = useUIStore();
 	const { getGroupedByCategory } = useFieldRegistry();
 

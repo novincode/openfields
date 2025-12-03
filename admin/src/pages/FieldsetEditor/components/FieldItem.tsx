@@ -49,7 +49,9 @@ const WIDTH_OPTIONS = [
 ];
 
 export function FieldItem({ field, allFields }: FieldItemProps) {
-	const { updateFieldLocal, deleteField } = useFieldsetStore();
+	// Use selectors for proper subscription
+	const updateFieldLocal = useFieldsetStore((state) => state.updateFieldLocal);
+	const deleteField = useFieldsetStore((state) => state.deleteField);
 	const { showToast } = useUIStore();
 
 	const [isOpen, setIsOpen] = useState(false);
@@ -91,35 +93,35 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 		[field.id, updateFieldLocal]
 	);
 
-	// Label change
+	// Label change - save immediately
 	const handleLabelChange = (value: string) => {
 		setLabel(value);
+		// Save immediately if not empty
+		if (value.trim()) {
+			setHasError(false);
+			handleUpdate({ label: value });
+		}
 	};
 
 	const handleLabelBlur = () => {
 		if (!label.trim()) {
 			setHasError(true);
-			return;
-		}
-		setHasError(false);
-		if (label !== field.label) {
-			handleUpdate({ label });
 		}
 	};
 
-	// Name change
+	// Name change - save immediately
 	const handleNameChange = (value: string) => {
 		setName(value);
+		// Save immediately if not empty
+		if (value.trim()) {
+			setHasError(false);
+			handleUpdate({ name: value });
+		}
 	};
 
 	const handleNameBlur = () => {
 		if (!name.trim()) {
 			setHasError(true);
-			return;
-		}
-		setHasError(false);
-		if (name !== field.name) {
-			handleUpdate({ name });
 		}
 	};
 
@@ -137,23 +139,22 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 		});
 	};
 
-	// Wrapper class change
+	// Wrapper class change - save immediately
 	const handleWrapperClassChange = (value: string) => {
 		setWrapperClass(value);
+		handleUpdate({
+			settings: {
+				...field.settings,
+				wrapper: {
+					...field.settings?.wrapper,
+					class: value,
+				},
+			},
+		});
 	};
 
 	const handleWrapperClassBlur = () => {
-		if (wrapperClass !== field.settings?.wrapper?.class) {
-			handleUpdate({
-				settings: {
-					...field.settings,
-					wrapper: {
-						...field.settings?.wrapper,
-						class: wrapperClass,
-					},
-				},
-			});
-		}
+		// Additional validation if needed
 	};
 
 	// Conditional logic change

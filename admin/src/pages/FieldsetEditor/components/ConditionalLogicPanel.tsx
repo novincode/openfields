@@ -81,7 +81,7 @@ export function ConditionalLogicPanel({
 		// Don't save yet - user needs to fill it out
 	};
 
-	// Update a rule
+	// Update a rule - save immediately on any change
 	const handleUpdateRule = (
 		index: number,
 		key: keyof ConditionalRule,
@@ -94,16 +94,9 @@ export function ConditionalLogicPanel({
 		newRules[index] = { ...currentRule, [key]: value };
 		setRules(newRules);
 		
-		const updatedRule = newRules[index];
-		if (!updatedRule) return;
-		
-		// Only save if the rule is complete
-		if (updatedRule.field && updatedRule.operator) {
-			// For empty/not_empty operators, value is not needed
-			if (['empty', 'not_empty'].includes(updatedRule.operator) || updatedRule.value) {
-				saveLogic(newRules);
-			}
-		}
+		// Save immediately whenever a rule is updated
+		// This ensures the Save button enables right away
+		saveLogic(newRules);
 	};
 
 	// Delete a rule

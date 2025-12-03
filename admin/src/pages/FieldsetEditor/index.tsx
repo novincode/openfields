@@ -26,16 +26,15 @@ interface FieldsetEditorProps {
 }
 
 export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
-	const {
-		currentFieldset,
-		fetchFieldset,
-		createFieldset,
-		updateFieldset,
-		unsavedChanges,
-		setUnsavedChanges,
-		saveAllPendingChanges,
-		isLoading,
-	} = useFieldsetStore();
+	// Use selectors to ensure proper subscription to store updates
+	const currentFieldset = useFieldsetStore((state) => state.currentFieldset);
+	const fetchFieldset = useFieldsetStore((state) => state.fetchFieldset);
+	const createFieldset = useFieldsetStore((state) => state.createFieldset);
+	const updateFieldset = useFieldsetStore((state) => state.updateFieldset);
+	const unsavedChanges = useFieldsetStore((state) => state.unsavedChanges);
+	const setUnsavedChanges = useFieldsetStore((state) => state.setUnsavedChanges);
+	const saveAllPendingChanges = useFieldsetStore((state) => state.saveAllPendingChanges);
+	const isLoading = useFieldsetStore((state) => state.isLoading);
 	const { showToast } = useUIStore();
 
 	// Local state for fieldset-level properties
