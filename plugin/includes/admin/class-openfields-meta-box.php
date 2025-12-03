@@ -169,10 +169,11 @@ class OpenFields_Meta_Box {
 	 * @param int    $post_id Post ID.
 	 */
 	private function render_field( $field, $post_id ) {
-		// Get settings JSON from database.
-		$settings = json_decode( $field->settings, true );
-		if ( ! is_array( $settings ) ) {
-			$settings = array();
+		// Get settings JSON from database - the column is field_config, handle null/empty safely.
+		$settings = array();
+		if ( ! empty( $field->field_config ) ) {
+			$decoded = json_decode( $field->field_config, true );
+			$settings = is_array( $decoded ) ? $decoded : array();
 		}
 
 		// Get value from postmeta using native function.
@@ -218,24 +219,26 @@ class OpenFields_Meta_Box {
 	private function render_input( $field, $value, $field_id, $field_name, $settings ) {
 		switch ( $field->type ) {
 			case 'text':
-				$placeholder = $settings['placeholder'] ?? '';
+				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
 				echo '<input type="text" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
 				break;
 
 			case 'email':
-				$placeholder = $settings['placeholder'] ?? '';
+				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
 				echo '<input type="email" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
 				break;
 
 			case 'url':
-				$placeholder = $settings['placeholder'] ?? '';
+				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
 				echo '<input type="url" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
 				break;
 
 			case 'number':
-				$min  = $settings['min'] ?? '';
-				$max  = $settings['max'] ?? '';
-				$step = $settings['step'] ?? '';
+				$min         = OpenFields_Field_Settings::get_setting( $settings, 'min', '' );
+				$max         = OpenFields_Field_Settings::get_setting( $settings, 'max', '' );
+				$step        = OpenFields_Field_Settings::get_setting( $settings, 'step', OpenFields_Field_Settings::get_default_for_setting( 'number', 'step' ) );
+				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
+				
 				$atts = ' id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" class="widefat"';
 				if ( $min !== '' ) {
 					$atts .= ' min="' . esc_attr( $min ) . '"';
@@ -246,18 +249,21 @@ class OpenFields_Meta_Box {
 				if ( $step !== '' ) {
 					$atts .= ' step="' . esc_attr( $step ) . '"';
 				}
+				if ( $placeholder ) {
+					$atts .= ' placeholder="' . esc_attr( $placeholder ) . '"';
+				}
 				echo '<input type="number"' . $atts . ' />';
 				break;
 
 			case 'textarea':
-				$rows = $settings['rows'] ?? 5;
-				$placeholder = $settings['placeholder'] ?? '';
+				$rows        = OpenFields_Field_Settings::get_setting( $settings, 'rows', OpenFields_Field_Settings::get_default_for_setting( 'textarea', 'rows' ) );
+				$placeholder = OpenFields_Field_Settings::get_setting( $settings, 'placeholder', '' );
 				echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" rows="' . esc_attr( $rows ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat">' . esc_textarea( $value ) . '</textarea>';
 				break;
 
 			case 'select':
-				$choices  = $settings['choices'] ?? array();
-				$multiple = ! empty( $settings['multiple'] );
+				$choices  = OpenFields_Field_Settings::get_setting( $settings, 'choices', array() );
+				$multiple = OpenFields_Field_Settings::get_setting( $settings, 'multiple', false );
 				$name     = $multiple ? $field_name . '[]' : $field_name;
 				echo '<select id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $name ) . '" class="widefat"' . ( $multiple ? ' multiple' : '' ) . '>';
 				if ( ! $multiple ) {
@@ -273,7 +279,8 @@ class OpenFields_Meta_Box {
 				break;
 
 			case 'radio':
-				$choices = $settings['choices'] ?? array();
+				$choices = OpenFields_Field_Settings::get_setting( $settings, 'choices', array() );
+				$layout  = OpenFields_Field_Settings::get_setting( $settings, 'layout', 'vertical' );
 				echo '<fieldset>';
 				foreach ( $choices as $i => $choice ) {
 					$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
@@ -289,7 +296,7 @@ class OpenFields_Meta_Box {
 				break;
 
 			case 'checkbox':
-				$choices = $settings['choices'] ?? array();
+				$choices = OpenFields_Field_Settings::get_setting( $settings, 'choices', array() );
 				if ( empty( $choices ) ) {
 					// Single checkbox.
 					$checked = ! empty( $value );

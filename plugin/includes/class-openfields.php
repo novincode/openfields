@@ -69,6 +69,7 @@ final class OpenFields_Plugin {
 		// Field includes.
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/fields/class-openfields-field-registry.php';
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/fields/class-openfields-base-field.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/fields/class-openfields-field-settings.php';
 
 		// Storage includes.
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/storage/class-openfields-storage-manager.php';

@@ -506,6 +506,9 @@ class OpenFields_REST_API {
 			);
 		}
 
+		// Handle settings - support both 'settings' and 'field_config' for backwards compatibility
+		$settings = $request['settings'] ?? $request['field_config'] ?? array();
+
 		$data = array(
 			'fieldset_id'       => $fieldset_id,
 			'parent_id'         => ! empty( $request['parent_id'] ) ? absint( $request['parent_id'] ) : null,
@@ -519,7 +522,7 @@ class OpenFields_REST_API {
 			'placeholder'       => sanitize_text_field( $request['placeholder'] ?? '' ),
 			'conditional_logic' => wp_json_encode( $request['conditional_logic'] ?? array() ),
 			'wrapper_config'    => wp_json_encode( $request['wrapper_config'] ?? array() ),
-			'field_config'      => wp_json_encode( $request['field_config'] ?? array() ),
+			'field_config'      => wp_json_encode( $settings ),
 			'menu_order'        => absint( $request['menu_order'] ?? 0 ),
 			'created_at'        => current_time( 'mysql' ),
 			'updated_at'        => current_time( 'mysql' ),
@@ -636,8 +639,9 @@ class OpenFields_REST_API {
 			$value = $request['wrapper_config'];
 			$data['wrapper_config'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
 		}
-		if ( array_key_exists( 'field_config', $request->get_params() ) ) {
-			$value = $request['field_config'];
+		// Handle settings - support both 'settings' and 'field_config' for backwards compatibility
+		if ( array_key_exists( 'settings', $request->get_params() ) || array_key_exists( 'field_config', $request->get_params() ) ) {
+			$value = $request['settings'] ?? $request['field_config'];
 			$data['field_config'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
 		}
 
@@ -1074,6 +1078,13 @@ class OpenFields_REST_API {
 		} else {
 			$field['wrapper_config'] = array();
 		}
+		// Transform field_config to settings for frontend
+		if ( ! empty( $field['field_config'] ) && is_string( $field['field_config'] ) ) {
+			$field['settings'] = json_decode( $field['field_config'], true ) ?: array();
+		} else {
+			$field['settings'] = array();
+		}
+		// Keep field_config for backwards compatibility
 		if ( ! empty( $field['field_config'] ) && is_string( $field['field_config'] ) ) {
 			$field['field_config'] = json_decode( $field['field_config'], true ) ?: array();
 		} else {

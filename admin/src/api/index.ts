@@ -85,10 +85,11 @@ function transformFieldToAPI(frontendField: Partial<Field>): any {
 				field_config[key] = value;
 			}
 		}
-		// Always send field_config so it can be cleared if empty
+		// Send field_config which contains all type-specific settings
+		// REST API will handle both 'settings' and 'field_config' parameters
 		apiData.field_config = field_config;
 		
-		// Remove settings from apiData as it's been expanded
+		// Remove settings from apiData as it's been expanded to field_config
 		delete apiData.settings;
 	}
 	
