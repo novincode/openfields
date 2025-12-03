@@ -193,8 +193,10 @@ class OpenFields_Meta_Box {
 		$meta_key = self::META_PREFIX . $field->name;
 		$value    = get_post_meta( $post_id, $meta_key, true );
 
-		// Use default value if not set.
-		if ( empty( $value ) && ! empty( $field->default_value ) ) {
+		// Use default value if meta doesn't exist (not just empty).
+		// Note: We check for empty string specifically because get_post_meta returns '' when meta doesn't exist.
+		// We don't use empty() because '0' is a valid value (e.g., for unchecked switches).
+		if ( $value === '' && ! empty( $field->default_value ) ) {
 			$value = $field->default_value;
 		}
 
@@ -385,12 +387,14 @@ class OpenFields_Meta_Box {
 
 			case 'switch':
 				// Render beautiful switch field with Yes/No labels and sliding background.
-				$checked = ! empty( $value );
+				// For switches, "0" means unchecked, anything else means checked.
+				$checked = ! empty( $value ) && $value !== '0';
 				echo '<input type="checkbox" class="openfields-switch-input" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
 				echo '<label class="openfields-switch-track" for="' . esc_attr( $field_id ) . '">';
 				echo '<div class="openfields-switch-label openfields-switch-label-off">No</div>';
 				echo '<div class="openfields-switch-label openfields-switch-label-on">Yes</div>';
 				echo '</label>';
+				break;
 				break;
 
 			case 'date':
@@ -460,13 +464,6 @@ class OpenFields_Meta_Box {
 			return;
 		}
 
-		// Check nonce and data.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( empty( $_POST['openfields'] ) ) {
-			error_log( 'OpenFields: No openfields data in POST' );
-			return;
-		}
-
 		error_log( 'OpenFields: save_post called for post_id=' . $post_id . ', type=' . $post->post_type );
 
 		// Get fieldsets for this post.
@@ -508,14 +505,12 @@ class OpenFields_Meta_Box {
 
 			error_log( 'OpenFields: Fieldset has ' . count( $fields ) . ' fields' );
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$post_data = wp_unslash( $_POST['openfields'] );
-
-			// Save each field.
+			// Save each field - get from $_POST directly since fields render with of_ prefix.
 			foreach ( $fields as $field ) {
 				$field_name = $field->name;
 				$meta_key   = self::META_PREFIX . $field_name;
-				$raw_value  = isset( $post_data[ $field_name ] ) ? $post_data[ $field_name ] : '';
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$raw_value  = isset( $_POST[ $meta_key ] ) ? wp_unslash( $_POST[ $meta_key ] ) : '';
 
 				error_log( 'OpenFields: Processing field "' . $field_name . '" (type: ' . $field->type . ')' );
 				error_log( 'OpenFields: Raw value: ' . print_r( $raw_value, true ) );
