@@ -1,0 +1,97 @@
+/**
+ * OpenFields Meta Box Styles
+ * 
+ * @package OpenFields
+ */
+
+.openfields-meta-box {
+	padding: 10px 0;
+}
+
+.openfields-field {
+	margin-bottom: 20px;
+}
+
+.openfields-field-label {
+	margin-bottom: 8px;
+}
+
+.openfields-field-label label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.openfields-field-input {
+	width: 100%;
+}
+
+.openfields-field-input input[type="text"],
+.openfields-field-input input[type="email"],
+.openfields-field-input input[type="url"],
+.openfields-field-input input[type="number"],
+.openfields-field-input textarea,
+.openfields-field-input select {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.openfields-field-description {
+	font-size: 12px;
+	color: #666;
+	margin-top: 4px;
+	font-style: italic;
+}
+
+/* Switch field styling */
+.openfields-switch-wrapper {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+}
+
+.openfields-switch-input {
+	margin: 0;
+	width: auto;
+	cursor: pointer;
+}
+
+.openfields-switch-toggle {
+	display: inline-block;
+	width: 40px;
+	height: 24px;
+	border-radius: 12px;
+	position: relative;
+	transition: background-color 0.3s;
+	cursor: pointer;
+	background-color: #d1d5db;
+}
+
+.openfields-switch-toggle.active {
+	background-color: #10b981;
+}
+
+.openfields-switch-toggle::after {
+	content: '';
+	display: inline-block;
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	background-color: white;
+	border-radius: 50%;
+	top: 2px;
+	left: 2px;
+	transition: all 0.3s;
+}
+
+.openfields-switch-toggle.active::after {
+	right: 2px;
+	left: auto;
+}
+
+.openfields-switch-label {
+	display: inline-block;
+	min-width: 30px;
+	cursor: pointer;
+}

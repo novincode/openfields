@@ -272,10 +272,7 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 								</div>
 								<div>
 									<Label htmlFor={`name-${field.id}`}>
-										Field Name / Meta Key Slug
-										<span className="text-xs text-gray-500 block font-normal mt-1">
-											Used as WordPress postmeta key with prefix "of_"
-										</span>
+										Field Name
 									</Label>
 									<Input
 										id={`name-${field.id}`}
@@ -289,9 +286,6 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 									{nameError && (
 										<p className="text-xs text-red-600 mt-1">{nameError}</p>
 									)}
-									<p className="text-xs text-gray-500 mt-1">
-										Only letters, numbers, hyphens (-), underscores (_). Spaces converted to underscores.
-									</p>
 								</div>
 							</div>
 

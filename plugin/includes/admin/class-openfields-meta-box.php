@@ -69,22 +69,12 @@ class OpenFields_Meta_Box {
 			return;
 		}
 
-		$inline_css = '
-			.openfields-meta-box { padding: 10px 0; }
-			.openfields-field { margin-bottom: 20px; }
-			.openfields-field-label { margin-bottom: 8px; }
-			.openfields-field-label label { display: block; font-weight: 600; margin-bottom: 4px; }
-			.openfields-field-input { width: 100%; }
-			.openfields-field-input input[type="text"],
-			.openfields-field-input input[type="email"],
-			.openfields-field-input input[type="url"],
-			.openfields-field-input input[type="number"],
-			.openfields-field-input textarea,
-			.openfields-field-input select { width: 100%; box-sizing: border-box; }
-			.openfields-field-description { font-size: 12px; color: #666; margin-top: 4px; font-style: italic; }
-		';
-
-		wp_add_inline_style( 'wp-admin', $inline_css );
+		wp_enqueue_style(
+			'openfields-meta-box',
+			plugin_dir_url( __FILE__ ) . 'styles/meta-box.css',
+			array(),
+			OPENFIELDS_VERSION
+		);
 	}
 
 	/**
@@ -179,6 +169,11 @@ class OpenFields_Meta_Box {
 		// Get value from postmeta using native function.
 		$meta_key = self::META_PREFIX . $field->name;
 		$value    = get_post_meta( $post_id, $meta_key, true );
+
+		// If no value in postmeta yet, use default_value from field
+		if ( empty( $value ) && ! empty( $field->default_value ) ) {
+			$value = $field->default_value;
+		}
 
 		error_log( 'OpenFields: render_field - field=' . $field->name . ', post_id=' . $post_id . ', value=' . print_r( $value, true ) );
 
@@ -323,11 +318,9 @@ class OpenFields_Meta_Box {
 				break;
 
 			case 'switch':
-				$checked = ! empty( $value );
-				echo '<label>';
-				echo '<input type="checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
-				echo ' Enable';
-				echo '</label>';
+				// Load the switch field renderer
+				require_once plugin_dir_path( __FILE__ ) . 'field-renderers/switch.php';
+				openfields_render_switch_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'date':

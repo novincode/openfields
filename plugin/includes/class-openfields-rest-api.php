@@ -102,6 +102,17 @@ class OpenFields_REST_API {
 			)
 		);
 
+		// Duplicate fieldset.
+		register_rest_route(
+			self::NAMESPACE,
+			'/fieldsets/(?P<id>\d+)/duplicate',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'duplicate_fieldset' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
+
 		// Fields routes.
 		register_rest_route(
 			self::NAMESPACE,
@@ -438,6 +449,110 @@ class OpenFields_REST_API {
 	}
 
 	/**
+	 * Duplicate fieldset.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function duplicate_fieldset( $request ) {
+		global $wpdb;
+
+		$id = absint( $request['id'] );
+
+		// Get the fieldset to duplicate
+		$table = $wpdb->prefix . 'openfields_fieldsets';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fieldset = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
+			ARRAY_A
+		);
+
+		if ( ! $fieldset ) {
+			return new WP_Error(
+				'openfields_fieldset_not_found',
+				__( 'Fieldset not found.', 'openfields' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Create new fieldset data
+		$new_fieldset = array(
+			'title'       => $fieldset['title'] . ' (Copy)',
+			'field_key'   => 'fieldset_' . uniqid(),
+			'description' => $fieldset['description'],
+			'status'      => $fieldset['status'],
+			'custom_css'  => $fieldset['custom_css'],
+			'settings'    => $fieldset['settings'],
+			'menu_order'  => $fieldset['menu_order'] + 1,
+			'created_at'  => current_time( 'mysql' ),
+			'updated_at'  => current_time( 'mysql' ),
+		);
+
+		// Insert new fieldset
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$result = $wpdb->insert( $table, $new_fieldset );
+
+		if ( false === $result ) {
+			return new WP_Error(
+				'openfields_duplicate_failed',
+				__( 'Failed to duplicate fieldset.', 'openfields' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$new_fieldset_id = $wpdb->insert_id;
+
+		// Duplicate fields
+		$fields_table = $wpdb->prefix . 'openfields_fields';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fields = $wpdb->get_results(
+			$wpdb->prepare( "SELECT * FROM {$fields_table} WHERE fieldset_id = %d", $id ),
+			ARRAY_A
+		);
+
+		foreach ( $fields as $field ) {
+			$new_field = $field;
+			$new_field['fieldset_id'] = $new_fieldset_id;
+			$new_field['field_key']   = 'field_' . uniqid();
+			$new_field['created_at']  = current_time( 'mysql' );
+			$new_field['updated_at']  = current_time( 'mysql' );
+			unset( $new_field['id'] );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->insert( $fields_table, $new_field );
+		}
+
+		// Duplicate locations
+		$locations_table = $wpdb->prefix . 'openfields_locations';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$locations = $wpdb->get_results(
+			$wpdb->prepare( "SELECT * FROM {$locations_table} WHERE fieldset_id = %d", $id ),
+			ARRAY_A
+		);
+
+		foreach ( $locations as $location ) {
+			$new_location = $location;
+			$new_location['fieldset_id'] = $new_fieldset_id;
+			unset( $new_location['id'] );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->insert( $locations_table, $new_location );
+		}
+
+		// Return the new fieldset
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$new_fieldset_data = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $new_fieldset_id ),
+			ARRAY_A
+		);
+
+		$new_fieldset_data = $this->transform_fieldset( $new_fieldset_data );
+
+		return rest_ensure_response( $new_fieldset_data );
+	}
+
+	/**
 	 * Get fields for a fieldset.
 	 *
 	 * @since  1.0.0
@@ -749,16 +864,61 @@ class OpenFields_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function export_fieldset( $request ) {
-		$fieldset = $this->get_fieldset( $request );
-
-		if ( is_wp_error( $fieldset ) ) {
-			return $fieldset;
+		global $wpdb;
+		
+		$fieldset_id = absint( $request['id'] );
+		$table = $wpdb->prefix . 'openfields_fieldsets';
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fieldset = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $fieldset_id ),
+			ARRAY_A
+		);
+		
+		if ( ! $fieldset ) {
+			return new WP_Error(
+				'openfields_fieldset_not_found',
+				__( 'Fieldset not found.', 'openfields' ),
+				array( 'status' => 404 )
+			);
 		}
+
+		// Get fields - return as raw database data (JSON strings, not decoded)
+		$fields_table = $wpdb->prefix . 'openfields_fields';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fields = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$fields_table} WHERE fieldset_id = %d ORDER BY menu_order ASC",
+				$fieldset_id
+			),
+			ARRAY_A
+		);
+
+		// Get locations
+		$locations_table = $wpdb->prefix . 'openfields_locations';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$locations = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$locations_table} WHERE fieldset_id = %d ORDER BY group_id ASC",
+				$fieldset_id
+			),
+			ARRAY_A
+		);
 
 		$export_data = array(
 			'version'  => OPENFIELDS_VERSION,
 			'exported' => current_time( 'mysql' ),
-			'fieldset' => $fieldset->get_data(),
+			'fieldset' => array(
+				'title'       => $fieldset['title'],
+				'field_key'   => $fieldset['field_key'],
+				'description' => $fieldset['description'],
+				'status'      => $fieldset['status'],
+				'custom_css'  => $fieldset['custom_css'],
+				'settings'    => ! empty( $fieldset['settings'] ) ? json_decode( $fieldset['settings'], true ) : array(),
+				'menu_order'  => $fieldset['menu_order'],
+				'fields'      => $fields,
+				'locations'   => $locations,
+			),
 		);
 
 		return rest_ensure_response( $export_data );

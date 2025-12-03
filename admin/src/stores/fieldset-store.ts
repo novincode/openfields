@@ -117,15 +117,18 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 				set({ isLoading: true, error: null });
 				try {
 					await fieldsetApi.delete(id);
-					set((state) => ({
-						fieldsets: state.fieldsets.filter((fs) => fs.id !== id),
-						currentFieldset:
-							state.currentFieldset?.id === id ? null : state.currentFieldset,
-						isLoading: false,
-					}));
-				} catch (error) {
+					// Refresh the list immediately
+					const fieldsets = await fieldsetApi.getAll();
 					set({
-						error: error instanceof Error ? error.message : 'Failed to delete fieldset',
+						fieldsets,
+						currentFieldset: null,
+						isLoading: false,
+					});
+				} catch (error) {
+					const errorMsg = error instanceof Error ? error.message : 'Failed to delete fieldset';
+					console.error('Delete fieldset error:', errorMsg, error);
+					set({
+						error: errorMsg,
 						isLoading: false,
 					});
 					throw error;

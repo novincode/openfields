@@ -10,8 +10,7 @@ import { useState, useEffect } from 'react';
 import { useFieldsetStore } from '../../../stores/fieldset-store';
 import { useUIStore } from '../../../stores/ui-store';
 import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Label } from '../../../components/ui/label';
+
 import { ScrollArea } from '../../../components/ui/scroll-area';
 import {
 	Drawer,
@@ -57,10 +56,6 @@ export function FieldsSection() {
 	const groupedFieldTypes = fieldRegistry.getGroupedByCategory();
 
 	const [drawerOpen, setDrawerOpen] = useState(false);
-	const [selectedFieldType, setSelectedFieldType] = useState<FieldType | null>(null);
-	const [newFieldLabel, setNewFieldLabel] = useState('');
-	const [newFieldName, setNewFieldName] = useState('');
-	const [showFieldDialog, setShowFieldDialog] = useState(false);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -90,38 +85,36 @@ export function FieldsSection() {
 		}
 	};
 
-	const handleFieldTypeSelect = (type: FieldType) => {
-		setSelectedFieldType(type);
-		setDrawerOpen(false);
-		setShowFieldDialog(true);
+	/**
+	 * Generate auto-incremented field name and label
+	 */
+	const generateAutoFieldName = () => {
+		let counter = 1;
+		let fieldName = `field_${counter}`;
+		let fieldLabel = `Field ${counter}`;
+		
+		// Check if field name already exists, increment until we find available one
+		while (fields.some((f) => f.name === fieldName)) {
+			counter++;
+			fieldName = `field_${counter}`;
+			fieldLabel = `Field ${counter}`;
+		}
+		
+		return { fieldName, fieldLabel, counter };
 	};
 
-	const handleAddField = () => {
-		if (!selectedFieldType) return;
-		if (!newFieldLabel.trim() || !newFieldName.trim()) {
-			showToast('error', 'Field label and name are required');
-			return;
-		}
-
-		// Add field locally (will be saved when user clicks Save Changes)
+	const handleFieldTypeSelect = (type: FieldType) => {
+		const { fieldName, fieldLabel } = generateAutoFieldName();
+		
+		// Auto-add field without dialog
 		addFieldLocal({
-			type: selectedFieldType,
-			label: newFieldLabel,
-			name: newFieldName,
+			type,
+			label: fieldLabel,
+			name: fieldName,
 		});
 
-		setShowFieldDialog(false);
-		setSelectedFieldType(null);
-		setNewFieldLabel('');
-		setNewFieldName('');
-		showToast('success', 'Field added (will be saved when you click Save Changes)');
-	};
-
-	const handleFieldDialogKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter' && !e.shiftKey) {
-			e.preventDefault();
-			handleAddField();
-		}
+		setDrawerOpen(false);
+		showToast('success', `${fieldLabel} added (will be saved when you click Save Changes)`);
 	};
 
 	return (
@@ -195,57 +188,6 @@ export function FieldsSection() {
 					</DrawerFooter>
 				</DrawerContent>
 			</Drawer>
-
-			{/* Field Creation Dialog */}
-			{showFieldDialog && selectedFieldType && (
-				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-					<div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-						<h3 className="text-lg font-semibold mb-4">
-							Add {
-								Object.entries(groupedFieldTypes).find(
-									([_, types]) => types.some((ft) => ft.type === selectedFieldType)
-								)?.[1].find((ft) => ft.type === selectedFieldType)?.label || selectedFieldType
-							} Field
-						</h3>
-						<div className="space-y-4" onKeyDown={handleFieldDialogKeyDown}>
-							<div>
-								<Label htmlFor="new-field-label">Field Label</Label>
-								<Input
-									id="new-field-label"
-									value={newFieldLabel}
-									onChange={(e) => setNewFieldLabel(e.target.value)}
-									placeholder="Enter field label"
-									autoFocus
-								/>
-							</div>
-							<div>
-								<Label htmlFor="new-field-name">Field Name</Label>
-								<Input
-									id="new-field-name"
-									value={newFieldName}
-									onChange={(e) => setNewFieldName(e.target.value)}
-									placeholder="field_name"
-								/>
-							</div>
-						</div>
-						<div className="flex justify-end gap-2 mt-6">
-							<Button
-								variant="outline"
-								onClick={() => {
-									setShowFieldDialog(false);
-									setSelectedFieldType(null);
-									setNewFieldLabel('');
-									setNewFieldName('');
-								}}
-							>
-								Cancel
-							</Button>
-							<Button onClick={handleAddField}>Add Field</Button>
-						</div>
-						<p className="text-xs text-gray-500 mt-2">Press Enter to add</p>
-					</div>
-				</div>
-			)}
 		</div>
 	);
 }
