@@ -47,6 +47,7 @@ class OpenFields_Assets {
 	 */
 	private function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'meta_box_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_scripts' ) );
 	}
 
@@ -118,6 +119,76 @@ class OpenFields_Assets {
 			OPENFIELDS_PLUGIN_URL . 'assets/public/css/frontend.css',
 			array(),
 			OPENFIELDS_VERSION
+		);
+	}
+
+	/**
+	 * Enqueue meta box scripts and styles on post edit screens.
+	 *
+	 * @since 1.0.0
+	 * @param string $hook Current admin page hook.
+	 */
+	public function meta_box_scripts( $hook ) {
+		// Only load on post edit screens.
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		// Check if there are any OpenFields meta boxes for this post type.
+		global $post;
+		if ( ! $post ) {
+			return;
+		}
+
+		$context = array(
+			'post_type'     => $post->post_type,
+			'post_id'       => $post->ID,
+			'page_template' => get_page_template_slug( $post->ID ),
+			'categories'    => wp_get_post_categories( $post->ID ),
+			'post_format'   => get_post_format( $post->ID ) ?: 'standard',
+		);
+
+		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
+
+		if ( empty( $fieldsets ) ) {
+			return;
+		}
+
+		// Meta box styles.
+		wp_enqueue_style(
+			'openfields-meta-box',
+			OPENFIELDS_PLUGIN_URL . 'assets/admin/css/meta-box.css',
+			array(),
+			OPENFIELDS_VERSION
+		);
+
+		// Meta box scripts.
+		wp_enqueue_script(
+			'openfields-meta-box',
+			OPENFIELDS_PLUGIN_URL . 'assets/admin/js/meta-box.js',
+			array( 'jquery', 'wp-color-picker' ),
+			OPENFIELDS_VERSION,
+			true
+		);
+
+		// Enqueue media uploader for image/file fields.
+		wp_enqueue_media();
+
+		// Enqueue color picker styles.
+		wp_enqueue_style( 'wp-color-picker' );
+
+		// Localize script data.
+		wp_localize_script(
+			'openfields-meta-box',
+			'openfieldsMetaBox',
+			array(
+				'i18n' => array(
+					'selectImage' => __( 'Select Image', 'openfields' ),
+					'useImage'    => __( 'Use this image', 'openfields' ),
+					'selectFile'  => __( 'Select File', 'openfields' ),
+					'useFile'     => __( 'Use this file', 'openfields' ),
+				),
+			)
 		);
 	}
 

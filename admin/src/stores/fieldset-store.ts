@@ -269,29 +269,34 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 						}
 					}
 
-					// Add new fields
-					for (const newField of pendingFieldAdditions) {
-						const fieldData = {
-							label: newField.label,
-							name: newField.name,
-							type: newField.type,
-							settings: newField.settings,
-							menu_order: fields.indexOf(newField),
-						};
-						promises.push(
-							fieldApi.create(currentFieldset.id, fieldData).then((createdField) => {
-								// Update temp ID with real ID
-								set((state) => ({
-									fields: state.fields.map((f) => 
-										f.id === newField.id ? createdField : f
-									),
-								}));
-								return createdField;
-							})
-						);
-					}
-
-				// Update modified fields
+				// Add new fields
+				for (const newField of pendingFieldAdditions) {
+					// Check if this new field has been modified - merge changes
+					const fieldIdStr = String(newField.id);
+					const changes = pendingFieldChanges.get(fieldIdStr);
+					
+					// Get the latest version from fields state (which has all updates applied)
+					const latestField = fields.find((f) => String(f.id) === fieldIdStr) || newField;
+					
+					const fieldData = {
+						label: changes?.label || latestField.label || newField.label,
+						name: changes?.name || latestField.name || newField.name,
+						type: changes?.type || latestField.type || newField.type,
+						settings: latestField.settings || newField.settings || {},
+						menu_order: fields.indexOf(latestField),
+					};
+					promises.push(
+						fieldApi.create(currentFieldset.id, fieldData).then((createdField) => {
+							// Update temp ID with real ID
+							set((state) => ({
+								fields: state.fields.map((f) => 
+									f.id === newField.id ? createdField : f
+								),
+							}));
+							return createdField;
+						})
+					);
+				}				// Update modified fields
 				pendingFieldChanges.forEach((changes, fieldId) => {
 					// Only update if it's not a new field
 					if (!fieldId.startsWith('temp-')) {

@@ -145,12 +145,14 @@ class OpenFields_Meta_Box {
 		// Check conditional logic.
 		$conditional = $settings['conditional_logic'] ?? array();
 		$wrapper_class = 'openfields-field openfields-field--' . $field->type;
+		$data_attrs = ' data-field="' . esc_attr( $field->name ) . '" data-type="' . esc_attr( $field->type ) . '"';
 
-		if ( ! empty( $conditional ) ) {
+		if ( ! empty( $conditional ) && ! empty( $conditional['enabled'] ) ) {
 			$wrapper_class .= ' openfields-field--has-conditional';
+			$data_attrs .= " data-conditional='" . esc_attr( wp_json_encode( $conditional ) ) . "'";
 		}
 
-		echo '<div class="' . esc_attr( $wrapper_class ) . '" data-field="' . esc_attr( $field->name ) . '" data-type="' . esc_attr( $field->type ) . '">';
+		echo '<div class="' . esc_attr( $wrapper_class ) . '"' . $data_attrs . '>';
 
 		// Label.
 		echo '<div class="openfields-field__label">';
@@ -236,7 +238,9 @@ class OpenFields_Meta_Box {
 
 			case 'radio':
 				$choices = $settings['choices'] ?? array();
-				echo '<div class="openfields-radio-group">';
+				$layout = $settings['layout'] ?? 'vertical';
+				$layout_class = $layout === 'horizontal' ? ' openfields-radio-group--horizontal' : '';
+				echo '<div class="openfields-radio-group' . esc_attr( $layout_class ) . '">';
 				foreach ( $choices as $i => $choice ) {
 					$choice_value = $choice['value'] ?? $choice;
 					$choice_label = $choice['label'] ?? $choice;

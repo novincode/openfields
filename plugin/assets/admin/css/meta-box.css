@@ -1,0 +1,245 @@
+/**
+ * OpenFields Meta Box Styles
+ *
+ * Styles for the meta box fields rendered on post edit screens.
+ *
+ * @package OpenFields
+ * @since   1.0.0
+ */
+
+/* Field Container */
+.openfields-meta-box {
+	padding: 8px;
+}
+
+.openfields-field {
+	margin-bottom: 16px;
+}
+
+.openfields-field:last-child {
+	margin-bottom: 0;
+}
+
+/* Label */
+.openfields-field__label {
+	margin-bottom: 4px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.openfields-field__label label {
+	font-size: 13px;
+	line-height: 1.4;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.openfields-field__required {
+	color: #d63638;
+}
+
+/* Description/Instructions */
+.openfields-field__description {
+	margin-top: 4px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: #646970;
+	font-style: italic;
+}
+
+/* Input Container */
+.openfields-field__input {
+	position: relative;
+}
+
+.openfields-field__input input[type="text"],
+.openfields-field__input input[type="email"],
+.openfields-field__input input[type="url"],
+.openfields-field__input input[type="number"],
+.openfields-field__input input[type="date"],
+.openfields-field__input input[type="datetime-local"],
+.openfields-field__input select,
+.openfields-field__input textarea {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+/* Radio and Checkbox Groups */
+.openfields-radio-group,
+.openfields-checkbox-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.openfields-radio-group label,
+.openfields-checkbox-group label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.openfields-radio-group input,
+.openfields-checkbox-group input {
+	margin: 0;
+}
+
+/* Layout: Horizontal */
+.openfields-radio-group--horizontal,
+.openfields-checkbox-group--horizontal {
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+/* Switch Field */
+.openfields-switch {
+	position: relative;
+	display: inline-flex;
+	height: 24px;
+	width: 44px;
+	cursor: pointer;
+	align-items: center;
+	border-radius: 9999px;
+	background-color: #8c8f94;
+	transition: background-color 0.15s ease-in-out;
+}
+
+.openfields-switch:hover {
+	background-color: #787c82;
+}
+
+.openfields-switch:has(input:checked) {
+	background-color: #2271b1;
+}
+
+.openfields-switch:has(input:checked):hover {
+	background-color: #135e96;
+}
+
+.openfields-switch input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+.openfields-switch__slider {
+	position: absolute;
+	left: 2px;
+	height: 20px;
+	width: 20px;
+	border-radius: 9999px;
+	background-color: #ffffff;
+	transition: transform 0.15s ease-in-out;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.openfields-switch input:checked + .openfields-switch__slider {
+	transform: translateX(20px);
+}
+
+.openfields-switch input:focus + .openfields-switch__slider {
+	box-shadow: 0 0 0 2px #2271b1, 0 0 0 4px rgba(34, 113, 177, 0.3);
+}
+
+/* Image and File Fields */
+.openfields-image-field,
+.openfields-file-field {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.openfields-image-preview {
+	display: flex;
+	height: 80px;
+	width: 80px;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	border-radius: 4px;
+	background-color: #f0f0f1;
+	border: 1px solid #dcdcde;
+}
+
+.openfields-image-preview img {
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+}
+
+.openfields-file-name {
+	font-size: 13px;
+	color: #1d2327;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Color Picker */
+.openfields-color-picker {
+	max-width: 100px;
+}
+
+/* Conditional Logic Hidden */
+.openfields-field--hidden {
+	display: none;
+}
+
+/* WYSIWYG Editor Adjustments */
+.openfields-field--wysiwyg .wp-editor-container {
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+/* Focus States */
+.openfields-field__input input:focus,
+.openfields-field__input select:focus,
+.openfields-field__input textarea:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+/* Validation States */
+.openfields-field--error .openfields-field__input input,
+.openfields-field--error .openfields-field__input select,
+.openfields-field--error .openfields-field__input textarea {
+	border-color: #d63638;
+}
+
+.openfields-field--error .openfields-field__input input:focus,
+.openfields-field--error .openfields-field__input select:focus,
+.openfields-field--error .openfields-field__input textarea:focus {
+	box-shadow: 0 0 0 1px #d63638;
+}
+
+.openfields-field__error {
+	margin-top: 4px;
+	font-size: 12px;
+	color: #d63638;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+	.openfields-radio-group--horizontal,
+	.openfields-checkbox-group--horizontal {
+		flex-direction: column;
+	}
+	
+	.openfields-image-preview {
+		height: 60px;
+		width: 60px;
+	}
+}

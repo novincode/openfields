@@ -6,6 +6,18 @@
  * @package OpenFields
  */
 
+import { Plus, X } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Switch } from '../components/ui/switch';
+import { Button } from '../components/ui/button';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '../components/ui/select';
 import type { FieldSettingsProps } from '../lib/field-registry';
 import type { Choice } from '../types';
 
@@ -42,126 +54,131 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 	};
 
 	return (
-		<div className="space-y-3">
-			{/* Options based on field type */}
-			<div className="flex items-center gap-4">
+		<div className="space-y-4 border-t pt-4">
+			<h4 className="text-sm font-medium">Field Type Settings</h4>
+			
+			{/* Toggle Options */}
+			<div className="space-y-3">
 				{isSelect && (
-					<label className="flex items-center gap-2 text-sm text-gray-600">
-						<input
-							type="checkbox"
+					<div className="flex items-center justify-between">
+						<Label htmlFor={`multiple-${field.id}`} className="text-sm font-normal">
+							Allow Multiple Selections
+						</Label>
+						<Switch
+							id={`multiple-${field.id}`}
 							checked={(field.settings?.multiple as boolean) || false}
-							onChange={(e) => onSettingsChange({ multiple: e.target.checked })}
-							className="rounded"
+							onCheckedChange={(checked) => onSettingsChange({ multiple: checked })}
 						/>
-						Allow Multiple
-					</label>
+					</div>
 				)}
-				<label className="flex items-center gap-2 text-sm text-gray-600">
-					<input
-						type="checkbox"
+				
+				<div className="flex items-center justify-between">
+					<Label htmlFor={`allow-null-${field.id}`} className="text-sm font-normal">
+						Allow Empty Value
+					</Label>
+					<Switch
+						id={`allow-null-${field.id}`}
 						checked={(field.settings?.allow_null as boolean) || false}
-						onChange={(e) => onSettingsChange({ allow_null: e.target.checked })}
-						className="rounded"
+						onCheckedChange={(checked) => onSettingsChange({ allow_null: checked })}
 					/>
-					Allow Empty
-				</label>
+				</div>
+				
+				{isCheckbox && (
+					<div className="flex items-center justify-between">
+						<Label htmlFor={`toggle-all-${field.id}`} className="text-sm font-normal">
+							Show Toggle All
+						</Label>
+						<Switch
+							id={`toggle-all-${field.id}`}
+							checked={(field.settings?.toggle_all as boolean) || false}
+							onCheckedChange={(checked) => onSettingsChange({ toggle_all: checked })}
+						/>
+					</div>
+				)}
 			</div>
 
 			{/* Layout option for radio/checkbox */}
 			{!isSelect && (
-				<div>
-					<label className="block text-sm text-gray-600 mb-1">Layout</label>
-					<div className="flex gap-4">
-						<label className="flex items-center gap-2 text-sm">
-							<input
-								type="radio"
-								name={`layout-${field.id}`}
-								checked={(field.settings?.layout as string) !== 'horizontal'}
-								onChange={() => onSettingsChange({ layout: 'vertical' })}
-							/>
-							Vertical
-						</label>
-						<label className="flex items-center gap-2 text-sm">
-							<input
-								type="radio"
-								name={`layout-${field.id}`}
-								checked={(field.settings?.layout as string) === 'horizontal'}
-								onChange={() => onSettingsChange({ layout: 'horizontal' })}
-							/>
-							Horizontal
-						</label>
-					</div>
+				<div className="space-y-2">
+					<Label>Layout</Label>
+					<Select
+						value={(field.settings?.layout as string) || 'vertical'}
+						onValueChange={(value) => onSettingsChange({ layout: value })}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder="Select layout" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="vertical">Vertical</SelectItem>
+							<SelectItem value="horizontal">Horizontal</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
-			)}
-
-			{/* Toggle all for checkbox */}
-			{isCheckbox && (
-				<label className="flex items-center gap-2 text-sm text-gray-600">
-					<input
-						type="checkbox"
-						checked={(field.settings?.toggle_all as boolean) || false}
-						onChange={(e) => onSettingsChange({ toggle_all: e.target.checked })}
-						className="rounded"
-					/>
-					Show Toggle All
-				</label>
 			)}
 
 			{/* Choices editor */}
-			<div>
-				<label className="block text-sm text-gray-600 mb-2">Choices</label>
-				<div className="space-y-2">
+			<div className="space-y-2">
+				<Label>Choices</Label>
+				<div className="space-y-2 bg-gray-50 p-3 rounded-lg">
+					{choices.length === 0 && (
+						<p className="text-sm text-gray-500 text-center py-2">
+							No choices added yet
+						</p>
+					)}
 					{choices.map((choice, index) => (
 						<div key={index} className="flex items-center gap-2">
-							<input
-								type="text"
+							<Input
 								value={choice.value}
-								onChange={(e) =>
-									handleUpdateChoice(index, 'value', e.target.value)
-								}
+								onChange={(e) => handleUpdateChoice(index, 'value', e.target.value)}
 								placeholder="value"
-								className="flex-1 px-3 py-2 border rounded-md text-sm"
+								className="flex-1"
 							/>
-							<input
-								type="text"
+							<Input
 								value={choice.label}
-								onChange={(e) =>
-									handleUpdateChoice(index, 'label', e.target.value)
-								}
+								onChange={(e) => handleUpdateChoice(index, 'label', e.target.value)}
 								placeholder="label"
-								className="flex-1 px-3 py-2 border rounded-md text-sm"
+								className="flex-1"
 							/>
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="icon"
 								onClick={() => handleRemoveChoice(index)}
-								className="p-2 text-gray-400 hover:text-red-600"
+								className="h-9 w-9 text-gray-400 hover:text-red-600"
 							>
-								×
-							</button>
+								<X className="h-4 w-4" />
+							</Button>
 						</div>
 					))}
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onClick={handleAddChoice}
+						className="w-full mt-2"
+					>
+						<Plus className="h-3 w-3 mr-1" />
+						Add Choice
+					</Button>
 				</div>
-				<button
-					type="button"
-					onClick={handleAddChoice}
-					className="mt-2 text-sm text-blue-600 hover:underline"
-				>
-					+ Add Choice
-				</button>
 			</div>
 
 			{/* Return format */}
-			<div>
-				<label className="block text-sm text-gray-600 mb-1">Return Format</label>
-				<select
+			<div className="space-y-2">
+				<Label htmlFor={`return-format-${field.id}`}>Return Format</Label>
+				<Select
 					value={(field.settings?.return_format as string) || 'value'}
-					onChange={(e) => onSettingsChange({ return_format: e.target.value })}
-					className="w-full px-3 py-2 border rounded-md text-sm"
+					onValueChange={(value) => onSettingsChange({ return_format: value })}
 				>
-					<option value="value">Value</option>
-					<option value="label">Label</option>
-					<option value="array">Both (Array)</option>
-				</select>
+					<SelectTrigger id={`return-format-${field.id}`}>
+						<SelectValue placeholder="Select format" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="value">Value</SelectItem>
+						<SelectItem value="label">Label</SelectItem>
+						<SelectItem value="array">Both (Array)</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 		</div>
 	);
