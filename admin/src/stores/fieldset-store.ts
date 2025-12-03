@@ -26,7 +26,8 @@ export function canHaveChildren(field: Field): boolean {
  * Get root-level fields (no parent)
  */
 export function getRootFields(fields: Field[]): Field[] {
-	return fields.filter(f => !f.parent_id);
+	return fields.filter(f => !f.parent_id)
+		.sort((a, b) => a.menu_order - b.menu_order);
 }
 
 /**
@@ -368,10 +369,10 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 						...f,
 						menu_order: index,
 					}));
-					
+
 					// Get IDs of reordered fields
 					const reorderedIds = new Set(reorderedWithOrder.map(f => String(f.id)));
-					
+
 					// Keep fields not in this reorder operation, replace those that are
 					const newFields = state.fields.map(f => {
 						if (reorderedIds.has(String(f.id))) {
@@ -379,15 +380,25 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 						}
 						return f;
 					});
-					
+
+					// Track pending changes for all reordered fields to ensure menu_order is saved
+					const pending = new Map(state.pendingFieldChanges);
+					reorderedWithOrder.forEach(f => {
+						const fieldIdStr = String(f.id);
+						const existing = pending.get(fieldIdStr) || {};
+						pending.set(fieldIdStr, {
+							...existing,
+							menu_order: f.menu_order,
+						});
+					});
+
 					return {
 						fields: newFields,
+						pendingFieldChanges: pending,
 						unsavedChanges: true,
 					};
 				});
-			},
-
-			// Move a field to a new parent (or to root if parentId is null)
+			},			// Move a field to a new parent (or to root if parentId is null)
 			moveFieldToParent: (fieldId: string, newParentId: number | string | null) => {
 				const state = get();
 				

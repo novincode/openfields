@@ -133,7 +133,7 @@ export default function FieldsetList() {
 			{/* Search */}
 			<div className="mb-6">
 				<div className="relative max-w-md">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+					<Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
 					<Input
 						type="text"
 						placeholder="Search field groups..."
