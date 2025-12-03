@@ -192,6 +192,17 @@ class OpenFields_REST_API {
 				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
+
+		// Debug endpoint - check locations table.
+		register_rest_route(
+			self::NAMESPACE,
+			'/debug/locations',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'debug_locations' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+			)
+		);
 	}
 
 	/**
@@ -332,12 +343,29 @@ class OpenFields_REST_API {
 		$id    = absint( $request['id'] );
 		$table = $wpdb->prefix . 'openfields_fieldsets';
 
+		// Debug: log the entire request
+		error_log( 'OpenFields Debug - Full request params: ' . print_r( $request->get_params(), true ) );
+
+		// Extract location_groups from settings for saving to locations table
+		$settings = $request['settings'] ?? array();
+		$location_groups = $settings['location_groups'] ?? array();
+
+		error_log( 'OpenFields Debug - update_fieldset called for ID: ' . $id );
+		error_log( 'OpenFields Debug - settings type: ' . gettype( $settings ) );
+		error_log( 'OpenFields Debug - settings: ' . print_r( $settings, true ) );
+		error_log( 'OpenFields Debug - location_groups count: ' . count( $location_groups ) );
+
+		// Determine status - handle various truthy/falsy values
+		$is_active = $request['is_active'] ?? true;
+		$status = ( $is_active === false || $is_active === 'false' || $is_active === 0 || $is_active === '0' ) ? 'inactive' : 'active';
+		error_log( 'OpenFields Debug - is_active raw: ' . var_export( $request['is_active'], true ) . ', status: ' . $status );
+
 		$data = array(
 			'title'       => sanitize_text_field( $request['title'] ),
 			'description' => sanitize_textarea_field( $request['description'] ?? '' ),
-			'status'      => isset( $request['is_active'] ) && $request['is_active'] === false ? 'inactive' : 'active',
+			'status'      => $status,
 			'custom_css'  => wp_strip_all_tags( $request['custom_css'] ?? '' ),
-			'settings'    => wp_json_encode( $request['settings'] ?? array() ),
+			'settings'    => wp_json_encode( $settings ),
 			'menu_order'  => absint( $request['menu_order'] ?? 0 ),
 			'updated_at'  => current_time( 'mysql' ),
 		);
@@ -356,6 +384,16 @@ class OpenFields_REST_API {
 				__( 'Failed to update fieldset.', 'openfields' ),
 				array( 'status' => 500 )
 			);
+		}
+
+		// Save location groups to locations table
+		if ( ! empty( $location_groups ) ) {
+			$this->save_location_groups( $id, $location_groups );
+		} else {
+			// Clear locations if no groups
+			$locations_table = $wpdb->prefix . 'openfields_locations';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
 		}
 
 		return $this->get_fieldset( $request );
@@ -748,6 +786,101 @@ class OpenFields_REST_API {
 	}
 
 	/**
+	 * Save location groups from frontend format to database.
+	 *
+	 * Converts the frontend format (array of groups with rules) to individual
+	 * location rows in the database.
+	 *
+	 * Frontend format:
+	 * [
+	 *   { id: '1', rules: [{ type: 'post_type', operator: '==', value: 'page' }] },
+	 *   { id: '2', rules: [{ type: 'post_type', operator: '==', value: 'post' }] },
+	 * ]
+	 *
+	 * Database format:
+	 * Each rule becomes a row with fieldset_id, param, operator, value, group_id.
+	 *
+	 * @since 1.0.0
+	 * @param int   $fieldset_id    Fieldset ID.
+	 * @param array $location_groups Location groups from frontend.
+	 */
+	private function save_location_groups( $fieldset_id, $location_groups ) {
+		global $wpdb;
+
+		error_log( 'OpenFields Debug - save_location_groups called for fieldset ' . $fieldset_id );
+		error_log( 'OpenFields Debug - location_groups data: ' . print_r( $location_groups, true ) );
+
+		$table = $wpdb->prefix . 'openfields_locations';
+
+		// Delete existing locations.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete( $table, array( 'fieldset_id' => $fieldset_id ) );
+
+		// Insert new locations from groups.
+		$group_index = 0;
+		foreach ( $location_groups as $group ) {
+			$rules = $group['rules'] ?? array();
+
+			foreach ( $rules as $rule ) {
+				// Skip empty rules
+				if ( empty( $rule['type'] ) ) {
+					error_log( 'OpenFields Debug - Skipping empty rule' );
+					continue;
+				}
+
+				$data = array(
+					'fieldset_id' => $fieldset_id,
+					'param'       => sanitize_key( $rule['type'] ),
+					'operator'    => sanitize_text_field( $rule['operator'] ?? '==' ),
+					'value'       => sanitize_text_field( $rule['value'] ?? '' ),
+					'group_id'    => $group_index,
+				);
+
+				error_log( 'OpenFields Debug - Inserting location: ' . print_r( $data, true ) );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$result = $wpdb->insert( $table, $data );
+				
+				if ( $result === false ) {
+					error_log( 'OpenFields Debug - Insert FAILED: ' . $wpdb->last_error );
+				}
+			}
+
+			$group_index++;
+		}
+	}
+
+	/**
+	 * Debug endpoint to check locations table.
+	 *
+	 * @since  1.0.0
+	 * @return WP_REST_Response
+	 */
+	public function debug_locations() {
+		global $wpdb;
+
+		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
+		$locations_table = $wpdb->prefix . 'openfields_locations';
+
+		// Get all fieldsets.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fieldsets = $wpdb->get_results( "SELECT id, title, status, settings FROM {$fieldsets_table}" );
+
+		// Get all locations.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$locations = $wpdb->get_results( "SELECT * FROM {$locations_table}" );
+
+		return rest_ensure_response(
+			array(
+				'fieldsets'       => $fieldsets,
+				'locations'       => $locations,
+				'fieldsets_count' => count( $fieldsets ),
+				'locations_count' => count( $locations ),
+			)
+		);
+	}
+
+	/**
 	 * Get fieldset arguments for validation.
 	 *
 	 * @since  1.0.0
@@ -896,6 +1029,8 @@ class OpenFields_REST_API {
 	 * @return array
 	 */
 	private function transform_fieldset( $fieldset ) {
+		global $wpdb;
+
 		// Map status to is_active
 		$fieldset['is_active'] = $fieldset['status'] !== 'inactive';
 
@@ -909,6 +1044,19 @@ class OpenFields_REST_API {
 		// Parse field data if present
 		if ( ! empty( $fieldset['fields'] ) && is_array( $fieldset['fields'] ) ) {
 			$fieldset['fields'] = array_map( array( $this, 'transform_field' ), $fieldset['fields'] );
+		}
+
+		// Get locations if not already present
+		if ( ! isset( $fieldset['locations'] ) ) {
+			$locations_table = $wpdb->prefix . 'openfields_locations';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$fieldset['locations'] = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$locations_table} WHERE fieldset_id = %d ORDER BY group_id ASC",
+					$fieldset['id']
+				),
+				ARRAY_A
+			);
 		}
 
 		return $fieldset;

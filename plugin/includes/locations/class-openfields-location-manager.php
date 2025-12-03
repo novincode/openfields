@@ -247,25 +247,78 @@ class OpenFields_Location_Manager {
 		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
 		$locations_table = $wpdb->prefix . 'openfields_locations';
 
+		// Get all active fieldsets.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldsets = $wpdb->get_results(
-			"SELECT f.*, l.rules 
-			FROM {$fieldsets_table} f
-			LEFT JOIN {$locations_table} l ON f.id = l.fieldset_id
-			WHERE f.is_active = 1
-			ORDER BY f.menu_order ASC"
+			"SELECT * FROM {$fieldsets_table} WHERE status = 'active' ORDER BY menu_order ASC"
 		);
+
+		error_log( 'OpenFields Debug - Total active fieldsets: ' . count( $fieldsets ) );
+
+		if ( empty( $fieldsets ) ) {
+			return array();
+		}
 
 		$matched = array();
 
 		foreach ( $fieldsets as $fieldset ) {
-			$rules = json_decode( $fieldset->rules, true ) ?: array();
+			// Get location rules for this fieldset.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$location_rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$locations_table} WHERE fieldset_id = %d ORDER BY group_id ASC",
+					$fieldset->id
+				)
+			);
+
+			error_log( 'OpenFields Debug - Fieldset "' . $fieldset->title . '" has ' . count( $location_rows ) . ' location rules' );
+
+			// Convert rows to grouped rules format.
+			$rules = $this->rows_to_rules( $location_rows );
+
+			error_log( 'OpenFields Debug - Rules for "' . $fieldset->title . '": ' . print_r( $rules, true ) );
+
 			if ( $this->match( $rules, $context ) ) {
+				error_log( 'OpenFields Debug - Fieldset "' . $fieldset->title . '" MATCHED!' );
 				$matched[] = $fieldset;
+			} else {
+				error_log( 'OpenFields Debug - Fieldset "' . $fieldset->title . '" did NOT match' );
 			}
 		}
 
 		return $matched;
+	}
+
+	/**
+	 * Convert location rows to grouped rules format.
+	 *
+	 * @since  1.0.0
+	 * @param  array $rows Location rows from database.
+	 * @return array Grouped rules array.
+	 */
+	private function rows_to_rules( $rows ) {
+		if ( empty( $rows ) ) {
+			return array();
+		}
+
+		$groups = array();
+
+		foreach ( $rows as $row ) {
+			$group_id = $row->group_id ?? 0;
+
+			if ( ! isset( $groups[ $group_id ] ) ) {
+				$groups[ $group_id ] = array();
+			}
+
+			$groups[ $group_id ][] = array(
+				'type'     => $row->param,
+				'operator' => $row->operator,
+				'value'    => $row->value,
+			);
+		}
+
+		// Return as indexed array (not associative).
+		return array_values( $groups );
 	}
 
 	// -------------------------------------------------------------------------

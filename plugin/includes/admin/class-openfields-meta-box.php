@@ -48,6 +48,42 @@ class OpenFields_Meta_Box {
 	private function __construct() {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 3 );
+
+		// Enqueue styles directly in meta box class for reliability.
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_meta_box_styles' ) );
+	}
+
+	/**
+	 * Enqueue meta box styles on post edit screens.
+	 *
+	 * @since 1.0.0
+	 * @param string $hook Current admin page hook.
+	 */
+	public function enqueue_meta_box_styles( $hook ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		// Inline styles for meta boxes - no external file needed.
+		$inline_css = '
+			.openfields-meta-box { padding: 10px 0; }
+			.openfields-field { margin-bottom: 15px; }
+			.openfields-field:last-child { margin-bottom: 0; }
+			.openfields-field-label { display: block; font-weight: 600; margin-bottom: 5px; }
+			.openfields-field-label .required { color: #d63638; margin-left: 2px; }
+			.openfields-field-input { width: 100%; }
+			.openfields-field-description { font-size: 12px; color: #646970; margin-top: 4px; font-style: italic; }
+			.openfields-field input[type="text"],
+			.openfields-field input[type="email"],
+			.openfields-field input[type="url"],
+			.openfields-field input[type="number"],
+			.openfields-field input[type="password"],
+			.openfields-field textarea,
+			.openfields-field select { width: 100%; max-width: 100%; }
+			.openfields-field textarea { min-height: 100px; }
+		';
+
+		wp_add_inline_style( 'wp-admin', $inline_css );
 	}
 
 	/**
@@ -66,12 +102,19 @@ class OpenFields_Meta_Box {
 			'post_format'   => get_post_format( $post->ID ) ?: 'standard',
 		);
 
+		// Debug: Log context and fieldsets
+		error_log( 'OpenFields Debug - Context: ' . print_r( $context, true ) );
+
 		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
+		error_log( 'OpenFields Debug - Matched fieldsets count: ' . count( $fieldsets ) );
+
 		foreach ( $fieldsets as $fieldset ) {
+			error_log( 'OpenFields Debug - Registering meta box for: ' . $fieldset->title . ' (ID: ' . $fieldset->field_key . ')' );
+			
 			$settings = json_decode( $fieldset->settings, true ) ?: array();
 			$position = $settings['position'] ?? 'normal';
-			$priority = $settings['priority'] ?? 'default';
+			$priority = $settings['priority'] ?? 'high';
 
 			add_meta_box(
 				'openfields-' . $fieldset->field_key,
@@ -80,10 +123,7 @@ class OpenFields_Meta_Box {
 				$post_type,
 				$position,
 				$priority,
-				array(
-					'fieldset'    => $fieldset,
-					'__back_compat_meta_box' => true,
-				)
+				array( 'fieldset' => $fieldset )
 			);
 		}
 	}
@@ -266,7 +306,9 @@ class OpenFields_Meta_Box {
 				} else {
 					// Multiple checkboxes.
 					$values = is_array( $value ) ? $value : array();
-					echo '<div class="openfields-checkbox-group">';
+					$layout = $settings['layout'] ?? 'vertical';
+					$layout_class = $layout === 'horizontal' ? ' openfields-checkbox-group--horizontal' : '';
+					echo '<div class="openfields-checkbox-group' . esc_attr( $layout_class ) . '">';
 					foreach ( $choices as $i => $choice ) {
 						$choice_value = $choice['value'] ?? $choice;
 						$choice_label = $choice['label'] ?? $choice;
