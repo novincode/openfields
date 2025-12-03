@@ -263,8 +263,9 @@ export interface UserFieldSettings extends BaseFieldSettings {
 
 // Forward declaration for recursive types
 export interface BaseField {
-	id: number;
+	id: number | string; // string for temp IDs before save
 	fieldset_id: number;
+	parent_id?: number | string | null; // null/undefined = root level, field ID = nested in that parent
 	name: string;
 	label: string;
 	type: FieldType;

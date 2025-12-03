@@ -2,6 +2,7 @@
  * Fields Section Component
  * 
  * Handles the drag-and-drop field list and field addition.
+ * Only renders root-level fields; nested fields are rendered within FieldItem.
  *
  * @package OpenFields
  */
@@ -50,12 +51,16 @@ export function FieldsSection() {
 	const fetchFields = useFieldsetStore((state) => state.fetchFields);
 	const addFieldLocal = useFieldsetStore((state) => state.addFieldLocal);
 	const reorderFieldsLocal = useFieldsetStore((state) => state.reorderFieldsLocal);
+	const getRootFields = useFieldsetStore((state) => state.getRootFields);
 	
 	const { showToast } = useUIStore();
 	// Direct call to singleton registry instead of hook
 	const groupedFieldTypes = fieldRegistry.getGroupedByCategory();
 
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	
+	// Get only root-level fields (no parent)
+	const rootFields = getRootFields();
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -76,12 +81,12 @@ export function FieldsSection() {
 		if (!over) return;
 
 		if (active.id !== over.id) {
-			const oldIndex = fields.findIndex((f) => f.id === active.id);
-			const newIndex = fields.findIndex((f) => f.id === over.id);
-			const newOrder = arrayMove(fields, oldIndex, newIndex);
+			const oldIndex = rootFields.findIndex((f) => f.id === active.id);
+			const newIndex = rootFields.findIndex((f) => f.id === over.id);
+			const newOrder = arrayMove(rootFields, oldIndex, newIndex);
 			
-			// Update locally - this will set unsavedChanges to true
-			reorderFieldsLocal(newOrder);
+			// Update locally with root context (null parent)
+			reorderFieldsLocal(newOrder, null);
 		}
 	};
 
@@ -93,7 +98,7 @@ export function FieldsSection() {
 		let fieldName = `field_${counter}`;
 		let fieldLabel = `Field ${counter}`;
 		
-		// Check if field name already exists, increment until we find available one
+		// Check if field name already exists across ALL fields (not just root)
 		while (fields.some((f) => f.name === fieldName)) {
 			counter++;
 			fieldName = `field_${counter}`;
@@ -106,12 +111,12 @@ export function FieldsSection() {
 	const handleFieldTypeSelect = (type: FieldType) => {
 		const { fieldName, fieldLabel } = generateAutoFieldName();
 		
-		// Auto-add field without dialog
+		// Auto-add field at root level (no parent)
 		addFieldLocal({
 			type,
 			label: fieldLabel,
 			name: fieldName,
-		});
+		}, null);
 
 		setDrawerOpen(false);
 		showToast('success', `${fieldLabel} added (will be saved when you click Save Changes)`);
@@ -121,21 +126,24 @@ export function FieldsSection() {
 		<div className="mb-8">
 			<h2 className="text-lg font-semibold mb-4">Fields</h2>
 
-			{/* Field List with DnD */}
+			{/* Field List with DnD - ROOT LEVEL ONLY */}
 			<DndContext
+				id="root-fields"
 				sensors={sensors}
 				collisionDetection={closestCenter}
 				onDragEnd={handleDragEnd}
 			>
 				<SortableContext
-					items={fields.map((f) => f.id)}
+					items={rootFields.map((f) => f.id)}
 					strategy={verticalListSortingStrategy}
 				>
-					{fields.map((field) => (
+					{rootFields.map((field) => (
 						<FieldItem
 							key={field.id}
 							field={field}
 							allFields={fields}
+							depth={0}
+							maxDepth={3}
 						/>
 					))}
 				</SortableContext>

@@ -15,6 +15,7 @@ interface SettingsSectionProps {
 	isActive: boolean;
 	slug: string;
 	description: string;
+	slugError?: string | null;
 	onActiveChange: (value: boolean) => void;
 	onSlugChange: (value: string) => void;
 	onDescriptionChange: (value: string) => void;
@@ -24,6 +25,7 @@ export function SettingsSection({
 	isActive,
 	slug,
 	description,
+	slugError,
 	onActiveChange,
 	onSlugChange,
 	onDescriptionChange,
@@ -56,10 +58,15 @@ export function SettingsSection({
 							value={slug}
 							onChange={(e) => onSlugChange(e.target.value)}
 							placeholder="fieldset_slug"
+							className={slugError ? 'border-red-500' : ''}
 						/>
-						<p className="text-xs text-gray-500 mt-1">
-							Used for programmatic access
-						</p>
+						{slugError ? (
+							<p className="text-xs text-red-500 mt-1">{slugError}</p>
+						) : (
+							<p className="text-xs text-gray-500 mt-1">
+								Used for programmatic access. Must be unique.
+							</p>
+						)}
 					</div>
 
 					{/* Description */}

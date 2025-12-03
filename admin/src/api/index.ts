@@ -41,6 +41,10 @@ function transformFieldFromAPI(apiField: any): Field {
 
 	return {
 		...apiField,
+		// Normalize parent_id - null, undefined, 0, or "0" all become null
+		parent_id: apiField.parent_id && apiField.parent_id !== '0' && apiField.parent_id !== 0 
+			? apiField.parent_id 
+			: null,
 		settings,
 	};
 }
@@ -55,6 +59,11 @@ function transformFieldFromAPI(apiField: any): Field {
  */
 function transformFieldToAPI(frontendField: Partial<Field>): any {
 	const apiData: any = { ...frontendField };
+	
+	// Handle parent_id - send null explicitly if not set or 0
+	if ('parent_id' in frontendField) {
+		apiData.parent_id = frontendField.parent_id || null;
+	}
 	
 	// If settings is provided, extract its contents to top-level fields
 	if (frontendField.settings) {

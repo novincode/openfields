@@ -7,7 +7,7 @@
  * @package OpenFields
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useFieldsetStore } from '../../stores/fieldset-store';
 import { useUIStore } from '../../stores/ui-store';
 import { Button } from '../../components/ui/button';
@@ -28,7 +28,9 @@ interface FieldsetEditorProps {
 export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	// Use selectors to ensure proper subscription to store updates
 	const currentFieldset = useFieldsetStore((state) => state.currentFieldset);
+	const fieldsets = useFieldsetStore((state) => state.fieldsets);
 	const fetchFieldset = useFieldsetStore((state) => state.fetchFieldset);
+	const fetchFieldsets = useFieldsetStore((state) => state.fetchFieldsets);
 	const createFieldset = useFieldsetStore((state) => state.createFieldset);
 	const updateFieldset = useFieldsetStore((state) => state.updateFieldset);
 	const unsavedChanges = useFieldsetStore((state) => state.unsavedChanges);
@@ -47,10 +49,32 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	
 	const [isSaving, setIsSaving] = useState(false);
 	const [initialized, setInitialized] = useState(false);
+	
+	// Check for slug uniqueness
+	const slugError = useMemo(() => {
+		if (!slug.trim()) return 'Slug is required';
+		
+		// Check against other fieldsets (exclude current)
+		const isDuplicate = fieldsets.some(
+			fs => fs.field_key === slug && fs.id !== currentFieldset?.id
+		);
+		
+		if (isDuplicate) return 'This slug is already used by another fieldset';
+		
+		// Validate slug format
+		if (!/^[a-z0-9_]+$/.test(slug)) {
+			return 'Slug can only contain lowercase letters, numbers, and underscores';
+		}
+		
+		return null;
+	}, [slug, fieldsets, currentFieldset?.id]);
 
 	// Fetch fieldset on mount if editing existing
 	useEffect(() => {
 		const init = async () => {
+			// Always fetch all fieldsets for uniqueness validation
+			await fetchFieldsets();
+			
 			if (fieldsetId && !isNew) {
 				await fetchFieldset(fieldsetId);
 			} else if (isNew) {
@@ -64,7 +88,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			setInitialized(true);
 		};
 		init();
-	}, [fieldsetId, isNew, fetchFieldset, createFieldset, showToast]);
+	}, [fieldsetId, isNew, fetchFieldset, fetchFieldsets, createFieldset, showToast]);
 
 	// Sync local state with current fieldset
 	useEffect(() => {
@@ -116,6 +140,11 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 
 		if (!title.trim()) {
 			showToast('error', 'Fieldset title is required');
+			return;
+		}
+		
+		if (slugError) {
+			showToast('error', slugError);
 			return;
 		}
 
@@ -198,6 +227,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 					isActive={isActive}
 					slug={slug}
 					description={description}
+					slugError={slugError}
 					onActiveChange={handleActiveChange}
 					onSlugChange={handleSlugChange}
 					onDescriptionChange={handleDescriptionChange}

@@ -54,8 +54,9 @@ export interface FieldSettingDefinition {
 
 // Field Instance
 export interface Field {
-	id: number;
+	id: number | string; // string for temp IDs before save
 	fieldset_id: number;
+	parent_id?: number | string | null; // null/undefined = root level, field ID = nested in that parent
 	name: string;
 	label: string;
 	type: FieldType;

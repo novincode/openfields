@@ -8,6 +8,90 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { Fieldset, Field, FieldsetStore } from '../types';
 import { fieldsetApi, fieldApi } from '../api';
+import { fieldRegistry } from '../lib/field-registry';
+
+// ============================================================================
+// HELPER FUNCTIONS FOR NESTED FIELDS
+// ============================================================================
+
+/**
+ * Check if a field can have children based on field registry
+ */
+export function canHaveChildren(field: Field): boolean {
+	const definition = fieldRegistry.get(field.type);
+	return definition?.hasSubFields ?? false;
+}
+
+/**
+ * Get root-level fields (no parent)
+ */
+export function getRootFields(fields: Field[]): Field[] {
+	return fields.filter(f => !f.parent_id);
+}
+
+/**
+ * Get children of a specific field
+ */
+export function getChildFields(fields: Field[], parentId: number | string): Field[] {
+	return fields.filter(f => String(f.parent_id) === String(parentId))
+		.sort((a, b) => a.menu_order - b.menu_order);
+}
+
+/**
+ * Get all descendant IDs of a field (for cascading delete)
+ */
+export function getDescendantIds(fields: Field[], parentId: number | string): (number | string)[] {
+	const descendants: (number | string)[] = [];
+	const children = getChildFields(fields, parentId);
+	
+	for (const child of children) {
+		descendants.push(child.id);
+		descendants.push(...getDescendantIds(fields, child.id));
+	}
+	
+	return descendants;
+}
+
+/**
+ * Validate a move operation - prevent circular references
+ */
+export function validateMove(
+	fields: Field[], 
+	fieldId: number | string, 
+	newParentId: number | string | null
+): boolean {
+	// Moving to root is always valid
+	if (!newParentId) return true;
+	
+	// Can't move to itself
+	if (String(fieldId) === String(newParentId)) return false;
+	
+	// Can't move to own descendant (would create circular reference)
+	const descendants = getDescendantIds(fields, fieldId);
+	if (descendants.some(id => String(id) === String(newParentId))) return false;
+	
+	// Target parent must support children
+	const targetParent = fields.find(f => String(f.id) === String(newParentId));
+	if (!targetParent || !canHaveChildren(targetParent)) return false;
+	
+	return true;
+}
+
+/**
+ * Calculate the next menu_order for a new field within a parent context
+ */
+export function getNextMenuOrder(fields: Field[], parentId: number | string | null): number {
+	const siblings = parentId 
+		? getChildFields(fields, parentId) 
+		: getRootFields(fields);
+	
+	if (siblings.length === 0) return 0;
+	return Math.max(...siblings.map(f => f.menu_order)) + 1;
+}
+
+// ============================================================================
+// STORE INTERFACE
+// ============================================================================
 
 interface ExtendedFieldsetStore extends FieldsetStore {
 	fields: Field[];
@@ -16,14 +100,21 @@ interface ExtendedFieldsetStore extends FieldsetStore {
 	pendingFieldChanges: Map<string, Partial<Field>>;
 	pendingFieldAdditions: Field[]; // New fields waiting to be saved
 	pendingFieldDeletions: string[]; // Field IDs waiting to be deleted
+	
 	// Actions
 	setUnsavedChanges: (value: boolean) => void;
 	fetchFields: (fieldsetId: number) => Promise<void>;
-	addFieldLocal: (field: Partial<Field>) => void;
+	addFieldLocal: (field: Partial<Field>, parentId?: number | string | null) => void;
 	updateFieldLocal: (id: string, data: Partial<Field>) => void;
 	deleteFieldLocal: (id: string) => void;
-	reorderFieldsLocal: (fields: Field[]) => void;
+	reorderFieldsLocal: (fields: Field[], parentId?: number | string | null) => void;
+	moveFieldToParent: (fieldId: string, newParentId: number | string | null) => void;
+	copyFieldToParent: (fieldId: string, newParentId: number | string | null) => void;
 	saveAllChanges: () => Promise<void>;
+	
+	// Selectors for nested fields
+	getRootFields: () => Field[];
+	getChildFields: (parentId: number | string) => Field[];
 }
 
 export const useFieldsetStore = create<ExtendedFieldsetStore>()(
@@ -39,6 +130,22 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 			pendingFieldChanges: new Map<string, Partial<Field>>(),
 			pendingFieldAdditions: [],
 			pendingFieldDeletions: [],
+
+			// ================================================================
+			// SELECTORS FOR NESTED FIELDS
+			// ================================================================
+			
+			getRootFields: () => {
+				return getRootFields(get().fields);
+			},
+			
+			getChildFields: (parentId: number | string) => {
+				return getChildFields(get().fields, parentId);
+			},
+
+			// ================================================================
+			// BASIC ACTIONS
+			// ================================================================
 
 			setUnsavedChanges: (value: boolean) => {
 				set({ unsavedChanges: value });
@@ -168,13 +275,18 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 			},
 
 			// Add field locally (don't save to API yet)
-			addFieldLocal: (field: Partial<Field>) => {
+			addFieldLocal: (field: Partial<Field>, parentId?: number | string | null) => {
+				const state = get();
+				const menuOrder = getNextMenuOrder(state.fields, parentId ?? null);
+				
 				const newField: Field = {
 					id: `temp-${Date.now()}-${Math.random()}`,
 					label: field.label || 'New Field',
 					name: field.name || `field_${Date.now()}`,
 					type: field.type || 'text',
 					settings: field.settings || {},
+					menu_order: menuOrder,
+					parent_id: parentId ?? null,
 					...field,
 				} as Field;
 				
@@ -224,28 +336,137 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 			});
 		},
 
-		// Delete field locally (don't save to API yet)
+		// Delete field locally (don't save to API yet) - cascades to children
 		deleteFieldLocal: (id: string) => {
 			set((state) => {
 				const fieldIdStr = String(id);
 				
+				// Get all descendant IDs to cascade delete
+				const descendantIds = getDescendantIds(state.fields, fieldIdStr);
+				const allIdsToDelete = [fieldIdStr, ...descendantIds.map(String)];
+				
 				return {
-					fields: state.fields.filter((f) => String(f.id) !== fieldIdStr),
-					pendingFieldDeletions: [...state.pendingFieldDeletions, fieldIdStr],
+					fields: state.fields.filter((f) => !allIdsToDelete.includes(String(f.id))),
+					pendingFieldDeletions: [
+						...state.pendingFieldDeletions, 
+						...allIdsToDelete.filter(id => !id.startsWith('temp-'))
+					],
 					pendingFieldAdditions: state.pendingFieldAdditions.filter(
-						(f) => String(f.id) !== fieldIdStr
+						(f) => !allIdsToDelete.includes(String(f.id))
 					),
 					unsavedChanges: true,
 				};
 			});
+		},
+
+			// Reorder fields locally (within a specific parent context)
+			// parentId is used for documentation/API consistency - reorder operates on the fields array directly
+			reorderFieldsLocal: (reorderedFields: Field[], _parentId?: number | string | null) => {
+				set((state) => {
+					// Update menu_order for reordered fields
+					const reorderedWithOrder = reorderedFields.map((f, index) => ({
+						...f,
+						menu_order: index,
+					}));
+					
+					// Get IDs of reordered fields
+					const reorderedIds = new Set(reorderedWithOrder.map(f => String(f.id)));
+					
+					// Keep fields not in this reorder operation, replace those that are
+					const newFields = state.fields.map(f => {
+						if (reorderedIds.has(String(f.id))) {
+							return reorderedWithOrder.find(rf => String(rf.id) === String(f.id))!;
+						}
+						return f;
+					});
+					
+					return {
+						fields: newFields,
+						unsavedChanges: true,
+					};
+				});
 			},
 
-			// Reorder fields locally
-			reorderFieldsLocal: (reorderedFields: Field[]) => {
-				set({
-					fields: reorderedFields,
-					unsavedChanges: true,
+			// Move a field to a new parent (or to root if parentId is null)
+			moveFieldToParent: (fieldId: string, newParentId: number | string | null) => {
+				const state = get();
+				
+				// Validate the move
+				if (!validateMove(state.fields, fieldId, newParentId)) {
+					console.error('Invalid move: circular reference or invalid parent');
+					return;
+				}
+				
+				// Calculate new menu_order in target context
+				const newMenuOrder = getNextMenuOrder(state.fields, newParentId);
+				
+				set((state) => {
+					const pending = new Map(state.pendingFieldChanges);
+					const existing = pending.get(fieldId) || {};
+					
+					pending.set(fieldId, {
+						...existing,
+						parent_id: newParentId,
+						menu_order: newMenuOrder,
+					});
+					
+					return {
+						fields: state.fields.map(f => 
+							String(f.id) === fieldId 
+								? { ...f, parent_id: newParentId, menu_order: newMenuOrder }
+								: f
+						),
+						pendingFieldChanges: pending,
+						unsavedChanges: true,
+					};
 				});
+			},
+
+			// Copy a field (and its children) to a new parent
+			copyFieldToParent: (fieldId: string, newParentId: number | string | null) => {
+				const state = get();
+				const sourceField = state.fields.find(f => String(f.id) === fieldId);
+				
+				if (!sourceField) return;
+				
+				// Validate the target
+				if (newParentId) {
+					const targetParent = state.fields.find(f => String(f.id) === String(newParentId));
+					if (!targetParent || !canHaveChildren(targetParent)) {
+						console.error('Invalid copy target: parent cannot have children');
+						return;
+					}
+				}
+				
+				// Generate unique name
+				let baseName = sourceField.name;
+				let counter = 1;
+				let newName = `${baseName}_copy`;
+				while (state.fields.some(f => f.name === newName)) {
+					counter++;
+					newName = `${baseName}_copy_${counter}`;
+				}
+				
+				const newMenuOrder = getNextMenuOrder(state.fields, newParentId);
+				
+				// Create copy of the field
+				const copiedField: Field = {
+					...sourceField,
+					id: `temp-${Date.now()}-${Math.random()}`,
+					name: newName,
+					label: `${sourceField.label} (Copy)`,
+					parent_id: newParentId,
+					menu_order: newMenuOrder,
+				};
+				
+				// TODO: Deep copy children recursively if needed
+				// For now, just copy the field itself
+				
+				set((state) => ({
+					fields: [...state.fields, copiedField],
+					pendingFieldAdditions: [...state.pendingFieldAdditions, copiedField],
+					unsavedChanges: true,
+				}));
 			},
 
 			// Save all changes to API
@@ -281,20 +502,35 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 					// Get the latest version from fields state (which has all updates applied)
 					const latestField = fields.find((f) => String(f.id) === fieldIdStr) || newField;
 					
+					// Calculate proper menu_order based on position within parent context
+					const siblings = latestField.parent_id 
+						? getChildFields(fields, latestField.parent_id)
+						: getRootFields(fields);
+					const menuOrder = siblings.findIndex(f => String(f.id) === fieldIdStr);
+					
 					const fieldData = {
 						label: changes?.label || latestField.label || newField.label,
 						name: changes?.name || latestField.name || newField.name,
 						type: changes?.type || latestField.type || newField.type,
 						settings: latestField.settings || newField.settings || {},
-						menu_order: fields.indexOf(latestField),
+						menu_order: menuOrder >= 0 ? menuOrder : latestField.menu_order,
+						parent_id: latestField.parent_id ?? null,
 					};
 					promises.push(
 						fieldApi.create(currentFieldset.id, fieldData).then((createdField) => {
-							// Update temp ID with real ID
+							// Update temp ID with real ID, also update children's parent_id
+							const oldId = newField.id;
 							set((state) => ({
-								fields: state.fields.map((f) => 
-									f.id === newField.id ? createdField : f
-								),
+								fields: state.fields.map((f) => {
+									if (f.id === oldId) {
+										return { ...createdField, parent_id: createdField.parent_id ?? null };
+									}
+									// Update children that reference this temp ID
+									if (String(f.parent_id) === String(oldId)) {
+										return { ...f, parent_id: createdField.id };
+									}
+									return f;
+								}),
 							}));
 							return createdField;
 						})
@@ -310,12 +546,19 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 							// The API transform will handle the conversion
 							const mergedSettings = { ...field.settings, ...changes.settings };
 							
+							// Calculate proper menu_order based on position within parent context
+							const siblings = field.parent_id 
+								? getChildFields(fields, field.parent_id)
+								: getRootFields(fields);
+							const menuOrder = siblings.findIndex(f => String(f.id) === fieldId);
+							
 							const mergedData = {
 								label: changes.label || field.label,
 								name: changes.name || field.name,
 								type: changes.type || field.type,
 								settings: mergedSettings,
-								menu_order: fields.indexOf(field),
+								menu_order: menuOrder >= 0 ? menuOrder : field.menu_order,
+								parent_id: field.parent_id ?? null,
 							};
 							promises.push(fieldApi.update(numericId, mergedData));
 						}

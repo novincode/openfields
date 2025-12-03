@@ -3,6 +3,7 @@
  * 
  * A single draggable field item in the fieldset editor.
  * Handles field settings, conditional logic, and type-specific configurations.
+ * Supports recursive rendering for nested fields (repeater, group, etc.)
  *
  * @package OpenFields
  */
@@ -10,7 +11,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useFieldsetStore } from '../../../stores/fieldset-store';
+import { useFieldsetStore, canHaveChildren } from '../../../stores/fieldset-store';
 import { useUIStore } from '../../../stores/ui-store';
 import { Card } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
@@ -28,16 +29,21 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from '../../../components/ui/collapsible';
-import { GripVertical, ChevronDown, Trash2, Filter } from 'lucide-react';
+import { GripVertical, ChevronDown, Trash2, Filter, Layers, ArrowUp } from 'lucide-react';
 import { sanitizeFieldName, isFieldNameDuplicate } from '../../../utils/field-name-validator';
 
 import { ConditionalLogicPanel } from './ConditionalLogicPanel';
 import { TypeSpecificSettings } from './TypeSpecificSettings';
+import { NestedFieldsArea } from './NestedFieldsArea';
 import type { Field, ConditionalRule } from '../../../types';
 
 interface FieldItemProps {
 	field: Field;
 	allFields: Field[];
+	/** Current nesting depth (0 = root) */
+	depth?: number;
+	/** Maximum allowed nesting depth */
+	maxDepth?: number;
 }
 
 const WIDTH_OPTIONS = [
@@ -49,10 +55,11 @@ const WIDTH_OPTIONS = [
 	{ value: '100', label: '100%' },
 ];
 
-export function FieldItem({ field, allFields }: FieldItemProps) {
+export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldItemProps) {
 	// Use selectors for proper subscription
 	const updateFieldLocal = useFieldsetStore((state) => state.updateFieldLocal);
 	const deleteFieldLocal = useFieldsetStore((state) => state.deleteFieldLocal);
+	const moveFieldToParent = useFieldsetStore((state) => state.moveFieldToParent);
 	const { showToast } = useUIStore();
 
 	const [isOpen, setIsOpen] = useState(false);
@@ -60,6 +67,12 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 	const [name, setName] = useState(field.name || '');
 	const [nameError, setNameError] = useState<string>('');
 	const [hasError, setHasError] = useState(false);
+
+	// Check if this field can have children (repeater, group, etc.)
+	const fieldCanHaveChildren = canHaveChildren(field);
+	
+	// Get children count for display
+	const childCount = allFields.filter(f => String(f.parent_id) === String(field.id)).length;
 
 	// Wrapper settings
 	const [wrapperWidth, setWrapperWidth] = useState(field.settings?.wrapper?.width || '100');
@@ -196,8 +209,21 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 
 	// Delete field
 	const handleDelete = () => {
-		deleteFieldLocal(String(field.id));
-		showToast('success', 'Field removed (will be deleted when you click Save Changes)');
+		if (childCount > 0) {
+			deleteFieldLocal(String(field.id));
+			showToast('success', `Field and ${childCount} sub-field(s) removed (will be deleted when you click Save Changes)`);
+		} else {
+			deleteFieldLocal(String(field.id));
+			showToast('success', 'Field removed (will be deleted when you click Save Changes)');
+		}
+	};
+	
+	// Move to root (if nested)
+	const handleMoveToRoot = () => {
+		if (field.parent_id) {
+			moveFieldToParent(String(field.id), null);
+			showToast('success', 'Field moved to root level');
+		}
 	};
 
 	// Other fields for conditional logic
@@ -206,7 +232,7 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 	return (
 		<div ref={setNodeRef} style={style} className="mb-2">
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
-				<Card className={hasError ? 'border-red-500' : ''}>
+				<Card className={`${hasError ? 'border-red-500' : ''} ${depth > 0 ? 'bg-gray-50/50' : ''}`}>
 					{/* Header */}
 					<div className="flex items-center gap-2 p-3">
 						<button
@@ -218,13 +244,19 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 						</button>
 						<CollapsibleTrigger className="flex-1 flex items-center justify-between gap-2 text-left">
 							<div className="flex-1">
-								<div className="font-medium text-sm flex items-center gap-2">
+								<div className="font-medium text-sm flex items-center gap-2 flex-wrap">
 									{field.label || (
 										<span className="text-red-500">Label required</span>
 									)}
 									<Badge variant="outline" className="text-xs">
 										{field.type}
 									</Badge>
+									{fieldCanHaveChildren && (
+										<Badge variant="secondary" className="text-xs">
+											<Layers className="h-3 w-3 mr-1" />
+											{childCount} sub-field{childCount !== 1 ? 's' : ''}
+										</Badge>
+									)}
 									{hasConditionalLogic && (
 										<Badge variant="secondary" className="text-xs">
 											<Filter className="h-3 w-3 mr-1" />
@@ -240,6 +272,16 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 								}`}
 							/>
 						</CollapsibleTrigger>
+						{/* Move to root button (only if nested) */}
+						{field.parent_id && (
+							<button
+								onClick={handleMoveToRoot}
+								className="p-1 text-gray-400 hover:text-blue-600"
+								title="Move to root level"
+							>
+								<ArrowUp className="h-4 w-4" />
+							</button>
+						)}
 						<button
 							onClick={handleDelete}
 							className="p-1 text-gray-400 hover:text-red-600"
@@ -323,6 +365,68 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 									</div>
 								</div>
 							</div>
+							
+							{/* Move Field Section */}
+							{(() => {
+								// Find all fields that can have children (and aren't this field or its descendants)
+								const potentialParents = allFields.filter(f => {
+									// Must support children
+									if (!canHaveChildren(f)) return false;
+									// Can't move to itself
+									if (String(f.id) === String(field.id)) return false;
+									// Can't move to own children (would create loop)
+									const isDescendant = (parentId: number | string | null | undefined): boolean => {
+										if (!parentId) return false;
+										if (String(parentId) === String(field.id)) return true;
+										const parent = allFields.find(p => String(p.id) === String(parentId));
+										return parent ? isDescendant(parent.parent_id) : false;
+									};
+									if (isDescendant(f.parent_id)) return false;
+									// Check depth limit
+									const getDepth = (f: Field): number => {
+										if (!f.parent_id) return 0;
+										const parent = allFields.find(p => String(p.id) === String(f.parent_id));
+										return parent ? 1 + getDepth(parent) : 0;
+									};
+									return getDepth(f) < maxDepth - 1;
+								});
+								
+								if (potentialParents.length === 0 && !field.parent_id) return null;
+								
+								return (
+									<div className="border-t pt-4">
+										<h4 className="text-sm font-medium mb-3">Move Field</h4>
+										<div>
+											<Label htmlFor={`move-${field.id}`}>Move to</Label>
+											<Select
+												value={field.parent_id ? String(field.parent_id) : '_root'}
+												onValueChange={(value) => {
+													const newParentId = value === '_root' ? null : value;
+													moveFieldToParent(String(field.id), newParentId);
+													showToast('success', newParentId 
+														? `Field moved to ${allFields.find(f => String(f.id) === value)?.label || 'parent'}`
+														: 'Field moved to root level'
+													);
+												}}
+											>
+												<SelectTrigger id={`move-${field.id}`}>
+													<SelectValue placeholder="Select location" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="_root">
+														Root Level
+													</SelectItem>
+													{potentialParents.map((parent) => (
+														<SelectItem key={parent.id} value={String(parent.id)}>
+															→ {parent.label} ({parent.type})
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</div>
+									</div>
+								);
+							})()}
 
 							{/* Type-Specific Settings */}
 							<TypeSpecificSettings
@@ -336,6 +440,23 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 								otherFields={otherFields}
 								onConditionalLogicChange={handleConditionalLogicChange}
 							/>
+							
+							{/* Nested Fields Area (for repeater, group, etc.) */}
+							{fieldCanHaveChildren && (
+								<div className="border-t pt-4">
+									<h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+										<Layers className="h-4 w-4" />
+										Sub-fields
+									</h4>
+									<NestedFieldsArea
+										parentField={field}
+										allFields={allFields}
+										depth={depth + 1}
+										maxDepth={maxDepth}
+										FieldItemComponent={FieldItem}
+									/>
+								</div>
+							)}
 						</div>
 					</CollapsibleContent>
 				</Card>
