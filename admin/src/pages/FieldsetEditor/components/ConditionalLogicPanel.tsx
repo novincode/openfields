@@ -68,7 +68,11 @@ export function ConditionalLogicPanel({
 	// Toggle enabled
 	const handleToggle = (checked: boolean) => {
 		setEnabled(checked);
-		if (!checked) {
+		if (checked) {
+			// When turning ON, save current rules (or empty array if none)
+			saveLogic(rules);
+		} else {
+			// When turning OFF, clear rules
 			setRules([]);
 			onConditionalLogicChange(undefined);
 		}

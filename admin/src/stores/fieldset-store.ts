@@ -11,19 +11,19 @@ import { fieldsetApi, fieldApi } from '../api';
 
 interface ExtendedFieldsetStore extends FieldsetStore {
 	fields: Field[];
-	// Change tracking
+	// Change tracking - only stage changes locally until save
 	unsavedChanges: boolean;
-	pendingFieldChanges: Map<number, Partial<Field>>;
+	pendingFieldChanges: Map<string, Partial<Field>>;
+	pendingFieldAdditions: Field[]; // New fields waiting to be saved
+	pendingFieldDeletions: string[]; // Field IDs waiting to be deleted
 	// Actions
 	setUnsavedChanges: (value: boolean) => void;
-	markFieldChanged: (fieldId: number, changes: Partial<Field>) => void;
 	fetchFields: (fieldsetId: number) => Promise<void>;
-	addField: (fieldsetId: number, field: Partial<Field>) => Promise<Field>;
-	updateField: (id: number, data: Partial<Field>) => Promise<void>;
-	updateFieldLocal: (id: number, data: Partial<Field>) => void;
-	deleteField: (id: number) => Promise<void>;
-	reorderFields: (fieldsetId: number, fields: { id: number; menu_order: number }[]) => Promise<void>;
-	saveAllPendingChanges: () => Promise<void>;
+	addFieldLocal: (field: Partial<Field>) => void;
+	updateFieldLocal: (id: string, data: Partial<Field>) => void;
+	deleteFieldLocal: (id: string) => void;
+	reorderFieldsLocal: (fields: Field[]) => void;
+	saveAllChanges: () => Promise<void>;
 }
 
 export const useFieldsetStore = create<ExtendedFieldsetStore>()(
@@ -34,19 +34,14 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 			fields: [],
 			isLoading: false,
 			error: null,
-			// Change tracking
+			// Change tracking - stage all changes locally
 			unsavedChanges: false,
-			pendingFieldChanges: new Map(),
+			pendingFieldChanges: new Map<string, Partial<Field>>(),
+			pendingFieldAdditions: [],
+			pendingFieldDeletions: [],
 
 			setUnsavedChanges: (value: boolean) => {
 				set({ unsavedChanges: value });
-			},
-
-			markFieldChanged: (fieldId: number, changes: Partial<Field>) => {
-				const pending = new Map(get().pendingFieldChanges);
-				const existing = pending.get(fieldId) || {};
-				pending.set(fieldId, { ...existing, ...changes });
-				set({ pendingFieldChanges: pending, unsavedChanges: true });
 			},
 
 			fetchFieldsets: async () => {
@@ -169,89 +164,181 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 				}
 			},
 
-			addField: async (fieldsetId: number, field: Partial<Field>) => {
-				const newField = await fieldApi.create(fieldsetId, field);
+			// Add field locally (don't save to API yet)
+			addFieldLocal: (field: Partial<Field>) => {
+				const newField: Field = {
+					id: `temp-${Date.now()}-${Math.random()}`,
+					label: field.label || 'New Field',
+					name: field.name || `field_${Date.now()}`,
+					type: field.type || 'text',
+					settings: field.settings || {},
+					...field,
+				} as Field;
+				
 				set((state) => ({
 					fields: [...state.fields, newField],
-				}));
-				return newField;
-			},
-
-			updateField: async (id: number, data: Partial<Field>) => {
-				const updatedField = await fieldApi.update(id, data);
-				// Clear pending changes for this field after successful save
-				const pending = new Map(get().pendingFieldChanges);
-				pending.delete(id);
-				set((state) => ({
-					fields: state.fields.map((f) => (f.id === id ? updatedField : f)),
-					pendingFieldChanges: pending,
-				}));
-			},
-
-			// Update field locally without saving to API (for tracking changes)
-			updateFieldLocal: (id: number, data: Partial<Field>) => {
-				set((state) => ({
-					fields: state.fields.map((f) => 
-						f.id === id 
-							? { ...f, ...data, settings: { ...f.settings, ...data.settings } } 
-							: f
-					),
+					pendingFieldAdditions: [...state.pendingFieldAdditions, newField],
 					unsavedChanges: true,
 				}));
-				// Track this change
-				get().markFieldChanged(id, data);
 			},
 
-			deleteField: async (id: number) => {
-				await fieldApi.delete(id);
-				const pending = new Map(get().pendingFieldChanges);
-				pending.delete(id);
-				set((state) => ({
-					fields: state.fields.filter((f) => f.id !== id),
-					pendingFieldChanges: pending,
-				}));
-			},
-
-			reorderFields: async (
-				fieldsetId: number,
-				fields: { id: number; menu_order: number }[]
-			) => {
-				set({ unsavedChanges: true });
-				await fieldApi.bulkUpdate(fieldsetId, fields);
-				// Refetch to ensure correct order
-				await get().fetchFields(fieldsetId);
-			},
-
-			// Save all pending field changes to API
-			saveAllPendingChanges: async () => {
-				const { pendingFieldChanges, fields } = get();
-				const promises: Promise<void>[] = [];
+		// Update field locally (don't save to API yet)
+		updateFieldLocal: (id: string, data: Partial<Field>) => {
+			set((state) => {
+				const pending = new Map(state.pendingFieldChanges);
+				const fieldIdStr = String(id);
+				const existing = pending.get(fieldIdStr) || {};
 				
-				pendingFieldChanges.forEach((changes, fieldId) => {
-					const field = fields.find((f) => f.id === fieldId);
-					if (field) {
-						// Merge current field with pending changes
-						const mergedData = {
-							...changes,
-							settings: {
-								...field.settings,
-								...changes.settings,
-							},
+				// Merge settings - keep ALL values including empty/null/undefined
+				// The API transform will handle sending them correctly
+				const mergedSettings = {
+					...existing.settings,
+					...data.settings,
+				};
+				
+				pending.set(fieldIdStr, {
+					...existing,
+					...data,
+					settings: mergedSettings,
+				});
+
+				// Update the field in state
+				const updatedFields = state.fields.map((f) => 
+					String(f.id) === fieldIdStr
+						? { 
+							...f, 
+							...data, 
+							settings: { ...f.settings, ...data.settings }
+						}
+						: f
+				);
+
+				return {
+					fields: updatedFields,
+					pendingFieldChanges: pending,
+					unsavedChanges: true,
+				};
+			});
+		},
+
+		// Delete field locally (don't save to API yet)
+		deleteFieldLocal: (id: string) => {
+			set((state) => {
+				const fieldIdStr = String(id);
+				
+				return {
+					fields: state.fields.filter((f) => String(f.id) !== fieldIdStr),
+					pendingFieldDeletions: [...state.pendingFieldDeletions, fieldIdStr],
+					pendingFieldAdditions: state.pendingFieldAdditions.filter(
+						(f) => String(f.id) !== fieldIdStr
+					),
+					unsavedChanges: true,
+				};
+			});
+			},
+
+			// Reorder fields locally
+			reorderFieldsLocal: (reorderedFields: Field[]) => {
+				set({
+					fields: reorderedFields,
+					unsavedChanges: true,
+				});
+			},
+
+			// Save all changes to API
+			saveAllChanges: async () => {
+				const { 
+					pendingFieldChanges, 
+					pendingFieldAdditions, 
+					pendingFieldDeletions,
+					fields,
+					currentFieldset,
+				} = get();
+				
+				if (!currentFieldset) {
+					throw new Error('No fieldset selected');
+				}
+
+				try {
+					set({ isLoading: true });
+					const promises: Promise<any>[] = [];
+
+					// Delete fields marked for deletion
+					for (const fieldId of pendingFieldDeletions) {
+						// Only delete if it's not a new field (temp ID)
+						if (!fieldId.startsWith('temp-')) {
+							promises.push(fieldApi.delete(Number(fieldId)));
+						}
+					}
+
+					// Add new fields
+					for (const newField of pendingFieldAdditions) {
+						const fieldData = {
+							label: newField.label,
+							name: newField.name,
+							type: newField.type,
+							settings: newField.settings,
+							menu_order: fields.indexOf(newField),
 						};
 						promises.push(
-							fieldApi.update(fieldId, mergedData).then((updatedField) => {
+							fieldApi.create(currentFieldset.id, fieldData).then((createdField) => {
+								// Update temp ID with real ID
 								set((state) => ({
-									fields: state.fields.map((f) => (f.id === fieldId ? updatedField : f)),
+									fields: state.fields.map((f) => 
+										f.id === newField.id ? createdField : f
+									),
 								}));
+								return createdField;
 							})
 						);
 					}
+
+				// Update modified fields
+				pendingFieldChanges.forEach((changes, fieldId) => {
+					// Only update if it's not a new field
+					if (!fieldId.startsWith('temp-')) {
+						const numericId = Number(fieldId);
+						const field = fields.find((f) => String(f.id) === fieldId);
+						if (field) {
+							// Merge settings - keep all values including empty strings
+							// The API transform will handle the conversion
+							const mergedSettings = { ...field.settings, ...changes.settings };
+							
+							const mergedData = {
+								label: changes.label || field.label,
+								name: changes.name || field.name,
+								type: changes.type || field.type,
+								settings: mergedSettings,
+								menu_order: fields.indexOf(field),
+							};
+							promises.push(fieldApi.update(numericId, mergedData));
+						}
+					}
 				});
-				
+
+				// Wait for all operations
 				await Promise.all(promises);
-				set({ pendingFieldChanges: new Map(), unsavedChanges: false });
-			},
-		}),
+
+				// Fetch fresh data to confirm
+				await get().fetchFields(currentFieldset.id);
+
+				// Clear pending changes
+				set({
+					pendingFieldChanges: new Map(),
+					pendingFieldAdditions: [],
+					pendingFieldDeletions: [],
+					unsavedChanges: false,
+					isLoading: false,
+				});
+			} catch (error) {
+				set({
+					error: error instanceof Error ? error.message : 'Failed to save fields',
+					isLoading: false,
+				});
+				throw error;
+			}
+		},
+	}),
 		{ name: 'openfields-fieldset-store' }
 	)
 );

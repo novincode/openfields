@@ -74,10 +74,16 @@ class FieldRegistry {
 	 * Register a field type
 	 */
 	register(definition: FieldTypeDefinition): void {
-		if (this.fields.has(definition.type)) {
-			console.warn(`Field type "${definition.type}" is already registered. Overwriting.`);
+		const existing = this.fields.get(definition.type);
+		if (existing) {
+			// Merge with existing definition instead of overwriting completely
+			this.fields.set(definition.type, {
+				...existing,
+				...definition,
+			});
+		} else {
+			this.fields.set(definition.type, definition);
 		}
-		this.fields.set(definition.type, definition);
 		this.notifyListeners();
 	}
 

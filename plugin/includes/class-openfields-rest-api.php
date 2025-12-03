@@ -491,11 +491,12 @@ class OpenFields_REST_API {
 		$id    = absint( $request['id'] );
 		$table = $wpdb->prefix . 'openfields_fields';
 
-		// Only update fields that are actually provided in the request.
+		// Start with updated timestamp
 		$data = array(
 			'updated_at' => current_time( 'mysql' ),
 		);
 
+		// Handle all direct field updates - these override settings object values
 		if ( isset( $request['label'] ) ) {
 			$data['label'] = sanitize_text_field( $request['label'] );
 		}
@@ -505,29 +506,36 @@ class OpenFields_REST_API {
 		if ( isset( $request['type'] ) ) {
 			$data['type'] = sanitize_key( $request['type'] );
 		}
-		if ( isset( $request['instructions'] ) ) {
-			$data['instructions'] = sanitize_textarea_field( $request['instructions'] );
-		}
-		if ( isset( $request['required'] ) ) {
-			$data['required'] = absint( $request['required'] );
-		}
-		if ( isset( $request['default_value'] ) ) {
-			$data['default_value'] = sanitize_text_field( $request['default_value'] );
-		}
-		if ( isset( $request['placeholder'] ) ) {
-			$data['placeholder'] = sanitize_text_field( $request['placeholder'] );
-		}
-		if ( isset( $request['conditional_logic'] ) ) {
-			$data['conditional_logic'] = wp_json_encode( $request['conditional_logic'] );
-		}
-		if ( isset( $request['wrapper_config'] ) ) {
-			$data['wrapper_config'] = wp_json_encode( $request['wrapper_config'] );
-		}
-		if ( isset( $request['field_config'] ) ) {
-			$data['field_config'] = wp_json_encode( $request['field_config'] );
-		}
 		if ( isset( $request['menu_order'] ) ) {
 			$data['menu_order'] = absint( $request['menu_order'] );
+		}
+		
+		// Handle fields that can be cleared (empty string is valid)
+		if ( array_key_exists( 'instructions', $request->get_params() ) ) {
+			$data['instructions'] = sanitize_textarea_field( $request['instructions'] ?? '' );
+		}
+		if ( array_key_exists( 'default_value', $request->get_params() ) ) {
+			$data['default_value'] = sanitize_text_field( $request['default_value'] ?? '' );
+		}
+		if ( array_key_exists( 'placeholder', $request->get_params() ) ) {
+			$data['placeholder'] = sanitize_text_field( $request['placeholder'] ?? '' );
+		}
+		if ( array_key_exists( 'required', $request->get_params() ) ) {
+			$data['required'] = absint( $request['required'] ?? 0 );
+		}
+		
+		// Handle JSON fields - always encode, even if empty (to clear them)
+		if ( array_key_exists( 'conditional_logic', $request->get_params() ) ) {
+			$value = $request['conditional_logic'];
+			$data['conditional_logic'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
+		}
+		if ( array_key_exists( 'wrapper_config', $request->get_params() ) ) {
+			$value = $request['wrapper_config'];
+			$data['wrapper_config'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
+		}
+		if ( array_key_exists( 'field_config', $request->get_params() ) ) {
+			$value = $request['field_config'];
+			$data['field_config'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -803,6 +811,42 @@ class OpenFields_REST_API {
 				'required'          => false,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_key',
+			),
+			'instructions' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+			),
+			'required' => array(
+				'required'          => false,
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+			),
+			'default_value' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'placeholder' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'conditional_logic' => array(
+				'required'          => false,
+				'type'              => 'array',
+			),
+			'wrapper_config' => array(
+				'required'          => false,
+				'type'              => 'object',
+			),
+			'field_config' => array(
+				'required'          => false,
+				'type'              => 'object',
+			),
+			'settings' => array(
+				'required'          => false,
+				'type'              => 'object',
 			),
 			'menu_order' => array(
 				'required'          => false,

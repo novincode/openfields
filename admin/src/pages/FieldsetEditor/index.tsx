@@ -33,7 +33,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	const updateFieldset = useFieldsetStore((state) => state.updateFieldset);
 	const unsavedChanges = useFieldsetStore((state) => state.unsavedChanges);
 	const setUnsavedChanges = useFieldsetStore((state) => state.setUnsavedChanges);
-	const saveAllPendingChanges = useFieldsetStore((state) => state.saveAllPendingChanges);
+	const saveAllChanges = useFieldsetStore((state) => state.saveAllChanges);
 	const isLoading = useFieldsetStore((state) => state.isLoading);
 	const { showToast } = useUIStore();
 
@@ -135,7 +135,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			});
 
 			// Save all pending field changes
-			await saveAllPendingChanges();
+			await saveAllChanges();
 
 			setUnsavedChanges(false);
 			showToast('success', 'Fieldset saved successfully');
@@ -213,3 +213,5 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		</div>
 	);
 }
+
+export default FieldsetEditor;

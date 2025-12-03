@@ -7,7 +7,7 @@
  * @package OpenFields
  */
 
-import { useFieldRegistry } from '../../../lib/field-registry';
+import { fieldRegistry } from '../../../lib/field-registry';
 import type { Field } from '../../../types';
 
 interface TypeSpecificSettingsProps {
@@ -19,9 +19,8 @@ export function TypeSpecificSettings({
 	field,
 	onSettingsChange,
 }: TypeSpecificSettingsProps) {
-	const { getSettingsComponent } = useFieldRegistry();
-	
-	const SettingsComponent = getSettingsComponent(field.type);
+	// Direct call to singleton registry - not a hook, so no hook ordering issues
+	const SettingsComponent = fieldRegistry.getSettingsComponent(field.type);
 	
 	if (!SettingsComponent) {
 		// No custom settings for this field type yet

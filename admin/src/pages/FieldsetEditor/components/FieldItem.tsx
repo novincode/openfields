@@ -51,7 +51,7 @@ const WIDTH_OPTIONS = [
 export function FieldItem({ field, allFields }: FieldItemProps) {
 	// Use selectors for proper subscription
 	const updateFieldLocal = useFieldsetStore((state) => state.updateFieldLocal);
-	const deleteField = useFieldsetStore((state) => state.deleteField);
+	const deleteFieldLocal = useFieldsetStore((state) => state.deleteFieldLocal);
 	const { showToast } = useUIStore();
 
 	const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +88,7 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 	// Update handler that marks changes as unsaved
 	const handleUpdate = useCallback(
 		(updates: Partial<Field>) => {
-			updateFieldLocal(field.id, updates);
+			updateFieldLocal(String(field.id), updates);
 		},
 		[field.id, updateFieldLocal]
 	);
@@ -178,13 +178,9 @@ export function FieldItem({ field, allFields }: FieldItemProps) {
 	};
 
 	// Delete field
-	const handleDelete = async () => {
-		try {
-			await deleteField(field.id);
-			showToast('success', 'Field deleted');
-		} catch {
-			showToast('error', 'Failed to delete field');
-		}
+	const handleDelete = () => {
+		deleteFieldLocal(String(field.id));
+		showToast('success', 'Field removed (will be deleted when you click Save Changes)');
 	};
 
 	// Other fields for conditional logic

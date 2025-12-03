@@ -12,6 +12,90 @@ const getConfig = () => ({
 });
 
 /**
+ * Transform a field from API format to frontend format
+ * API returns: conditional_logic, wrapper_config, field_config as separate fields
+ * Frontend expects: settings object containing all of these
+ */
+function transformFieldFromAPI(apiField: any): Field {
+	const settings: any = {
+		placeholder: apiField.placeholder,
+		default_value: apiField.default_value,
+		instructions: apiField.instructions,
+		required: apiField.required,
+	};
+
+	// Add conditional_logic if present
+	if (apiField.conditional_logic) {
+		settings.conditional_logic = apiField.conditional_logic;
+	}
+
+	// Add wrapper config if present (wrapper_config -> wrapper)
+	if (apiField.wrapper_config) {
+		settings.wrapper = apiField.wrapper_config;
+	}
+
+	// Add field config (type-specific settings)
+	if (apiField.field_config) {
+		Object.assign(settings, apiField.field_config);
+	}
+
+	return {
+		...apiField,
+		settings,
+	};
+}
+
+/**
+ * Transform a field from frontend format to API format
+ * Frontend sends: settings object containing conditional_logic, wrapper, and type-specific settings
+ * API expects: these as separate top-level fields
+ * 
+ * IMPORTANT: We must send empty values too (empty string, empty array, null) 
+ * so the API knows to clear them. Only skip truly undefined values.
+ */
+function transformFieldToAPI(frontendField: Partial<Field>): any {
+	const apiData: any = { ...frontendField };
+	
+	// If settings is provided, extract its contents to top-level fields
+	if (frontendField.settings) {
+		const { settings } = frontendField;
+		
+		// Add top-level fields from settings - use 'in' operator to check existence, not truthiness
+		// This ensures empty strings and null values are sent to clear fields
+		if ('placeholder' in settings) apiData.placeholder = settings.placeholder ?? '';
+		if ('default_value' in settings) apiData.default_value = settings.default_value ?? '';
+		if ('instructions' in settings) apiData.instructions = settings.instructions ?? '';
+		if ('required' in settings) apiData.required = settings.required;
+		
+		// Transform wrapper -> wrapper_config (send even if empty to clear)
+		if ('wrapper' in settings) {
+			apiData.wrapper_config = settings.wrapper || {};
+		}
+		
+		// Extract conditional_logic (send even if empty/undefined to clear)
+		if ('conditional_logic' in settings) {
+			apiData.conditional_logic = settings.conditional_logic || [];
+		}
+		
+		// All other settings go into field_config
+		const field_config: any = {};
+		const knownKeys = ['placeholder', 'default_value', 'instructions', 'required', 'wrapper', 'conditional_logic'];
+		for (const [key, value] of Object.entries(settings)) {
+			if (!knownKeys.includes(key)) {
+				field_config[key] = value;
+			}
+		}
+		// Always send field_config so it can be cleared if empty
+		apiData.field_config = field_config;
+		
+		// Remove settings from apiData as it's been expanded
+		delete apiData.settings;
+	}
+	
+	return apiData;
+}
+
+/**
  * Make an API request
  */
 async function request<T>(
@@ -124,27 +208,32 @@ export const fieldApi = {
 	 * Get fields for a fieldset
 	 */
 	async getByFieldset(fieldsetId: number): Promise<Field[]> {
-		return request<Field[]>(`/fieldsets/${fieldsetId}/fields`);
+		const fields = await request<any[]>(`/fieldsets/${fieldsetId}/fields`);
+		return fields.map(transformFieldFromAPI);
 	},
 
 	/**
 	 * Create a field
 	 */
 	async create(fieldsetId: number, data: Partial<Field>): Promise<Field> {
-		return request<Field>(`/fieldsets/${fieldsetId}/fields`, {
+		const apiData = transformFieldToAPI(data);
+		const response = await request<any>(`/fieldsets/${fieldsetId}/fields`, {
 			method: 'POST',
-			body: JSON.stringify(data),
+			body: JSON.stringify(apiData),
 		});
+		return transformFieldFromAPI(response);
 	},
 
 	/**
 	 * Update a field
 	 */
 	async update(id: number, data: Partial<Field>): Promise<Field> {
-		return request<Field>(`/fields/${id}`, {
+		const apiData = transformFieldToAPI(data);
+		const response = await request<any>(`/fields/${id}`, {
 			method: 'PUT',
-			body: JSON.stringify(data),
+			body: JSON.stringify(apiData),
 		});
+		return transformFieldFromAPI(response);
 	},
 
 	/**

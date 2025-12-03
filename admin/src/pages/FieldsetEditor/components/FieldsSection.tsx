@@ -41,22 +41,21 @@ import {
 import { Plus } from 'lucide-react';
 
 import { FieldItem } from './FieldItem';
-import { useFieldRegistry } from '../../../lib/field-registry';
-import type { Field, FieldType } from '../../../types';
+import { fieldRegistry } from '../../../lib/field-registry';
+import type { FieldType } from '../../../types';
 
 export function FieldsSection() {
 	// Use selectors for proper subscription
 	const currentFieldset = useFieldsetStore((state) => state.currentFieldset);
 	const fields = useFieldsetStore((state) => state.fields);
 	const fetchFields = useFieldsetStore((state) => state.fetchFields);
-	const addField = useFieldsetStore((state) => state.addField);
-	const reorderFields = useFieldsetStore((state) => state.reorderFields);
-	const setUnsavedChanges = useFieldsetStore((state) => state.setUnsavedChanges);
+	const addFieldLocal = useFieldsetStore((state) => state.addFieldLocal);
+	const reorderFieldsLocal = useFieldsetStore((state) => state.reorderFieldsLocal);
 	
 	const { showToast } = useUIStore();
-	const { getGroupedByCategory } = useFieldRegistry();
+	// Direct call to singleton registry instead of hook
+	const groupedFieldTypes = fieldRegistry.getGroupedByCategory();
 
-	const [localFields, setLocalFields] = useState<Field[]>([]);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [selectedFieldType, setSelectedFieldType] = useState<FieldType | null>(null);
 	const [newFieldLabel, setNewFieldLabel] = useState('');
@@ -70,11 +69,6 @@ export function FieldsSection() {
 		})
 	);
 
-	// Sync local fields with store
-	useEffect(() => {
-		setLocalFields(fields);
-	}, [fields]);
-
 	// Fetch fields when fieldset changes
 	useEffect(() => {
 		if (currentFieldset?.id) {
@@ -82,23 +76,17 @@ export function FieldsSection() {
 		}
 	}, [currentFieldset?.id, fetchFields]);
 
-	const handleDragEnd = async (event: DragEndEvent) => {
+	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
-		if (!over || !currentFieldset) return;
+		if (!over) return;
 
 		if (active.id !== over.id) {
-			const oldIndex = localFields.findIndex((f) => f.id === active.id);
-			const newIndex = localFields.findIndex((f) => f.id === over.id);
-			const newOrder = arrayMove(localFields, oldIndex, newIndex);
-			setLocalFields(newOrder);
-			setUnsavedChanges(true);
-
-			// Update backend
-			const updates = newOrder.map((field, index) => ({
-				id: field.id,
-				menu_order: index,
-			}));
-			await reorderFields(currentFieldset.id, updates);
+			const oldIndex = fields.findIndex((f) => f.id === active.id);
+			const newIndex = fields.findIndex((f) => f.id === over.id);
+			const newOrder = arrayMove(fields, oldIndex, newIndex);
+			
+			// Update locally - this will set unsavedChanges to true
+			reorderFieldsLocal(newOrder);
 		}
 	};
 
@@ -108,28 +96,25 @@ export function FieldsSection() {
 		setShowFieldDialog(true);
 	};
 
-	const handleAddField = async () => {
-		if (!selectedFieldType || !currentFieldset) return;
+	const handleAddField = () => {
+		if (!selectedFieldType) return;
 		if (!newFieldLabel.trim() || !newFieldName.trim()) {
 			showToast('error', 'Field label and name are required');
 			return;
 		}
 
-		try {
-			await addField(currentFieldset.id, {
-				type: selectedFieldType,
-				label: newFieldLabel,
-				name: newFieldName,
-				menu_order: fields.length,
-			});
-			setShowFieldDialog(false);
-			setSelectedFieldType(null);
-			setNewFieldLabel('');
-			setNewFieldName('');
-			showToast('success', 'Field added successfully');
-		} catch {
-			showToast('error', 'Failed to add field');
-		}
+		// Add field locally (will be saved when user clicks Save Changes)
+		addFieldLocal({
+			type: selectedFieldType,
+			label: newFieldLabel,
+			name: newFieldName,
+		});
+
+		setShowFieldDialog(false);
+		setSelectedFieldType(null);
+		setNewFieldLabel('');
+		setNewFieldName('');
+		showToast('success', 'Field added (will be saved when you click Save Changes)');
 	};
 
 	const handleFieldDialogKeyDown = (e: React.KeyboardEvent) => {
@@ -138,8 +123,6 @@ export function FieldsSection() {
 			handleAddField();
 		}
 	};
-
-	const groupedFieldTypes = getGroupedByCategory();
 
 	return (
 		<div className="mb-8">
@@ -152,14 +135,14 @@ export function FieldsSection() {
 				onDragEnd={handleDragEnd}
 			>
 				<SortableContext
-					items={localFields.map((f) => f.id)}
+					items={fields.map((f) => f.id)}
 					strategy={verticalListSortingStrategy}
 				>
-					{localFields.map((field) => (
+					{fields.map((field) => (
 						<FieldItem
 							key={field.id}
 							field={field}
-							allFields={localFields}
+							allFields={fields}
 						/>
 					))}
 				</SortableContext>
@@ -218,10 +201,11 @@ export function FieldsSection() {
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 					<div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
 						<h3 className="text-lg font-semibold mb-4">
-							Add {groupedFieldTypes[Object.keys(groupedFieldTypes).find(
-								k => groupedFieldTypes[k as keyof typeof groupedFieldTypes]
-									?.some(f => f.type === selectedFieldType)
-							) as keyof typeof groupedFieldTypes]?.find(f => f.type === selectedFieldType)?.label || selectedFieldType} Field
+							Add {
+								Object.entries(groupedFieldTypes).find(
+									([_, types]) => types.some((ft) => ft.type === selectedFieldType)
+								)?.[1].find((ft) => ft.type === selectedFieldType)?.label || selectedFieldType
+							} Field
 						</h3>
 						<div className="space-y-4" onKeyDown={handleFieldDialogKeyDown}>
 							<div>

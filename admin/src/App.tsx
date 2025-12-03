@@ -7,7 +7,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from './components/ui/toaster';
 import FieldsetList from './pages/FieldsetList';
-import { FieldsetEditor } from '@/pages/FieldsetEditor';
+import FieldsetEditor from './pages/FieldsetEditor/index';
 import Tools from './pages/Tools';
 
 // Register all field type settings components
