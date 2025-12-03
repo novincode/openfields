@@ -154,23 +154,6 @@ class OpenFields_Assets {
 			return;
 		}
 
-		// Meta box styles.
-		wp_enqueue_style(
-			'openfields-meta-box',
-			OPENFIELDS_PLUGIN_URL . 'assets/admin/css/meta-box.css',
-			array(),
-			OPENFIELDS_VERSION
-		);
-
-		// Meta box scripts.
-		wp_enqueue_script(
-			'openfields-meta-box',
-			OPENFIELDS_PLUGIN_URL . 'assets/admin/js/meta-box.js',
-			array( 'jquery', 'wp-color-picker' ),
-			OPENFIELDS_VERSION,
-			true
-		);
-
 		// Enqueue media uploader for image/file fields.
 		wp_enqueue_media();
 

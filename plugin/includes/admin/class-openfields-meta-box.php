@@ -59,7 +59,7 @@ class OpenFields_Meta_Box {
 	}
 
 	/**
-	 * Enqueue styles for meta boxes.
+	 * Enqueue styles and scripts for meta boxes.
 	 *
 	 * @since 1.0.0
 	 * @param string $hook Current admin page.
@@ -69,11 +69,31 @@ class OpenFields_Meta_Box {
 			return;
 		}
 
+		// Enqueue field styles.
 		wp_enqueue_style(
-			'openfields-meta-box',
-			plugin_dir_url( __FILE__ ) . 'styles/meta-box.css',
+			'openfields-fields',
+			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/css/fields.css',
 			array(),
 			OPENFIELDS_VERSION
+		);
+
+		// Enqueue field JavaScript.
+		wp_enqueue_script(
+			'openfields-fields',
+			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/js/fields.js',
+			array(),
+			OPENFIELDS_VERSION,
+			true
+		);
+
+		// Localize script with any necessary data.
+		wp_localize_script(
+			'openfields-fields',
+			'openfieldsConfig',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'openfields_ajax' ),
+			)
 		);
 	}
 
@@ -138,64 +158,110 @@ class OpenFields_Meta_Box {
 		);
 
 		if ( empty( $fields ) ) {
-			echo '<p>No fields configured.</p>';
+			echo '<p>' . esc_html__( 'No fields configured.', 'openfields' ) . '</p>';
 			return;
 		}
 
+		// Render fields in a flex container.
 		echo '<div class="openfields-meta-box">';
+		echo '<div class="openfields-fields-container">';
 
 		foreach ( $fields as $field ) {
 			$this->render_field( $field, $post->ID );
 		}
 
 		echo '</div>';
+		echo '</div>';
 	}
 
 	/**
-	 * Render a single field.
+	 * Render a single field using the field wrapper.
 	 *
 	 * @since 1.0.0
 	 * @param object $field   Field object from database.
 	 * @param int    $post_id Post ID.
 	 */
 	private function render_field( $field, $post_id ) {
-		// Get settings JSON from database - the column is field_config, handle null/empty safely.
+		// Get settings JSON from database.
 		$settings = array();
 		if ( ! empty( $field->field_config ) ) {
 			$decoded = json_decode( $field->field_config, true );
 			$settings = is_array( $decoded ) ? $decoded : array();
 		}
 
-		// Get value from postmeta using native function.
+		// Get value from postmeta.
 		$meta_key = self::META_PREFIX . $field->name;
 		$value    = get_post_meta( $post_id, $meta_key, true );
 
-		// If no value in postmeta yet, use default_value from field
+		// Use default value if not set.
 		if ( empty( $value ) && ! empty( $field->default_value ) ) {
 			$value = $field->default_value;
 		}
 
-		error_log( 'OpenFields: render_field - field=' . $field->name . ', post_id=' . $post_id . ', value=' . print_r( $value, true ) );
+		// Create config array for wrapper.
+		$config = array(
+			'label'             => $field->label,
+			'name'              => $field->name,
+			'instructions'      => $settings['instructions'] ?? '',
+			'required'          => (bool) ( $settings['required'] ?? false ),
+			'default_value'     => $field->default_value ?? '',
+			'placeholder'       => $settings['placeholder'] ?? '',
+			'conditional_logic' => $settings['conditional_logic'] ?? array(),
+			'wrapper_config'    => array(
+				'width' => isset( $settings['width'] ) ? intval( $settings['width'] ) : 100,
+				'class' => $settings['wrapper_class'] ?? '',
+				'id'    => $settings['wrapper_id'] ?? '',
+			),
+			'field_config'      => $settings,
+		);
 
-		// HTML attributes.
-		$field_id   = 'of-' . sanitize_html_class( $field->name );
-		$field_name = 'openfields[' . esc_attr( $field->name ) . ']';
+		// Start field wrapper.
+		$wrapper_width = isset( $config['wrapper_config']['width'] ) ? intval( $config['wrapper_config']['width'] ) : 100;
+		$wrapper_width = max( 10, min( 100, $wrapper_width ) );
+		$wrapper_class = isset( $config['wrapper_config']['class'] ) ? sanitize_html_class( $config['wrapper_config']['class'] ) : '';
+		$wrapper_id = isset( $config['wrapper_config']['id'] ) ? sanitize_html_class( $config['wrapper_config']['id'] ) : '';
 
-		echo '<div class="openfields-field">';
+		// Build wrapper HTML.
+		echo '<div class="openfields-field-wrapper openfields-field-wrapper--width-' . intval( $wrapper_width ) . '';
+		if ( $wrapper_class ) {
+			echo ' ' . esc_attr( $wrapper_class );
+		}
+		echo '" style="width: ' . intval( $wrapper_width ) . '%;"';
 
-		// Label.
-		echo '<div class="openfields-field-label">';
-		echo '<label for="' . esc_attr( $field_id ) . '">' . esc_html( $field->label ) . '</label>';
-		echo '</div>';
+		if ( $wrapper_id ) {
+			echo ' id="' . esc_attr( $wrapper_id ) . '"';
+		}
 
-		// Input.
+		// Add conditional logic data if present.
+		if ( ! empty( $config['conditional_logic'] ) ) {
+			echo ' data-conditional-logic="' . esc_attr( json_encode( $config['conditional_logic'] ) ) . '"';
+			echo ' data-conditional-status="hidden"';
+		}
+
+		echo '>';
+
+		// Render label section.
+		if ( ! empty( $config['label'] ) ) {
+			echo '<div class="openfields-field-label">';
+			echo '<label for="' . esc_attr( self::META_PREFIX . $field->name ) . '">';
+			echo esc_html( $config['label'] );
+
+			if ( $config['required'] ) {
+				echo '<span class="openfields-field-required" aria-label="required">*</span>';
+			}
+
+			echo '</label>';
+			echo '</div>';
+		}
+
+		// Render the input field.
 		echo '<div class="openfields-field-input">';
-		$this->render_input( $field, $value, $field_id, $field_name, $settings );
+		$this->render_input( $field, $value, self::META_PREFIX . $field->name, self::META_PREFIX . $field->name, $settings );
 		echo '</div>';
 
-		// Description.
-		if ( ! empty( $settings['instructions'] ) ) {
-			echo '<div class="openfields-field-description">' . esc_html( $settings['instructions'] ) . '</div>';
+		// Render description if present.
+		if ( ! empty( $config['instructions'] ) ) {
+			echo '<p class="openfields-field-description">' . wp_kses_post( $config['instructions'] ) . '</p>';
 		}
 
 		echo '</div>';
@@ -318,9 +384,13 @@ class OpenFields_Meta_Box {
 				break;
 
 			case 'switch':
-				// Load the switch field renderer
-				require_once plugin_dir_path( __FILE__ ) . 'field-renderers/switch.php';
-				openfields_render_switch_field( $field, $value, $field_id, $field_name, $settings );
+				// Render beautiful switch field with Yes/No labels and sliding background.
+				$checked = ! empty( $value );
+				echo '<input type="checkbox" class="openfields-switch-input" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
+				echo '<label class="openfields-switch-track" for="' . esc_attr( $field_id ) . '">';
+				echo '<div class="openfields-switch-label openfields-switch-label-off">No</div>';
+				echo '<div class="openfields-switch-label openfields-switch-label-on">Yes</div>';
+				echo '</label>';
 				break;
 
 			case 'date':

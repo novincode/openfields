@@ -1,0 +1,594 @@
+/**
+ * OpenFields Admin Styles
+ *
+ * Comprehensive styling for all field types with focus on:
+ * - Responsive layout and width management
+ * - Switch field styling matching WordPress aesthetics
+ * - Consistent spacing and typography
+ * - Accessibility features
+ *
+ * @package OpenFields
+ * @since   1.0.0
+ */
+
+/* ============================================================================
+   Root Variables & Base Styles
+   ============================================================================ */
+
+:root {
+	/* Colors - WordPress style blue */
+	--of-primary: #0073aa;
+	--of-primary-hover: #005a87;
+	--of-primary-light: #0091cd;
+	--of-text: #1e1e1e;
+	--of-text-secondary: #888;
+	--of-border: #ddd;
+	--of-border-light: #e5e5e5;
+	--of-bg: #f9f9f9;
+	--of-bg-hover: #f5f5f5;
+	--of-error: #d63638;
+	--of-error-bg: #fee;
+	--of-success: #008000;
+	--of-disabled: #ccc;
+	--of-disabled-bg: #f5f5f5;
+	--of-switch-off: #e1e1e1;
+	--of-switch-on: var(--of-primary);
+	--of-focus-color: #4f94d4;
+	--of-spacing-xs: 4px;
+	--of-spacing-sm: 8px;
+	--of-spacing-md: 12px;
+	--of-spacing-lg: 16px;
+	--of-spacing-xl: 24px;
+	--of-radius: 3px;
+	--of-transition: all 0.15s ease-in-out;
+}
+
+/* ============================================================================
+   Meta Box Container
+   ============================================================================ */
+
+.openfields-meta-box {
+	padding: var(--of-spacing-md);
+	background: #fff;
+}
+
+.openfields-meta-box-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--of-text);
+	margin: 0 0 var(--of-spacing-lg) 0;
+	padding-bottom: var(--of-spacing-md);
+	border-bottom: 1px solid var(--of-border-light);
+}
+
+/* ============================================================================
+   Field Wrapper - Layout & Spacing
+   ============================================================================ */
+
+.openfields-fields-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--of-spacing-lg);
+	margin: 0;
+}
+
+.openfields-field-wrapper {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	flex-shrink: 0;
+
+	/* Default full width */
+	width: 100%;
+}
+
+/* Width responsive classes for common breakpoints */
+.openfields-field-wrapper--width-100 {
+	width: 100%;
+}
+
+.openfields-field-wrapper--width-50 {
+	width: calc(50% - calc(var(--of-spacing-lg) / 2));
+}
+
+.openfields-field-wrapper--width-33 {
+	width: calc(33.333% - calc(var(--of-spacing-lg) * 2 / 3));
+}
+
+.openfields-field-wrapper--width-25 {
+	width: calc(25% - calc(var(--of-spacing-lg) * 3 / 4));
+}
+
+/* ============================================================================
+   Label & Description
+   ============================================================================ */
+
+.openfields-field-label {
+	margin-bottom: var(--of-spacing-sm);
+	display: flex;
+	align-items: center;
+	gap: var(--of-spacing-xs);
+}
+
+.openfields-field-label label {
+	display: block;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--of-text);
+	line-height: 1.5;
+	margin: 0;
+	cursor: pointer;
+}
+
+.openfields-field-label label:hover {
+	color: var(--of-primary);
+}
+
+.openfields-field-required {
+	color: var(--of-error);
+	font-weight: bold;
+	font-size: 12px;
+	line-height: 1;
+}
+
+.openfields-field-description {
+	margin: var(--of-spacing-sm) 0 0 0;
+	font-size: 12px;
+	color: var(--of-text-secondary);
+	font-style: italic;
+	line-height: 1.4;
+}
+
+/* ============================================================================
+   Field Input Container
+   ============================================================================ */
+
+.openfields-field-input {
+	position: relative;
+}
+
+.openfields-field-input input[type="text"],
+.openfields-field-input input[type="email"],
+.openfields-field-input input[type="tel"],
+.openfields-field-input input[type="url"],
+.openfields-field-input input[type="number"],
+.openfields-field-input input[type="date"],
+.openfields-field-input input[type="time"],
+.openfields-field-input input[type="datetime-local"],
+.openfields-field-input input[type="month"],
+.openfields-field-input input[type="week"],
+.openfields-field-input input[type="password"],
+.openfields-field-input input[type="search"],
+.openfields-field-input textarea,
+.openfields-field-input select {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--of-border);
+	border-radius: var(--of-radius);
+	font-size: 13px;
+	font-family: inherit;
+	color: var(--of-text);
+	background: #fff;
+	transition: var(--of-transition);
+	box-sizing: border-box;
+}
+
+.openfields-field-input input::placeholder,
+.openfields-field-input textarea::placeholder {
+	color: #999;
+}
+
+.openfields-field-input input:focus,
+.openfields-field-input textarea:focus,
+.openfields-field-input select:focus {
+	outline: none;
+	border-color: var(--of-primary);
+	box-shadow: 0 0 0 1px var(--of-focus-color);
+}
+
+.openfields-field-input textarea {
+	min-height: 100px;
+	resize: vertical;
+	font-family: 'Courier New', monospace;
+	line-height: 1.5;
+}
+
+.openfields-field-input select {
+	cursor: pointer;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 20px;
+	padding-right: 32px;
+	appearance: none;
+}
+
+/* Disabled states */
+.openfields-field-input input:disabled,
+.openfields-field-input textarea:disabled,
+.openfields-field-input select:disabled {
+	background-color: var(--of-disabled-bg);
+	color: var(--of-disabled);
+	cursor: not-allowed;
+	border-color: var(--of-border-light);
+}
+
+/* Error states */
+.openfields-field-wrapper.is-error .openfields-field-input input,
+.openfields-field-wrapper.is-error .openfields-field-input textarea,
+.openfields-field-wrapper.is-error .openfields-field-input select {
+	border-color: var(--of-error);
+	background-color: var(--of-error-bg);
+}
+
+.openfields-field-error-message {
+	display: block;
+	margin: var(--of-spacing-sm) 0 0 0;
+	padding: 8px 12px;
+	font-size: 12px;
+	color: var(--of-error);
+	background-color: var(--of-error-bg);
+	border-radius: var(--of-radius);
+	border-left: 3px solid var(--of-error);
+	line-height: 1.4;
+}
+
+/* ============================================================================
+   Switch Field - Custom Toggle
+   ============================================================================ */
+
+.openfields-switch-field {
+	display: flex;
+	align-items: center;
+	gap: var(--of-spacing-md);
+}
+
+.openfields-switch-container {
+	display: inline-flex;
+	position: relative;
+	flex-shrink: 0;
+}
+
+/* Hide the actual checkbox */
+.openfields-switch-input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+/* Switch track styling - grid layout for No/Yes */
+.openfields-switch-track {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	width: fit-content;
+	background-color: var(--of-switch-off);
+	border-radius: 9999px;
+	cursor: pointer;
+	border: none;
+	position: relative;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	overflow: hidden;
+	gap: 0;
+	transition: var(--of-transition);
+}
+
+/* Sliding background that moves behind text */
+.openfields-switch-track::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 50%;
+	height: 100%;
+	background-color: var(--of-switch-on);
+	border-radius: 9999px;
+	transition: var(--of-transition);
+	z-index: 0;
+}
+
+/* Switch label text - always visible, positioned on grid */
+.openfields-switch-label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	line-height: 1;
+	padding: 8px 12px;
+	text-align: center;
+	z-index: 1;
+	position: relative;
+	transition: var(--of-transition);
+	white-space: nowrap;
+	cursor: pointer;
+	user-select: none;
+}
+
+.openfields-switch-label-off {
+	color: #fff;
+	grid-column: 1;
+}
+
+.openfields-switch-label-on {
+	color: var(--of-text-secondary);
+	grid-column: 2;
+}
+
+/* When checked: move background to right, swap text colors */
+.openfields-switch-input:checked + .openfields-switch-track::before {
+	left: 50%;
+}
+
+.openfields-switch-input:checked + .openfields-switch-track .openfields-switch-label-off {
+	color: var(--of-text-secondary);
+	transition: var(--of-transition);
+}
+
+.openfields-switch-input:checked + .openfields-switch-track .openfields-switch-label-on {
+	color: #fff;
+	transition: var(--of-transition);
+}
+
+/* Focused state */
+.openfields-switch-input:focus + .openfields-switch-track {
+	outline: 2px solid var(--of-focus-color);
+	outline-offset: 2px;
+}
+
+/* Disabled state */
+.openfields-switch-input:disabled + .openfields-switch-track {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Switch label descriptor (optional text after switch) */
+.openfields-switch-descriptor {
+	font-size: 12px;
+	color: var(--of-text-secondary);
+	margin-left: var(--of-spacing-sm);
+}
+
+/* ============================================================================
+   Checkbox & Radio Groups
+   ============================================================================ */
+
+.openfields-checkbox-group,
+.openfields-radio-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--of-spacing-md);
+}
+
+.openfields-checkbox-item,
+.openfields-radio-item {
+	display: flex;
+	align-items: center;
+	gap: var(--of-spacing-sm);
+	cursor: pointer;
+}
+
+.openfields-checkbox-input,
+.openfields-radio-input {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	cursor: pointer;
+	flex-shrink: 0;
+
+	/* Custom styling */
+	accent-color: var(--of-primary);
+}
+
+.openfields-checkbox-label,
+.openfields-radio-label {
+	font-size: 13px;
+	color: var(--of-text);
+	cursor: pointer;
+	margin: 0;
+	line-height: 1.4;
+	user-select: none;
+}
+
+.openfields-checkbox-item:hover .openfields-checkbox-label,
+.openfields-radio-item:hover .openfields-radio-label {
+	color: var(--of-primary);
+}
+
+/* ============================================================================
+   File & Image Fields
+   ============================================================================ */
+
+.openfields-file-field,
+.openfields-image-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--of-spacing-md);
+}
+
+.openfields-file-upload {
+	position: relative;
+	display: inline-block;
+}
+
+.openfields-file-upload input[type="file"] {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	cursor: pointer;
+}
+
+.openfields-file-upload-button {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--of-spacing-sm);
+	padding: 8px 16px;
+	background-color: var(--of-bg);
+	color: var(--of-text);
+	border: 1px solid var(--of-border);
+	border-radius: var(--of-radius);
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 500;
+	transition: var(--of-transition);
+}
+
+.openfields-file-upload-button:hover {
+	background-color: var(--of-bg-hover);
+	border-color: var(--of-primary);
+	color: var(--of-primary);
+}
+
+.openfields-file-upload-button:focus {
+	outline: none;
+	box-shadow: 0 0 0 1px var(--of-focus-color);
+}
+
+.openfields-image-preview {
+	width: 100px;
+	height: 100px;
+	border: 1px solid var(--of-border);
+	border-radius: var(--of-radius);
+	overflow: hidden;
+	background-color: var(--of-bg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.openfields-image-preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.openfields-file-name {
+	font-size: 12px;
+	color: var(--of-text-secondary);
+	word-break: break-all;
+	padding: 8px 12px;
+	background-color: var(--of-bg);
+	border-radius: var(--of-radius);
+}
+
+/* ============================================================================
+   Conditional Logic
+   ============================================================================ */
+
+.openfields-field-wrapper[data-conditional-logic] {
+	transition: opacity var(--of-transition), visibility var(--of-transition);
+}
+
+.openfields-field-wrapper[data-conditional-status="hidden"] {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	height: 0;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+
+.openfields-field-wrapper[data-conditional-status="visible"] {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 782px) {
+	.openfields-field-wrapper--width-50,
+	.openfields-field-wrapper--width-33,
+	.openfields-field-wrapper--width-25 {
+		width: 100%;
+	}
+
+	.openfields-fields-container {
+		gap: var(--of-spacing-md);
+	}
+
+	.openfields-field-input input,
+	.openfields-field-input textarea,
+	.openfields-field-input select {
+		font-size: 16px; /* Prevents zoom on iOS */
+	}
+}
+
+/* ============================================================================
+   Accessibility & Focus Visible
+   ============================================================================ */
+
+*:focus-visible {
+	outline: 2px solid var(--of-focus-color);
+	outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.openfields-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* ============================================================================
+   Utility Classes
+   ============================================================================ */
+
+.openfields-field--hidden {
+	display: none;
+}
+
+.openfields-field--disabled {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.openfields-field-hint {
+	font-size: 11px;
+	color: var(--of-text-secondary);
+	margin-top: 4px;
+	font-style: italic;
+}
+
+.openfields-field-success {
+	border-color: var(--of-success) !important;
+	background-color: #efe !important;
+}
+
+.openfields-field-loading {
+	position: relative;
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.openfields-field-loading::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	width: 16px;
+	height: 16px;
+	margin-top: -8px;
+	border: 2px solid var(--of-border);
+	border-top-color: var(--of-primary);
+	border-radius: 50%;
+	animation: of-spin 0.8s linear infinite;
+}
+
+@keyframes of-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
