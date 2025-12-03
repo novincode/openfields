@@ -174,7 +174,10 @@ class OpenFields_Meta_Box {
 	 * @param int    $post_id   Post ID.
 	 */
 	private function render_field( $field, $post_id ) {
-		$settings    = json_decode( $field->settings, true ) ?: array();
+		// Safely decode settings, handle null values.
+		$settings    = ! empty( $field->settings ) ? json_decode( $field->settings, true ) : array();
+		$settings    = is_array( $settings ) ? $settings : array();
+		
 		$value       = get_field( $field->name, $post_id );
 		$field_id    = 'openfields-' . $field->name;
 		$field_name  = 'openfields[' . $field->name . ']';
