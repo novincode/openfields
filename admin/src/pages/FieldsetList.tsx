@@ -16,6 +16,7 @@ import {
 	FileText,
 	CheckCircle2,
 	XCircle,
+	MoreVertical,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
@@ -223,11 +224,11 @@ export default function FieldsetList() {
 	return (
 		<div className="space-y-4">
 			{/* Header */}
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-4">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
 					{/* Search */}
-					<div className="relative w-64">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+					<div className="relative w-full sm:w-64">
+						<Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
 						<Input
 							type="text"
 							placeholder="Search field groups..."
@@ -241,12 +242,14 @@ export default function FieldsetList() {
 					{locationTypes.length > 0 && (
 						<Popover>
 							<PopoverTrigger asChild>
-								<Button variant="outline" size="sm" className="gap-2">
+								<Button variant="outline" size="sm" className="gap-2 justify-between sm:justify-start">
 									<Filter className="h-4 w-4" />
-									{locationFilter
-										? LOCATION_LABELS[locationFilter] || locationFilter
-										: 'Filter by location'}
-									<ChevronDown className="h-3 w-3" />
+									<span className="truncate">
+										{locationFilter
+											? LOCATION_LABELS[locationFilter] || locationFilter
+											: 'Filter by location'}
+									</span>
+									<ChevronDown className="h-3 w-3 flex-shrink-0" />
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent className="w-48 p-2">
@@ -274,7 +277,7 @@ export default function FieldsetList() {
 					)}
 				</div>
 
-				<Button onClick={navigateToNew}>
+				<Button onClick={navigateToNew} className="w-full sm:w-auto">
 					<Plus className="h-4 w-4 mr-2" />
 					Add Field Group
 				</Button>
@@ -312,101 +315,68 @@ export default function FieldsetList() {
 				</div>
 			)}
 
-			{/* Table */}
+			{/* Table - Desktop */}
 			{!isLoading && filteredFieldsets.length > 0 && (
-				<div className="bg-white rounded-lg border overflow-hidden">
-					<table className="w-full">
-						<thead className="bg-gray-50 border-b">
-							<tr>
-								<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
-									Title
-								</th>
-								<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
-									Key
-								</th>
-								<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
-									Location
-								</th>
-								<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
-									Fields
-								</th>
-								<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
-									Status
-								</th>
-								<th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-24">
-									Actions
-								</th>
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-gray-200">
-							{filteredFieldsets.map((fieldset) => (
-								<tr
-									key={fieldset.id}
-									className="hover:bg-gray-50 cursor-pointer transition-colors"
-									onClick={() => navigateToEdit(fieldset.id)}
-								>
-									<td className="px-4 py-3">
-										<span className="font-medium text-gray-900">
-											{fieldset.title}
-										</span>
-									</td>
-									<td className="px-4 py-3">
-										<code className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-											{fieldset.field_key}
-										</code>
-									</td>
-									<td className="px-4 py-3">
-										{getLocationSummary(fieldset.locations)}
-									</td>
-									<td className="px-4 py-3 text-center">
-										<span className="text-sm text-gray-600">
-											{fieldCounts[fieldset.id] ?? '-'}
-										</span>
-									</td>
-									<td className="px-4 py-3 text-center">
-										{fieldset.is_active ? (
-											<span className="inline-flex items-center gap-1 text-green-700">
-												<CheckCircle2 className="h-4 w-4" />
+				<>
+					{/* Mobile Card View */}
+					<div className="block md:hidden space-y-3">
+						{filteredFieldsets.map((fieldset) => (
+							<div
+								key={fieldset.id}
+								className="bg-white rounded-lg border p-4 cursor-pointer hover:shadow-md transition-shadow"
+								onClick={() => navigateToEdit(fieldset.id)}
+							>
+								<div className="flex items-start justify-between gap-3">
+									<div className="flex-1 min-w-0">
+										<div className="flex items-center gap-2 mb-1">
+											<span className="font-medium text-gray-900 truncate">
+												{fieldset.title}
 											</span>
-										) : (
-											<span className="inline-flex items-center gap-1 text-gray-400">
-												<XCircle className="h-4 w-4" />
-											</span>
-										)}
-									</td>
-									<td className="px-4 py-3 text-right">
-										<div
-											className="flex items-center justify-end gap-1"
-											onClick={(e) => e.stopPropagation()}
-										>
+											{fieldset.is_active ? (
+												<CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+											) : (
+												<XCircle className="h-4 w-4 text-gray-400 flex-shrink-0" />
+											)}
+										</div>
+										<div className="flex items-center gap-2 text-sm text-gray-500">
+											<span>{fieldCounts[fieldset.id] ?? 0} fields</span>
+										</div>
+										<div className="mt-2">
+											{getLocationSummary(fieldset.locations)}
+										</div>
+									</div>
+									<Popover>
+										<PopoverTrigger asChild>
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8"
+												className="h-8 w-8 flex-shrink-0"
+												onClick={(e) => e.stopPropagation()}
+											>
+												<MoreVertical className="h-4 w-4" />
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-40 p-1" align="end" onClick={(e) => e.stopPropagation()}>
+											<button
 												onClick={() => navigateToEdit(fieldset.id)}
-												title="Edit"
+												className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded hover:bg-gray-100"
 											>
 												<Edit className="h-4 w-4" />
-											</Button>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8"
+												Edit
+											</button>
+											<button
 												onClick={() => handleDuplicate(fieldset.id)}
-												title="Duplicate"
+												className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded hover:bg-gray-100"
 											>
 												<Copy className="h-4 w-4" />
-											</Button>
+												Duplicate
+											</button>
 											<AlertDialog>
 												<AlertDialogTrigger asChild>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-														title="Delete"
-													>
+													<button className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded hover:bg-gray-100 text-red-600">
 														<Trash2 className="h-4 w-4" />
-													</Button>
+														Delete
+													</button>
 												</AlertDialogTrigger>
 												<AlertDialogContent>
 													<AlertDialogHeader>
@@ -427,13 +397,135 @@ export default function FieldsetList() {
 													</AlertDialogFooter>
 												</AlertDialogContent>
 											</AlertDialog>
-										</div>
-									</td>
+										</PopoverContent>
+									</Popover>
+								</div>
+							</div>
+						))}
+					</div>
+
+					{/* Desktop Table View */}
+					<div className="hidden md:block bg-white rounded-lg border overflow-hidden">
+						<table className="w-full">
+							<thead className="bg-gray-50 border-b">
+								<tr>
+									<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+										Title
+									</th>
+									<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+										Key
+									</th>
+									<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+										Location
+									</th>
+									<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
+										Fields
+									</th>
+									<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
+										Status
+									</th>
+									<th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-24">
+										Actions
+									</th>
 								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
+							</thead>
+							<tbody className="divide-y divide-gray-200">
+								{filteredFieldsets.map((fieldset) => (
+									<tr
+										key={fieldset.id}
+										className="hover:bg-gray-50 cursor-pointer transition-colors"
+										onClick={() => navigateToEdit(fieldset.id)}
+									>
+										<td className="px-4 py-3">
+											<span className="font-medium text-gray-900">
+												{fieldset.title}
+											</span>
+										</td>
+										<td className="px-4 py-3">
+											<code className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+												{fieldset.field_key}
+											</code>
+										</td>
+										<td className="px-4 py-3">
+											{getLocationSummary(fieldset.locations)}
+										</td>
+										<td className="px-4 py-3 text-center">
+											<span className="text-sm text-gray-600">
+												{fieldCounts[fieldset.id] ?? '-'}
+											</span>
+										</td>
+										<td className="px-4 py-3 text-center">
+											{fieldset.is_active ? (
+												<span className="inline-flex items-center gap-1 text-green-700">
+													<CheckCircle2 className="h-4 w-4" />
+												</span>
+											) : (
+												<span className="inline-flex items-center gap-1 text-gray-400">
+													<XCircle className="h-4 w-4" />
+												</span>
+											)}
+										</td>
+										<td className="px-4 py-3 text-right">
+											<div
+												className="flex items-center justify-end gap-1"
+												onClick={(e) => e.stopPropagation()}
+											>
+												<Button
+													variant="ghost"
+													size="icon"
+													className="h-8 w-8"
+													onClick={() => navigateToEdit(fieldset.id)}
+													title="Edit"
+												>
+													<Edit className="h-4 w-4" />
+												</Button>
+												<Button
+													variant="ghost"
+													size="icon"
+													className="h-8 w-8"
+													onClick={() => handleDuplicate(fieldset.id)}
+													title="Duplicate"
+												>
+													<Copy className="h-4 w-4" />
+												</Button>
+												<AlertDialog>
+													<AlertDialogTrigger asChild>
+														<Button
+															variant="ghost"
+															size="icon"
+															className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+															title="Delete"
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
+													</AlertDialogTrigger>
+													<AlertDialogContent>
+														<AlertDialogHeader>
+															<AlertDialogTitle>Delete Field Group</AlertDialogTitle>
+															<AlertDialogDescription>
+																Are you sure you want to delete "{fieldset.title}"?
+																This action cannot be undone.
+															</AlertDialogDescription>
+														</AlertDialogHeader>
+														<AlertDialogFooter>
+															<AlertDialogCancel>Cancel</AlertDialogCancel>
+															<AlertDialogAction
+																className="bg-red-600 hover:bg-red-700"
+																onClick={() => handleDelete(fieldset.id)}
+															>
+																Delete
+															</AlertDialogAction>
+														</AlertDialogFooter>
+													</AlertDialogContent>
+												</AlertDialog>
+											</div>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				</>
 			)}
 		</div>
 	);

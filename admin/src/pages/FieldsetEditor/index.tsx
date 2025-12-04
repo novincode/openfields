@@ -7,11 +7,22 @@
  * @package OpenFields
  */
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useFieldsetStore } from '../../stores/fieldset-store';
 import { useUIStore } from '../../stores/ui-store';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '../../components/ui/alert-dialog';
 
 // Sub-components
 import { FieldsSection } from './components/FieldsSection';
@@ -49,6 +60,8 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	
 	const [isSaving, setIsSaving] = useState(false);
 	const [initialized, setInitialized] = useState(false);
+	const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+	const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 	
 	// Check for slug uniqueness
 	const slugError = useMemo(() => {
@@ -68,6 +81,45 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		
 		return null;
 	}, [slug, fieldsets, currentFieldset?.id]);
+
+	// Warn before leaving page with unsaved changes (like WordPress Gutenberg)
+	useEffect(() => {
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			if (unsavedChanges) {
+				e.preventDefault();
+				e.returnValue = '';
+				return '';
+			}
+		};
+
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+	}, [unsavedChanges]);
+
+	// Handle back navigation with unsaved changes check
+	const handleBackClick = useCallback(() => {
+		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
+		const backUrl = `${adminUrl}admin.php?page=openfields`;
+		
+		if (unsavedChanges) {
+			setPendingNavigation(backUrl);
+			setShowLeaveDialog(true);
+		} else {
+			window.location.href = backUrl;
+		}
+	}, [unsavedChanges]);
+
+	const confirmLeave = () => {
+		if (pendingNavigation) {
+			setUnsavedChanges(false);
+			window.location.href = pendingNavigation;
+		}
+	};
+
+	const cancelLeave = () => {
+		setShowLeaveDialog(false);
+		setPendingNavigation(null);
+	};
 
 	// Fetch fieldset on mount if editing existing
 	useEffect(() => {
@@ -196,17 +248,26 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	return (
 		<div className="flex flex-col">
 			{/* Sticky Header */}
-			<div className="sticky top-[42px] md:top-[32px] z-[30] bg-background border-b px-6 py-4">
-				<div className="flex items-center justify-between">
-					<div className="flex-1 max-w-2xl">
+			<div className="sticky top-[42px] md:top-[32px] z-[30] bg-background border-b px-4 sm:px-6 py-4">
+				<div className="flex items-center justify-between gap-4">
+					<div className="flex items-center gap-3 flex-1 min-w-0">
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={handleBackClick}
+							className="flex-shrink-0"
+							title="Back to Field Groups"
+						>
+							<ArrowLeft className="h-4 w-4" />
+						</Button>
 						<Input
 							value={title}
 							onChange={(e) => handleTitleChange(e.target.value)}
 							placeholder="Enter fieldset title"
-							className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0"
+							className="text-lg sm:text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0 flex-1 min-w-0"
 						/>
 					</div>
-					<div className="flex items-center gap-3">
+					<div className="flex items-center gap-3 flex-shrink-0">
 						<Button
 							onClick={handleSave}
 							disabled={isSaving || !unsavedChanges}
@@ -218,7 +279,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			</div>
 
 			{/* Main Content */}
-			<div className="flex-auto px-6 py-6 max-w-5xl w-full mx-auto">
+			<div className="flex-auto px-4 sm:px-6 py-6 max-w-5xl w-full mx-auto">
 				{/* Fields Section */}
 				<FieldsSection />
 
@@ -239,6 +300,27 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 					onLocationGroupsChange={handleLocationGroupsChange}
 				/>
 			</div>
+
+			{/* Leave Confirmation Dialog */}
+			<AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+						<AlertDialogDescription>
+							You have unsaved changes. Are you sure you want to leave this page? 
+							Your changes will be lost.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={cancelLeave}>
+							Stay on Page
+						</AlertDialogCancel>
+						<AlertDialogAction onClick={confirmLeave}>
+							Leave Page
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

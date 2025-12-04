@@ -49,7 +49,7 @@
 
 /* WordPress admin overrides */
 .openfields-admin {
-	@apply -ml-5 -mt-2.5;
+	@apply -mt-2.5;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 }
 

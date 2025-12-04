@@ -110,10 +110,10 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 	];
 
 	return (
-		<div className="openfields-main-layout -ml-5">
+		<div className="openfields-main-layout -ml-5 -mr-2.5">
 			{/* Header */}
-			<header className="bg-white border-b border-gray-200 px-6 py-4">
-				<div className="flex items-center justify-between">
+			<header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 					<div>
 						<h1 className="text-xl font-bold text-gray-900">
 							OpenFields
@@ -126,10 +126,11 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 						href="https://openfields.dev/support"
 						target="_blank"
 						rel="noopener noreferrer"
-						className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
+						className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
 					>
 						<Heart className="h-4 w-4" />
-						<span>Support this project</span>
+						<span className="hidden sm:inline">Support this project</span>
+						<span className="sm:hidden">Support</span>
 						<ExternalLink className="h-3 w-3" />
 					</a>
 				</div>
@@ -139,8 +140,8 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 			</header>
 
 			{/* Tabs */}
-			<nav className="bg-white border-b border-gray-200 px-6">
-				<div className="flex gap-1">
+			<nav className="bg-background border-b border-border px-4 sm:px-6 overflow-x-auto">
+				<div className="flex flex-wrap gap-1 min-w-max">
 					{tabs.map((tab) => (
 						<button
 							key={tab.id}
@@ -160,7 +161,7 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 			</nav>
 
 			{/* Tab Content */}
-			<main className="p-6 bg-gray-50 min-h-[calc(100vh-200px)]">
+			<main style={{ boxSizing: 'border-box' }} className="p-4 sm:p-6 bg-secondary min-h-[calc(100vh-200px)]">
 				{activeTab === 'fieldsets' && <FieldsetList />}
 				{activeTab === 'settings' && <Settings />}
 				{activeTab === 'tools' && <Tools />}

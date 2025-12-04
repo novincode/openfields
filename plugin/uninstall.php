@@ -46,6 +46,8 @@ function openfields_delete_all_data() {
 	global $wpdb;
 
 	// Drop custom tables.
+	// Note: Table names are constructed from $wpdb->prefix which is already sanitized,
+	// and hardcoded table suffixes, so they are safe.
 	$tables = array(
 		$wpdb->prefix . 'openfields_fieldsets',
 		$wpdb->prefix . 'openfields_fields',
@@ -53,8 +55,8 @@ function openfields_delete_all_data() {
 	);
 
 	foreach ( $tables as $table ) {
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
 	}
 
 	// Delete options.
@@ -63,28 +65,39 @@ function openfields_delete_all_data() {
 	delete_option( 'openfields_db_version' );
 
 	// Delete all post meta created by OpenFields.
-	// We use a pattern match for meta keys that start with openfields_.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->query(
-		"DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE 'openfields_%'"
+		$wpdb->prepare(
+			"DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE %s",
+			'openfields_%'
+		)
 	);
 
 	// Delete all term meta created by OpenFields.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->query(
-		"DELETE FROM {$wpdb->termmeta} WHERE meta_key LIKE 'openfields_%'"
+		$wpdb->prepare(
+			"DELETE FROM {$wpdb->termmeta} WHERE meta_key LIKE %s",
+			'openfields_%'
+		)
 	);
 
 	// Delete all user meta created by OpenFields.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->query(
-		"DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE 'openfields_%'"
+		$wpdb->prepare(
+			"DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE %s",
+			'openfields_%'
+		)
 	);
 
 	// Delete all comment meta created by OpenFields.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->query(
-		"DELETE FROM {$wpdb->commentmeta} WHERE meta_key LIKE 'openfields_%'"
+		$wpdb->prepare(
+			"DELETE FROM {$wpdb->commentmeta} WHERE meta_key LIKE %s",
+			'openfields_%'
+		)
 	);
 
 	// Clear any transients.
