@@ -55,7 +55,7 @@ class OpenFields_Admin {
 	 * @since 1.0.0
 	 */
 	public function add_menu_pages() {
-		// Main menu page.
+		// Main menu page - single page with tabs for Field Sets, Settings, and Import/Export.
 		add_menu_page(
 			__( 'OpenFields', 'openfields' ),
 			__( 'OpenFields', 'openfields' ),
@@ -66,43 +66,13 @@ class OpenFields_Admin {
 			30
 		);
 
-		// Field Sets submenu (same as main).
+		// Field Groups submenu (same as main).
 		add_submenu_page(
 			'openfields',
-			__( 'Field Sets', 'openfields' ),
-			__( 'Field Sets', 'openfields' ),
+			__( 'Field Groups', 'openfields' ),
+			__( 'Field Groups', 'openfields' ),
 			'manage_options',
 			'openfields',
-			array( $this, 'render_main_page' )
-		);
-
-		// Add New submenu.
-		add_submenu_page(
-			'openfields',
-			__( 'Add New', 'openfields' ),
-			__( 'Add New', 'openfields' ),
-			'manage_options',
-			'openfields#/new',
-			array( $this, 'render_main_page' )
-		);
-
-		// Tools submenu.
-		add_submenu_page(
-			'openfields',
-			__( 'Tools', 'openfields' ),
-			__( 'Tools', 'openfields' ),
-			'manage_options',
-			'openfields-tools',
-			array( $this, 'render_main_page' )
-		);
-
-		// Settings submenu.
-		add_submenu_page(
-			'openfields',
-			__( 'Settings', 'openfields' ),
-			__( 'Settings', 'openfields' ),
-			'manage_options',
-			'openfields-settings',
 			array( $this, 'render_main_page' )
 		);
 	}
@@ -173,8 +143,8 @@ class OpenFields_Admin {
 	 */
 	public function add_action_links( $links ) {
 		$plugin_links = array(
-			'<a href="' . esc_url( admin_url( 'admin.php?page=openfields' ) ) . '">' . esc_html__( 'Field Sets', 'openfields' ) . '</a>',
-			'<a href="' . esc_url( admin_url( 'admin.php?page=openfields-settings' ) ) . '">' . esc_html__( 'Settings', 'openfields' ) . '</a>',
+			'<a href="' . esc_url( admin_url( 'admin.php?page=openfields' ) ) . '">' . esc_html__( 'Field Groups', 'openfields' ) . '</a>',
+			'<a href="' . esc_url( admin_url( 'admin.php?page=openfields&tab=settings' ) ) . '">' . esc_html__( 'Settings', 'openfields' ) . '</a>',
 		);
 
 		return array_merge( $plugin_links, $links );

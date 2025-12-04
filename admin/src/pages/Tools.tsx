@@ -100,14 +100,7 @@ export default function Tools() {
 	};
 
 	return (
-		<div className="p-6 max-w-4xl">
-			<div className="mb-6">
-				<h1 className="text-2xl font-bold text-gray-900">Tools</h1>
-				<p className="text-gray-600 mt-1">
-					Import, export, and manage your OpenFields data
-				</p>
-			</div>
-
+		<div className="space-y-6">
 			<div className="grid gap-6 md:grid-cols-2">
 				{/* Export */}
 				<Card>
@@ -198,33 +191,6 @@ export default function Tools() {
 			</div>
 
 			{/* Info */}
-			<Card className="mt-6">
-				<CardHeader>
-					<CardTitle>About OpenFields</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="space-y-2 text-sm text-gray-600">
-						<p>
-							<strong>Version:</strong> {window.openfieldsAdmin?.version || '1.0.0'}
-						</p>
-						<p>
-							<strong>Documentation:</strong>{' '}
-							<a
-								href="https://github.com/novincode/openfields"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="text-primary hover:underline"
-							>
-								GitHub Repository
-							</a>
-						</p>
-						<p className="pt-2">
-							OpenFields is a free, open-source custom fields plugin for WordPress.
-							If you find it useful, consider contributing to the project!
-						</p>
-					</div>
-				</CardContent>
-			</Card>
 		</div>
 	);
 }

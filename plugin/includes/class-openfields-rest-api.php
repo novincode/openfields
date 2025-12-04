@@ -349,6 +349,24 @@ class OpenFields_REST_API {
 				'permission_callback' => array( $this, 'check_edit_permission' ),
 			)
 		);
+
+		// Plugin settings routes.
+		register_rest_route(
+			self::NAMESPACE,
+			'/settings',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_settings' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_settings' ),
+					'permission_callback' => array( $this, 'check_admin_permission' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -1853,5 +1871,53 @@ class OpenFields_REST_API {
 		}
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Get plugin settings.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_settings( $request ) {
+		$settings = get_option( 'openfields_settings', array() );
+
+		// Ensure defaults.
+		$defaults = array(
+			'version'           => OPENFIELDS_VERSION,
+			'enable_rest_api'   => true,
+			'show_admin_column' => true,
+			'delete_data'       => false,
+		);
+
+		$settings = wp_parse_args( $settings, $defaults );
+
+		return rest_ensure_response( $settings );
+	}
+
+	/**
+	 * Update plugin settings.
+	 *
+	 * @since  1.0.0
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function update_settings( $request ) {
+		$current_settings = get_option( 'openfields_settings', array() );
+		$params           = $request->get_params();
+
+		// Only update allowed settings.
+		$allowed_keys = array( 'enable_rest_api', 'show_admin_column', 'delete_data' );
+
+		foreach ( $allowed_keys as $key ) {
+			if ( isset( $params[ $key ] ) ) {
+				$current_settings[ $key ] = $params[ $key ];
+			}
+		}
+
+		update_option( 'openfields_settings', $current_settings );
+
+		return rest_ensure_response( $current_settings );
 	}
 }

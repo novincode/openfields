@@ -310,9 +310,39 @@ export const locationApi = {
 	},
 };
 
+/**
+ * Settings API
+ */
+export interface PluginSettings {
+	version: string;
+	enable_rest_api: boolean;
+	show_admin_column: boolean;
+	delete_data: boolean;
+}
+
+export const settingsApi = {
+	/**
+	 * Get plugin settings
+	 */
+	async get(): Promise<PluginSettings> {
+		return request<PluginSettings>('/settings');
+	},
+
+	/**
+	 * Update plugin settings
+	 */
+	async update(settings: Partial<PluginSettings>): Promise<PluginSettings> {
+		return request<PluginSettings>('/settings', {
+			method: 'PUT',
+			body: JSON.stringify(settings),
+		});
+	},
+};
+
 export default {
 	fieldset: fieldsetApi,
 	field: fieldApi,
 	fieldTypes: fieldTypesApi,
 	location: locationApi,
+	settings: settingsApi,
 };
