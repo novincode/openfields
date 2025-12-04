@@ -1091,3 +1091,60 @@
 	text-align: center;
 }
 
+
+
+/* ============================================================================
+   Taxonomy Term Fields
+   ============================================================================ */
+
+.openfields-taxonomy-fieldset {
+margin: var(--of-spacing-lg) 0;
+padding: var(--of-spacing-lg);
+background: #fff;
+border: 1px solid var(--of-border);
+border-radius: var(--of-radius);
+}
+
+.openfields-taxonomy-fieldset .openfields-fieldset-title {
+margin: 0 0 var(--of-spacing-lg) 0;
+padding-bottom: var(--of-spacing-md);
+border-bottom: 1px solid var(--of-border-light);
+font-size: 14px;
+font-weight: 600;
+}
+
+.openfields-taxonomy-fieldset-row .openfields-fieldset-title {
+font-size: 14px;
+font-weight: 600;
+color: var(--of-text);
+}
+
+/* Add form (non-table layout) */
+.openfields-taxonomy-fieldset .openfields-field-wrapper {
+margin-bottom: var(--of-spacing-lg);
+}
+
+/* Edit form (table layout) */
+.openfields-field-row .openfields-field-wrapper {
+margin: 0;
+}
+
+.openfields-field-row .openfields-fields-row {
+margin: 0;
+}
+
+/* ============================================================================
+   User Profile Fields
+   ============================================================================ */
+
+.openfields-user-fieldset {
+margin: var(--of-spacing-lg) 0;
+}
+
+.openfields-user-field-row .openfields-field-wrapper {
+margin: 0;
+}
+
+.openfields-user-field-row .openfields-fields-row {
+margin: 0;
+}

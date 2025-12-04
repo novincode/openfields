@@ -390,6 +390,12 @@
 			const switches = document.querySelectorAll('.openfields-switch-input');
 
 			switches.forEach(switchInput => {
+				// Skip if already initialized to prevent duplicate event listeners.
+				if (switchInput.dataset.ofInitialized) {
+					return;
+				}
+				switchInput.dataset.ofInitialized = 'true';
+
 				// Store initial state for change detection.
 				switchInput.dataset.previousState = switchInput.checked ? 'on' : 'off';
 
@@ -1254,14 +1260,11 @@
 		 */
 		bindEvents() {
 			// Listen for custom switch toggle events if needed elsewhere.
-			document.addEventListener('switchToggled', (e) => {
-				console.log('[OpenFields] Switch toggled:', e.detail);
-			});
+			// Other components can subscribe to these events.
+			// document.addEventListener('switchToggled', (e) => { ... });
 
 			// Listen for file selected events if needed elsewhere.
-			document.addEventListener('fileSelected', (e) => {
-				console.log('[OpenFields] File selected:', e.detail);
-			});
+			// document.addEventListener('fileSelected', (e) => { ... });
 		},
 
 		/**

@@ -54,9 +54,21 @@ class OpenFields_Meta_Box {
 	 * @since 1.0.0
 	 */
 	private function __construct() {
+		// Post meta boxes.
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_boxes' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 3 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+
+		// Taxonomy term fields.
+		add_action( 'admin_init', array( $this, 'register_taxonomy_hooks' ) );
+
+		// User profile fields.
+		add_action( 'show_user_profile', array( $this, 'render_user_fields' ) );
+		add_action( 'edit_user_profile', array( $this, 'render_user_fields' ) );
+		add_action( 'user_new_form', array( $this, 'render_user_fields' ) );
+		add_action( 'personal_options_update', array( $this, 'save_user_fields' ) );
+		add_action( 'edit_user_profile_update', array( $this, 'save_user_fields' ) );
+		add_action( 'user_register', array( $this, 'save_user_fields' ) );
 
 		// Include field renderers.
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/repeater.php';
@@ -76,7 +88,18 @@ class OpenFields_Meta_Box {
 	 * @param string $hook Current admin page.
 	 */
 	public function enqueue_styles( $hook ) {
-		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+		// List of valid admin pages to load assets.
+		$valid_hooks = array(
+			'post.php',
+			'post-new.php',
+			'term.php',
+			'edit-tags.php',
+			'profile.php',
+			'user-edit.php',
+			'user-new.php',
+		);
+
+		if ( ! in_array( $hook, $valid_hooks, true ) ) {
 			return;
 		}
 
@@ -851,6 +874,471 @@ class OpenFields_Meta_Box {
 
 			default:
 				return sanitize_text_field( $value );
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	// Taxonomy Term Fields
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Register hooks for all taxonomies.
+	 *
+	 * @since 1.0.0
+	 */
+	public function register_taxonomy_hooks() {
+		$taxonomies = get_taxonomies( array( 'public' => true ) );
+
+		foreach ( $taxonomies as $taxonomy ) {
+			// Add fields to "Add New Term" form.
+			add_action( "{$taxonomy}_add_form_fields", array( $this, 'render_taxonomy_add_fields' ), 10, 1 );
+
+			// Add fields to "Edit Term" form.
+			add_action( "{$taxonomy}_edit_form_fields", array( $this, 'render_taxonomy_edit_fields' ), 10, 2 );
+
+			// Save term fields.
+			add_action( "created_{$taxonomy}", array( $this, 'save_taxonomy_fields' ), 10, 2 );
+			add_action( "edited_{$taxonomy}", array( $this, 'save_taxonomy_fields' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Render fields on taxonomy "Add New Term" form.
+	 *
+	 * @since 1.0.0
+	 * @param string $taxonomy Taxonomy slug.
+	 */
+	public function render_taxonomy_add_fields( $taxonomy ) {
+		$context = array(
+			'taxonomy' => $taxonomy,
+			'term_id'  => 0,
+		);
+
+		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
+
+		if ( empty( $fieldsets ) ) {
+			return;
+		}
+
+		foreach ( $fieldsets as $fieldset ) {
+			echo '<div class="form-field openfields-taxonomy-fieldset openfields-meta-box">';
+			echo '<h3 class="openfields-fieldset-title">' . esc_html( $fieldset->title ) . '</h3>';
+
+			wp_nonce_field( 'openfields_save_term_' . $fieldset->id, 'openfields_term_nonce_' . $fieldset->id );
+
+			echo '<div class="openfields-fields-container">';
+			$this->render_term_fields( $fieldset->id, 0 );
+			echo '</div>';
+
+			echo '</div>';
+		}
+	}
+
+	/**
+	 * Render fields on taxonomy "Edit Term" form.
+	 *
+	 * @since 1.0.0
+	 * @param WP_Term $term     Term object.
+	 * @param string  $taxonomy Taxonomy slug.
+	 */
+	public function render_taxonomy_edit_fields( $term, $taxonomy ) {
+		$context = array(
+			'taxonomy' => $taxonomy,
+			'term_id'  => $term->term_id,
+		);
+
+		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
+
+		if ( empty( $fieldsets ) ) {
+			return;
+		}
+
+		foreach ( $fieldsets as $fieldset ) {
+			echo '<tr class="form-field openfields-taxonomy-fieldset-row">';
+			echo '<th scope="row" colspan="2">';
+			echo '<h3 class="openfields-fieldset-title" style="margin: 0; padding: 10px 0;">' . esc_html( $fieldset->title ) . '</h3>';
+			echo '</th>';
+			echo '</tr>';
+
+			echo '<tr class="form-field">';
+			echo '<td colspan="2">';
+
+			wp_nonce_field( 'openfields_save_term_' . $fieldset->id, 'openfields_term_nonce_' . $fieldset->id );
+
+			echo '<div class="openfields-meta-box">';
+			echo '<div class="openfields-fields-container">';
+			$this->render_term_fields( $fieldset->id, $term->term_id );
+			echo '</div>';
+			echo '</div>';
+
+			echo '</td>';
+			echo '</tr>';
+		}
+	}
+
+	/**
+	 * Render fields for a term (both add and edit forms).
+	 *
+	 * @since 1.0.0
+	 * @param int $fieldset_id Fieldset ID.
+	 * @param int $term_id     Term ID (0 for new terms).
+	 */
+	private function render_term_fields( $fieldset_id, $term_id ) {
+		global $wpdb;
+
+		// Get ROOT-LEVEL fields only (no parent_id).
+		$fields = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
+				$fieldset_id
+			)
+		);
+
+		if ( empty( $fields ) ) {
+			return;
+		}
+
+		foreach ( $fields as $field ) {
+			$this->render_term_field( $field, $term_id );
+		}
+	}
+
+	/**
+	 * Render a single field for term meta.
+	 *
+	 * @since 1.0.0
+	 * @param object $field   Field object.
+	 * @param int    $term_id Term ID.
+	 */
+	private function render_term_field( $field, $term_id ) {
+		// Get settings from database columns.
+		$settings = array();
+		if ( ! empty( $field->field_config ) ) {
+			$decoded  = json_decode( $field->field_config, true );
+			$settings = is_array( $decoded ) ? $decoded : array();
+		}
+
+		$wrapper_config = array();
+		if ( ! empty( $field->wrapper_config ) ) {
+			$decoded        = json_decode( $field->wrapper_config, true );
+			$wrapper_config = is_array( $decoded ) ? $decoded : array();
+		}
+
+		$conditional_logic = array();
+		if ( ! empty( $field->conditional_logic ) ) {
+			$decoded           = json_decode( $field->conditional_logic, true );
+			$conditional_logic = is_array( $decoded ) ? $decoded : array();
+		}
+
+		// Get value from term meta.
+		$meta_key = self::META_PREFIX . $field->name;
+		$value    = $term_id ? get_term_meta( $term_id, $meta_key, true ) : '';
+
+		// Use default value if no saved value.
+		if ( empty( $value ) && ! empty( $field->default_value ) ) {
+			$value = $field->default_value;
+		}
+
+		// Build wrapper.
+		$wrapper_width = isset( $wrapper_config['width'] ) ? intval( $wrapper_config['width'] ) : 100;
+		$wrapper_width = max( 10, min( 100, $wrapper_width ) );
+		$wrapper_class = isset( $wrapper_config['class'] ) ? sanitize_html_class( $wrapper_config['class'] ) : '';
+		$wrapper_id    = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
+
+		echo '<div class="openfields-field-wrapper openfields-field-wrapper--width-' . intval( $wrapper_width );
+		if ( $wrapper_class ) {
+			echo ' ' . esc_attr( $wrapper_class );
+		}
+		echo '" style="width: ' . intval( $wrapper_width ) . '%;"';
+
+		if ( $wrapper_id ) {
+			echo ' id="' . esc_attr( $wrapper_id ) . '"';
+		}
+
+		if ( ! empty( $conditional_logic ) ) {
+			echo ' data-conditional-logic="' . esc_attr( wp_json_encode( $conditional_logic ) ) . '"';
+			echo ' data-conditional-status="hidden"';
+		}
+
+		echo '>';
+
+		// Label.
+		if ( ! empty( $field->label ) ) {
+			echo '<div class="openfields-field-label">';
+			echo '<label for="' . esc_attr( $meta_key ) . '">';
+			echo esc_html( $field->label );
+			if ( ! empty( $settings['required'] ) || ! empty( $field->required ) ) {
+				echo '<span class="openfields-field-required" aria-label="required">*</span>';
+			}
+			echo '</label>';
+			echo '</div>';
+		}
+
+		// Input.
+		echo '<div class="openfields-field-input">';
+		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, 0 );
+		echo '</div>';
+
+		// Instructions.
+		$instructions = $settings['instructions'] ?? ( $field->instructions ?? '' );
+		if ( ! empty( $instructions ) ) {
+			echo '<p class="openfields-field-description">' . wp_kses_post( $instructions ) . '</p>';
+		}
+
+		echo '</div>';
+	}
+
+	/**
+	 * Save taxonomy term fields.
+	 *
+	 * @since 1.0.0
+	 * @param int $term_id Term ID.
+	 * @param int $tt_id   Term taxonomy ID.
+	 */
+	public function save_taxonomy_fields( $term_id, $tt_id ) {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'openfields_fieldsets';
+		$fieldsets  = $wpdb->get_results( "SELECT * FROM {$table_name} WHERE status = 'active'" );
+
+		foreach ( $fieldsets as $fieldset ) {
+			$nonce_key = 'openfields_term_nonce_' . $fieldset->id;
+
+			if ( ! isset( $_POST[ $nonce_key ] ) ) {
+				continue;
+			}
+
+			if ( ! wp_verify_nonce( $_POST[ $nonce_key ], 'openfields_save_term_' . $fieldset->id ) ) {
+				continue;
+			}
+
+			$fields_table = $wpdb->prefix . 'openfields_fields';
+			$fields       = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$fields_table} WHERE fieldset_id = %d",
+					$fieldset->id
+				)
+			);
+
+			foreach ( $fields as $field ) {
+				$meta_key = self::META_PREFIX . $field->name;
+
+				if ( isset( $_POST[ $meta_key ] ) ) {
+					$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
+					update_term_meta( $term_id, $meta_key, $value );
+				} else {
+					// Handle unchecked checkboxes/switches.
+					if ( in_array( $field->type, array( 'switch', 'checkbox' ), true ) ) {
+						delete_term_meta( $term_id, $meta_key );
+					}
+				}
+			}
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	// User Profile Fields
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Render fields on user profile.
+	 *
+	 * @since 1.0.0
+	 * @param WP_User|string $user User object or 'add-new-user'.
+	 */
+	public function render_user_fields( $user ) {
+		$user_id = is_object( $user ) ? $user->ID : 0;
+		$roles   = $user_id && is_object( $user ) ? (array) $user->roles : array();
+
+		$context = array(
+			'user_roles' => $roles,
+			'user_id'    => $user_id,
+		);
+
+		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
+
+		if ( empty( $fieldsets ) ) {
+			return;
+		}
+
+		foreach ( $fieldsets as $fieldset ) {
+			echo '<h2>' . esc_html( $fieldset->title ) . '</h2>';
+			echo '<table class="form-table openfields-user-fieldset" role="presentation">';
+			echo '<tr><td colspan="2">';
+
+			wp_nonce_field( 'openfields_save_user_' . $fieldset->id, 'openfields_user_nonce_' . $fieldset->id );
+
+			echo '<div class="openfields-meta-box">';
+			echo '<div class="openfields-fields-container">';
+			$this->render_user_profile_fields( $fieldset->id, $user_id );
+			echo '</div>';
+			echo '</div>';
+
+			echo '</td></tr>';
+			echo '</table>';
+		}
+	}
+
+	/**
+	 * Render fields for user profile.
+	 *
+	 * @since 1.0.0
+	 * @param int $fieldset_id Fieldset ID.
+	 * @param int $user_id     User ID (0 for new users).
+	 */
+	private function render_user_profile_fields( $fieldset_id, $user_id ) {
+		global $wpdb;
+
+		// Get ROOT-LEVEL fields only.
+		$fields = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
+				$fieldset_id
+			)
+		);
+
+		if ( empty( $fields ) ) {
+			return;
+		}
+
+		foreach ( $fields as $field ) {
+			$this->render_user_field( $field, $user_id );
+		}
+	}
+
+	/**
+	 * Render a single field for user meta.
+	 *
+	 * @since 1.0.0
+	 * @param object $field   Field object.
+	 * @param int    $user_id User ID.
+	 */
+	private function render_user_field( $field, $user_id ) {
+		// Get settings from database columns.
+		$settings = array();
+		if ( ! empty( $field->field_config ) ) {
+			$decoded  = json_decode( $field->field_config, true );
+			$settings = is_array( $decoded ) ? $decoded : array();
+		}
+
+		$wrapper_config = array();
+		if ( ! empty( $field->wrapper_config ) ) {
+			$decoded        = json_decode( $field->wrapper_config, true );
+			$wrapper_config = is_array( $decoded ) ? $decoded : array();
+		}
+
+		$conditional_logic = array();
+		if ( ! empty( $field->conditional_logic ) ) {
+			$decoded           = json_decode( $field->conditional_logic, true );
+			$conditional_logic = is_array( $decoded ) ? $decoded : array();
+		}
+
+		// Get value from user meta.
+		$meta_key = self::META_PREFIX . $field->name;
+		$value    = $user_id ? get_user_meta( $user_id, $meta_key, true ) : '';
+
+		// Use default value if no saved value.
+		if ( empty( $value ) && ! empty( $field->default_value ) ) {
+			$value = $field->default_value;
+		}
+
+		// Build wrapper.
+		$wrapper_width = isset( $wrapper_config['width'] ) ? intval( $wrapper_config['width'] ) : 100;
+		$wrapper_width = max( 10, min( 100, $wrapper_width ) );
+		$wrapper_class = isset( $wrapper_config['class'] ) ? sanitize_html_class( $wrapper_config['class'] ) : '';
+		$wrapper_id    = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
+
+		echo '<div class="openfields-field-wrapper openfields-field-wrapper--width-' . intval( $wrapper_width );
+		if ( $wrapper_class ) {
+			echo ' ' . esc_attr( $wrapper_class );
+		}
+		echo '" style="width: ' . intval( $wrapper_width ) . '%;"';
+
+		if ( $wrapper_id ) {
+			echo ' id="' . esc_attr( $wrapper_id ) . '"';
+		}
+
+		if ( ! empty( $conditional_logic ) ) {
+			echo ' data-conditional-logic="' . esc_attr( wp_json_encode( $conditional_logic ) ) . '"';
+			echo ' data-conditional-status="hidden"';
+		}
+
+		echo '>';
+
+		// Label.
+		if ( ! empty( $field->label ) ) {
+			echo '<div class="openfields-field-label">';
+			echo '<label for="' . esc_attr( $meta_key ) . '">';
+			echo esc_html( $field->label );
+			if ( ! empty( $settings['required'] ) || ! empty( $field->required ) ) {
+				echo '<span class="openfields-field-required" aria-label="required">*</span>';
+			}
+			echo '</label>';
+			echo '</div>';
+		}
+
+		// Input.
+		echo '<div class="openfields-field-input">';
+		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, 0 );
+		echo '</div>';
+
+		// Instructions.
+		$instructions = $settings['instructions'] ?? ( $field->instructions ?? '' );
+		if ( ! empty( $instructions ) ) {
+			echo '<p class="openfields-field-description">' . wp_kses_post( $instructions ) . '</p>';
+		}
+
+		echo '</div>';
+	}
+
+	/**
+	 * Save user profile fields.
+	 *
+	 * @since 1.0.0
+	 * @param int $user_id User ID.
+	 */
+	public function save_user_fields( $user_id ) {
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'openfields_fieldsets';
+		$fieldsets  = $wpdb->get_results( "SELECT * FROM {$table_name} WHERE status = 'active'" );
+
+		foreach ( $fieldsets as $fieldset ) {
+			$nonce_key = 'openfields_user_nonce_' . $fieldset->id;
+
+			if ( ! isset( $_POST[ $nonce_key ] ) ) {
+				continue;
+			}
+
+			if ( ! wp_verify_nonce( $_POST[ $nonce_key ], 'openfields_save_user_' . $fieldset->id ) ) {
+				continue;
+			}
+
+			$fields_table = $wpdb->prefix . 'openfields_fields';
+			$fields       = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT * FROM {$fields_table} WHERE fieldset_id = %d",
+					$fieldset->id
+				)
+			);
+
+			foreach ( $fields as $field ) {
+				$meta_key = self::META_PREFIX . $field->name;
+
+				if ( isset( $_POST[ $meta_key ] ) ) {
+					$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
+					update_user_meta( $user_id, $meta_key, $value );
+				} else {
+					// Handle unchecked checkboxes/switches.
+					if ( in_array( $field->type, array( 'switch', 'checkbox' ), true ) ) {
+						delete_user_meta( $user_id, $meta_key );
+					}
+				}
+			}
 		}
 	}
 }
