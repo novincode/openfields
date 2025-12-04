@@ -194,7 +194,7 @@ export function AsyncCombobox({
       );
     }
 
-    return <span>{getLabel(selectedValues[0])}</span>;
+    return <span>{getLabel(selectedValues[0]!)}</span>;
   };
 
   return (
@@ -252,7 +252,7 @@ export function AsyncCombobox({
                   <CommandItem
                     key={option.value}
                     value={option.value}
-                    onSelect={() => handleSelect(option.value)}
+                    onSelect={() => handleSelect(option.value || '')}
                   >
                     <Check
                       className={cn(

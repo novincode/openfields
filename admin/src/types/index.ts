@@ -4,31 +4,10 @@
  * @package OpenFields
  */
 
-// Field Types
-export type FieldType =
-	| 'text'
-	| 'textarea'
-	| 'number'
-	| 'email'
-	| 'url'
-	| 'select'
-	| 'radio'
-	| 'checkbox'
-	| 'switch'
-	| 'wysiwyg'
-	| 'image'
-	| 'gallery'
-	| 'file'
-	| 'date'
-	| 'datetime'
-	| 'time'
-	| 'color'
-	| 'link'
-	| 'post'
-	| 'taxonomy'
-	| 'user'
-	| 'repeater'
-	| 'group';
+// Import and re-export field types from the canonical source
+import type { FieldType, FieldCategory } from './fields';
+export type { FieldType, FieldCategory };
+export { FIELD_TYPES } from './fields';
 
 // Field Schema
 export interface FieldTypeSchema {
