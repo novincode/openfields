@@ -352,7 +352,7 @@ class OpenFields_Meta_Box {
 
 		// Render the input field.
 		echo '<div class="openfields-field-input">';
-		$this->render_input( $field, $value, self::META_PREFIX . $field->name, self::META_PREFIX . $field->name, $settings, $post_id );
+		$this->render_input( $field, $value, self::META_PREFIX . $field->name, self::META_PREFIX . $field->name, $settings, $post_id, 'post' );
 		echo '</div>';
 
 		// Render description if present.
@@ -372,14 +372,15 @@ class OpenFields_Meta_Box {
 	 * @param string $field_id   HTML ID attribute.
 	 * @param string $field_name HTML name attribute.
 	 * @param array  $settings   Field settings from JSON.
-	 * @param int    $post_id    Post ID for sub-field value retrieval.
+	 * @param int    $object_id   Object ID for sub-field value retrieval (post, term, or user ID).
+	 * @param string $object_type Object type: 'post', 'term', or 'user'.
 	 */
-	private function render_input( $field, $value, $field_id, $field_name, $settings, $post_id = 0 ) {
+	private function render_input( $field, $value, $field_id, $field_name, $settings, $object_id = 0, $object_type = 'post' ) {
 		switch ( $field->type ) {
 			case 'repeater':
 				// Repeater fields use ACF-compatible format.
 				// Field name is passed WITHOUT prefix for internal naming.
-				openfields_render_repeater_field( $field, $value, $field_id, $field->name, $settings, $post_id );
+				openfields_render_repeater_field( $field, $value, $field_id, $field->name, $settings, $object_id, $object_type );
 				break;
 
 			case 'text':
@@ -1076,7 +1077,7 @@ class OpenFields_Meta_Box {
 
 		// Input.
 		echo '<div class="openfields-field-input">';
-		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, 0 );
+		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, $term_id, 'term' );
 		echo '</div>';
 
 		// Instructions.
@@ -1112,25 +1113,127 @@ class OpenFields_Meta_Box {
 				continue;
 			}
 
-			$fields_table = $wpdb->prefix . 'openfields_fields';
-			$fields       = $wpdb->get_results(
+			// Get ALL fields including sub-fields for saving.
+			$all_fields = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM {$fields_table} WHERE fieldset_id = %d",
+					"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d",
 					$fieldset->id
 				)
 			);
 
-			foreach ( $fields as $field ) {
-				$meta_key = self::META_PREFIX . $field->name;
-
-				if ( isset( $_POST[ $meta_key ] ) ) {
-					$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
-					update_term_meta( $term_id, $meta_key, $value );
+			// Separate root fields from sub-fields.
+			$root_fields    = array();
+			$sub_fields_map = array();
+			foreach ( $all_fields as $f ) {
+				if ( empty( $f->parent_id ) ) {
+					$root_fields[] = $f;
 				} else {
-					// Handle unchecked checkboxes/switches.
-					if ( in_array( $field->type, array( 'switch', 'checkbox' ), true ) ) {
-						delete_term_meta( $term_id, $meta_key );
+					if ( ! isset( $sub_fields_map[ $f->parent_id ] ) ) {
+						$sub_fields_map[ $f->parent_id ] = array();
 					}
+					$sub_fields_map[ $f->parent_id ][] = $f;
+				}
+			}
+
+			// Save each ROOT field.
+			foreach ( $root_fields as $field ) {
+				if ( $field->type === 'repeater' ) {
+					// Handle repeater field in ACF format.
+					$this->save_repeater_field_for_term( $term_id, $field, $sub_fields_map );
+				} else {
+					// Standard field save.
+					$meta_key = self::META_PREFIX . $field->name;
+
+					if ( isset( $_POST[ $meta_key ] ) ) {
+						$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
+						update_term_meta( $term_id, $meta_key, $value );
+					} else {
+						// Handle unchecked checkboxes/switches.
+						if ( in_array( $field->type, array( 'switch', 'checkbox' ), true ) ) {
+							delete_term_meta( $term_id, $meta_key );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Save a repeater field for term meta.
+	 *
+	 * @since 1.0.0
+	 * @param int    $term_id        Term ID.
+	 * @param object $field          Repeater field object.
+	 * @param array  $sub_fields_map Map of parent_id => sub-fields.
+	 * @param string $base_name      Optional base name for nested repeaters.
+	 */
+	private function save_repeater_field_for_term( $term_id, $field, $sub_fields_map, $base_name = '' ) {
+		if ( empty( $base_name ) ) {
+			$base_name = $field->name;
+		}
+
+		$meta_key  = $base_name;
+		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
+
+		// Save row count.
+		update_term_meta( $term_id, $meta_key, $row_count );
+
+		// Get sub-fields for this repeater.
+		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
+
+		if ( empty( $sub_fields ) ) {
+			return;
+		}
+
+		// Cleanup old data.
+		$this->cleanup_repeater_term_meta( $term_id, $base_name, $sub_fields, $row_count );
+
+		// Save each row's sub-field values.
+		for ( $i = 0; $i < $row_count; $i++ ) {
+			foreach ( $sub_fields as $sub_field ) {
+				$raw_sub_name = $this->get_raw_subfield_name( $sub_field->name, $base_name );
+				$full_name    = $base_name . '_' . $i . '_' . $raw_sub_name;
+
+				if ( $sub_field->type === 'repeater' ) {
+					$this->save_repeater_field_for_term( $term_id, $sub_field, $sub_fields_map, $full_name );
+				} else {
+					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
+					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
+					update_term_meta( $term_id, $full_name, $sanitized );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Cleanup old repeater term meta.
+	 *
+	 * @since 1.0.0
+	 * @param int    $term_id    Term ID.
+	 * @param string $field_name Repeater field name.
+	 * @param array  $sub_fields Sub-field objects.
+	 * @param int    $row_count  Current row count.
+	 */
+	private function cleanup_repeater_term_meta( $term_id, $field_name, $sub_fields, $row_count ) {
+		global $wpdb;
+
+		$pattern       = $field_name . '_%';
+		$existing_keys = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT meta_key FROM {$wpdb->termmeta} WHERE term_id = %d AND meta_key LIKE %s",
+				$term_id,
+				$pattern
+			)
+		);
+
+		foreach ( $existing_keys as $key ) {
+			$prefix_removed = str_replace( $field_name . '_', '', $key );
+			$parts          = explode( '_', $prefix_removed, 2 );
+
+			if ( isset( $parts[0] ) && is_numeric( $parts[0] ) ) {
+				$index = (int) $parts[0];
+				if ( $index >= $row_count ) {
+					delete_term_meta( $term_id, $key );
 				}
 			}
 		}
@@ -1279,7 +1382,7 @@ class OpenFields_Meta_Box {
 
 		// Input.
 		echo '<div class="openfields-field-input">';
-		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, 0 );
+		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, $user_id, 'user' );
 		echo '</div>';
 
 		// Instructions.
@@ -1318,25 +1421,127 @@ class OpenFields_Meta_Box {
 				continue;
 			}
 
-			$fields_table = $wpdb->prefix . 'openfields_fields';
-			$fields       = $wpdb->get_results(
+			// Get ALL fields including sub-fields for saving.
+			$all_fields = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM {$fields_table} WHERE fieldset_id = %d",
+					"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d",
 					$fieldset->id
 				)
 			);
 
-			foreach ( $fields as $field ) {
-				$meta_key = self::META_PREFIX . $field->name;
-
-				if ( isset( $_POST[ $meta_key ] ) ) {
-					$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
-					update_user_meta( $user_id, $meta_key, $value );
+			// Separate root fields from sub-fields.
+			$root_fields    = array();
+			$sub_fields_map = array();
+			foreach ( $all_fields as $f ) {
+				if ( empty( $f->parent_id ) ) {
+					$root_fields[] = $f;
 				} else {
-					// Handle unchecked checkboxes/switches.
-					if ( in_array( $field->type, array( 'switch', 'checkbox' ), true ) ) {
-						delete_user_meta( $user_id, $meta_key );
+					if ( ! isset( $sub_fields_map[ $f->parent_id ] ) ) {
+						$sub_fields_map[ $f->parent_id ] = array();
 					}
+					$sub_fields_map[ $f->parent_id ][] = $f;
+				}
+			}
+
+			// Save each ROOT field.
+			foreach ( $root_fields as $field ) {
+				if ( $field->type === 'repeater' ) {
+					// Handle repeater field in ACF format.
+					$this->save_repeater_field_for_user( $user_id, $field, $sub_fields_map );
+				} else {
+					// Standard field save.
+					$meta_key = self::META_PREFIX . $field->name;
+
+					if ( isset( $_POST[ $meta_key ] ) ) {
+						$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
+						update_user_meta( $user_id, $meta_key, $value );
+					} else {
+						// Handle unchecked checkboxes/switches.
+						if ( in_array( $field->type, array( 'switch', 'checkbox' ), true ) ) {
+							delete_user_meta( $user_id, $meta_key );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Save a repeater field for user meta.
+	 *
+	 * @since 1.0.0
+	 * @param int    $user_id        User ID.
+	 * @param object $field          Repeater field object.
+	 * @param array  $sub_fields_map Map of parent_id => sub-fields.
+	 * @param string $base_name      Optional base name for nested repeaters.
+	 */
+	private function save_repeater_field_for_user( $user_id, $field, $sub_fields_map, $base_name = '' ) {
+		if ( empty( $base_name ) ) {
+			$base_name = $field->name;
+		}
+
+		$meta_key  = $base_name;
+		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
+
+		// Save row count.
+		update_user_meta( $user_id, $meta_key, $row_count );
+
+		// Get sub-fields for this repeater.
+		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
+
+		if ( empty( $sub_fields ) ) {
+			return;
+		}
+
+		// Cleanup old data.
+		$this->cleanup_repeater_user_meta( $user_id, $base_name, $sub_fields, $row_count );
+
+		// Save each row's sub-field values.
+		for ( $i = 0; $i < $row_count; $i++ ) {
+			foreach ( $sub_fields as $sub_field ) {
+				$raw_sub_name = $this->get_raw_subfield_name( $sub_field->name, $base_name );
+				$full_name    = $base_name . '_' . $i . '_' . $raw_sub_name;
+
+				if ( $sub_field->type === 'repeater' ) {
+					$this->save_repeater_field_for_user( $user_id, $sub_field, $sub_fields_map, $full_name );
+				} else {
+					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
+					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
+					update_user_meta( $user_id, $full_name, $sanitized );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Cleanup old repeater user meta.
+	 *
+	 * @since 1.0.0
+	 * @param int    $user_id    User ID.
+	 * @param string $field_name Repeater field name.
+	 * @param array  $sub_fields Sub-field objects.
+	 * @param int    $row_count  Current row count.
+	 */
+	private function cleanup_repeater_user_meta( $user_id, $field_name, $sub_fields, $row_count ) {
+		global $wpdb;
+
+		$pattern       = $field_name . '_%';
+		$existing_keys = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT meta_key FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s",
+				$user_id,
+				$pattern
+			)
+		);
+
+		foreach ( $existing_keys as $key ) {
+			$prefix_removed = str_replace( $field_name . '_', '', $key );
+			$parts          = explode( '_', $prefix_removed, 2 );
+
+			if ( isset( $parts[0] ) && is_numeric( $parts[0] ) ) {
+				$index = (int) $parts[0];
+				if ( $index >= $row_count ) {
+					delete_user_meta( $user_id, $key );
 				}
 			}
 		}

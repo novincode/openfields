@@ -29,9 +29,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_id    HTML field ID.
  * @param string $base_name   Base name for this repeater.
  * @param array  $settings    Field settings array.
- * @param int    $post_id     Post ID for fetching sub-field values.
+ * @param int    $object_id   Object ID (post, term, or user ID).
+ * @param string $object_type Object type: 'post', 'term', or 'user'.
  */
-function openfields_render_repeater_field( $field, $value, $field_id, $base_name, $settings, $post_id ) {
+function openfields_render_repeater_field( $field, $value, $field_id, $base_name, $settings, $object_id, $object_type = 'post' ) {
 	global $wpdb;
 
 	// Get sub-fields for this repeater.
@@ -59,7 +60,7 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 		$row_count = absint( $value );
 	} else {
 		// Detect from existing meta.
-		$row_count = openfields_detect_repeater_rows( $post_id, $base_name, $sub_fields );
+		$row_count = openfields_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type );
 	}
 
 	// Ensure minimum.
@@ -89,7 +90,7 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 		<div class="openfields-repeater-rows" data-layout="<?php echo esc_attr( $layout ); ?>">
 			<?php
 			for ( $i = 0; $i < $row_count; $i++ ) {
-				openfields_render_repeater_row( $field, $sub_fields, $i, $base_name, $layout, $post_id, false );
+				openfields_render_repeater_row( $field, $sub_fields, $i, $base_name, $layout, $object_id, $object_type, false );
 			}
 			?>
 		</div>
@@ -108,7 +109,7 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 
 		<!-- Template for JS -->
 		<template class="openfields-repeater-template">
-			<?php openfields_render_repeater_row( $field, $sub_fields, '{{INDEX}}', $base_name, $layout, $post_id, true ); ?>
+			<?php openfields_render_repeater_row( $field, $sub_fields, '{{INDEX}}', $base_name, $layout, $object_id, $object_type, true ); ?>
 		</template>
 	</div>
 	<?php
@@ -122,10 +123,11 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
  * @param mixed  $index       Row index (int or '{{INDEX}}' for template).
  * @param string $base_name   Base name for this repeater.
  * @param string $layout      Layout type.
- * @param int    $post_id     Post ID.
+ * @param int    $object_id   Object ID.
+ * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @param bool   $is_template Whether rendering as template.
  */
-function openfields_render_repeater_row( $field, $sub_fields, $index, $base_name, $layout, $post_id, $is_template = false ) {
+function openfields_render_repeater_row( $field, $sub_fields, $index, $base_name, $layout, $object_id, $object_type = 'post', $is_template = false ) {
 	$row_num = is_numeric( $index ) ? ( $index + 1 ) : '';
 	?>
 	<div class="openfields-repeater-row" data-index="<?php echo esc_attr( $index ); ?>">
@@ -137,7 +139,7 @@ function openfields_render_repeater_row( $field, $sub_fields, $index, $base_name
 		<div class="openfields-repeater-row-content">
 			<?php
 			foreach ( $sub_fields as $sub_field ) {
-				openfields_render_repeater_subfield( $sub_field, $index, $base_name, $post_id, $is_template );
+				openfields_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type, $is_template );
 			}
 			?>
 		</div>
@@ -179,10 +181,11 @@ function openfields_get_raw_subfield_name( $sub_field_name, $parent_name ) {
  * @param object $sub_field   Sub-field object.
  * @param mixed  $index       Row index.
  * @param string $base_name   Parent repeater base name.
- * @param int    $post_id     Post ID.
+ * @param int    $object_id   Object ID.
+ * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @param bool   $is_template Whether rendering as template.
  */
-function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $post_id, $is_template = false ) {
+function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type = 'post', $is_template = false ) {
 	$settings = array();
 	if ( ! empty( $sub_field->field_config ) ) {
 		$decoded  = json_decode( $sub_field->field_config, true );
@@ -200,9 +203,20 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $p
 
 	// Get value (only for real rows, not template).
 	$value = '';
-	if ( ! $is_template && $post_id && is_numeric( $index ) ) {
-		// ACF format (no prefix).
-		$value = get_post_meta( $post_id, $full_name, true );
+	if ( ! $is_template && $object_id && is_numeric( $index ) ) {
+		// Use appropriate meta function based on object type.
+		switch ( $object_type ) {
+			case 'term':
+				$value = get_term_meta( $object_id, $full_name, true );
+				break;
+			case 'user':
+				$value = get_user_meta( $object_id, $full_name, true );
+				break;
+			case 'post':
+			default:
+				$value = get_post_meta( $object_id, $full_name, true );
+				break;
+		}
 	}
 
 	// Default value.
@@ -228,7 +242,7 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $p
 
 		<div class="openfields-repeater-subfield-input">
 			<?php
-			openfields_render_field_input( $sub_field, $value, $field_id, $full_name, $settings, $post_id, $is_template, $base_name );
+			openfields_render_field_input( $sub_field, $value, $field_id, $full_name, $settings, $object_id, $object_type, $is_template, $base_name );
 			?>
 		</div>
 
@@ -247,17 +261,18 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $p
  * @param string $field_id    HTML ID attribute.
  * @param string $full_name   Full field name (parent_index_subfield format) - NO PREFIX.
  * @param array  $settings    Field settings.
- * @param int    $post_id     Post ID.
+ * @param int    $object_id   Object ID.
+ * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @param bool   $is_template Whether rendering as template.
  * @param string $parent_name Parent repeater name for nested repeaters.
  */
-function openfields_render_field_input( $field, $value, $field_id, $full_name, $settings, $post_id, $is_template = false, $parent_name = '' ) {
+function openfields_render_field_input( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type = 'post', $is_template = false, $parent_name = '' ) {
 	// The HTML name attribute is the full_name directly (no prefix for ACF compatibility).
 	$html_name = $full_name;
 
 	// Nested repeater - recurse.
 	if ( $field->type === 'repeater' ) {
-		openfields_render_repeater_field( $field, $value, $field_id, $full_name, $settings, $post_id );
+		openfields_render_repeater_field( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type );
 		return;
 	}
 
@@ -442,19 +457,37 @@ function openfields_render_field_input( $field, $value, $field_id, $full_name, $
 }
 
 /**
- * Detect existing repeater rows from postmeta.
+ * Detect existing repeater rows from meta.
  *
- * @param int    $post_id    Post ID.
- * @param string $base_name  Repeater base name.
- * @param array  $sub_fields Sub-field objects.
+ * @param int    $object_id   Object ID (post, term, or user ID).
+ * @param string $base_name   Repeater base name.
+ * @param array  $sub_fields  Sub-field objects.
+ * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @return int
  */
-function openfields_detect_repeater_rows( $post_id, $base_name, $sub_fields ) {
-	if ( ! $post_id || empty( $sub_fields ) ) {
+function openfields_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type = 'post' ) {
+	if ( ! $object_id || empty( $sub_fields ) ) {
 		return 0;
 	}
 
 	global $wpdb;
+
+	// Determine the correct meta table and ID column.
+	switch ( $object_type ) {
+		case 'term':
+			$table     = $wpdb->termmeta;
+			$id_column = 'term_id';
+			break;
+		case 'user':
+			$table     = $wpdb->usermeta;
+			$id_column = 'user_id';
+			break;
+		case 'post':
+		default:
+			$table     = $wpdb->postmeta;
+			$id_column = 'post_id';
+			break;
+	}
 
 	// Use first sub-field for detection.
 	// Get raw name without parent prefix.
@@ -463,8 +496,8 @@ function openfields_detect_repeater_rows( $post_id, $base_name, $sub_fields ) {
 	// Pattern: {base}_{index}_{subfield} (no prefix)
 	$keys = $wpdb->get_col(
 		$wpdb->prepare(
-			"SELECT meta_key FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key REGEXP %s",
-			$post_id,
+			"SELECT meta_key FROM {$table} WHERE {$id_column} = %d AND meta_key REGEXP %s",
+			$object_id,
 			'^' . preg_quote( $base_name, '/' ) . '_[0-9]+_' . preg_quote( $first_sub_raw, '/' ) . '$'
 		)
 	);
