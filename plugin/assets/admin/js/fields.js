@@ -284,6 +284,7 @@
 			this.initConditionalLogic();
 			this.initFileFields();
 			this.initValidation();
+			this.initMediaFields();
 			this.bindEvents();
 
 			console.log('[OpenFields] Fields manager initialized');
@@ -503,37 +504,63 @@
 		},
 
 		/**
-		 * Evaluate a single condition rule.
+		 * Evaluate conditional logic rules.
 		 *
-		 * @param {Object|Array} condition - The condition or conditions to evaluate.
-		 * @returns {boolean} Whether the condition is met.
+		 * Structure is: [[{field, operator, value}, ...], ...] 
+		 * - Outer array: OR groups (any group must pass)
+		 * - Inner array: AND rules (all rules in group must pass)
+		 *
+		 * @param {Array} conditions - The conditions to evaluate.
+		 * @returns {boolean} Whether the conditions are met.
 		 */
-		evaluateCondition(condition) {
-			if (!condition) return true;
-
-			// Handle OR conditions (any must be true).
-			if (Array.isArray(condition) && condition[0]?.type === 'or') {
-				return condition.some(cond => this.evaluateCondition(cond));
+		evaluateCondition(conditions) {
+			if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
+				return true;
 			}
 
-			// Handle AND conditions (all must be true).
-			if (Array.isArray(condition) && condition[0]?.type === 'and') {
-				return condition.every(cond => this.evaluateCondition(cond));
+			// Check if this is a flat array of rules (single AND group).
+			// [[{field, op, val}]] vs [{field, op, val}]
+			const firstItem = conditions[0];
+			
+			// If first item is an object with 'field', it's a flat array of AND rules.
+			if (firstItem && typeof firstItem === 'object' && 'field' in firstItem) {
+				return this.evaluateRuleGroup(conditions);
 			}
 
-			// Single condition evaluation.
-			if (condition.field && condition.operator && condition.value !== undefined) {
+			// Otherwise, it's OR groups: [[rules], [rules], ...]
+			// ANY group must pass (OR logic between groups).
+			return conditions.some(group => {
+				if (!Array.isArray(group)) return true;
+				// ALL rules in group must pass (AND logic within group).
+				return this.evaluateRuleGroup(group);
+			});
+		},
+
+		/**
+		 * Evaluate a group of AND rules.
+		 *
+		 * @param {Array} rules - Array of rule objects.
+		 * @returns {boolean} Whether all rules pass.
+		 */
+		evaluateRuleGroup(rules) {
+			if (!rules || rules.length === 0) return true;
+
+			return rules.every(rule => {
+				if (!rule || !rule.field) return true;
+
+				// Find the field element by name.
 				const fieldElement = document.querySelector(
-					`[name*="${condition.field}"], [data-field="${condition.field}"]`
+					`[name="openfields_${rule.field}"], [name="openfields_${rule.field}[]"], [data-field="${rule.field}"]`
 				);
 
-				if (!fieldElement) return false;
+				if (!fieldElement) {
+					console.warn(`[OpenFields] Conditional field not found: ${rule.field}`);
+					return true; // If field not found, don't block.
+				}
 
 				const currentValue = this.getFieldValue(fieldElement);
-				return this.compareValues(currentValue, condition.operator, condition.value);
-			}
-
-			return true;
+				return this.compareValues(currentValue, rule.operator, rule.value);
+			});
 		},
 
 		/**
@@ -674,6 +701,531 @@
 				}
 			};
 			reader.readAsDataURL(file);
+		},
+
+		/**
+		 * Initialize media library fields (image, file, gallery).
+		 */
+		initMediaFields() {
+			this.initImageFields();
+			this.initFileMediaFields();
+			this.initGalleryFields();
+			
+			console.log('[OpenFields] Media fields initialized');
+		},
+
+		/**
+		 * Initialize image field media library interactions.
+		 */
+		initImageFields() {
+			const imageFields = document.querySelectorAll('.openfields-image-field');
+			
+			imageFields.forEach(field => {
+				const selectBtn = field.querySelector('.openfields-image-select');
+				const changeBtn = field.querySelector('.openfields-image-change');
+				const removeBtn = field.querySelector('.openfields-image-remove');
+				
+				if (selectBtn) {
+					selectBtn.addEventListener('click', () => this.openImageMediaLibrary(field));
+				}
+				if (changeBtn) {
+					changeBtn.addEventListener('click', () => this.openImageMediaLibrary(field));
+				}
+				if (removeBtn) {
+					removeBtn.addEventListener('click', () => this.removeImage(field));
+				}
+			});
+		},
+
+		/**
+		 * Open WordPress media library for image selection.
+		 *
+		 * @param {HTMLElement} field - The image field container.
+		 */
+		openImageMediaLibrary(field) {
+			if (!wp || !wp.media) {
+				console.error('[OpenFields] WordPress media library not available');
+				return;
+			}
+
+			const frame = wp.media({
+				title: 'Select Image',
+				button: { text: 'Use this image' },
+				library: { type: 'image' },
+				multiple: false,
+			});
+
+			frame.on('select', () => {
+				const attachment = frame.state().get('selection').first().toJSON();
+				this.setImageValue(field, attachment);
+			});
+
+			frame.open();
+		},
+
+		/**
+		 * Set image field value after selection.
+		 *
+		 * @param {HTMLElement} field - The image field container.
+		 * @param {Object} attachment - WordPress attachment object.
+		 */
+		setImageValue(field, attachment) {
+			const input = field.querySelector('.openfields-image-value');
+			const preview = field.querySelector('.openfields-image-preview');
+			const selectBtn = field.querySelector('.openfields-image-select');
+			const changeBtn = field.querySelector('.openfields-image-change');
+			const removeBtn = field.querySelector('.openfields-image-remove');
+
+			// Update hidden input.
+			if (input) input.value = attachment.id;
+
+			// Update preview.
+			const size = attachment.sizes?.medium || attachment.sizes?.thumbnail || { url: attachment.url };
+			
+			preview.innerHTML = `
+				<img src="${size.url}" alt="${attachment.alt || ''}" class="openfields-image-thumb" />
+				<div class="openfields-image-info">
+					<span class="openfields-image-name">${attachment.title || attachment.filename}</span>
+				</div>
+			`;
+			preview.classList.remove('no-image');
+			preview.classList.add('has-image');
+
+			// Toggle buttons.
+			if (selectBtn) selectBtn.classList.add('hidden');
+			if (changeBtn) changeBtn.classList.remove('hidden');
+			if (removeBtn) removeBtn.classList.remove('hidden');
+		},
+
+		/**
+		 * Remove image from field.
+		 *
+		 * @param {HTMLElement} field - The image field container.
+		 */
+		removeImage(field) {
+			const input = field.querySelector('.openfields-image-value');
+			const preview = field.querySelector('.openfields-image-preview');
+			const selectBtn = field.querySelector('.openfields-image-select');
+			const changeBtn = field.querySelector('.openfields-image-change');
+			const removeBtn = field.querySelector('.openfields-image-remove');
+
+			// Clear hidden input.
+			if (input) input.value = '';
+
+			// Reset preview.
+			preview.innerHTML = `
+				<div class="openfields-image-placeholder">
+					<span class="dashicons dashicons-format-image"></span>
+					<span class="openfields-image-placeholder-text">No image selected</span>
+				</div>
+			`;
+			preview.classList.remove('has-image');
+			preview.classList.add('no-image');
+
+			// Toggle buttons.
+			if (selectBtn) selectBtn.classList.remove('hidden');
+			if (changeBtn) changeBtn.classList.add('hidden');
+			if (removeBtn) removeBtn.classList.add('hidden');
+		},
+
+		/**
+		 * Initialize file field media library interactions.
+		 */
+		initFileMediaFields() {
+			const fileFields = document.querySelectorAll('.openfields-file-field');
+			
+			fileFields.forEach(field => {
+				const selectBtn = field.querySelector('.openfields-file-select');
+				const changeBtn = field.querySelector('.openfields-file-change');
+				const removeBtn = field.querySelector('.openfields-file-remove');
+				
+				if (selectBtn) {
+					selectBtn.addEventListener('click', () => this.openFileMediaLibrary(field));
+				}
+				if (changeBtn) {
+					changeBtn.addEventListener('click', () => this.openFileMediaLibrary(field));
+				}
+				if (removeBtn) {
+					removeBtn.addEventListener('click', () => this.removeFile(field));
+				}
+			});
+		},
+
+		/**
+		 * Open WordPress media library for file selection.
+		 *
+		 * @param {HTMLElement} field - The file field container.
+		 */
+		openFileMediaLibrary(field) {
+			if (!wp || !wp.media) {
+				console.error('[OpenFields] WordPress media library not available');
+				return;
+			}
+
+			const mimeTypes = field.dataset.mimeTypes;
+			const libraryConfig = { type: null }; // All types by default
+			
+			if (mimeTypes) {
+				libraryConfig.type = mimeTypes.split(',').map(t => t.trim());
+			}
+
+			const frame = wp.media({
+				title: 'Select File',
+				button: { text: 'Use this file' },
+				library: libraryConfig,
+				multiple: false,
+			});
+
+			frame.on('select', () => {
+				const attachment = frame.state().get('selection').first().toJSON();
+				this.setFileValue(field, attachment);
+			});
+
+			frame.open();
+		},
+
+		/**
+		 * Set file field value after selection.
+		 *
+		 * @param {HTMLElement} field - The file field container.
+		 * @param {Object} attachment - WordPress attachment object.
+		 */
+		setFileValue(field, attachment) {
+			const input = field.querySelector('.openfields-file-value');
+			const info = field.querySelector('.openfields-file-info');
+			const selectBtn = field.querySelector('.openfields-file-select');
+			const changeBtn = field.querySelector('.openfields-file-change');
+			const removeBtn = field.querySelector('.openfields-file-remove');
+
+			// Update hidden input.
+			if (input) input.value = attachment.id;
+
+			// Determine file icon.
+			let iconClass = 'dashicons-media-default';
+			const mime = attachment.mime || '';
+			if (mime.startsWith('image/')) iconClass = 'dashicons-format-image';
+			else if (mime.startsWith('video/')) iconClass = 'dashicons-video-alt3';
+			else if (mime.startsWith('audio/')) iconClass = 'dashicons-format-audio';
+			else if (mime === 'application/pdf') iconClass = 'dashicons-pdf';
+			else if (mime.includes('zip') || mime.includes('archive')) iconClass = 'dashicons-media-archive';
+			else if (mime.startsWith('text/')) iconClass = 'dashicons-media-text';
+			else if (mime.includes('spreadsheet') || mime.includes('excel')) iconClass = 'dashicons-media-spreadsheet';
+			else if (mime.includes('document') || mime.includes('word')) iconClass = 'dashicons-media-document';
+
+			// Get file type for display.
+			const mimeShort = mime.split('/').pop().toUpperCase();
+
+			// Update info display.
+			info.innerHTML = `
+				<div class="openfields-file-preview">
+					<span class="openfields-file-icon dashicons ${iconClass}"></span>
+					<div class="openfields-file-details">
+						<a href="${attachment.url}" target="_blank" class="openfields-file-name" title="Open in new tab">
+							${attachment.filename || attachment.title}
+						</a>
+						<div class="openfields-file-meta">
+							<span class="openfields-file-type">${mimeShort}</span>
+							${attachment.filesizeHumanReadable ? `<span class="openfields-file-size">${attachment.filesizeHumanReadable}</span>` : ''}
+						</div>
+					</div>
+				</div>
+			`;
+			info.classList.remove('no-file');
+			info.classList.add('has-file');
+
+			// Toggle buttons.
+			if (selectBtn) selectBtn.classList.add('hidden');
+			if (changeBtn) changeBtn.classList.remove('hidden');
+			if (removeBtn) removeBtn.classList.remove('hidden');
+		},
+
+		/**
+		 * Remove file from field.
+		 *
+		 * @param {HTMLElement} field - The file field container.
+		 */
+		removeFile(field) {
+			const input = field.querySelector('.openfields-file-value');
+			const info = field.querySelector('.openfields-file-info');
+			const selectBtn = field.querySelector('.openfields-file-select');
+			const changeBtn = field.querySelector('.openfields-file-change');
+			const removeBtn = field.querySelector('.openfields-file-remove');
+
+			// Clear hidden input.
+			if (input) input.value = '';
+
+			// Reset info display.
+			info.innerHTML = `
+				<div class="openfields-file-placeholder">
+					<span class="dashicons dashicons-media-default"></span>
+					<span class="openfields-file-placeholder-text">No file selected</span>
+				</div>
+			`;
+			info.classList.remove('has-file');
+			info.classList.add('no-file');
+
+			// Toggle buttons.
+			if (selectBtn) selectBtn.classList.remove('hidden');
+			if (changeBtn) changeBtn.classList.add('hidden');
+			if (removeBtn) removeBtn.classList.add('hidden');
+		},
+
+		/**
+		 * Initialize gallery field interactions.
+		 */
+		initGalleryFields() {
+			const galleryFields = document.querySelectorAll('.openfields-gallery-field');
+			
+			galleryFields.forEach(field => {
+				// Add buttons.
+				const addBtns = field.querySelectorAll('.openfields-gallery-add, .openfields-gallery-select');
+				addBtns.forEach(btn => {
+					btn.addEventListener('click', () => this.openGalleryMediaLibrary(field));
+				});
+
+				// Remove buttons for individual items.
+				this.bindGalleryItemRemove(field);
+
+				// Initialize drag and drop.
+				this.initGalleryDragDrop(field);
+			});
+		},
+
+		/**
+		 * Open WordPress media library for gallery selection.
+		 *
+		 * @param {HTMLElement} field - The gallery field container.
+		 */
+		openGalleryMediaLibrary(field) {
+			if (!wp || !wp.media) {
+				console.error('[OpenFields] WordPress media library not available');
+				return;
+			}
+
+			const maxImages = parseInt(field.dataset.max) || 0;
+			const currentCount = field.querySelectorAll('.openfields-gallery-item').length;
+
+			const frame = wp.media({
+				title: 'Select Images',
+				button: { text: 'Add to gallery' },
+				library: { type: 'image' },
+				multiple: true,
+			});
+
+			frame.on('select', () => {
+				const selection = frame.state().get('selection').toJSON();
+				
+				// Check max limit.
+				let imagesToAdd = selection;
+				if (maxImages > 0) {
+					const available = maxImages - currentCount;
+					if (available <= 0) {
+						alert(`Maximum of ${maxImages} images allowed.`);
+						return;
+					}
+					imagesToAdd = selection.slice(0, available);
+				}
+
+				this.addGalleryImages(field, imagesToAdd);
+			});
+
+			frame.open();
+		},
+
+		/**
+		 * Add images to gallery.
+		 *
+		 * @param {HTMLElement} field - The gallery field container.
+		 * @param {Array} attachments - Array of attachment objects.
+		 */
+		addGalleryImages(field, attachments) {
+			const grid = field.querySelector('.openfields-gallery-grid');
+			const input = field.querySelector('.openfields-gallery-value');
+			const placeholder = field.querySelector('.openfields-gallery-placeholder');
+			const addItem = grid.querySelector('.openfields-gallery-add-item');
+			const previewSize = field.dataset.previewSize || 'thumbnail';
+
+			// Get current IDs.
+			const currentIds = input.value ? input.value.split(',').filter(id => id) : [];
+
+			// Add new images.
+			attachments.forEach(attachment => {
+				if (currentIds.includes(String(attachment.id))) return; // Skip duplicates.
+
+				currentIds.push(String(attachment.id));
+
+				const size = attachment.sizes?.[previewSize] || attachment.sizes?.thumbnail || { url: attachment.url };
+				
+				const item = document.createElement('div');
+				item.className = 'openfields-gallery-item';
+				item.dataset.attachmentId = attachment.id;
+				item.innerHTML = `
+					<div class="openfields-gallery-thumb">
+						<img src="${size.url}" alt="${attachment.alt || ''}" />
+					</div>
+					<div class="openfields-gallery-item-actions">
+						<button type="button" class="openfields-gallery-item-remove" title="Remove">
+							<span class="dashicons dashicons-no-alt"></span>
+						</button>
+					</div>
+					<div class="openfields-gallery-item-drag" title="Drag to reorder">
+						<span class="dashicons dashicons-move"></span>
+					</div>
+				`;
+
+				// Insert before the add button.
+				if (addItem) {
+					grid.insertBefore(item, addItem);
+				} else {
+					grid.appendChild(item);
+				}
+
+				// Bind remove handler.
+				item.querySelector('.openfields-gallery-item-remove').addEventListener('click', () => {
+					this.removeGalleryItem(field, item);
+				});
+			});
+
+			// Update hidden input.
+			input.value = currentIds.join(',');
+
+			// Hide placeholder, show grid.
+			if (placeholder) placeholder.style.display = 'none';
+			grid.classList.remove('no-images');
+			grid.classList.add('has-images');
+
+			// Update limits display.
+			this.updateGalleryLimits(field);
+		},
+
+		/**
+		 * Remove an item from gallery.
+		 *
+		 * @param {HTMLElement} field - The gallery field container.
+		 * @param {HTMLElement} item - The item to remove.
+		 */
+		removeGalleryItem(field, item) {
+			const grid = field.querySelector('.openfields-gallery-grid');
+			const input = field.querySelector('.openfields-gallery-value');
+			const placeholder = field.querySelector('.openfields-gallery-placeholder');
+			const attachmentId = item.dataset.attachmentId;
+
+			// Remove from DOM.
+			item.remove();
+
+			// Update hidden input.
+			const currentIds = input.value ? input.value.split(',').filter(id => id && id !== attachmentId) : [];
+			input.value = currentIds.join(',');
+
+			// Show placeholder if empty.
+			if (currentIds.length === 0) {
+				if (placeholder) placeholder.style.display = '';
+				grid.classList.remove('has-images');
+				grid.classList.add('no-images');
+			}
+
+			// Update limits display.
+			this.updateGalleryLimits(field);
+		},
+
+		/**
+		 * Bind remove handlers for existing gallery items.
+		 *
+		 * @param {HTMLElement} field - The gallery field container.
+		 */
+		bindGalleryItemRemove(field) {
+			const items = field.querySelectorAll('.openfields-gallery-item');
+			items.forEach(item => {
+				const removeBtn = item.querySelector('.openfields-gallery-item-remove');
+				if (removeBtn) {
+					removeBtn.addEventListener('click', () => {
+						this.removeGalleryItem(field, item);
+					});
+				}
+			});
+		},
+
+		/**
+		 * Initialize drag and drop for gallery items.
+		 *
+		 * @param {HTMLElement} field - The gallery field container.
+		 */
+		initGalleryDragDrop(field) {
+			const grid = field.querySelector('.openfields-gallery-grid');
+			let draggedItem = null;
+
+			grid.addEventListener('dragstart', (e) => {
+				if (e.target.classList.contains('openfields-gallery-item')) {
+					draggedItem = e.target;
+					e.target.classList.add('is-dragging');
+					e.dataTransfer.effectAllowed = 'move';
+				}
+			});
+
+			grid.addEventListener('dragend', (e) => {
+				if (draggedItem) {
+					draggedItem.classList.remove('is-dragging');
+					draggedItem = null;
+					this.updateGalleryOrder(field);
+				}
+			});
+
+			grid.addEventListener('dragover', (e) => {
+				e.preventDefault();
+				e.dataTransfer.dropEffect = 'move';
+
+				const target = e.target.closest('.openfields-gallery-item');
+				if (target && target !== draggedItem) {
+					const rect = target.getBoundingClientRect();
+					const midX = rect.left + rect.width / 2;
+					
+					if (e.clientX < midX) {
+						target.parentNode.insertBefore(draggedItem, target);
+					} else {
+						target.parentNode.insertBefore(draggedItem, target.nextSibling);
+					}
+				}
+			});
+
+			// Make items draggable.
+			const items = grid.querySelectorAll('.openfields-gallery-item');
+			items.forEach(item => {
+				item.setAttribute('draggable', 'true');
+			});
+		},
+
+		/**
+		 * Update gallery order after drag and drop.
+		 *
+		 * @param {HTMLElement} field - The gallery field container.
+		 */
+		updateGalleryOrder(field) {
+			const input = field.querySelector('.openfields-gallery-value');
+			const items = field.querySelectorAll('.openfields-gallery-item');
+			const ids = Array.from(items).map(item => item.dataset.attachmentId);
+			input.value = ids.join(',');
+		},
+
+		/**
+		 * Update gallery limits display.
+		 *
+		 * @param {HTMLElement} field - The gallery field container.
+		 */
+		updateGalleryLimits(field) {
+			const limits = field.querySelector('.openfields-gallery-limits');
+			if (!limits) return;
+
+			const min = parseInt(field.dataset.min) || 0;
+			const max = parseInt(field.dataset.max) || 0;
+			const count = field.querySelectorAll('.openfields-gallery-item').length;
+
+			if (min > 0 && max > 0) {
+				limits.textContent = `${count} images selected (min: ${min}, max: ${max})`;
+			} else if (min > 0) {
+				limits.textContent = `${count} images selected (min: ${min})`;
+			} else if (max > 0) {
+				limits.textContent = `${count} images selected (max: ${max})`;
+			}
 		},
 
 		/**

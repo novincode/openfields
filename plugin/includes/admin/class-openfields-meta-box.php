@@ -63,6 +63,10 @@ class OpenFields_Meta_Box {
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/post-object.php';
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/taxonomy.php';
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/user.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/link.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/image.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/file.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/gallery.php';
 	}
 
 	/**
@@ -75,6 +79,9 @@ class OpenFields_Meta_Box {
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
+
+		// Enqueue WordPress media library for image/file/gallery fields.
+		wp_enqueue_media();
 
 		// Enqueue field styles.
 		wp_enqueue_style(
@@ -469,22 +476,18 @@ class OpenFields_Meta_Box {
 				break;
 
 			case 'image':
-				$attachment_id = absint( $value );
-				echo '<input type="hidden" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $attachment_id ) . '" />';
-				if ( $attachment_id ) {
-					$img = wp_get_attachment_image_url( $attachment_id, 'thumbnail' );
-					echo '<img src="' . esc_url( $img ) . '" style="max-width: 100px; height: auto;" /><br />';
-				}
-				echo '<button type="button" class="button">Select Image</button>';
+				// Use dedicated renderer.
+				openfields_render_image_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'file':
-				$attachment_id = absint( $value );
-				echo '<input type="hidden" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $attachment_id ) . '" />';
-				if ( $attachment_id ) {
-					echo esc_html( basename( get_attached_file( $attachment_id ) ) ) . '<br />';
-				}
-				echo '<button type="button" class="button">Select File</button>';
+				// Use dedicated renderer.
+				openfields_render_file_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'gallery':
+				// Use dedicated renderer.
+				openfields_render_gallery_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'wysiwyg':
