@@ -152,8 +152,27 @@ class OpenFields_Field_Registry {
 			'label'       => __( 'URL', 'openfields' ),
 			'description' => __( 'URL input with validation.', 'openfields' ),
 			'category'    => 'basic',
-			'icon'        => 'link',
+			'icon'        => 'external-link',
 			'schema'      => array(),
+		) );
+
+		$this->register( 'link', array(
+			'label'       => __( 'Link', 'openfields' ),
+			'description' => __( 'Link with URL, text, and target options.', 'openfields' ),
+			'category'    => 'basic',
+			'icon'        => 'link',
+			'schema'      => array(
+				'show_title'  => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Show Link Text', 'openfields' ),
+					'default' => true,
+				),
+				'show_target' => array(
+					'type'    => 'boolean',
+					'label'   => __( 'Show Target', 'openfields' ),
+					'default' => true,
+				),
+			),
 		) );
 
 		// Choice fields.

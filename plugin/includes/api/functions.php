@@ -19,11 +19,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * For repeater fields, if the value is an integer (ACF format row count),
  * this function returns the reconstructed array of rows.
  *
+ * For relational fields (post_object, taxonomy, user), applies return_format
+ * to return either ID(s), object(s), or array(s) based on field settings.
+ *
  * @since 1.0.0
  *
  * @param  string   $field_name   Field name.
  * @param  int|null $object_id    Object ID. Defaults to current post.
- * @param  bool     $format_value Whether to format the value (future use).
+ * @param  bool     $format_value Whether to format the value based on return_format.
  * @return mixed    Field value.
  */
 function get_field( $field_name, $object_id = null, $format_value = true ) {
@@ -43,6 +46,11 @@ function get_field( $field_name, $object_id = null, $format_value = true ) {
 				return get_rows( $field_name, $object_id );
 			}
 		}
+	}
+
+	// Apply return_format for relational fields if formatting is enabled.
+	if ( $format_value && ! empty( $value ) ) {
+		$value = openfields_apply_return_format( $field_name, $value );
 	}
 
 	return $value;
@@ -402,7 +410,15 @@ function get_field_object( $field_name ) {
 		return null;
 	}
 
-	$field['settings'] = json_decode( $field['settings'], true );
+	// Field settings are stored in field_config column as JSON.
+	$settings = array();
+	if ( ! empty( $field['field_config'] ) ) {
+		$decoded = json_decode( $field['field_config'], true );
+		if ( is_array( $decoded ) ) {
+			$settings = $decoded;
+		}
+	}
+	$field['settings'] = $settings;
 
 	return $field;
 }
@@ -481,6 +497,150 @@ function openfields_get_all_meta( $object_id, $type = 'post' ) {
 		$result[ $key ] = maybe_unserialize( $values[0] ?? '' );
 	}
 	return $result;
+}
+
+/**
+ * Apply return_format to a field value based on field settings.
+ *
+ * Handles post_object, taxonomy, user, and relationship fields.
+ *
+ * @since 1.0.0
+ *
+ * @param  string $field_name Field name.
+ * @param  mixed  $value      Raw field value (typically ID or array of IDs).
+ * @return mixed  Formatted value based on return_format setting.
+ */
+function openfields_apply_return_format( $field_name, $value ) {
+	// Get field definition to check type and return_format.
+	$field = get_field_object( $field_name );
+	
+	if ( ! $field || empty( $field['type'] ) ) {
+		return $value;
+	}
+
+	$type     = $field['type'];
+	$settings = is_array( $field['settings'] ) ? $field['settings'] : array();
+	
+	// Only format relational field types.
+	if ( ! in_array( $type, array( 'post_object', 'relationship', 'taxonomy', 'user' ), true ) ) {
+		return $value;
+	}
+
+	$return_format = $settings['return_format'] ?? 'id';
+
+	// If already ID format or no special formatting needed.
+	if ( 'id' === $return_format ) {
+		return $value;
+	}
+
+	// Handle based on field type.
+	switch ( $type ) {
+		case 'post_object':
+		case 'relationship':
+			return openfields_format_post_value( $value, $return_format );
+
+		case 'taxonomy':
+			return openfields_format_taxonomy_value( $value, $return_format );
+
+		case 'user':
+			return openfields_format_user_value( $value, $return_format );
+
+		default:
+			return $value;
+	}
+}
+
+/**
+ * Format post value based on return_format.
+ *
+ * @param  mixed  $value         Post ID or array of IDs.
+ * @param  string $return_format 'object' or 'id'.
+ * @return mixed
+ */
+function openfields_format_post_value( $value, $return_format ) {
+	if ( 'id' === $return_format ) {
+		return $value;
+	}
+
+	// 'object' format - return WP_Post object(s).
+	if ( is_array( $value ) ) {
+		return array_filter( array_map( 'get_post', $value ) );
+	}
+
+	return get_post( $value ) ?: null;
+}
+
+/**
+ * Format taxonomy term value based on return_format.
+ *
+ * @param  mixed  $value         Term ID or array of IDs.
+ * @param  string $return_format 'object' or 'id'.
+ * @return mixed
+ */
+function openfields_format_taxonomy_value( $value, $return_format ) {
+	if ( 'id' === $return_format ) {
+		return $value;
+	}
+
+	// 'object' format - return WP_Term object(s).
+	if ( is_array( $value ) ) {
+		return array_filter( array_map( function( $term_id ) {
+			return get_term( $term_id );
+		}, $value ) );
+	}
+
+	return get_term( $value ) ?: null;
+}
+
+/**
+ * Format user value based on return_format.
+ *
+ * @param  mixed  $value         User ID or array of IDs.
+ * @param  string $return_format 'object', 'array', or 'id'.
+ * @return mixed
+ */
+function openfields_format_user_value( $value, $return_format ) {
+	if ( 'id' === $return_format ) {
+		return $value;
+	}
+
+	// Handle arrays.
+	if ( is_array( $value ) ) {
+		return array_filter( array_map( function( $user_id ) use ( $return_format ) {
+			$user = get_userdata( $user_id );
+			if ( ! $user ) {
+				return null;
+			}
+			if ( 'array' === $return_format ) {
+				return array(
+					'ID'           => $user->ID,
+					'user_login'   => $user->user_login,
+					'user_email'   => $user->user_email,
+					'display_name' => $user->display_name,
+					'user_url'     => $user->user_url,
+				);
+			}
+			return $user; // 'object' format.
+		}, $value ) );
+	}
+
+	// Single value.
+	$user = get_userdata( $value );
+	if ( ! $user ) {
+		return null;
+	}
+
+	if ( 'array' === $return_format ) {
+		return array(
+			'ID'           => $user->ID,
+			'user_login'   => $user->user_login,
+			'user_email'   => $user->user_email,
+			'display_name' => $user->display_name,
+			'user_url'     => $user->user_url,
+		);
+	}
+
+	return $user; // 'object' format.
 }
 
 /**

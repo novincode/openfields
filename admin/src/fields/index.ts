@@ -20,6 +20,7 @@ import { RepeaterFieldSettings } from './RepeaterFieldSettings';
 import { PostObjectFieldSettings } from './PostObjectFieldSettings';
 import { TaxonomyFieldSettings } from './TaxonomyFieldSettings';
 import { UserFieldSettings } from './UserFieldSettings';
+import { LinkFieldSettings } from './LinkFieldSettings';
 
 /**
  * Register all field types with their settings components
@@ -177,6 +178,19 @@ export function registerFieldSettings() {
 				multiple: false,
 				return_format: 'array',
 				allow_null: false,
+			},
+		});
+	}
+
+	// Link - URL with title and target
+	const linkDef = fieldRegistry.get('link');
+	if (linkDef) {
+		fieldRegistry.register({
+			...linkDef,
+			SettingsComponent: LinkFieldSettings as React.ComponentType<FieldSettingsProps>,
+			defaultSettings: {
+				show_title: true,
+				show_target: true,
 			},
 		});
 	}

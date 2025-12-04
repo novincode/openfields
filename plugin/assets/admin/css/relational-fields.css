@@ -241,3 +241,69 @@
 	border-radius: 4px;
 	border: 1px solid #d63638;
 }
+
+/* ============================================================================
+   Link Field Styles
+   ============================================================================ */
+
+.openfields-link-field {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.openfields-link-row {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.openfields-link-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	color: #1d2327;
+}
+
+.openfields-link-label .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	color: #646970;
+}
+
+.openfields-link-url,
+.openfields-link-title {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.openfields-link-url:focus,
+.openfields-link-title:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+.openfields-link-target-row {
+	flex-direction: row;
+	align-items: center;
+}
+
+.openfields-checkbox-inline {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.openfields-checkbox-inline input[type="checkbox"] {
+	margin: 0;
+}

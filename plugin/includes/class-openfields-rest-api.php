@@ -788,6 +788,7 @@ class OpenFields_REST_API {
 
 		// Handle settings - support both 'settings' and 'field_config' for backwards compatibility
 		$settings = $request['settings'] ?? $request['field_config'] ?? array();
+		$settings = $this->sanitize_field_settings( $settings );
 
 		$data = array(
 			'fieldset_id'       => $fieldset_id,
@@ -922,6 +923,7 @@ class OpenFields_REST_API {
 		// Handle settings - support both 'settings' and 'field_config' for backwards compatibility
 		if ( array_key_exists( 'settings', $request->get_params() ) || array_key_exists( 'field_config', $request->get_params() ) ) {
 			$value = $request['settings'] ?? $request['field_config'];
+			$value = $this->sanitize_field_settings( $value );
 			$data['field_config'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
 		}
 
@@ -1484,6 +1486,36 @@ class OpenFields_REST_API {
 		$types   = $manager->get_location_types_for_api();
 
 		return rest_ensure_response( $types );
+	}
+
+	/**
+	 * Sanitize field settings, including filtering empty choices.
+	 *
+	 * @since  1.0.0
+	 * @param  array $settings Field settings array.
+	 * @return array Sanitized settings.
+	 */
+	private function sanitize_field_settings( $settings ) {
+		if ( ! is_array( $settings ) ) {
+			return array();
+		}
+
+		// Filter empty choices for select, radio, checkbox fields
+		if ( isset( $settings['choices'] ) && is_array( $settings['choices'] ) ) {
+			$settings['choices'] = array_values( array_filter( $settings['choices'], function( $choice ) {
+				// Choice can be a string or an array with value/label
+				if ( is_array( $choice ) ) {
+					// Keep if either value or label is not empty
+					$value = isset( $choice['value'] ) ? trim( $choice['value'] ) : '';
+					$label = isset( $choice['label'] ) ? trim( $choice['label'] ) : '';
+					return ! empty( $value ) || ! empty( $label );
+				}
+				// If string, keep if not empty
+				return ! empty( trim( (string) $choice ) );
+			} ) );
+		}
+
+		return $settings;
 	}
 
 	/**

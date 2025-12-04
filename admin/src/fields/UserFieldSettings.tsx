@@ -54,7 +54,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
   const updateSetting = (key: string, value: unknown) => {
     onSettingsChange({
       ...settings,
-      [key]: value,
+      [key]: value === '__all__' ? '' : value,
     });
   };
 
@@ -64,7 +64,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
       <div className="space-y-2">
         <Label>Filter by Role</Label>
         <Select
-          value={String(settings.role || '')}
+          value={String(settings.role || '__all__')}
           onValueChange={(value) => updateSetting('role', value)}
           disabled={loading}
         >
@@ -72,7 +72,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
             <SelectValue placeholder={loading ? "Loading..." : "All Roles"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Roles</SelectItem>
+            <SelectItem value="__all__">All Roles</SelectItem>
             {roles.map((role) => (
               <SelectItem key={role.value} value={role.value}>
                 {role.label}

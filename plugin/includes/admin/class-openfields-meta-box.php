@@ -783,6 +783,51 @@ class OpenFields_Meta_Box {
 			case 'file':
 				return absint( $value );
 
+			case 'taxonomy':
+				// Taxonomy can be single or multiple term IDs.
+				if ( is_array( $value ) ) {
+					return array_map( 'absint', array_filter( $value ) );
+				}
+				return absint( $value );
+
+			case 'post_object':
+			case 'relationship':
+				// Post object can be single ID or comma-separated IDs.
+				if ( is_array( $value ) ) {
+					return array_map( 'absint', array_filter( $value ) );
+				}
+				// Handle comma-separated string from hidden input.
+				if ( strpos( (string) $value, ',' ) !== false ) {
+					return array_map( 'absint', array_filter( explode( ',', $value ) ) );
+				}
+				return absint( $value );
+
+			case 'user':
+				// User can be single ID or comma-separated IDs.
+				if ( is_array( $value ) ) {
+					return array_map( 'absint', array_filter( $value ) );
+				}
+				// Handle comma-separated string from hidden input.
+				if ( strpos( (string) $value, ',' ) !== false ) {
+					return array_map( 'absint', array_filter( explode( ',', $value ) ) );
+				}
+				return absint( $value );
+
+			case 'link':
+				// Link is an array with url, title, target.
+				if ( ! is_array( $value ) ) {
+					return array(
+						'url'    => '',
+						'title'  => '',
+						'target' => '',
+					);
+				}
+				return array(
+					'url'    => esc_url_raw( $value['url'] ?? '' ),
+					'title'  => sanitize_text_field( $value['title'] ?? '' ),
+					'target' => sanitize_text_field( $value['target'] ?? '' ),
+				);
+
 			default:
 				return sanitize_text_field( $value );
 		}

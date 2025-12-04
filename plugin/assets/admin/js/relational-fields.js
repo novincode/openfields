@@ -20,6 +20,36 @@
 	}
 
 	/**
+	 * Build REST API URL handling both pretty permalinks and index.php?rest_route= format.
+	 *
+	 * @param {string} endpoint The REST endpoint (e.g., 'openfields/v1/search/posts')
+	 * @param {Object} params   Query parameters as key-value pairs
+	 * @return {string} The full URL
+	 */
+	function buildRestUrl(endpoint, params = {}) {
+		const baseUrl = openfieldsConfig.restUrl;
+		
+		// Build query string
+		const queryString = Object.entries(params)
+			.filter(([, v]) => v !== '' && v !== null && v !== undefined)
+			.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+			.join('&');
+		
+		// Check if we're using index.php?rest_route= format
+		if (baseUrl.includes('?')) {
+			// Already has query string, use & for additional params
+			return queryString 
+				? `${baseUrl}${endpoint}&${queryString}`
+				: `${baseUrl}${endpoint}`;
+		} else {
+			// Pretty permalinks, use ? for query string
+			return queryString 
+				? `${baseUrl}${endpoint}?${queryString}`
+				: `${baseUrl}${endpoint}`;
+		}
+	}
+
+	/**
 	 * Initialize relational fields.
 	 */
 	function init() {
@@ -69,14 +99,17 @@
 			resultsContainer.classList.add('active');
 
 			try {
-				const response = await fetch(
-					`${openfieldsConfig.restUrl}openfields/v1/search/posts?s=${encodeURIComponent(query)}&post_type=${encodeURIComponent(postTypes)}&per_page=10`,
-					{
-						headers: {
-							'X-WP-Nonce': openfieldsConfig.restNonce
-						}
+				const url = buildRestUrl('openfields/v1/search/posts', {
+					s: query,
+					post_type: postTypes,
+					per_page: 10
+				});
+
+				const response = await fetch(url, {
+					headers: {
+						'X-WP-Nonce': openfieldsConfig.restNonce
 					}
-				);
+				});
 
 				const data = await response.json();
 				renderSearchResults(data.results, resultsContainer, (post) => {
@@ -136,10 +169,15 @@
 			resultsContainer.classList.add('active');
 
 			try {
-				let url = `${openfieldsConfig.restUrl}openfields/v1/search/users?s=${encodeURIComponent(query)}&per_page=10`;
+				const params = {
+					s: query,
+					per_page: 10
+				};
 				if (roles) {
-					url += `&role=${encodeURIComponent(roles)}`;
+					params.role = roles;
 				}
+
+				const url = buildRestUrl('openfields/v1/search/users', params);
 
 				const response = await fetch(url, {
 					headers: {
