@@ -163,5 +163,6 @@
 }
 
 
-
-/* LAYOUT OVERRIDES */
+label {
+	@apply mb-2
+}

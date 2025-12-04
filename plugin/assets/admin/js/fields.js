@@ -439,25 +439,15 @@
 		initConditionalLogic() {
 			const fieldsWithConditions = document.querySelectorAll('[data-conditional-logic]');
 
-			console.log('[OpenFields] initConditionalLogic called');
-			console.log('[OpenFields] Fields with conditions found:', fieldsWithConditions.length);
-
 			if (fieldsWithConditions.length === 0) {
 				return;
 			}
-
-			// Log the fields for debugging
-			fieldsWithConditions.forEach((field, i) => {
-				console.log(`[OpenFields] Conditional field ${i}:`, field.dataset.conditionalLogic);
-			});
 
 			// Setup listeners on all input fields for change detection.
 			this.setupConditionalListeners();
 
 			// Initial evaluation of conditional logic.
 			this.evaluateAllConditions();
-
-			console.log(`[OpenFields] Initialized ${fieldsWithConditions.length} conditional fields`);
 		},
 
 		/**
@@ -480,18 +470,13 @@
 		evaluateAllConditions() {
 			const fieldsWithConditions = document.querySelectorAll('[data-conditional-logic]');
 
-			console.log('[OpenFields] evaluateAllConditions called, fields:', fieldsWithConditions.length);
-
 			fieldsWithConditions.forEach(field => {
 				const conditionsJson = field.dataset.conditionalLogic;
 				if (!conditionsJson) return;
 
 				try {
 					const conditions = JSON.parse(conditionsJson);
-					console.log('[OpenFields] Evaluating conditions:', conditions);
-					
 					const shouldShow = this.evaluateCondition(conditions);
-					console.log('[OpenFields] Should show:', shouldShow);
 
 					// Update visibility with smooth transition.
 					if (shouldShow) {
@@ -577,11 +562,7 @@
 				}
 
 				const currentValue = this.getFieldValue(fieldElement);
-				const result = this.compareValues(currentValue, rule.operator, rule.value);
-				
-				console.log(`[OpenFields] Condition: ${fieldName} ${rule.operator} "${rule.value}" | Current: "${currentValue}" | Result: ${result}`);
-				
-				return result;
+				return this.compareValues(currentValue, rule.operator, rule.value);
 			});
 		},
 
@@ -592,8 +573,19 @@
 		 * @returns {*} The field value.
 		 */
 		getFieldValue(element) {
-			if (element.type === 'checkbox' || element.type === 'radio') {
-				return element.checked ? element.value : null;
+			// Handle checkboxes - return '1' if checked, '' if not (for empty/not_empty checks)
+			if (element.type === 'checkbox') {
+				return element.checked ? (element.value || '1') : '';
+			}
+			// Handle radio buttons
+			if (element.type === 'radio') {
+				// Find the checked radio in the same group
+				const checkedRadio = document.querySelector(`[name="${element.name}"]:checked`);
+				return checkedRadio ? checkedRadio.value : '';
+			}
+			// Handle switch fields (they use hidden checkbox)
+			if (element.classList.contains('openfields-switch-input')) {
+				return element.checked ? '1' : '';
 			}
 			if (element.tagName === 'SELECT') {
 				return element.value;
@@ -610,33 +602,40 @@
 		 * @returns {boolean} Result of the comparison.
 		 */
 		compareValues(value1, operator, value2) {
+			// Normalize value for comparison
+			const val1 = value1 === null || value1 === undefined ? '' : String(value1).trim();
+			const val2 = value2 === null || value2 === undefined ? '' : String(value2).trim();
+			
 			switch (operator) {
 				case '==':
 				case 'equals':
-					return String(value1) === String(value2);
+					return val1 === val2;
 				case '!=':
 				case 'not_equals':
-					return String(value1) !== String(value2);
+					return val1 !== val2;
 				case 'contains':
-					return String(value1).includes(String(value2));
+					return val1.includes(val2);
 				case 'not_contains':
-					return !String(value1).includes(String(value2));
+					return !val1.includes(val2);
 				case '>':
 				case 'greater_than':
-					return parseFloat(value1) > parseFloat(value2);
+					return parseFloat(val1) > parseFloat(val2);
 				case '<':
 				case 'less_than':
-					return parseFloat(value1) < parseFloat(value2);
+					return parseFloat(val1) < parseFloat(val2);
 				case '>=':
 				case 'greater_than_or_equal':
-					return parseFloat(value1) >= parseFloat(value2);
+					return parseFloat(val1) >= parseFloat(val2);
 				case '<=':
 				case 'less_than_or_equal':
-					return parseFloat(value1) <= parseFloat(value2);
+					return parseFloat(val1) <= parseFloat(val2);
+				// Support both 'empty'/'not_empty' (from UI) and 'is_empty'/'is_not_empty' (legacy)
+				case 'empty':
 				case 'is_empty':
-					return !value1 || value1 === '';
+					return val1 === '' || val1 === '0' && operator === 'empty';
+				case 'not_empty':
 				case 'is_not_empty':
-					return value1 && value1 !== '';
+					return val1 !== '';
 				default:
 					return false;
 			}

@@ -2,6 +2,8 @@
  * Conditional Logic Panel Component
  * 
  * Handles conditional logic rules for showing/hiding fields.
+ * Supports multiple OR groups, each containing AND rules.
+ * Structure: [[rule, rule], [rule]] = (rule AND rule) OR (rule)
  *
  * @package OpenFields
  */
@@ -43,27 +45,30 @@ export function ConditionalLogicPanel({
 		field.settings?.conditional_logic && field.settings.conditional_logic.length > 0;
 
 	const [enabled, setEnabled] = useState(hasConditionalLogic);
-	const [rules, setRules] = useState<ConditionalRule[]>(
-		field.settings?.conditional_logic?.[0] || []
+	// ruleGroups is an array of arrays: [[rule, rule], [rule]] = OR groups of AND rules
+	const [ruleGroups, setRuleGroups] = useState<ConditionalRule[][]>(
+		field.settings?.conditional_logic || []
 	);
-	const [logicType, setLogicType] = useState<'and' | 'or'>('and');
 
-	// Sync with field prop - but ONLY sync if the field data actually changed
-	// Not when we're just toggling locally
+	// Sync with field prop
 	useEffect(() => {
 		const hasLogic =
 			field.settings?.conditional_logic && field.settings.conditional_logic.length > 0;
-		// Only sync from field if we have actual rules, otherwise trust local state
 		if (hasLogic) {
 			setEnabled(true);
-			setRules(field.settings?.conditional_logic?.[0] || []);
+			setRuleGroups(field.settings?.conditional_logic || []);
 		}
 	}, [field.settings?.conditional_logic]);
 
 	// Save logic changes
-	const saveLogic = (newRules: ConditionalRule[]) => {
-		if (newRules.length > 0) {
-			onConditionalLogicChange([newRules]);
+	const saveLogic = (groups: ConditionalRule[][]) => {
+		// Filter out empty groups and groups with incomplete rules
+		const validGroups = groups
+			.map(group => group.filter(rule => rule.field && rule.operator))
+			.filter(group => group.length > 0);
+		
+		if (validGroups.length > 0) {
+			onConditionalLogicChange(validGroups);
 		} else {
 			onConditionalLogicChange(undefined);
 		}
@@ -73,54 +78,67 @@ export function ConditionalLogicPanel({
 	const handleToggle = (checked: boolean) => {
 		setEnabled(checked);
 		if (checked) {
-			// When turning ON, create a default empty rule so user can configure
-			const defaultRules = rules.length > 0 ? rules : [{ field: '', operator: '==' as const, value: '' }];
-			setRules(defaultRules);
-			// Don't save yet - user needs to configure the rule first
-			// Just mark as having conditional logic enabled
-			onConditionalLogicChange([defaultRules]);
+			// When turning ON, create a default group with one empty rule
+			const defaultGroups = ruleGroups.length > 0 
+				? ruleGroups 
+				: [[{ field: '', operator: '==' as const, value: '' }]];
+			setRuleGroups(defaultGroups);
+			onConditionalLogicChange(defaultGroups);
 		} else {
-			// When turning OFF, clear rules
-			setRules([]);
+			setRuleGroups([]);
 			onConditionalLogicChange(undefined);
 		}
 	};
 
-	// Add a new rule
-	const handleAddRule = () => {
-		const newRules = [...rules, { field: '', operator: '==' as const, value: '' }];
-		setRules(newRules);
-		// Don't save yet - user needs to fill it out
+	// Add a new rule to a group
+	const handleAddRule = (groupIndex: number) => {
+		const newGroups = [...ruleGroups];
+		newGroups[groupIndex] = [...(newGroups[groupIndex] || []), { field: '', operator: '==' as const, value: '' }];
+		setRuleGroups(newGroups);
 	};
 
-	// Update a rule - save immediately on any change
+	// Add a new OR group
+	const handleAddGroup = () => {
+		const newGroups = [...ruleGroups, [{ field: '', operator: '==' as const, value: '' }]];
+		setRuleGroups(newGroups);
+	};
+
+	// Update a rule
 	const handleUpdateRule = (
-		index: number,
+		groupIndex: number,
+		ruleIndex: number,
 		key: keyof ConditionalRule,
 		value: string
 	) => {
-		const newRules = [...rules];
-		const currentRule = newRules[index];
-		if (!currentRule) return;
+		const newGroups = [...ruleGroups];
+		const group = newGroups[groupIndex];
+		if (!group || !group[ruleIndex]) return;
 		
-		newRules[index] = { ...currentRule, [key]: value };
-		setRules(newRules);
-		
-		// Save immediately whenever a rule is updated
-		// This ensures the Save button enables right away
-		saveLogic(newRules);
+		newGroups[groupIndex] = [...group];
+		newGroups[groupIndex][ruleIndex] = { ...group[ruleIndex], [key]: value };
+		setRuleGroups(newGroups);
+		saveLogic(newGroups);
 	};
 
 	// Delete a rule
-	const handleDeleteRule = (index: number) => {
-		const newRules = rules.filter((_, i) => i !== index);
-		setRules(newRules);
-		saveLogic(newRules);
+	const handleDeleteRule = (groupIndex: number, ruleIndex: number) => {
+		const newGroups = [...ruleGroups];
+		const group = newGroups[groupIndex];
+		if (!group) return;
+		
+		newGroups[groupIndex] = group.filter((_, i) => i !== ruleIndex);
+		
+		// Remove empty groups
+		const filteredGroups = newGroups.filter(group => group.length > 0);
+		setRuleGroups(filteredGroups);
+		saveLogic(filteredGroups);
 	};
 
-	// Toggle logic type (AND/OR)
-	const handleToggleLogicType = () => {
-		setLogicType((prev) => (prev === 'and' ? 'or' : 'and'));
+	// Delete entire group
+	const handleDeleteGroup = (groupIndex: number) => {
+		const newGroups = ruleGroups.filter((_, i) => i !== groupIndex);
+		setRuleGroups(newGroups);
+		saveLogic(newGroups);
 	};
 
 	return (
@@ -131,84 +149,127 @@ export function ConditionalLogicPanel({
 			</div>
 
 			{enabled && (
-				<div className="space-y-3 bg-gray-50 p-3 rounded-lg">
+				<div className="space-y-3">
 					<p className="text-xs text-gray-600">
-						Show this field if{' '}
-						<button
-							type="button"
-							onClick={handleToggleLogicType}
-							className="font-semibold text-blue-600 hover:underline"
-						>
-							{logicType === 'and' ? 'ALL' : 'ANY'}
-						</button>{' '}
-						conditions match
+						Show this field if conditions match
 					</p>
 
-					{rules.map((rule, index) => (
-						<div key={index} className="flex items-center gap-2">
-							{/* Field selector */}
-							<Select
-								value={rule.field}
-								onValueChange={(value) => handleUpdateRule(index, 'field', value)}
-							>
-								<SelectTrigger className="w-[140px]">
-									<SelectValue placeholder="Select field" />
-								</SelectTrigger>
-								<SelectContent>
-									{otherFields.map((f) => (
-										<SelectItem key={f.id} value={f.name}>
-											{f.label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-
-							{/* Operator selector */}
-							<Select
-								value={rule.operator}
-								onValueChange={(value) =>
-									handleUpdateRule(index, 'operator', value)
-								}
-							>
-								<SelectTrigger className="w-[130px]">
-									<SelectValue placeholder="Operator" />
-								</SelectTrigger>
-								<SelectContent>
-									{CONDITION_OPERATORS.map((op) => (
-										<SelectItem key={op.value} value={op.value}>
-											{op.label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-
-							{/* Value input (not shown for empty/not_empty) */}
-							{!['empty', 'not_empty'].includes(rule.operator) && (
-								<Input
-									value={rule.value}
-									onChange={(e) =>
-										handleUpdateRule(index, 'value', e.target.value)
-									}
-									onBlur={() => saveLogic(rules)}
-									placeholder="Value"
-									className="w-[120px]"
-								/>
+					{ruleGroups.map((group, groupIndex) => (
+						<div key={groupIndex} className="bg-gray-50 p-3 rounded-lg space-y-2">
+							{/* Group header */}
+							{groupIndex > 0 && (
+								<div className="flex items-center justify-center -mt-6 mb-2">
+									<span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded">
+										OR
+									</span>
+								</div>
 							)}
+							
+							{group.map((rule, ruleIndex) => (
+								<div key={ruleIndex}>
+									{/* AND separator */}
+									{ruleIndex > 0 && (
+										<div className="text-xs text-gray-500 text-center my-1">AND</div>
+									)}
+									
+									<div className="flex items-center gap-2">
+										{/* Field selector */}
+										<Select
+											value={rule.field}
+											onValueChange={(value) => handleUpdateRule(groupIndex, ruleIndex, 'field', value)}
+										>
+											<SelectTrigger className="w-[140px]">
+												<SelectValue placeholder="Select field" />
+											</SelectTrigger>
+											<SelectContent>
+												{otherFields.map((f) => (
+													<SelectItem key={f.id} value={f.name}>
+														{f.label}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
 
-							{/* Delete button */}
-							<button
-								type="button"
-								onClick={() => handleDeleteRule(index)}
-								className="p-1 text-gray-400 hover:text-red-600"
-							>
-								<X className="h-4 w-4" />
-							</button>
+										{/* Operator selector */}
+										<Select
+											value={rule.operator}
+											onValueChange={(value) =>
+												handleUpdateRule(groupIndex, ruleIndex, 'operator', value)
+											}
+										>
+											<SelectTrigger className="w-[130px]">
+												<SelectValue placeholder="Operator" />
+											</SelectTrigger>
+											<SelectContent>
+												{CONDITION_OPERATORS.map((op) => (
+													<SelectItem key={op.value} value={op.value}>
+														{op.label}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+
+										{/* Value input (not shown for empty/not_empty) */}
+										{!['empty', 'not_empty'].includes(rule.operator) && (
+											<Input
+												value={rule.value}
+												onChange={(e) =>
+													handleUpdateRule(groupIndex, ruleIndex, 'value', e.target.value)
+												}
+												placeholder="Value"
+												className="w-[100px]"
+											/>
+										)}
+
+										{/* Delete rule button */}
+										<button
+											type="button"
+											onClick={() => handleDeleteRule(groupIndex, ruleIndex)}
+											className="p-1 text-gray-400 hover:text-red-600"
+											title="Remove rule"
+										>
+											<X className="h-4 w-4" />
+										</button>
+									</div>
+								</div>
+							))}
+
+							{/* Add AND rule button */}
+							<div className="flex items-center justify-between pt-2">
+								<Button 
+									type="button" 
+									variant="ghost" 
+									size="sm" 
+									onClick={() => handleAddRule(groupIndex)}
+									className="text-xs"
+								>
+									<Plus className="h-3 w-3 mr-1" />
+									AND
+								</Button>
+								
+								{ruleGroups.length > 1 && (
+									<button
+										type="button"
+										onClick={() => handleDeleteGroup(groupIndex)}
+										className="text-xs text-red-500 hover:text-red-700"
+									>
+										Remove group
+									</button>
+								)}
+							</div>
 						</div>
 					))}
 
-					<Button type="button" variant="outline" size="sm" onClick={handleAddRule}>
+					{/* Add OR group button */}
+					<Button 
+						type="button" 
+						variant="outline" 
+						size="sm" 
+						onClick={handleAddGroup}
+						className="w-full"
+					>
 						<Plus className="h-3 w-3 mr-1" />
-						Add Rule
+						Add OR Group
 					</Button>
 				</div>
 			)}
