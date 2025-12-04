@@ -234,10 +234,28 @@ class OpenFields_Meta_Box {
 	 */
 	private function render_field( $field, $post_id ) {
 		// Get settings JSON from database.
+		// Database has THREE separate JSON columns:
+		// - field_config: type-specific settings (choices, min, max, etc.)
+		// - wrapper_config: width, class, id
+		// - conditional_logic: conditional display rules
 		$settings = array();
 		if ( ! empty( $field->field_config ) ) {
 			$decoded = json_decode( $field->field_config, true );
 			$settings = is_array( $decoded ) ? $decoded : array();
+		}
+
+		// Get wrapper config from its own column.
+		$wrapper_config = array();
+		if ( ! empty( $field->wrapper_config ) ) {
+			$decoded = json_decode( $field->wrapper_config, true );
+			$wrapper_config = is_array( $decoded ) ? $decoded : array();
+		}
+
+		// Get conditional logic from its own column.
+		$conditional_logic = array();
+		if ( ! empty( $field->conditional_logic ) ) {
+			$decoded = json_decode( $field->conditional_logic, true );
+			$conditional_logic = is_array( $decoded ) ? $decoded : array();
 		}
 
 		// Get value from postmeta.
@@ -261,11 +279,11 @@ class OpenFields_Meta_Box {
 			'required'          => ! empty( $settings['required'] ) || ! empty( $field->required ),
 			'default_value'     => $field->default_value ?? '',
 			'placeholder'       => $field->placeholder ?? '',
-			'conditional_logic' => $settings['conditional_logic'] ?? array(),
+			'conditional_logic' => $conditional_logic,
 			'wrapper_config'    => array(
-				'width' => isset( $settings['wrapper']['width'] ) ? intval( $settings['wrapper']['width'] ) : ( isset( $settings['width'] ) ? intval( $settings['width'] ) : 100 ),
-				'class' => $settings['wrapper']['class'] ?? ( $settings['wrapper_class'] ?? '' ),
-				'id'    => $settings['wrapper']['id'] ?? ( $settings['wrapper_id'] ?? '' ),
+				'width' => isset( $wrapper_config['width'] ) ? intval( $wrapper_config['width'] ) : 100,
+				'class' => $wrapper_config['class'] ?? '',
+				'id'    => $wrapper_config['id'] ?? '',
 			),
 			'field_config'      => $settings,
 		);

@@ -486,20 +486,16 @@
    ============================================================================ */
 
 .openfields-field-wrapper[data-conditional-logic] {
-	transition: opacity var(--of-transition), visibility var(--of-transition);
+	transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
+/* Hidden by JS - use display:none for reliable hiding */
 .openfields-field-wrapper[data-conditional-status="hidden"] {
-	opacity: 0;
-	visibility: hidden;
-	pointer-events: none;
-	height: 0;
-	overflow: hidden;
-	margin: 0;
-	padding: 0;
+	display: none !important;
 }
 
 .openfields-field-wrapper[data-conditional-status="visible"] {
+	display: block;
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;

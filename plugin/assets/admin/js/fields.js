@@ -439,9 +439,17 @@
 		initConditionalLogic() {
 			const fieldsWithConditions = document.querySelectorAll('[data-conditional-logic]');
 
+			console.log('[OpenFields] initConditionalLogic called');
+			console.log('[OpenFields] Fields with conditions found:', fieldsWithConditions.length);
+
 			if (fieldsWithConditions.length === 0) {
 				return;
 			}
+
+			// Log the fields for debugging
+			fieldsWithConditions.forEach((field, i) => {
+				console.log(`[OpenFields] Conditional field ${i}:`, field.dataset.conditionalLogic);
+			});
 
 			// Setup listeners on all input fields for change detection.
 			this.setupConditionalListeners();
@@ -472,30 +480,36 @@
 		evaluateAllConditions() {
 			const fieldsWithConditions = document.querySelectorAll('[data-conditional-logic]');
 
+			console.log('[OpenFields] evaluateAllConditions called, fields:', fieldsWithConditions.length);
+
 			fieldsWithConditions.forEach(field => {
 				const conditionsJson = field.dataset.conditionalLogic;
 				if (!conditionsJson) return;
 
 				try {
 					const conditions = JSON.parse(conditionsJson);
+					console.log('[OpenFields] Evaluating conditions:', conditions);
+					
 					const shouldShow = this.evaluateCondition(conditions);
+					console.log('[OpenFields] Should show:', shouldShow);
 
 					// Update visibility with smooth transition.
 					if (shouldShow) {
 						field.dataset.conditionalStatus = 'visible';
+						field.style.display = '';
 						field.style.opacity = '1';
 						field.style.visibility = 'visible';
 						field.style.pointerEvents = 'auto';
-						field.style.height = 'auto';
+						field.style.height = '';
+						field.style.margin = '';
+						field.style.padding = '';
+						field.style.overflow = '';
 					} else {
 						field.dataset.conditionalStatus = 'hidden';
+						field.style.display = 'none';
 						field.style.opacity = '0';
 						field.style.visibility = 'hidden';
 						field.style.pointerEvents = 'none';
-						field.style.height = '0';
-						field.style.margin = '0';
-						field.style.padding = '0';
-						field.style.overflow = 'hidden';
 					}
 				} catch (e) {
 					console.warn('[OpenFields] Failed to parse conditional logic:', e);
@@ -549,17 +563,25 @@
 				if (!rule || !rule.field) return true;
 
 				// Find the field element by name.
+				// Try multiple patterns since prefix may or may not be present.
+				const fieldName = rule.field;
 				const fieldElement = document.querySelector(
-					`[name="openfields_${rule.field}"], [name="openfields_${rule.field}[]"], [data-field="${rule.field}"]`
+					`[name="${fieldName}"], [name="${fieldName}[]"], ` +
+					`[name="openfields_${fieldName}"], [name="openfields_${fieldName}[]"], ` +
+					`[data-field="${fieldName}"], [id="${fieldName}"]`
 				);
 
 				if (!fieldElement) {
-					console.warn(`[OpenFields] Conditional field not found: ${rule.field}`);
+					console.warn(`[OpenFields] Conditional field not found: ${fieldName}`);
 					return true; // If field not found, don't block.
 				}
 
 				const currentValue = this.getFieldValue(fieldElement);
-				return this.compareValues(currentValue, rule.operator, rule.value);
+				const result = this.compareValues(currentValue, rule.operator, rule.value);
+				
+				console.log(`[OpenFields] Condition: ${fieldName} ${rule.operator} "${rule.value}" | Current: "${currentValue}" | Result: ${result}`);
+				
+				return result;
 			});
 		},
 
@@ -1328,12 +1350,58 @@
 
 	/**
 	 * Initialize when DOM is ready.
+	 * For Gutenberg, we also need to watch for meta box loads.
 	 */
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', () => FieldsManager.init());
-	} else {
-		FieldsManager.init();
+	function initOpenFields() {
+		// Check if we have any meta boxes
+		const metaBoxes = document.querySelectorAll('.openfields-meta-box');
+		
+		if (metaBoxes.length > 0) {
+			console.log('[OpenFields] Found', metaBoxes.length, 'meta boxes, initializing...');
+			FieldsManager.init();
+		} else {
+			console.log('[OpenFields] No meta boxes found yet, will retry...');
+		}
 	}
+
+	// Initial load
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initOpenFields);
+	} else {
+		initOpenFields();
+	}
+
+	// For Gutenberg: Watch for meta boxes being added dynamically
+	// The meta boxes are loaded via AJAX in Gutenberg
+	const observer = new MutationObserver((mutations) => {
+		mutations.forEach((mutation) => {
+			mutation.addedNodes.forEach((node) => {
+				if (node.nodeType === 1) { // Element node
+					// Check if this is a meta box or contains meta boxes
+					if (node.classList?.contains('openfields-meta-box') || 
+					    node.querySelector?.('.openfields-meta-box')) {
+						console.log('[OpenFields] Meta box added dynamically, reinitializing...');
+						// Small delay to ensure DOM is fully rendered
+						setTimeout(() => FieldsManager.init(), 100);
+					}
+				}
+			});
+		});
+	});
+
+	// Start observing once DOM is ready
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', () => {
+			observer.observe(document.body, { childList: true, subtree: true });
+		});
+	} else {
+		observer.observe(document.body, { childList: true, subtree: true });
+	}
+
+	// Also re-init when window loads (for lazy-loaded iframes, etc.)
+	window.addEventListener('load', () => {
+		setTimeout(initOpenFields, 500);
+	});
 
 	/**
 	 * Export for testing or external use.
