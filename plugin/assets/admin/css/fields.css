@@ -61,6 +61,16 @@
 	border-bottom: 1px solid var(--of-border-light);
 }
 
+.openfields-fieldset-description {
+	font-size: 13px;
+	color: var(--of-text-secondary);
+	margin: 0 0 var(--of-spacing-lg) 0;
+	padding: var(--of-spacing-sm) var(--of-spacing-md);
+	background: var(--of-bg);
+	border-left: 3px solid var(--of-primary);
+	border-radius: var(--of-radius);
+}
+
 /* ============================================================================
    Field Wrapper - Layout & Spacing
    ============================================================================ */

@@ -70,8 +70,12 @@ class OpenFields_Meta_Box {
 		add_action( 'edit_user_profile_update', array( $this, 'save_user_fields' ) );
 		add_action( 'user_register', array( $this, 'save_user_fields' ) );
 
+		// Include the unified field renderer first (required by other renderers).
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/fields/class-openfields-field-renderer.php';
+
 		// Include field renderers.
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/repeater.php';
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/group.php';
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/post-object.php';
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/taxonomy.php';
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/admin/field-renderers/user.php';
@@ -118,6 +122,14 @@ class OpenFields_Meta_Box {
 		wp_enqueue_style(
 			'openfields-repeater',
 			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/css/repeater.css',
+			array( 'openfields-fields' ),
+			OPENFIELDS_VERSION
+		);
+
+		// Enqueue group styles.
+		wp_enqueue_style(
+			'openfields-group',
+			plugin_dir_url( OPENFIELDS_PLUGIN_FILE ) . 'assets/admin/css/group.css',
 			array( 'openfields-fields' ),
 			OPENFIELDS_VERSION
 		);
@@ -221,9 +233,22 @@ class OpenFields_Meta_Box {
 		// Nonce for security.
 		wp_nonce_field( 'openfields_save_' . $fieldset_id, 'openfields_nonce_' . $fieldset_id );
 
+		// Get fieldset from database to show description.
+		global $wpdb;
+		$fieldset = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}openfields_fieldsets WHERE id = %d",
+				$fieldset_id
+			)
+		);
+
+		// Show fieldset description if available.
+		if ( $fieldset && ! empty( $fieldset->description ) ) {
+			echo '<p class="openfields-fieldset-description">' . wp_kses_post( $fieldset->description ) . '</p>';
+		}
+
 		// Get ROOT-LEVEL fields only (no parent_id) from database.
 		// Sub-fields are rendered by their parent repeater/group field.
-		global $wpdb;
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
@@ -376,169 +401,14 @@ class OpenFields_Meta_Box {
 	 * @param string $object_type Object type: 'post', 'term', or 'user'.
 	 */
 	private function render_input( $field, $value, $field_id, $field_name, $settings, $object_id = 0, $object_type = 'post' ) {
-		switch ( $field->type ) {
-			case 'repeater':
-				// Repeater fields use ACF-compatible format.
-				// Field name is passed WITHOUT prefix for internal naming.
-				openfields_render_repeater_field( $field, $value, $field_id, $field->name, $settings, $object_id, $object_type );
-				break;
+		// Use the centralized field renderer for all field types.
+		$context = array(
+			'object_id'   => $object_id,
+			'object_type' => $object_type,
+			'parent_name' => $field->name,
+		);
 
-			case 'text':
-				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-				echo '<input type="text" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat" />';
-				break;
-
-			case 'email':
-				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : 'email@example.com';
-				echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
-				echo '<span class="openfields-input-icon dashicons dashicons-email"></span>';
-				echo '<input type="email" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat openfields-input-has-icon" data-validate="email" />';
-				echo '</div>';
-				break;
-
-			case 'url':
-				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : 'https://';
-				echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
-				echo '<span class="openfields-input-icon dashicons dashicons-admin-links"></span>';
-				echo '<input type="url" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat openfields-input-has-icon" data-validate="url" />';
-				echo '</div>';
-				break;
-
-			case 'number':
-				$min         = OpenFields_Field_Settings::get_setting( $settings, 'min', '' );
-				$max         = OpenFields_Field_Settings::get_setting( $settings, 'max', '' );
-				$step        = OpenFields_Field_Settings::get_setting( $settings, 'step', OpenFields_Field_Settings::get_default_for_setting( 'number', 'step' ) );
-				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-				
-				$atts = ' id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" class="widefat"';
-				if ( $min !== '' ) {
-					$atts .= ' min="' . esc_attr( $min ) . '"';
-				}
-				if ( $max !== '' ) {
-					$atts .= ' max="' . esc_attr( $max ) . '"';
-				}
-				if ( $step !== '' ) {
-					$atts .= ' step="' . esc_attr( $step ) . '"';
-				}
-				if ( $placeholder ) {
-					$atts .= ' placeholder="' . esc_attr( $placeholder ) . '"';
-				}
-				echo '<input type="number"' . $atts . ' />';
-				break;
-
-			case 'textarea':
-				$rows        = OpenFields_Field_Settings::get_setting( $settings, 'rows', OpenFields_Field_Settings::get_default_for_setting( 'textarea', 'rows' ) );
-				$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-				echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" rows="' . esc_attr( $rows ) . '" placeholder="' . esc_attr( $placeholder ) . '" class="widefat">' . esc_textarea( $value ) . '</textarea>';
-				break;
-
-			case 'select':
-				$choices  = OpenFields_Field_Settings::get_setting( $settings, 'choices', array() );
-				$multiple = OpenFields_Field_Settings::get_setting( $settings, 'multiple', false );
-				$name     = $multiple ? $field_name . '[]' : $field_name;
-				echo '<select id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $name ) . '" class="widefat"' . ( $multiple ? ' multiple' : '' ) . '>';
-				if ( ! $multiple ) {
-					echo '<option value="">-- Select --</option>';
-				}
-				foreach ( $choices as $choice ) {
-					$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
-					$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
-					$selected     = is_array( $value ) ? in_array( $choice_value, $value, true ) : ( $value === $choice_value );
-					echo '<option value="' . esc_attr( $choice_value ) . '"' . selected( $selected, true, false ) . '>' . esc_html( $choice_label ) . '</option>';
-				}
-				echo '</select>';
-				break;
-
-			case 'radio':
-				$choices = OpenFields_Field_Settings::get_setting( $settings, 'choices', array() );
-				$layout  = OpenFields_Field_Settings::get_setting( $settings, 'layout', 'vertical' );
-				echo '<fieldset>';
-				foreach ( $choices as $i => $choice ) {
-					$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
-					$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
-					$radio_id     = $field_id . '-' . $i;
-					$checked      = $value === $choice_value;
-					echo '<label for="' . esc_attr( $radio_id ) . '">';
-					echo '<input type="radio" id="' . esc_attr( $radio_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
-					echo esc_html( $choice_label );
-					echo '</label><br />';
-				}
-				echo '</fieldset>';
-				break;
-
-			case 'checkbox':
-				$choices = OpenFields_Field_Settings::get_setting( $settings, 'choices', array() );
-				if ( empty( $choices ) ) {
-					// Single checkbox.
-					$checked = ! empty( $value );
-					echo '<label for="' . esc_attr( $field_id ) . '">';
-					echo '<input type="checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
-					echo esc_html( $settings['checkbox_label'] ?? '' );
-					echo '</label>';
-				} else {
-					// Multiple checkboxes.
-					$values = is_array( $value ) ? $value : array();
-					echo '<fieldset>';
-					foreach ( $choices as $i => $choice ) {
-						$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
-						$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
-						$checkbox_id  = $field_id . '-' . $i;
-						$checked      = in_array( $choice_value, $values, true );
-						echo '<label for="' . esc_attr( $checkbox_id ) . '">';
-						echo '<input type="checkbox" id="' . esc_attr( $checkbox_id ) . '" name="' . esc_attr( $field_name ) . '[]" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
-						echo esc_html( $choice_label );
-						echo '</label><br />';
-					}
-					echo '</fieldset>';
-				}
-				break;
-
-			case 'switch':
-				// Render beautiful switch field with Yes/No labels and sliding background.
-				// For switches, "0" means unchecked, anything else means checked.
-				$checked = ! empty( $value ) && $value !== '0';
-				echo '<input type="checkbox" class="openfields-switch-input" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
-				echo '<label class="openfields-switch-track" for="' . esc_attr( $field_id ) . '">';
-				echo '<div class="openfields-switch-label openfields-switch-label-off">No</div>';
-				echo '<div class="openfields-switch-label openfields-switch-label-on">Yes</div>';
-				echo '</label>';
-				break;
-				break;
-
-			case 'date':
-				echo '<input type="date" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" class="widefat" />';
-				break;
-
-			case 'datetime':
-				echo '<input type="datetime-local" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" class="widefat" />';
-				break;
-
-			case 'color':
-				echo '<input type="color" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $value ) . '" />';
-				break;
-
-			case 'image':
-				// Use dedicated renderer.
-				openfields_render_image_field( $field, $value, $field_id, $field_name, $settings );
-				break;
-
-			case 'file':
-				// Use dedicated renderer.
-				openfields_render_file_field( $field, $value, $field_id, $field_name, $settings );
-				break;
-
-			case 'gallery':
-				// Use dedicated renderer.
-				openfields_render_gallery_field( $field, $value, $field_id, $field_name, $settings );
-				break;
-
-			case 'wysiwyg':
-				wp_editor( $value, $field_id, array( 'textarea_name' => $field_name ) );
-				break;
-
-			default:
-				do_action( 'openfields_render_field_' . $field->type, $field, $value, $field_id, $field_name, $settings );
-		}
+		openfields_render_field( $field, $value, $field_id, $field_name, $settings, $context );
 	}
 
 	/**
@@ -628,6 +498,9 @@ class OpenFields_Meta_Box {
 				if ( $field->type === 'repeater' ) {
 					// Handle repeater field in ACF format.
 					$this->save_repeater_field( $post_id, $field, $sub_fields_map );
+				} elseif ( $field->type === 'group' ) {
+					// Handle group field - similar to repeater but without rows.
+					$this->save_group_field( $post_id, $field, $sub_fields_map );
 				} else {
 					// Standard field save.
 					$field_name = $field->name;
@@ -720,6 +593,60 @@ class OpenFields_Meta_Box {
 					update_post_meta( $post_id, $full_name, $sanitized );
 					error_log( 'OpenFields: Saved ' . $full_name . ' = ' . print_r( $sanitized, true ) );
 				}
+			}
+		}
+	}
+
+	/**
+	 * Save a group field and its sub-fields in ACF-compatible format.
+	 *
+	 * ACF Format:
+	 * - {group}_{subfield} = value
+	 *
+	 * @since 1.0.0
+	 * @param int    $post_id        Post ID.
+	 * @param object $field          Group field object.
+	 * @param array  $sub_fields_map Map of parent_id => sub-fields.
+	 * @param string $base_name      Optional base name for nested groups.
+	 */
+	private function save_group_field( $post_id, $field, $sub_fields_map, $base_name = '' ) {
+		// Base name is just the field name for root groups,
+		// or parent_subfield_name for nested groups.
+		if ( empty( $base_name ) ) {
+			$base_name = $field->name;
+		}
+
+		error_log( 'OpenFields: Saving group "' . $base_name . '"' );
+
+		// Get sub-fields for this group.
+		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
+
+		if ( empty( $sub_fields ) ) {
+			error_log( 'OpenFields: No sub-fields found for group ' . $base_name );
+			return;
+		}
+
+		// Save each sub-field.
+		foreach ( $sub_fields as $sub_field ) {
+			// Use the raw sub-field name (strip parent prefix if present).
+			$raw_sub_name = $this->get_raw_subfield_name( $sub_field->name, $field->name );
+
+			// Full meta key: group_subfield (e.g., address_street)
+			$full_name = $base_name . '_' . $raw_sub_name;
+
+			if ( $sub_field->type === 'repeater' ) {
+				// Nested repeater in group.
+				$this->save_repeater_field( $post_id, $sub_field, $sub_fields_map, $full_name );
+			} elseif ( $sub_field->type === 'group' ) {
+				// Nested group in group.
+				$this->save_group_field( $post_id, $sub_field, $sub_fields_map, $full_name );
+			} else {
+				// Standard sub-field save.
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
+				$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
+				update_post_meta( $post_id, $full_name, $sanitized );
+				error_log( 'OpenFields: Saved group sub-field ' . $full_name . ' = ' . print_r( $sanitized, true ) );
 			}
 		}
 	}
@@ -1140,6 +1067,9 @@ class OpenFields_Meta_Box {
 				if ( $field->type === 'repeater' ) {
 					// Handle repeater field in ACF format.
 					$this->save_repeater_field_for_term( $term_id, $field, $sub_fields_map );
+				} elseif ( $field->type === 'group' ) {
+					// Handle group field.
+					$this->save_group_field_for_term( $term_id, $field, $sub_fields_map );
 				} else {
 					// Standard field save.
 					$meta_key = self::META_PREFIX . $field->name;
@@ -1201,6 +1131,39 @@ class OpenFields_Meta_Box {
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_term_meta( $term_id, $full_name, $sanitized );
 				}
+			}
+		}
+	}
+
+	/**
+	 * Save a group field for term meta.
+	 *
+	 * @since 1.0.0
+	 * @param int    $term_id        Term ID.
+	 * @param object $field          Group field object.
+	 * @param array  $sub_fields_map Map of parent_id => sub-fields.
+	 * @param string $base_name      Optional base name for nested groups.
+	 */
+	private function save_group_field_for_term( $term_id, $field, $sub_fields_map, $base_name = '' ) {
+		if ( empty( $base_name ) ) {
+			$base_name = $field->name;
+		}
+
+		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
+
+		foreach ( $sub_fields as $sub_field ) {
+			$raw_sub_name = $this->get_raw_subfield_name( $sub_field->name, $field->name );
+			$full_name    = $base_name . '_' . $raw_sub_name;
+
+			if ( $sub_field->type === 'repeater' ) {
+				$this->save_repeater_field_for_term( $term_id, $sub_field, $sub_fields_map, $full_name );
+			} elseif ( $sub_field->type === 'group' ) {
+				$this->save_group_field_for_term( $term_id, $sub_field, $sub_fields_map, $full_name );
+			} else {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
+				$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
+				update_term_meta( $term_id, $full_name, $sanitized );
 			}
 		}
 	}
@@ -1448,6 +1411,9 @@ class OpenFields_Meta_Box {
 				if ( $field->type === 'repeater' ) {
 					// Handle repeater field in ACF format.
 					$this->save_repeater_field_for_user( $user_id, $field, $sub_fields_map );
+				} elseif ( $field->type === 'group' ) {
+					// Handle group field.
+					$this->save_group_field_for_user( $user_id, $field, $sub_fields_map );
 				} else {
 					// Standard field save.
 					$meta_key = self::META_PREFIX . $field->name;
@@ -1509,6 +1475,39 @@ class OpenFields_Meta_Box {
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_user_meta( $user_id, $full_name, $sanitized );
 				}
+			}
+		}
+	}
+
+	/**
+	 * Save a group field for user meta.
+	 *
+	 * @since 1.0.0
+	 * @param int    $user_id        User ID.
+	 * @param object $field          Group field object.
+	 * @param array  $sub_fields_map Map of parent_id => sub-fields.
+	 * @param string $base_name      Optional base name for nested groups.
+	 */
+	private function save_group_field_for_user( $user_id, $field, $sub_fields_map, $base_name = '' ) {
+		if ( empty( $base_name ) ) {
+			$base_name = $field->name;
+		}
+
+		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
+
+		foreach ( $sub_fields as $sub_field ) {
+			$raw_sub_name = $this->get_raw_subfield_name( $sub_field->name, $field->name );
+			$full_name    = $base_name . '_' . $raw_sub_name;
+
+			if ( $sub_field->type === 'repeater' ) {
+				$this->save_repeater_field_for_user( $user_id, $sub_field, $sub_fields_map, $full_name );
+			} elseif ( $sub_field->type === 'group' ) {
+				$this->save_group_field_for_user( $user_id, $sub_field, $sub_fields_map, $full_name );
+			} else {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
+				$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
+				update_user_meta( $user_id, $full_name, $sanitized );
 			}
 		}
 	}

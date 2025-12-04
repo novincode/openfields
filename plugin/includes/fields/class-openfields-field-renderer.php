@@ -1,0 +1,557 @@
+<?php
+/**
+ * Unified Field Renderer
+ *
+ * Central class for rendering all field types. This eliminates code duplication
+ * across meta-box, repeater, and group renderers.
+ *
+ * @package OpenFields
+ * @since   1.0.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Field Renderer Class
+ *
+ * Provides a single point for rendering any field type's input element.
+ * Used by meta boxes, repeaters, groups, and any other context.
+ *
+ * @since 1.0.0
+ */
+class OpenFields_Field_Renderer {
+
+	/**
+	 * Singleton instance.
+	 *
+	 * @var OpenFields_Field_Renderer
+	 */
+	private static $instance = null;
+
+	/**
+	 * Registered custom renderers.
+	 *
+	 * @var array
+	 */
+	private $custom_renderers = array();
+
+	/**
+	 * Get singleton instance.
+	 *
+	 * @return OpenFields_Field_Renderer
+	 */
+	public static function instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Private constructor (singleton).
+	 */
+	private function __construct() {
+		// Allow custom renderers via action.
+		do_action( 'openfields_register_field_renderers', $this );
+	}
+
+	/**
+	 * Register a custom field renderer.
+	 *
+	 * @param string   $type     Field type.
+	 * @param callable $callback Callback function(field, value, field_id, field_name, settings, context).
+	 */
+	public function register_renderer( $type, $callback ) {
+		$this->custom_renderers[ $type ] = $callback;
+	}
+
+	/**
+	 * Render a field input.
+	 *
+	 * @param object|array $field      Field object or array with type, placeholder, etc.
+	 * @param mixed        $value      Current value.
+	 * @param string       $field_id   HTML id attribute.
+	 * @param string       $field_name HTML name attribute.
+	 * @param array        $settings   Field settings (from field_config).
+	 * @param array        $context    Optional context: object_id, object_type, parent_name.
+	 */
+	public function render( $field, $value, $field_id, $field_name, $settings = array(), $context = array() ) {
+		// Normalize field to object.
+		$field = is_array( $field ) ? (object) $field : $field;
+		$type  = $field->type ?? 'text';
+
+		// Default context.
+		$context = wp_parse_args( $context, array(
+			'object_id'   => 0,
+			'object_type' => 'post',
+			'parent_name' => '',
+		) );
+
+		// Check for custom renderer first.
+		if ( isset( $this->custom_renderers[ $type ] ) ) {
+			call_user_func( $this->custom_renderers[ $type ], $field, $value, $field_id, $field_name, $settings, $context );
+			return;
+		}
+
+		// Built-in renderers.
+		switch ( $type ) {
+			case 'text':
+				$this->render_text( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'email':
+				$this->render_email( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'url':
+				$this->render_url( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'number':
+				$this->render_number( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'textarea':
+				$this->render_textarea( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'select':
+				$this->render_select( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'radio':
+				$this->render_radio( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'checkbox':
+				$this->render_checkbox( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'switch':
+				$this->render_switch( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'date':
+				$this->render_date( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'datetime':
+				$this->render_datetime( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'color':
+				$this->render_color( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'image':
+				openfields_render_image_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'file':
+				openfields_render_file_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'gallery':
+				openfields_render_gallery_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'wysiwyg':
+				$this->render_wysiwyg( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'link':
+				openfields_render_link_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'post_object':
+			case 'relationship':
+				openfields_render_post_object_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'taxonomy':
+				openfields_render_taxonomy_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'user':
+				openfields_render_user_field( $field, $value, $field_id, $field_name, $settings );
+				break;
+
+			case 'repeater':
+				openfields_render_repeater_field( $field, $value, $field_id, $context['parent_name'] ?: $field->name, $settings, $context['object_id'], $context['object_type'] );
+				break;
+
+			case 'group':
+				openfields_render_group_field( $field, $value, $field_id, $context['parent_name'] ?: $field->name, $settings, $context['object_id'], $context['object_type'] );
+				break;
+
+			default:
+				// Allow custom field types via action.
+				do_action( 'openfields_render_field_' . $type, $field, $value, $field_id, $field_name, $settings, $context );
+				break;
+		}
+	}
+
+	/**
+	 * Render text input.
+	 */
+	private function render_text( $field, $value, $field_id, $field_name, $settings ) {
+		$placeholder = $this->get_placeholder( $field, $settings );
+		$maxlength   = $this->get_setting( $settings, 'maxlength', '' );
+		
+		$atts = $this->build_attributes( array(
+			'type'        => 'text',
+			'id'          => $field_id,
+			'name'        => $field_name,
+			'value'       => $value,
+			'placeholder' => $placeholder,
+			'class'       => 'widefat',
+			'maxlength'   => $maxlength ?: null,
+		) );
+		
+		echo '<input ' . $atts . ' />';
+	}
+
+	/**
+	 * Render email input.
+	 */
+	private function render_email( $field, $value, $field_id, $field_name, $settings ) {
+		$placeholder = $this->get_placeholder( $field, $settings, 'email@example.com' );
+		
+		echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
+		echo '<span class="openfields-input-icon dashicons dashicons-email"></span>';
+		
+		$atts = $this->build_attributes( array(
+			'type'         => 'email',
+			'id'           => $field_id,
+			'name'         => $field_name,
+			'value'        => $value,
+			'placeholder'  => $placeholder,
+			'class'        => 'widefat openfields-input-has-icon',
+			'data-validate' => 'email',
+		) );
+		
+		echo '<input ' . $atts . ' />';
+		echo '</div>';
+	}
+
+	/**
+	 * Render URL input.
+	 */
+	private function render_url( $field, $value, $field_id, $field_name, $settings ) {
+		$placeholder = $this->get_placeholder( $field, $settings, 'https://' );
+		
+		echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
+		echo '<span class="openfields-input-icon dashicons dashicons-admin-links"></span>';
+		
+		$atts = $this->build_attributes( array(
+			'type'         => 'url',
+			'id'           => $field_id,
+			'name'         => $field_name,
+			'value'        => $value,
+			'placeholder'  => $placeholder,
+			'class'        => 'widefat openfields-input-has-icon',
+			'data-validate' => 'url',
+		) );
+		
+		echo '<input ' . $atts . ' />';
+		echo '</div>';
+	}
+
+	/**
+	 * Render number input.
+	 */
+	private function render_number( $field, $value, $field_id, $field_name, $settings ) {
+		$placeholder = $this->get_placeholder( $field, $settings );
+		$min         = $this->get_setting( $settings, 'min', '' );
+		$max         = $this->get_setting( $settings, 'max', '' );
+		$step        = $this->get_setting( $settings, 'step', '' );
+		
+		$atts = $this->build_attributes( array(
+			'type'        => 'number',
+			'id'          => $field_id,
+			'name'        => $field_name,
+			'value'       => $value,
+			'placeholder' => $placeholder ?: null,
+			'class'       => 'widefat',
+			'min'         => $min !== '' ? $min : null,
+			'max'         => $max !== '' ? $max : null,
+			'step'        => $step !== '' ? $step : null,
+		) );
+		
+		echo '<input ' . $atts . ' />';
+	}
+
+	/**
+	 * Render textarea.
+	 */
+	private function render_textarea( $field, $value, $field_id, $field_name, $settings ) {
+		$placeholder = $this->get_placeholder( $field, $settings );
+		$rows        = $this->get_setting( $settings, 'rows', 4 );
+		$maxlength   = $this->get_setting( $settings, 'maxlength', '' );
+		
+		$atts = $this->build_attributes( array(
+			'id'          => $field_id,
+			'name'        => $field_name,
+			'rows'        => $rows,
+			'placeholder' => $placeholder ?: null,
+			'class'       => 'widefat',
+			'maxlength'   => $maxlength ?: null,
+		) );
+		
+		echo '<textarea ' . $atts . '>' . esc_textarea( $value ) . '</textarea>';
+	}
+
+	/**
+	 * Render select dropdown.
+	 */
+	private function render_select( $field, $value, $field_id, $field_name, $settings ) {
+		$choices  = $this->get_setting( $settings, 'choices', array() );
+		$multiple = $this->get_setting( $settings, 'multiple', false );
+		$name     = $multiple ? $field_name . '[]' : $field_name;
+		
+		$atts = $this->build_attributes( array(
+			'id'       => $field_id,
+			'name'     => $name,
+			'class'    => 'widefat',
+			'multiple' => $multiple ?: null,
+		) );
+		
+		echo '<select ' . $atts . '>';
+		
+		if ( ! $multiple ) {
+			echo '<option value="">-- ' . esc_html__( 'Select', 'openfields' ) . ' --</option>';
+		}
+		
+		foreach ( $choices as $choice ) {
+			$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
+			$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
+			$selected     = is_array( $value ) ? in_array( $choice_value, $value, true ) : ( $value === $choice_value );
+			
+			echo '<option value="' . esc_attr( $choice_value ) . '"' . selected( $selected, true, false ) . '>' . esc_html( $choice_label ) . '</option>';
+		}
+		
+		echo '</select>';
+	}
+
+	/**
+	 * Render radio buttons.
+	 */
+	private function render_radio( $field, $value, $field_id, $field_name, $settings ) {
+		$choices = $this->get_setting( $settings, 'choices', array() );
+		$layout  = $this->get_setting( $settings, 'layout', 'vertical' );
+		
+		echo '<fieldset class="openfields-radio-group openfields-radio-' . esc_attr( $layout ) . '">';
+		
+		foreach ( $choices as $i => $choice ) {
+			$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
+			$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
+			$radio_id     = $field_id . '-' . $i;
+			$checked      = $value === $choice_value;
+			
+			echo '<label for="' . esc_attr( $radio_id ) . '">';
+			echo '<input type="radio" id="' . esc_attr( $radio_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
+			echo esc_html( $choice_label );
+			echo '</label>';
+			
+			if ( $layout === 'vertical' ) {
+				echo '<br />';
+			}
+		}
+		
+		echo '</fieldset>';
+	}
+
+	/**
+	 * Render checkbox(es).
+	 */
+	private function render_checkbox( $field, $value, $field_id, $field_name, $settings ) {
+		$choices = $this->get_setting( $settings, 'choices', array() );
+		
+		if ( empty( $choices ) ) {
+			// Single checkbox.
+			$checked = ! empty( $value );
+			$label   = $this->get_setting( $settings, 'checkbox_label', '' );
+			
+			echo '<label for="' . esc_attr( $field_id ) . '">';
+			echo '<input type="checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
+			echo esc_html( $label );
+			echo '</label>';
+		} else {
+			// Multiple checkboxes.
+			$values = is_array( $value ) ? $value : array();
+			$layout = $this->get_setting( $settings, 'layout', 'vertical' );
+			
+			echo '<fieldset class="openfields-checkbox-group openfields-checkbox-' . esc_attr( $layout ) . '">';
+			
+			foreach ( $choices as $i => $choice ) {
+				$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
+				$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
+				$checkbox_id  = $field_id . '-' . $i;
+				$checked      = in_array( $choice_value, $values, true );
+				
+				echo '<label for="' . esc_attr( $checkbox_id ) . '">';
+				echo '<input type="checkbox" id="' . esc_attr( $checkbox_id ) . '" name="' . esc_attr( $field_name ) . '[]" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
+				echo esc_html( $choice_label );
+				echo '</label>';
+				
+				if ( $layout === 'vertical' ) {
+					echo '<br />';
+				}
+			}
+			
+			echo '</fieldset>';
+		}
+	}
+
+	/**
+	 * Render switch toggle.
+	 */
+	private function render_switch( $field, $value, $field_id, $field_name, $settings ) {
+		$checked   = ! empty( $value ) && $value !== '0';
+		$on_label  = $this->get_setting( $settings, 'on_label', __( 'Yes', 'openfields' ) );
+		$off_label = $this->get_setting( $settings, 'off_label', __( 'No', 'openfields' ) );
+		
+		echo '<input type="checkbox" class="openfields-switch-input" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
+		echo '<label class="openfields-switch-track" for="' . esc_attr( $field_id ) . '">';
+		echo '<div class="openfields-switch-label openfields-switch-label-off">' . esc_html( $off_label ) . '</div>';
+		echo '<div class="openfields-switch-label openfields-switch-label-on">' . esc_html( $on_label ) . '</div>';
+		echo '</label>';
+	}
+
+	/**
+	 * Render date input.
+	 */
+	private function render_date( $field, $value, $field_id, $field_name, $settings ) {
+		$atts = $this->build_attributes( array(
+			'type'  => 'date',
+			'id'    => $field_id,
+			'name'  => $field_name,
+			'value' => $value,
+			'class' => 'widefat',
+		) );
+		
+		echo '<input ' . $atts . ' />';
+	}
+
+	/**
+	 * Render datetime input.
+	 */
+	private function render_datetime( $field, $value, $field_id, $field_name, $settings ) {
+		$atts = $this->build_attributes( array(
+			'type'  => 'datetime-local',
+			'id'    => $field_id,
+			'name'  => $field_name,
+			'value' => $value,
+			'class' => 'widefat',
+		) );
+		
+		echo '<input ' . $atts . ' />';
+	}
+
+	/**
+	 * Render color picker.
+	 */
+	private function render_color( $field, $value, $field_id, $field_name, $settings ) {
+		$atts = $this->build_attributes( array(
+			'type'  => 'color',
+			'id'    => $field_id,
+			'name'  => $field_name,
+			'value' => $value ?: '#000000',
+		) );
+		
+		echo '<input ' . $atts . ' />';
+	}
+
+	/**
+	 * Render WYSIWYG editor.
+	 */
+	private function render_wysiwyg( $field, $value, $field_id, $field_name, $settings ) {
+		$editor_settings = array(
+			'textarea_name' => $field_name,
+			'media_buttons' => $this->get_setting( $settings, 'media_upload', true ),
+			'textarea_rows' => $this->get_setting( $settings, 'rows', 10 ),
+			'teeny'         => $this->get_setting( $settings, 'teeny', false ),
+		);
+		
+		wp_editor( $value, $field_id, $editor_settings );
+	}
+
+	/**
+	 * Get placeholder from field or settings.
+	 *
+	 * @param object $field    Field object.
+	 * @param array  $settings Settings array.
+	 * @param string $default  Default placeholder.
+	 * @return string
+	 */
+	private function get_placeholder( $field, $settings, $default = '' ) {
+		if ( ! empty( $field->placeholder ) ) {
+			return $field->placeholder;
+		}
+		return $this->get_setting( $settings, 'placeholder', $default );
+	}
+
+	/**
+	 * Get a setting value.
+	 *
+	 * @param array  $settings Settings array.
+	 * @param string $key      Setting key.
+	 * @param mixed  $default  Default value.
+	 * @return mixed
+	 */
+	private function get_setting( $settings, $key, $default = '' ) {
+		if ( class_exists( 'OpenFields_Field_Settings' ) ) {
+			return OpenFields_Field_Settings::get_setting( $settings, $key, $default );
+		}
+		return isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
+	}
+
+	/**
+	 * Build HTML attributes string.
+	 *
+	 * @param array $attributes Key-value pairs.
+	 * @return string
+	 */
+	private function build_attributes( $attributes ) {
+		$parts = array();
+		
+		foreach ( $attributes as $key => $value ) {
+			if ( $value === null || $value === '' ) {
+				continue;
+			}
+			
+			if ( $value === true ) {
+				$parts[] = esc_attr( $key );
+			} else {
+				$parts[] = esc_attr( $key ) . '="' . esc_attr( $value ) . '"';
+			}
+		}
+		
+		return implode( ' ', $parts );
+	}
+}
+
+/**
+ * Helper function to get the field renderer instance.
+ *
+ * @return OpenFields_Field_Renderer
+ */
+function openfields_field_renderer() {
+	return OpenFields_Field_Renderer::instance();
+}
+
+/**
+ * Helper function to render a field.
+ *
+ * @param object|array $field      Field object or array.
+ * @param mixed        $value      Current value.
+ * @param string       $field_id   HTML id attribute.
+ * @param string       $field_name HTML name attribute.
+ * @param array        $settings   Field settings.
+ * @param array        $context    Optional context.
+ */
+function openfields_render_field( $field, $value, $field_id, $field_name, $settings = array(), $context = array() ) {
+	openfields_field_renderer()->render( $field, $value, $field_id, $field_name, $settings, $context );
+}

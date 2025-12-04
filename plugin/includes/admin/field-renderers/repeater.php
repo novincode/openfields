@@ -256,6 +256,8 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 /**
  * Unified field input renderer.
  *
+ * Delegates to the centralized OpenFields_Field_Renderer class for consistency.
+ *
  * @param object $field       Field database object.
  * @param mixed  $value       Current value.
  * @param string $field_id    HTML ID attribute.
@@ -267,193 +269,21 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
  * @param string $parent_name Parent repeater name for nested repeaters.
  */
 function openfields_render_field_input( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type = 'post', $is_template = false, $parent_name = '' ) {
-	// The HTML name attribute is the full_name directly (no prefix for ACF compatibility).
-	$html_name = $full_name;
+	// Use the centralized field renderer.
+	$context = array(
+		'object_id'   => $object_id,
+		'object_type' => $object_type,
+		'parent_name' => $full_name,
+		'is_template' => $is_template,
+	);
 
-	// Nested repeater - recurse.
-	if ( $field->type === 'repeater' ) {
-		openfields_render_repeater_field( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type );
+	// For WYSIWYG in templates, render as textarea (JS will init editor).
+	if ( $field->type === 'wysiwyg' && $is_template ) {
+		echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $full_name ) . '" class="widefat" rows="6">' . esc_textarea( $value ) . '</textarea>';
 		return;
 	}
 
-	switch ( $field->type ) {
-		case 'text':
-			$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-			printf(
-				'<input type="text" id="%s" name="%s" value="%s" placeholder="%s" class="widefat" />',
-				esc_attr( $field_id ),
-				esc_attr( $html_name ),
-				esc_attr( $value ),
-				esc_attr( $placeholder )
-			);
-			break;
-
-		case 'email':
-			$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-			echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
-			echo '<span class="openfields-input-icon dashicons dashicons-email"></span>';
-			printf(
-				'<input type="email" id="%s" name="%s" value="%s" placeholder="%s" class="widefat openfields-input-has-icon" data-validate="email" />',
-				esc_attr( $field_id ),
-				esc_attr( $html_name ),
-				esc_attr( $value ),
-				esc_attr( $placeholder ?: 'email@example.com' )
-			);
-			echo '</div>';
-			break;
-
-		case 'url':
-			$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-			echo '<div class="openfields-input-with-icon openfields-input-icon-left">';
-			echo '<span class="openfields-input-icon dashicons dashicons-admin-links"></span>';
-			printf(
-				'<input type="url" id="%s" name="%s" value="%s" placeholder="%s" class="widefat openfields-input-has-icon" data-validate="url" />',
-				esc_attr( $field_id ),
-				esc_attr( $html_name ),
-				esc_attr( $value ),
-				esc_attr( $placeholder ?: 'https://' )
-			);
-			echo '</div>';
-			break;
-
-		case 'number':
-			$min  = isset( $settings['min'] ) ? $settings['min'] : '';
-			$max  = isset( $settings['max'] ) ? $settings['max'] : '';
-			$step = isset( $settings['step'] ) ? $settings['step'] : 1;
-			printf(
-				'<input type="number" id="%s" name="%s" value="%s" class="widefat" %s %s %s data-validate="number" />',
-				esc_attr( $field_id ),
-				esc_attr( $html_name ),
-				esc_attr( $value ),
-				$min !== '' ? 'min="' . esc_attr( $min ) . '"' : '',
-				$max !== '' ? 'max="' . esc_attr( $max ) . '"' : '',
-				$step !== '' ? 'step="' . esc_attr( $step ) . '"' : ''
-			);
-			break;
-
-		case 'textarea':
-			$rows = isset( $settings['rows'] ) ? absint( $settings['rows'] ) : 4;
-			$placeholder = ! empty( $field->placeholder ) ? $field->placeholder : '';
-			printf(
-				'<textarea id="%s" name="%s" rows="%d" placeholder="%s" class="widefat">%s</textarea>',
-				esc_attr( $field_id ),
-				esc_attr( $html_name ),
-				$rows,
-				esc_attr( $placeholder ),
-				esc_textarea( $value )
-			);
-			break;
-
-		case 'select':
-			$choices  = isset( $settings['choices'] ) ? $settings['choices'] : array();
-			$multiple = ! empty( $settings['multiple'] );
-			$name_attr = $multiple ? $html_name . '[]' : $html_name;
-			echo '<select id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $name_attr ) . '" class="widefat"' . ( $multiple ? ' multiple' : '' ) . '>';
-			if ( ! $multiple ) {
-				echo '<option value="">' . esc_html__( '— Select —', 'openfields' ) . '</option>';
-			}
-			foreach ( $choices as $choice ) {
-				$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
-				$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
-				$selected = is_array( $value ) ? in_array( $choice_value, $value, true ) : ( $value === $choice_value );
-				echo '<option value="' . esc_attr( $choice_value ) . '"' . selected( $selected, true, false ) . '>' . esc_html( $choice_label ) . '</option>';
-			}
-			echo '</select>';
-			break;
-
-		case 'radio':
-			$choices = isset( $settings['choices'] ) ? $settings['choices'] : array();
-			echo '<div class="openfields-radio-group">';
-			foreach ( $choices as $i => $choice ) {
-				$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
-				$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
-				$radio_id = $field_id . '_' . $i;
-				$checked = $value === $choice_value;
-				echo '<label for="' . esc_attr( $radio_id ) . '">';
-				echo '<input type="radio" id="' . esc_attr( $radio_id ) . '" name="' . esc_attr( $html_name ) . '" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
-				echo ' ' . esc_html( $choice_label );
-				echo '</label>';
-			}
-			echo '</div>';
-			break;
-
-		case 'checkbox':
-			$choices = isset( $settings['choices'] ) ? $settings['choices'] : array();
-			if ( empty( $choices ) ) {
-				$checked = ! empty( $value );
-				echo '<label for="' . esc_attr( $field_id ) . '">';
-				echo '<input type="checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $html_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
-				echo '</label>';
-			} else {
-				$values = is_array( $value ) ? $value : array();
-				echo '<div class="openfields-checkbox-group">';
-				foreach ( $choices as $i => $choice ) {
-					$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
-					$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
-					$cb_id = $field_id . '_' . $i;
-					$checked = in_array( $choice_value, $values, true );
-					echo '<label for="' . esc_attr( $cb_id ) . '">';
-					echo '<input type="checkbox" id="' . esc_attr( $cb_id ) . '" name="' . esc_attr( $html_name ) . '[]" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
-					echo ' ' . esc_html( $choice_label );
-					echo '</label>';
-				}
-				echo '</div>';
-			}
-			break;
-
-		case 'switch':
-			$checked = ! empty( $value ) && $value !== '0';
-			echo '<input type="hidden" name="' . esc_attr( $html_name ) . '" value="0" />';
-			echo '<input type="checkbox" class="openfields-switch-input" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $html_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
-			echo '<label class="openfields-switch-track" for="' . esc_attr( $field_id ) . '"><span class="openfields-switch-thumb"></span></label>';
-			break;
-
-		case 'date':
-			printf( '<input type="date" id="%s" name="%s" value="%s" class="widefat" />', esc_attr( $field_id ), esc_attr( $html_name ), esc_attr( $value ) );
-			break;
-
-		case 'datetime':
-			printf( '<input type="datetime-local" id="%s" name="%s" value="%s" class="widefat" />', esc_attr( $field_id ), esc_attr( $html_name ), esc_attr( $value ) );
-			break;
-
-		case 'color':
-			printf( '<input type="color" id="%s" name="%s" value="%s" />', esc_attr( $field_id ), esc_attr( $html_name ), esc_attr( $value ?: '#000000' ) );
-			break;
-
-		case 'image':
-		case 'file':
-			$attachment_id = absint( $value );
-			echo '<input type="hidden" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $html_name ) . '" value="' . esc_attr( $attachment_id ) . '" class="openfields-media-input" />';
-			if ( $field->type === 'image' && $attachment_id ) {
-				$img = wp_get_attachment_image_url( $attachment_id, 'thumbnail' );
-				if ( $img ) {
-					echo '<img src="' . esc_url( $img ) . '" class="openfields-media-preview" />';
-				}
-			}
-			echo '<button type="button" class="button openfields-media-select">' . esc_html__( 'Select', 'openfields' ) . '</button>';
-			if ( $attachment_id ) {
-				echo ' <button type="button" class="button openfields-media-remove">' . esc_html__( 'Remove', 'openfields' ) . '</button>';
-			}
-			break;
-
-		case 'wysiwyg':
-			if ( ! $is_template ) {
-				$editor_id = preg_replace( '/[^a-z0-9_]/', '', strtolower( $field_id ) );
-				wp_editor( $value, $editor_id, array(
-					'textarea_name' => $html_name,
-					'textarea_rows' => 6,
-					'media_buttons' => true,
-					'teeny'         => false,
-				) );
-			} else {
-				// Placeholder for template - JS will init editor.
-				echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $html_name ) . '" class="widefat" rows="6">' . esc_textarea( $value ) . '</textarea>';
-			}
-			break;
-
-		default:
-			do_action( 'openfields_render_field_' . $field->type, $field, $value, $field_id, $html_name, $settings, $post_id );
-	}
+	openfields_render_field( $field, $value, $field_id, $full_name, $settings, $context );
 }
 
 /**

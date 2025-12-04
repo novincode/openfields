@@ -1,0 +1,153 @@
+/**
+ * OpenFields Group Field Styles
+ *
+ * Clean, modern styles for group fields that contain sub-fields.
+ * Uses CSS custom properties for theming.
+ *
+ * @package OpenFields
+ * @since   1.0.0
+ */
+
+/* ==========================================================================
+   CSS Custom Properties
+   ========================================================================== */
+
+.openfields-group {
+	--of-border-color: #c3c4c7;
+	--of-border-radius: 4px;
+	--of-spacing-xs: 4px;
+	--of-spacing-sm: 8px;
+	--of-spacing-md: 12px;
+	--of-spacing-lg: 16px;
+	--of-group-bg: #f9f9f9;
+	--of-transition: 0.15s ease;
+}
+
+/* ==========================================================================
+   Group Container
+   ========================================================================== */
+
+.openfields-group {
+	box-sizing: border-box;
+	background: var(--of-group-bg);
+	border: 1px solid var(--of-border-color);
+	border-radius: var(--of-border-radius);
+	padding: var(--of-spacing-lg);
+}
+
+.openfields-group *,
+.openfields-group *::before,
+.openfields-group *::after {
+	box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Group Content (Sub-fields Container)
+   ========================================================================== */
+
+.openfields-group-content {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--of-spacing-lg);
+	margin: 0;
+}
+
+/* Block layout - full width sub-fields */
+.openfields-group-content[data-layout="block"] {
+	flex-direction: column;
+}
+
+.openfields-group-content[data-layout="block"] .openfields-group-subfield {
+	width: 100% !important;
+}
+
+/* Row layout - horizontal sub-fields */
+.openfields-group-content[data-layout="row"] {
+	flex-direction: row;
+}
+
+/* Table layout - table-like appearance */
+.openfields-group-content[data-layout="table"] {
+	display: table;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.openfields-group-content[data-layout="table"] .openfields-group-subfield {
+	display: table-row;
+}
+
+.openfields-group-content[data-layout="table"] .openfields-field-label,
+.openfields-group-content[data-layout="table"] .openfields-field-input {
+	display: table-cell;
+	padding: var(--of-spacing-sm);
+	vertical-align: top;
+}
+
+.openfields-group-content[data-layout="table"] .openfields-field-label {
+	width: 200px;
+	white-space: nowrap;
+}
+
+/* ==========================================================================
+   Sub-field Styling
+   ========================================================================== */
+
+.openfields-group-subfield {
+	/* Inherits from .openfields-field-wrapper */
+	position: relative;
+}
+
+/* Width handling for row layout */
+.openfields-group-content[data-layout="row"] .openfields-group-subfield[style*="width: 50%"] {
+	width: calc(50% - var(--of-spacing-lg) / 2) !important;
+}
+
+.openfields-group-content[data-layout="row"] .openfields-group-subfield[style*="width: 33%"] {
+	width: calc(33.333% - var(--of-spacing-lg) * 2 / 3) !important;
+}
+
+.openfields-group-content[data-layout="row"] .openfields-group-subfield[style*="width: 25%"] {
+	width: calc(25% - var(--of-spacing-lg) * 3 / 4) !important;
+}
+
+/* ==========================================================================
+   Nested Groups
+   ========================================================================== */
+
+.openfields-group .openfields-group {
+	background: #fff;
+	margin-top: var(--of-spacing-md);
+}
+
+.openfields-group .openfields-group .openfields-group {
+	background: var(--of-group-bg);
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	.openfields-group-content {
+		flex-direction: column;
+	}
+
+	.openfields-group-content .openfields-group-subfield {
+		width: 100% !important;
+	}
+
+	.openfields-group-content[data-layout="table"] {
+		display: block;
+	}
+
+	.openfields-group-content[data-layout="table"] .openfields-group-subfield {
+		display: block;
+	}
+
+	.openfields-group-content[data-layout="table"] .openfields-field-label,
+	.openfields-group-content[data-layout="table"] .openfields-field-input {
+		display: block;
+		width: 100%;
+	}
+}

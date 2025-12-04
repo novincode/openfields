@@ -185,7 +185,7 @@ class OpenFields_REST_API {
 
 		register_rest_route(
 			self::NAMESPACE,
-			'/import',
+			'/fieldsets/import',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'import_fieldset' ),
