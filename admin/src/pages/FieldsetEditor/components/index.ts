@@ -12,3 +12,4 @@ export { LocationsSection } from './LocationsSection';
 export { ConditionalLogicPanel } from './ConditionalLogicPanel';
 export { TypeSpecificSettings } from './TypeSpecificSettings';
 export { CopyFieldDialog } from './CopyFieldDialog';
+export { MoveFieldDialog } from './MoveFieldDialog';

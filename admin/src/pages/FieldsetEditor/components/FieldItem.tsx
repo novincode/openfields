@@ -29,12 +29,13 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '../../../components/ui/collapsible';
-import { GripVertical, ChevronDown, Trash2, Filter, Layers, ArrowUp } from 'lucide-react';
+import { GripVertical, ChevronDown, Trash2, Filter, Layers } from 'lucide-react';
 import { sanitizeFieldName, isFieldNameDuplicate } from '../../../utils/field-name-validator';
 
 import { ConditionalLogicPanel } from './ConditionalLogicPanel';
 import { TypeSpecificSettings } from './TypeSpecificSettings';
 import { NestedFieldsArea } from './NestedFieldsArea';
+import { MoveFieldDialog } from './MoveFieldDialog';
 import type { Field, ConditionalRule } from '../../../types';
 import { cn } from '@/lib/utils';
 
@@ -60,7 +61,6 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
     // Use selectors for proper subscription
     const updateFieldLocal = useFieldsetStore((state) => state.updateFieldLocal);
     const deleteFieldLocal = useFieldsetStore((state) => state.deleteFieldLocal);
-    const moveFieldToParent = useFieldsetStore((state) => state.moveFieldToParent);
     const { showToast } = useUIStore();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -219,14 +219,6 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
         }
     };
 
-    // Move to root (if nested)
-    const handleMoveToRoot = () => {
-        if (field.parent_id) {
-            moveFieldToParent(String(field.id), null);
-            showToast('success', 'Field moved to root level');
-        }
-    };
-
     // Other fields for conditional logic
     const otherFields = allFields.filter((f) => f.id !== field.id);
 
@@ -276,16 +268,12 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                                     }`}
                             />
                         </CollapsibleTrigger>
-                        {/* Move to root button (only if nested) */}
-                        {field.parent_id && (
-                            <button
-                                onClick={handleMoveToRoot}
-                                className="p-1 text-gray-400 hover:text-blue-600"
-                                title="Move to root level"
-                            >
-                                <ArrowUp className="h-4 w-4" />
-                            </button>
-                        )}
+                        {/* Move field button */}
+                        <MoveFieldDialog
+                            field={field}
+                            allFields={allFields}
+                            maxDepth={maxDepth}
+                        />
                         <button
                             onClick={handleDelete}
                             className="p-1 text-gray-400 hover:text-red-600"
@@ -369,68 +357,6 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Move Field Section */}
-                            {(() => {
-                                // Find all fields that can have children (and aren't this field or its descendants)
-                                const potentialParents = allFields.filter(f => {
-                                    // Must support children
-                                    if (!canHaveChildren(f)) return false;
-                                    // Can't move to itself
-                                    if (String(f.id) === String(field.id)) return false;
-                                    // Can't move to own children (would create loop)
-                                    const isDescendant = (parentId: number | string | null | undefined): boolean => {
-                                        if (!parentId) return false;
-                                        if (String(parentId) === String(field.id)) return true;
-                                        const parent = allFields.find(p => String(p.id) === String(parentId));
-                                        return parent ? isDescendant(parent.parent_id) : false;
-                                    };
-                                    if (isDescendant(f.parent_id)) return false;
-                                    // Check depth limit
-                                    const getDepth = (f: Field): number => {
-                                        if (!f.parent_id) return 0;
-                                        const parent = allFields.find(p => String(p.id) === String(f.parent_id));
-                                        return parent ? 1 + getDepth(parent) : 0;
-                                    };
-                                    return getDepth(f) < maxDepth - 1;
-                                });
-
-                                if (potentialParents.length === 0 && !field.parent_id) return null;
-
-                                return (
-                                    <div className="border-t pt-4">
-                                        <h4 className="text-sm font-medium mb-3">Move Field</h4>
-                                        <div>
-                                            <Label htmlFor={`move-${field.id}`}>Move to</Label>
-                                            <Select
-                                                value={field.parent_id ? String(field.parent_id) : '_root'}
-                                                onValueChange={(value) => {
-                                                    const newParentId = value === '_root' ? null : value;
-                                                    moveFieldToParent(String(field.id), newParentId);
-                                                    showToast('success', newParentId
-                                                        ? `Field moved to ${allFields.find(f => String(f.id) === value)?.label || 'parent'}`
-                                                        : 'Field moved to root level'
-                                                    );
-                                                }}
-                                            >
-                                                <SelectTrigger id={`move-${field.id}`}>
-                                                    <SelectValue placeholder="Select location" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="_root">
-                                                        Root Level
-                                                    </SelectItem>
-                                                    {potentialParents.map((parent) => (
-                                                        <SelectItem key={parent.id} value={String(parent.id)}>
-                                                            → {parent.label} ({parent.type})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                );
-                            })()}
 
                             {/* Type-Specific Settings */}
                             <TypeSpecificSettings

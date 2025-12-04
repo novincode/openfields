@@ -35,7 +35,6 @@ export const FIELD_TYPES = [
 	'post_object',
 	'taxonomy',
 	'user',
-	'relationship',
 	'repeater',
 	'group',
 ] as const;
@@ -319,7 +318,6 @@ export interface FieldSettingsMap {
 	post_object: PostFieldSettings;
 	taxonomy: TaxonomyFieldSettings;
 	user: UserFieldSettings;
-	relationship: PostFieldSettings;
 	repeater: RepeaterFieldSettings;
 	group: GroupFieldSettings;
 }
@@ -432,7 +430,6 @@ export function getDefaultSettings<T extends FieldType>(type: T): FieldSettingsM
 		post_object: { post_type: ['post'], multiple: false },
 		taxonomy: { taxonomy: 'category', field_type: 'select' },
 		user: { role: [], multiple: false },
-		relationship: { post_type: ['post'], multiple: true },
 		repeater: { sub_fields: [], min: 0, max: 0, layout: 'table', button_label: 'Add Row' },
 		group: { sub_fields: [], layout: 'block' },
 	};

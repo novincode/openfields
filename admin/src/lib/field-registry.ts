@@ -259,7 +259,7 @@ const defaultFieldTypes: FieldTypeDefinition[] = [
 	{ type: 'post_object', label: 'Post Object', category: 'relational', icon: 'FileText', description: 'Select WordPress posts' },
 	{ type: 'taxonomy', label: 'Taxonomy', category: 'relational', icon: 'Tags', description: 'Select taxonomy terms' },
 	{ type: 'user', label: 'User', category: 'relational', icon: 'User', description: 'Select WordPress users' },
-	{ type: 'relationship', label: 'Relationship', category: 'relational', icon: 'GitBranch', description: 'Select multiple posts' },
+
 	
 	// Layout
 	{ type: 'repeater', label: 'Repeater', category: 'layout', icon: 'Repeat', description: 'Repeatable sub-fields', hasSubFields: true },

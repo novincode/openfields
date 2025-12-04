@@ -74,8 +74,11 @@ function openfields_render_group_field( $field, $value, $field_id, $base_name, $
  * @param string $object_type  Object type: 'post', 'term', or 'user'.
  */
 function openfields_render_group_subfield( $sub_field, $parent_name, $object_id, $object_type = 'post' ) {
+	// Get the raw sub-field name (strip parent prefix if present in database).
+	$raw_sub_name = openfields_get_raw_group_subfield_name( $sub_field->name, $parent_name );
+	
 	// Sub-field meta key: {parent}_{subfield}
-	$sub_meta_key = $parent_name . '_' . $sub_field->name;
+	$sub_meta_key = $parent_name . '_' . $raw_sub_name;
 	
 	// Get value based on object type.
 	switch ( $object_type ) {
@@ -157,6 +160,26 @@ function openfields_render_group_subfield( $sub_field, $parent_name, $object_id,
 }
 
 /**
+ * Get raw sub-field name without parent prefix.
+ *
+ * Sub-fields in the database are stored with parent prefix (e.g., "group_subfield").
+ * For ACF-compatible data format, we need the raw name (e.g., "subfield").
+ *
+ * @since 1.0.0
+ * @param string $sub_field_name Full sub-field name from database.
+ * @param string $parent_name    Parent group name.
+ * @return string Raw sub-field name.
+ */
+function openfields_get_raw_group_subfield_name( $sub_field_name, $parent_name ) {
+	// If the sub-field name starts with parent name + underscore, strip it.
+	$prefix = $parent_name . '_';
+	if ( strpos( $sub_field_name, $prefix ) === 0 ) {
+		return substr( $sub_field_name, strlen( $prefix ) );
+	}
+	return $sub_field_name;
+}
+
+/**
  * Render the input for a group sub-field.
  *
  * Delegates to the centralized OpenFields_Field_Renderer class for consistency.
@@ -171,11 +194,14 @@ function openfields_render_group_subfield( $sub_field, $parent_name, $object_id,
  * @param string $parent_name  Parent group name.
  */
 function openfields_render_group_subfield_input( $sub_field, $value, $field_id, $field_name, $settings, $object_id, $object_type, $parent_name ) {
+	// Get the raw sub-field name for proper nesting.
+	$raw_sub_name = openfields_get_raw_group_subfield_name( $sub_field->name, $parent_name );
+	
 	// Use the centralized field renderer.
 	$context = array(
 		'object_id'   => $object_id,
 		'object_type' => $object_type,
-		'parent_name' => $parent_name . '_' . $sub_field->name,
+		'parent_name' => $parent_name . '_' . $raw_sub_name,
 	);
 
 	openfields_render_field( $sub_field, $value, $field_id, $field_name, $settings, $context );
