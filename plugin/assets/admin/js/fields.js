@@ -249,6 +249,12 @@
 			const inputs = container.querySelectorAll('[data-validate], input[type="email"], input[type="url"], input[type="number"]');
 
 			inputs.forEach(input => {
+				// Skip if already initialized to prevent duplicate event listeners.
+				if (input.dataset.ofValidationInitialized) {
+					return;
+				}
+				input.dataset.ofValidationInitialized = 'true';
+
 				// Validate on blur (when leaving field)
 				input.addEventListener('blur', () => {
 					const result = this.validateElement(input);
@@ -318,6 +324,10 @@
 		setupFormSubmitValidation() {
 			const form = document.getElementById('post') || document.querySelector('form.edit-form');
 			if (!form) return;
+
+			// Prevent duplicate submit handlers
+			if (form.dataset.ofSubmitValidationInit) return;
+			form.dataset.ofSubmitValidationInit = 'true';
 
 			form.addEventListener('submit', (e) => {
 				const metaBoxes = form.querySelectorAll('.openfields-meta-box');
@@ -465,6 +475,12 @@
 			);
 
 			formInputs.forEach(input => {
+				// Skip if already initialized to prevent duplicate event listeners.
+				if (input.dataset.ofConditionalInitialized) {
+					return;
+				}
+				input.dataset.ofConditionalInitialized = 'true';
+
 				input.addEventListener('change', () => this.evaluateAllConditions());
 				input.addEventListener('input', () => this.evaluateAllConditions());
 			});
@@ -656,6 +672,12 @@
 			const fileInputs = document.querySelectorAll('.openfields-file-upload input[type="file"]');
 
 			fileInputs.forEach(input => {
+				// Skip if already initialized to prevent duplicate event listeners.
+				if (input.dataset.ofInitialized) {
+					return;
+				}
+				input.dataset.ofInitialized = 'true';
+
 				input.addEventListener('change', (e) => this.handleFileSelect(e));
 			});
 
@@ -748,6 +770,12 @@
 			const imageFields = document.querySelectorAll('.openfields-image-field');
 			
 			imageFields.forEach(field => {
+				// Skip if already initialized to prevent duplicate event listeners.
+				if (field.dataset.ofInitialized) {
+					return;
+				}
+				field.dataset.ofInitialized = 'true';
+
 				const selectBtn = field.querySelector('.openfields-image-select');
 				const changeBtn = field.querySelector('.openfields-image-change');
 				const removeBtn = field.querySelector('.openfields-image-remove');
@@ -862,6 +890,12 @@
 			const fileFields = document.querySelectorAll('.openfields-file-field');
 			
 			fileFields.forEach(field => {
+				// Skip if already initialized to prevent duplicate event listeners.
+				if (field.dataset.ofInitialized) {
+					return;
+				}
+				field.dataset.ofInitialized = 'true';
+
 				const selectBtn = field.querySelector('.openfields-file-select');
 				const changeBtn = field.querySelector('.openfields-file-change');
 				const removeBtn = field.querySelector('.openfields-file-remove');
@@ -1004,6 +1038,12 @@
 			const galleryFields = document.querySelectorAll('.openfields-gallery-field');
 			
 			galleryFields.forEach(field => {
+				// Skip if already initialized to prevent duplicate event listeners.
+				if (field.dataset.ofInitialized) {
+					return;
+				}
+				field.dataset.ofInitialized = 'true';
+
 				// Add buttons.
 				const addBtns = field.querySelectorAll('.openfields-gallery-add, .openfields-gallery-select');
 				addBtns.forEach(btn => {
