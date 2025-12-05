@@ -21,15 +21,15 @@ export function DownloadSection() {
 				<div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
 					{/* GitHub */}
 					<div className="flex flex-col p-6 rounded-lg border border-border bg-background">
-						<div className="flex items-center gap-3 mb-4">
-							<div className="flex size-10 items-center justify-center rounded-md bg-[#24292f] text-white">
-								<RiGithubFill className="size-5" />
-							</div>
-							<div>
-								<h3 className="font-semibold text-foreground">GitHub</h3>
-								<p className="text-xs text-muted-foreground">Source code & releases</p>
-							</div>
+					<div className="flex items-center gap-3 mb-4">
+						<div className="flex size-10 items-center justify-center rounded-md bg-foreground/20 text-foreground">
+							<RiGithubFill className="size-5" />
 						</div>
+						<div>
+							<h3 className="font-semibold text-foreground">GitHub</h3>
+							<p className="text-xs text-muted-foreground">Source code & releases</p>
+						</div>
+					</div>
 						<p className="text-sm text-muted-foreground mb-4 flex-1">
 							Clone the repo, contribute, or download the latest release.
 						</p>
@@ -44,7 +44,7 @@ export function DownloadSection() {
 					{/* WordPress.org */}
 					<div className="flex flex-col p-6 rounded-lg border border-border bg-background">
 						<div className="flex items-center gap-3 mb-4">
-							<div className="flex size-10 items-center justify-center rounded-md bg-[#21759b] text-white">
+							<div className="flex size-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
 								<RiWordpressFill className="size-5" />
 							</div>
 							<div>

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { SPONSORS, SOCIAL_LINKS } from "@/lib/data";
 
 function SponsorAvatar({ name }: { name: string }) {
-	// Generate initials from name
 	const initials = name
 		.split(" ")
 		.map((n) => n[0])
@@ -11,14 +10,7 @@ function SponsorAvatar({ name }: { name: string }) {
 		.slice(0, 2)
 		.toUpperCase();
 
-	// Generate a consistent color based on name
-	const colors = [
-		"bg-[#0969da]",
-		"bg-[#1f883d]",
-		"bg-[#bf8700]",
-		"bg-[#8250df]",
-		"bg-[#cf222e]",
-	];
+	const colors = ["bg-primary", "bg-destructive", "bg-accent", "bg-secondary"];
 	const colorIndex = name.length % colors.length;
 
 	return (
@@ -39,12 +31,10 @@ export function SponsorsSection() {
 			<div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-20">
 				{/* Header */}
 				<div className="text-center mb-10">
-					<div className="inline-flex items-center justify-center size-12 rounded-full bg-[#ffebe9] dark:bg-[#cf222e]/20 mb-4">
-						<RiHeartLine className="size-6 text-[#cf222e]" />
+					<div className="inline-flex items-center justify-center size-12 rounded-full bg-destructive/20 mb-4">
+						<RiHeartLine className="size-6 text-destructive" />
 					</div>
-					<h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-						Sponsors
-					</h2>
+					<h2 className="text-2xl sm:text-3xl font-bold text-foreground">Sponsors</h2>
 					<p className="mt-2 text-muted-foreground max-w-md mx-auto">
 						Your support makes open source projects like this possible.
 					</p>
@@ -78,7 +68,7 @@ export function SponsorsSection() {
 					</div>
 					<Button variant="outline" asChild>
 						<a href={SOCIAL_LINKS.sponsor} target="_blank" rel="noopener noreferrer">
-							<RiHeartLine className="size-4 text-[#cf222e]" />
+							<RiHeartLine className="size-4 text-destructive" />
 							<span>Sponsor on GitHub</span>
 							<RiArrowRightLine className="size-4" />
 						</a>

@@ -6,6 +6,8 @@
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
+	--color-brand: var(--brand);
+	--color-brand-foreground: var(--brand-foreground);
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
 	--color-sidebar-ring: var(--sidebar-ring);
@@ -45,6 +47,8 @@
 
 :root {
 	--radius: 0.625rem;
+	--brand: 212 92% 45%;
+	--brand-foreground: 0 0% 100%;
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.147 0.004 49.25);
 	--card: oklch(1 0 0);
@@ -81,6 +85,8 @@
 .dark {
 	--background: oklch(0.147 0.004 49.25);
 	--foreground: oklch(0.985 0.001 106.423);
+	--brand: 212 92% 60%;
+	--brand-foreground: 0 0% 100%;
 	--card: oklch(0.216 0.006 56.043);
 	--card-foreground: oklch(0.985 0.001 106.423);
 	--popover: oklch(0.216 0.006 56.043);

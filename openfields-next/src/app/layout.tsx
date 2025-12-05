@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SITE_CONFIG } from "@/lib/data";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -22,7 +23,6 @@ export const metadata: Metadata = {
 	keywords: [
 		"WordPress",
 		"custom fields",
-		"ACF alternative",
 		"open source",
 		"WordPress plugin",
 		"meta fields",
@@ -56,11 +56,13 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<link rel="icon" href="/favicon.svg" type="image/svg+xml"></link>
 			</head>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				<Providers>{children}</Providers>
+			</body>
 		</html>
 	);
 }

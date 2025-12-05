@@ -3,8 +3,6 @@ import { RiHeartFill, RiGithubFill } from "react-icons/ri";
 import { SITE_CONFIG, SOCIAL_LINKS } from "@/lib/data";
 
 export function Footer() {
-	const currentYear = new Date().getFullYear();
-
 	return (
 		<footer className="border-t border-border bg-background">
 			<div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
@@ -31,7 +29,7 @@ export function Footer() {
 					{/* Attribution */}
 					<div className="flex items-center gap-1.5 text-sm text-muted-foreground">
 						<span>Made with</span>
-						<RiHeartFill className="size-4 text-[#cf222e]" />
+						<RiHeartFill className="size-4 text-destructive" />
 						<span>by</span>
 						<a
 							href={SITE_CONFIG.author.website}
