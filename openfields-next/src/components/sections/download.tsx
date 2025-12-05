@@ -5,14 +5,14 @@ import Link from "next/link";
 
 export function DownloadSection() {
 	return (
-		<section id="download" className="border-t border-border bg-secondary/30">
+		<section id="download" className="border-t border-border bg-gradient-to-b from-brand/5 to-transparent dark:from-brand/10">
 			<div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-20">
 				{/* Header */}
-				<div className="text-center mb-10">
-					<h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+				<div className="text-center mb-12">
+					<h2 className="text-3xl sm:text-4xl font-bold text-foreground">
 						Get Started
 					</h2>
-					<p className="mt-2 text-muted-foreground">
+					<p className="mt-3 text-muted-foreground text-lg">
 						Download OpenFields and start building.
 					</p>
 				</div>

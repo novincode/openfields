@@ -2,7 +2,12 @@ import { RiHeartLine, RiArrowRightLine, RiUserHeartLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import { SPONSORS, SOCIAL_LINKS } from "@/lib/data";
 
-function SponsorAvatar({ name }: { name: string }) {
+interface SponsorAvatarProps {
+	name: string;
+	color?: string;
+}
+
+function SponsorAvatar({ name, color = "bg-secondary" }: SponsorAvatarProps) {
 	const initials = name
 		.split(" ")
 		.map((n) => n[0])
@@ -10,12 +15,9 @@ function SponsorAvatar({ name }: { name: string }) {
 		.slice(0, 2)
 		.toUpperCase();
 
-	const colors = ["bg-primary", "bg-destructive", "bg-accent", "bg-secondary"];
-	const colorIndex = name.length % colors.length;
-
 	return (
 		<div
-			className={`flex size-12 items-center justify-center rounded-full ${colors[colorIndex]} text-white font-semibold text-sm`}
+			className={`flex size-14 items-center justify-center rounded-full ${color}  font-semibold text-sm`}
 			title={name}
 		>
 			{initials}
@@ -27,15 +29,15 @@ export function SponsorsSection() {
 	const foundingSponsors = SPONSORS.filter((s) => s.tier === "founding");
 
 	return (
-		<section className="border-t border-border">
+		<section className="border-t border-border bg-gradient-to-b from-secondary/20 to-transparent dark:from-secondary/5">
 			<div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-20">
 				{/* Header */}
-				<div className="text-center mb-10">
-					<div className="inline-flex items-center justify-center size-12 rounded-full bg-destructive/20 mb-4">
-						<RiHeartLine className="size-6 text-destructive" />
+				<div className="text-center mb-12">
+					<div className="inline-flex items-center justify-center size-14 rounded-full bg-destructive/10 dark:bg-destructive/20 mb-4">
+						<RiHeartLine className="size-7 text-destructive" />
 					</div>
-					<h2 className="text-2xl sm:text-3xl font-bold text-foreground">Sponsors</h2>
-					<p className="mt-2 text-muted-foreground max-w-md mx-auto">
+					<h2 className="text-3xl sm:text-4xl font-bold text-foreground">Sponsors</h2>
+					<p className="mt-3 text-muted-foreground max-w-md mx-auto text-lg">
 						Your support makes open source projects like this possible.
 					</p>
 				</div>
@@ -44,16 +46,16 @@ export function SponsorsSection() {
 				{foundingSponsors.length > 0 && (
 					<div className="mb-10">
 						<p className="text-xs text-muted-foreground text-center mb-4 uppercase tracking-wider">
-							Founding Sponsors
+							 Current Sponsors
 						</p>
-						<div className="flex justify-center gap-4">
-							{foundingSponsors.map((sponsor) => (
-								<div key={sponsor.name} className="flex flex-col items-center gap-2">
-									<SponsorAvatar name={sponsor.name} />
-									<span className="text-xs text-muted-foreground">{sponsor.name}</span>
-								</div>
-							))}
-						</div>
+					<div className="flex justify-center gap-4">
+						{foundingSponsors.map((sponsor) => (
+							<div key={sponsor.name} className="flex flex-col items-center gap-2">
+								<SponsorAvatar name={sponsor.name} color={sponsor.color} />
+								<span className="text-xs text-muted-foreground">{sponsor.name}</span>
+							</div>
+						))}
+					</div>
 					</div>
 				)}
 

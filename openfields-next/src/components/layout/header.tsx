@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { RiMenu3Line, RiCloseLine, RiGithubFill, RiHeartLine, RiMoonLine, RiSunLine } from "react-icons/ri";
-import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
+import { RiMenu3Line, RiCloseLine, RiGithubFill, RiHeartLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { NAV_LINKS, SOCIAL_LINKS, SITE_CONFIG } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,11 @@ type NavLink = (typeof NAV_LINKS)[number];
 
 export function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const { theme, setTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const isExternalLink = (link: NavLink): link is NavLink & { external: true } => {
 		return "external" in link && link.external === true;
@@ -22,15 +26,10 @@ export function Header() {
 		<header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 			<div className="mx-auto max-w-5xl px-4 sm:px-6">
 				<div className="flex h-14 items-center justify-between">
-					{/* Logo */}
-					<Link href="/" className="flex items-center gap-2 font-semibold">
-						<div className="flex size-7 items-center justify-center rounded-md bg-brand text-brand-foreground text-sm font-bold">
-							OF
-						</div>
-						<span className="hidden sm:inline">{SITE_CONFIG.name}</span>
-					</Link>
-
-					{/* Desktop Navigation */}
+			{/* Logo */}
+			<Link href="/" className="flex items-center gap-2 font-semibold text-lg">
+				<span className="font-bold">{SITE_CONFIG.name}</span>
+			</Link>					{/* Desktop Navigation */}
 					<nav className="hidden md:flex items-center gap-6">
 						{NAV_LINKS.map((link) => (
 							<Link
@@ -44,58 +43,36 @@ export function Header() {
 						))}
 					</nav>
 
-					{/* Desktop Actions */}
-					<div className="hidden md:flex items-center gap-3">
-						{/* Theme Toggle */}
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-							aria-label="Toggle theme"
-						>
-							{theme === "dark" ? (
-								<RiSunLine className="size-5" />
-							) : (
-								<RiMoonLine className="size-5" />
-							)}
-						</Button>
 
-						<Button variant="ghost" size="icon-sm" asChild>
-							<a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-								<RiGithubFill className="size-5" />
-							</a>
-						</Button>
-						<Button variant="outline" size="sm" asChild>
-							<a href={SOCIAL_LINKS.sponsor} target="_blank" rel="noopener noreferrer">
-								<RiHeartLine className="size-4 text-destructive" />
-								<span>Sponsor</span>
-							</a>
-						</Button>
-					</div>
+				{/* Desktop Actions */}
+				<div className="hidden md:flex items-center gap-3">
+					{/* Theme Toggle */}
+					{mounted && <ThemeToggle />}
 
-					{/* Mobile Menu Button + Theme Toggle */}
-					<div className="md:hidden flex items-center gap-2">
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-							aria-label="Toggle theme"
-						>
-							{theme === "dark" ? (
-								<RiSunLine className="size-5" />
-							) : (
-								<RiMoonLine className="size-5" />
-							)}
-						</Button>
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-							aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-						>
-							{mobileMenuOpen ? <RiCloseLine className="size-5" /> : <RiMenu3Line className="size-5" />}
-						</Button>
-					</div>
+					<Button variant="ghost" size="icon-sm" asChild>
+						<a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+							<RiGithubFill className="size-5" />
+						</a>
+					</Button>
+					<Button variant="outline" size="sm" asChild>
+						<a href={SOCIAL_LINKS.sponsor} target="_blank" rel="noopener noreferrer">
+							<RiHeartLine className="size-4 text-destructive" />
+							<span>Sponsor</span>
+						</a>
+					</Button>
+				</div>
+				{/* Mobile Menu Button + Theme Toggle */}
+				<div className="md:hidden flex items-center gap-2">
+					{mounted && <ThemeToggle />}
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+						aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+					>
+						{mobileMenuOpen ? <RiCloseLine className="size-5" /> : <RiMenu3Line className="size-5" />}
+					</Button>
+				</div>
 				</div>
 			</div>
 

@@ -78,14 +78,14 @@ export function FieldsSection() {
 		: FIELD_TYPES.filter((f) => f.category === activeCategory);
 
 	return (
-		<section className="border-t border-border">
+		<section className="border-t border-border bg-gradient-to-b from-secondary/30 to-transparent dark:from-secondary/10">
 			<div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-20">
 				{/* Header */}
-				<div className="text-center mb-10">
-					<h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+				<div className="text-center mb-12">
+					<h2 className="text-3xl sm:text-4xl font-bold text-foreground">
 						{FIELD_TYPES.length} Field Types
 					</h2>
-					<p className="mt-2 text-muted-foreground">
+					<p className="mt-3 text-muted-foreground text-lg">
 						Everything you need. All free. Forever.
 					</p>
 				</div>

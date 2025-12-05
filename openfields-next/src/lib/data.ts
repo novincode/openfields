@@ -83,12 +83,13 @@ export interface Sponsor {
 	avatar?: string;
 	tier: "founding" | "supporter" | "backer";
 	url?: string;
+	color?: string;
 }
 
 export const SPONSORS: Sponsor[] = [
-	{ name: "Mom", tier: "founding" },
-	{ name: "Dad", tier: "founding" },
-	{ name: "My Girlfriend", tier: "founding" },
+	{ name: "Mom", tier: "founding", color: "bg-accent" },
+	{ name: "Dad", tier: "founding", color: "bg-accent" },
+	{ name: "My GF 🥲", tier: "founding", color: "bg-accent" },
 ];
 
 export const SPONSOR_TIERS = [
