@@ -141,6 +141,10 @@ class OpenFields_Field_Renderer {
 				$this->render_datetime( $field, $value, $field_id, $field_name, $settings );
 				break;
 
+			case 'time':
+				$this->render_time( $field, $value, $field_id, $field_name, $settings );
+				break;
+
 			case 'color':
 				$this->render_color( $field, $value, $field_id, $field_name, $settings );
 				break;
@@ -441,6 +445,21 @@ class OpenFields_Field_Renderer {
 	private function render_datetime( $field, $value, $field_id, $field_name, $settings ) {
 		$atts = $this->build_attributes( array(
 			'type'  => 'datetime-local',
+			'id'    => $field_id,
+			'name'  => $field_name,
+			'value' => $value,
+			'class' => 'widefat',
+		) );
+		
+		echo '<input ' . $atts . ' />';
+	}
+
+	/**
+	 * Render time input.
+	 */
+	private function render_time( $field, $value, $field_id, $field_name, $settings ) {
+		$atts = $this->build_attributes( array(
+			'type'  => 'time',
 			'id'    => $field_id,
 			'name'  => $field_name,
 			'value' => $value,

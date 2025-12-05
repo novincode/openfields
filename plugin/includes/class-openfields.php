@@ -79,6 +79,9 @@ final class OpenFields_Plugin {
 
 		// Public API.
 		require_once OPENFIELDS_PLUGIN_DIR . 'includes/api/functions.php';
+
+		// Gutenberg block.
+		require_once OPENFIELDS_PLUGIN_DIR . 'includes/class-openfields-block.php';
 	}
 
 	/**

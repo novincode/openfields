@@ -3,6 +3,11 @@
  * Public API functions.
  *
  * Developer-facing functions for template use.
+ * These functions are ACF-compatible - same function names, same output format.
+ * 
+ * If ACF is already active, these functions won't be defined to avoid conflicts.
+ * Since OpenFields stores data in the same format as ACF, ACF's functions will
+ * work with OpenFields data automatically.
  *
  * @package OpenFields
  * @since   1.0.0
@@ -13,48 +18,459 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// =============================================================================
+// ACF COMPATIBILITY NOTICE
+// =============================================================================
+
 /**
- * Get a field value.
- *
- * For repeater fields, if the value is an integer (ACF format row count),
- * this function returns the reconstructed array of rows.
- *
- * For relational fields (post_object, taxonomy, user), applies return_format
- * to return either ID(s), object(s), or array(s) based on field settings.
- *
- * @since 1.0.0
- *
- * @param  string   $field_name   Field name.
- * @param  int|null $object_id    Object ID. Defaults to current post.
- * @param  bool     $format_value Whether to format the value based on return_format.
- * @return mixed    Field value.
+ * Check if ACF is active and add admin notice if needed.
  */
-function get_field( $field_name, $object_id = null, $format_value = true ) {
-	$context = openfields_detect_context( $object_id );
-	$value   = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+add_action( 'admin_notices', 'openfields_acf_compatibility_notice' );
 
-	// Check if this is a repeater field (value is integer row count).
-	// ACF stores row count as integer, OpenFields does the same.
-	if ( is_numeric( $value ) && (int) $value > 0 ) {
-		// Check if there are sub-fields by looking for {field}_0_ pattern.
-		$all_meta = openfields_get_all_meta( $context['id'], $context['type'] );
-		$test_key = $field_name . '_0_';
+function openfields_acf_compatibility_notice() {
+	// Only show to admins on OpenFields pages.
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
-		foreach ( $all_meta as $key => $v ) {
-			if ( strpos( $key, $test_key ) === 0 ) {
-				// This is a repeater field, return rows array.
-				return get_rows( $field_name, $object_id );
+	$screen = get_current_screen();
+	if ( ! $screen || strpos( $screen->id, 'openfields' ) === false ) {
+		return;
+	}
+
+	if ( class_exists( 'ACF' ) ) {
+		?>
+		<div class="notice notice-info is-dismissible">
+			<p>
+				<strong><?php esc_html_e( 'OpenFields + ACF Detected', 'openfields' ); ?></strong>
+				<?php esc_html_e( 'Both plugins are active. OpenFields stores data in ACF-compatible format, so ACF\'s template functions will work with OpenFields data. You can use either plugin\'s API.', 'openfields' ); ?>
+			</p>
+		</div>
+		<?php
+	}
+}
+
+// =============================================================================
+// MAIN API FUNCTIONS (ACF-Compatible)
+// Only defined if not already defined by ACF or another plugin.
+// =============================================================================
+
+if ( ! function_exists( 'get_field' ) ) {
+	/**
+	 * Get a field value.
+	 *
+	 * For repeater fields, if the value is an integer (ACF format row count),
+	 * this function returns the reconstructed array of rows.
+	 *
+	 * For relational fields (post_object, taxonomy, user), applies return_format
+	 * to return either ID(s), object(s), or array(s) based on field settings.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string   $field_name   Field name.
+	 * @param  int|null $object_id    Object ID. Defaults to current post.
+	 * @param  bool     $format_value Whether to format the value based on return_format.
+	 * @return mixed    Field value.
+	 */
+	function get_field( $field_name, $object_id = null, $format_value = true ) {
+		$context = openfields_detect_context( $object_id );
+		$value   = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+
+		// Check if this is a repeater field (value is integer row count).
+		if ( is_numeric( $value ) && (int) $value > 0 ) {
+			$all_meta = openfields_get_all_meta( $context['id'], $context['type'] );
+			$test_key = $field_name . '_0_';
+
+			foreach ( $all_meta as $key => $v ) {
+				if ( strpos( $key, $test_key ) === 0 ) {
+					return get_rows( $field_name, $object_id );
+				}
 			}
 		}
-	}
 
-	// Apply return_format for relational fields if formatting is enabled.
-	if ( $format_value && ! empty( $value ) ) {
-		$value = openfields_apply_return_format( $field_name, $value );
-	}
+		// Apply return_format for relational fields if formatting is enabled.
+		if ( $format_value && ! empty( $value ) ) {
+			$value = openfields_apply_return_format( $field_name, $value );
+		}
 
-	return $value;
+		return $value;
+	}
 }
+
+if ( ! function_exists( 'the_field' ) ) {
+	/**
+	 * Get and echo a field value.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string   $field_name Field name.
+	 * @param  int|null $object_id  Object ID. Defaults to current post.
+	 * @return void
+	 */
+	function the_field( $field_name, $object_id = null ) {
+		$value = get_field( $field_name, $object_id );
+
+		if ( is_array( $value ) || is_object( $value ) ) {
+			return;
+		}
+
+		echo esc_html( $value );
+	}
+}
+
+if ( ! function_exists( 'get_fields' ) ) {
+	/**
+	 * Get all field values for an object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  int|null $object_id Object ID. Defaults to current post.
+	 * @return array    Array of field values.
+	 */
+	function get_fields( $object_id = null ) {
+		$context = openfields_detect_context( $object_id );
+		return OpenFields_Storage_Manager::get_all_values( $context['id'], $context['type'] );
+	}
+}
+
+if ( ! function_exists( 'update_field' ) ) {
+	/**
+	 * Update a field value.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string   $field_name Field name.
+	 * @param  mixed    $value      Value to store.
+	 * @param  int|null $object_id  Object ID. Defaults to current post.
+	 * @return bool
+	 */
+	function update_field( $field_name, $value, $object_id = null ) {
+		$context = openfields_detect_context( $object_id );
+		return OpenFields_Storage_Manager::update_value( $field_name, $value, $context['id'], $context['type'] );
+	}
+}
+
+if ( ! function_exists( 'delete_field' ) ) {
+	/**
+	 * Delete a field value.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string   $field_name Field name.
+	 * @param  int|null $object_id  Object ID. Defaults to current post.
+	 * @return bool
+	 */
+	function delete_field( $field_name, $object_id = null ) {
+		$context = openfields_detect_context( $object_id );
+		return OpenFields_Storage_Manager::delete_value( $field_name, $context['id'], $context['type'] );
+	}
+}
+
+if ( ! function_exists( 'get_field_object' ) ) {
+	/**
+	 * Get field object (schema/settings).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $field_name Field name.
+	 * @return array|null
+	 */
+	function get_field_object( $field_name ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'openfields_fields';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$field = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE name = %s",
+				$field_name
+			),
+			ARRAY_A
+		);
+
+		if ( ! $field ) {
+			return null;
+		}
+
+		$settings = array();
+		if ( ! empty( $field['field_config'] ) ) {
+			$decoded = json_decode( $field['field_config'], true );
+			if ( is_array( $decoded ) ) {
+				$settings = $decoded;
+			}
+		}
+		$field['settings'] = $settings;
+
+		return $field;
+	}
+}
+
+// =============================================================================
+// REPEATER / ROW FUNCTIONS (ACF-Compatible)
+// =============================================================================
+
+if ( ! function_exists( 'have_rows' ) ) {
+	/**
+	 * Check if repeater has rows.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string   $field_name Field name.
+	 * @param  int|null $object_id  Object ID.
+	 * @return bool
+	 */
+	function have_rows( $field_name, $object_id = null ) {
+		global $openfields_rows, $openfields_row_index;
+
+		if ( isset( $openfields_rows[ $field_name ] ) ) {
+			$index = $openfields_row_index[ $field_name ] ?? 0;
+			return $index < count( $openfields_rows[ $field_name ] );
+		}
+
+		$context   = openfields_detect_context( $object_id );
+		$row_count = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+
+		if ( is_numeric( $row_count ) ) {
+			return (int) $row_count > 0;
+		}
+
+		if ( is_array( $row_count ) ) {
+			return ! empty( $row_count );
+		}
+
+		return false;
+	}
+}
+
+if ( ! function_exists( 'the_row' ) ) {
+	/**
+	 * Iterate through repeater rows.
+	 *
+	 * Usage:
+	 * while ( have_rows( 'my_repeater' ) ) {
+	 *     the_row();
+	 *     echo get_sub_field( 'text_field' );
+	 * }
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string   $field_name Field name (optional).
+	 * @param  int|null $object_id  Object ID.
+	 * @return bool
+	 */
+	function the_row( $field_name = '', $object_id = null ) {
+		global $openfields_rows, $openfields_row_index, $openfields_row, $openfields_current_field;
+
+		if ( ! empty( $field_name ) ) {
+			$openfields_current_field = $field_name;
+		} else {
+			$field_name = $openfields_current_field ?? '';
+		}
+
+		if ( empty( $field_name ) ) {
+			return false;
+		}
+
+		if ( ! isset( $openfields_rows[ $field_name ] ) ) {
+			$openfields_rows[ $field_name ]      = get_rows( $field_name, $object_id );
+			$openfields_row_index[ $field_name ] = 0;
+		}
+
+		$rows  = $openfields_rows[ $field_name ];
+		$index = $openfields_row_index[ $field_name ];
+
+		if ( $index < count( $rows ) ) {
+			$openfields_row = $rows[ $index ];
+			++$openfields_row_index[ $field_name ];
+			return true;
+		}
+
+		unset( $openfields_rows[ $field_name ], $openfields_row_index[ $field_name ] );
+		$openfields_row           = null;
+		$openfields_current_field = null;
+
+		return false;
+	}
+}
+
+if ( ! function_exists( 'get_row' ) ) {
+	/**
+	 * Get the current row data.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array|null Current row data.
+	 */
+	function get_row() {
+		global $openfields_row;
+		return $openfields_row;
+	}
+}
+
+if ( ! function_exists( 'get_rows' ) ) {
+	/**
+	 * Get repeater rows as an array.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string   $field_name Field name.
+	 * @param  int|null $object_id  Object ID.
+	 * @return array
+	 */
+	function get_rows( $field_name, $object_id = null ) {
+		$context   = openfields_detect_context( $object_id );
+		$row_count = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+
+		if ( is_array( $row_count ) ) {
+			return $row_count;
+		}
+
+		if ( ! is_numeric( $row_count ) || (int) $row_count <= 0 ) {
+			return array();
+		}
+
+		$rows     = array();
+		$all_meta = openfields_get_all_meta( $context['id'], $context['type'] );
+		$prefix_pattern = '/^' . preg_quote( $field_name, '/' ) . '_(\d+)_(.+)$/';
+
+		foreach ( $all_meta as $key => $value ) {
+			if ( preg_match( $prefix_pattern, $key, $matches ) ) {
+				$index     = (int) $matches[1];
+				$sub_field = $matches[2];
+
+				if ( ! isset( $rows[ $index ] ) ) {
+					$rows[ $index ] = array();
+				}
+				$rows[ $index ][ $sub_field ] = $value;
+			}
+		}
+
+		ksort( $rows );
+		return array_values( $rows );
+	}
+}
+
+if ( ! function_exists( 'reset_rows' ) ) {
+	/**
+	 * Reset the row loop.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $field_name Field name.
+	 * @return void
+	 */
+	function reset_rows( $field_name = '' ) {
+		global $openfields_rows, $openfields_row_index, $openfields_row;
+
+		if ( $field_name && isset( $openfields_rows[ $field_name ] ) ) {
+			$openfields_row_index[ $field_name ] = 0;
+		} else {
+			$openfields_rows      = array();
+			$openfields_row_index = array();
+		}
+		$openfields_row = null;
+	}
+}
+
+if ( ! function_exists( 'get_row_index' ) ) {
+	/**
+	 * Get row index (0-based).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int
+	 */
+	function get_row_index() {
+		global $openfields_row_index, $openfields_current_field;
+		$field_name = $openfields_current_field ?? '';
+		return ( $openfields_row_index[ $field_name ] ?? 1 ) - 1;
+	}
+}
+
+if ( ! function_exists( 'get_row_layout' ) ) {
+	/**
+	 * Get the current row layout (for flexible content fields).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string|null Layout name.
+	 */
+	function get_row_layout() {
+		global $openfields_row;
+		return $openfields_row['acf_fc_layout'] ?? null;
+	}
+}
+
+// =============================================================================
+// SUB-FIELD FUNCTIONS (ACF-Compatible)
+// =============================================================================
+
+if ( ! function_exists( 'get_sub_field' ) ) {
+	/**
+	 * Get a sub-field value from the current row.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $field_name Sub-field name.
+	 * @return mixed
+	 */
+	function get_sub_field( $field_name ) {
+		global $openfields_row;
+		return $openfields_row[ $field_name ] ?? null;
+	}
+}
+
+if ( ! function_exists( 'the_sub_field' ) ) {
+	/**
+	 * Echo a sub-field value.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $field_name Sub-field name.
+	 * @return void
+	 */
+	function the_sub_field( $field_name ) {
+		$value = get_sub_field( $field_name );
+		if ( is_array( $value ) || is_object( $value ) ) {
+			return;
+		}
+		echo esc_html( $value );
+	}
+}
+
+if ( ! function_exists( 'have_sub_field' ) ) {
+	/**
+	 * Check if a sub-field has a value (alias for have_rows for nested repeaters).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $field_name Sub-field name.
+	 * @return bool
+	 */
+	function have_sub_field( $field_name ) {
+		$value = get_sub_field( $field_name );
+		return ! empty( $value );
+	}
+}
+
+if ( ! function_exists( 'get_sub_field_object' ) ) {
+	/**
+	 * Get sub-field object from the current row.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $field_name Sub-field name.
+	 * @return array|null
+	 */
+	function get_sub_field_object( $field_name ) {
+		return get_field_object( $field_name );
+	}
+}
+
+// =============================================================================
+// OPENFIELDS-SPECIFIC FUNCTIONS (Always available, prefixed)
+// =============================================================================
 
 /**
  * Get a field value without formatting (raw value from database).
@@ -65,85 +481,9 @@ function get_field( $field_name, $object_id = null, $format_value = true ) {
  * @param  int|null $object_id  Object ID. Defaults to current post.
  * @return mixed    Raw field value.
  */
-function get_field_raw( $field_name, $object_id = null ) {
+function openfields_get_field_raw( $field_name, $object_id = null ) {
 	$context = openfields_detect_context( $object_id );
 	return OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
-}
-
-/**
- * Get and echo a field value.
- *
- * @since 1.0.0
- *
- * @param  string   $field_name Field name.
- * @param  int|null $object_id  Object ID. Defaults to current post.
- * @return void
- */
-function the_field( $field_name, $object_id = null ) {
-	$value = get_field( $field_name, $object_id );
-
-	// Don't echo arrays/objects (like repeater data).
-	if ( is_array( $value ) || is_object( $value ) ) {
-		return;
-	}
-
-	echo esc_html( $value );
-}
-
-/**
- * Update a field value.
- *
- * @since 1.0.0
- *
- * @param  string   $field_name Field name.
- * @param  mixed    $value      Value to store.
- * @param  int|null $object_id  Object ID. Defaults to current post.
- * @return bool
- */
-function update_field( $field_name, $value, $object_id = null ) {
-	$context = openfields_detect_context( $object_id );
-	return OpenFields_Storage_Manager::update_value( $field_name, $value, $context['id'], $context['type'] );
-}
-
-/**
- * Delete a field value.
- *
- * @since 1.0.0
- *
- * @param  string   $field_name Field name.
- * @param  int|null $object_id  Object ID. Defaults to current post.
- * @return bool
- */
-function delete_field( $field_name, $object_id = null ) {
-	$context = openfields_detect_context( $object_id );
-	return OpenFields_Storage_Manager::delete_value( $field_name, $context['id'], $context['type'] );
-}
-
-/**
- * Get all OpenFields values for an object.
- *
- * @since 1.0.0
- *
- * @param  int|null $object_id Object ID. Defaults to current post.
- * @return array    Array of field values.
- */
-function get_fields( $object_id = null ) {
-	$context = openfields_detect_context( $object_id );
-	return OpenFields_Storage_Manager::get_all_values( $context['id'], $context['type'] );
-}
-
-/**
- * Get fields for a specific fieldset.
- *
- * @since 1.0.0
- *
- * @param  string   $fieldset_key Fieldset key.
- * @param  int|null $object_id    Object ID. Defaults to current post.
- * @return array
- */
-function get_fieldset( $fieldset_key, $object_id = null ) {
-	$context = openfields_detect_context( $object_id );
-	return OpenFields_Storage_Manager::get_fieldset_values( $fieldset_key, $context['id'], $context['type'] );
 }
 
 /**
@@ -155,277 +495,28 @@ function get_fieldset( $fieldset_key, $object_id = null ) {
  * @param  int|null $object_id  Object ID. Defaults to current post.
  * @return bool
  */
-function have_field( $field_name, $object_id = null ) {
-	$value = get_field( $field_name, $object_id );
+function openfields_have_field( $field_name, $object_id = null ) {
+	$value = function_exists( 'get_field' ) ? get_field( $field_name, $object_id ) : openfields_get_field_raw( $field_name, $object_id );
 	return ! empty( $value );
 }
 
 /**
- * Check if repeater has rows.
- *
- * Works with both OpenFields and ACF data formats:
- * - ACF format: {field} = count, {field}_{index}_{subfield} = value
- * - Legacy format: Serialized array
+ * Get fields for a specific fieldset.
  *
  * @since 1.0.0
  *
- * @param  string   $field_name Field name.
- * @param  int|null $object_id  Object ID.
- * @return bool
- */
-function have_rows( $field_name, $object_id = null ) {
-	global $openfields_rows, $openfields_row_index;
-
-	// If already initialized in a loop, check if more rows.
-	if ( isset( $openfields_rows[ $field_name ] ) ) {
-		$index = $openfields_row_index[ $field_name ] ?? 0;
-		return $index < count( $openfields_rows[ $field_name ] );
-	}
-
-	// Get row count from meta (ACF format stores count as integer).
-	$context   = openfields_detect_context( $object_id );
-	$row_count = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
-
-	// If it's an integer, it's the row count (ACF format).
-	if ( is_numeric( $row_count ) ) {
-		return (int) $row_count > 0;
-	}
-
-	// If it's an array, it's legacy format.
-	if ( is_array( $row_count ) ) {
-		return ! empty( $row_count );
-	}
-
-	return false;
-}
-
-/**
- * Get repeater rows as an array.
- *
- * Works with both OpenFields and ACF data formats:
- * - ACF format: Reconstructs rows from flat meta keys
- * - Legacy format: Returns serialized array directly
- *
- * @since 1.0.0
- *
- * @param  string   $field_name Field name.
- * @param  int|null $object_id  Object ID.
+ * @param  string   $fieldset_key Fieldset key.
+ * @param  int|null $object_id    Object ID. Defaults to current post.
  * @return array
  */
-function get_rows( $field_name, $object_id = null ) {
-	$context   = openfields_detect_context( $object_id );
-	$row_count = OpenFields_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
-
-	// If it's an array (legacy format), return directly.
-	if ( is_array( $row_count ) ) {
-		return $row_count;
-	}
-
-	// If it's not a positive integer, no rows.
-	if ( ! is_numeric( $row_count ) || (int) $row_count <= 0 ) {
-		return array();
-	}
-
-	$count = (int) $row_count;
-	$rows  = array();
-
-	// Reconstruct rows from flat meta keys (ACF format).
-	// We need to discover sub-field names by pattern matching.
-	$all_meta = openfields_get_all_meta( $context['id'], $context['type'] );
-
-	// Find all keys that start with {field}_{index}_
-	$prefix_pattern = '/^' . preg_quote( $field_name, '/' ) . '_(\d+)_(.+)$/';
-	$sub_fields     = array();
-
-	foreach ( $all_meta as $key => $value ) {
-		if ( preg_match( $prefix_pattern, $key, $matches ) ) {
-			$index      = (int) $matches[1];
-			$sub_field  = $matches[2];
-
-			if ( ! isset( $rows[ $index ] ) ) {
-				$rows[ $index ] = array();
-			}
-			$rows[ $index ][ $sub_field ] = $value;
-		}
-	}
-
-	// Re-index to ensure sequential array.
-	ksort( $rows );
-	return array_values( $rows );
+function openfields_get_fieldset( $fieldset_key, $object_id = null ) {
+	$context = openfields_detect_context( $object_id );
+	return OpenFields_Storage_Manager::get_fieldset_values( $fieldset_key, $context['id'], $context['type'] );
 }
 
-/**
- * Get a sub-field value from the current row.
- *
- * @since 1.0.0
- *
- * @param  string $field_name Sub-field name.
- * @return mixed
- */
-function get_sub_field( $field_name ) {
-	global $openfields_row;
-	return $openfields_row[ $field_name ] ?? null;
-}
-
-/**
- * Echo a sub-field value.
- *
- * @since 1.0.0
- *
- * @param  string $field_name Sub-field name.
- * @return void
- */
-function the_sub_field( $field_name ) {
-	$value = get_sub_field( $field_name );
-	if ( is_array( $value ) || is_object( $value ) ) {
-		// Don't echo arrays/objects.
-		return;
-	}
-	echo esc_html( $value );
-}
-
-/**
- * Check if a sub-field has a value.
- *
- * @since 1.0.0
- *
- * @param  string $field_name Sub-field name.
- * @return bool
- */
-function have_sub_field( $field_name ) {
-	$value = get_sub_field( $field_name );
-	return ! empty( $value );
-}
-
-/**
- * Iterate through repeater rows.
- *
- * Usage:
- * while ( have_rows( 'my_repeater' ) ) {
- *     the_row();
- *     echo get_sub_field( 'text_field' );
- * }
- *
- * Note: Use have_rows() as the loop condition, then call the_row() inside.
- *
- * @since 1.0.0
- *
- * @param  string   $field_name Field name (optional, uses current row context).
- * @param  int|null $object_id  Object ID.
- * @return bool
- */
-function the_row( $field_name = '', $object_id = null ) {
-	global $openfields_rows, $openfields_row_index, $openfields_row, $openfields_current_field;
-
-	// If field_name is provided, use it. Otherwise use current context.
-	if ( ! empty( $field_name ) ) {
-		$openfields_current_field = $field_name;
-	} else {
-		$field_name = $openfields_current_field ?? '';
-	}
-
-	if ( empty( $field_name ) ) {
-		return false;
-	}
-
-	// Initialize if needed.
-	if ( ! isset( $openfields_rows[ $field_name ] ) ) {
-		$openfields_rows[ $field_name ]      = get_rows( $field_name, $object_id );
-		$openfields_row_index[ $field_name ] = 0;
-	}
-
-	$rows  = $openfields_rows[ $field_name ];
-	$index = $openfields_row_index[ $field_name ];
-
-	if ( $index < count( $rows ) ) {
-		$openfields_row = $rows[ $index ];
-		++$openfields_row_index[ $field_name ];
-		return true;
-	}
-
-	// Reset for next loop.
-	unset( $openfields_rows[ $field_name ], $openfields_row_index[ $field_name ] );
-	$openfields_row = null;
-	$openfields_current_field = null;
-
-	return false;
-}
-
-/**
- * Reset the row loop.
- *
- * @since 1.0.0
- *
- * @param  string $field_name Field name.
- * @return void
- */
-function reset_rows( $field_name = '' ) {
-	global $openfields_rows, $openfields_row_index, $openfields_row;
-
-	if ( $field_name && isset( $openfields_rows[ $field_name ] ) ) {
-		$openfields_row_index[ $field_name ] = 0;
-	} else {
-		$openfields_rows      = array();
-		$openfields_row_index = array();
-	}
-	$openfields_row = null;
-}
-
-/**
- * Get row index (0-based).
- *
- * @since 1.0.0
- *
- * @param  string $field_name Field name.
- * @return int
- */
-function get_row_index( $field_name ) {
-	global $openfields_row_index;
-	return ( $openfields_row_index[ $field_name ] ?? 1 ) - 1;
-}
-
-/**
- * Get field object (schema/settings).
- *
- * @since 1.0.0
- *
- * @param  string $field_name Field name.
- * @return array|null
- */
-function get_field_object( $field_name ) {
-	global $wpdb;
-
-	$table = $wpdb->prefix . 'openfields_fields';
-
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$field = $wpdb->get_row(
-		$wpdb->prepare(
-			"SELECT * FROM {$table} WHERE name = %s",
-			$field_name
-		),
-		ARRAY_A
-	);
-
-	if ( ! $field ) {
-		return null;
-	}
-
-	// Field settings are stored in field_config column as JSON.
-	$settings = array();
-	if ( ! empty( $field['field_config'] ) ) {
-		$decoded = json_decode( $field['field_config'], true );
-		if ( is_array( $decoded ) ) {
-			$settings = $decoded;
-		}
-	}
-	$field['settings'] = $settings;
-
-	return $field;
-}
-
-// -----------------------------------------------------------------------------
-// Helper functions.
-// -----------------------------------------------------------------------------
+// =============================================================================
+// HELPER FUNCTIONS (Internal, always prefixed)
+// =============================================================================
 
 /**
  * Detect context from object ID.
@@ -436,7 +527,6 @@ function get_field_object( $field_name ) {
  * @return array
  */
 function openfields_detect_context( $object_id = null ) {
-	// Check for prefixed IDs.
 	if ( is_string( $object_id ) ) {
 		if ( strpos( $object_id, 'user_' ) === 0 ) {
 			return array(
@@ -460,7 +550,6 @@ function openfields_detect_context( $object_id = null ) {
 		}
 	}
 
-	// Default to post.
 	return array(
 		'type' => 'post',
 		'id'   => $object_id ?? get_the_ID(),
@@ -491,7 +580,6 @@ function openfields_get_all_meta( $object_id, $type = 'post' ) {
 			return array();
 	}
 
-	// WordPress stores meta as arrays, flatten to single values.
 	$result = array();
 	foreach ( $all as $key => $values ) {
 		$result[ $key ] = maybe_unserialize( $values[0] ?? '' );
@@ -502,38 +590,32 @@ function openfields_get_all_meta( $object_id, $type = 'post' ) {
 /**
  * Apply return_format to a field value based on field settings.
  *
- * Handles post_object, taxonomy, user, and relationship fields.
- *
  * @since 1.0.0
  *
  * @param  string $field_name Field name.
- * @param  mixed  $value      Raw field value (typically ID or array of IDs).
- * @return mixed  Formatted value based on return_format setting.
+ * @param  mixed  $value      Raw field value.
+ * @return mixed  Formatted value.
  */
 function openfields_apply_return_format( $field_name, $value ) {
-	// Get field definition to check type and return_format.
-	$field = get_field_object( $field_name );
-	
+	$field = function_exists( 'get_field_object' ) ? get_field_object( $field_name ) : null;
+
 	if ( ! $field || empty( $field['type'] ) ) {
 		return $value;
 	}
 
 	$type     = $field['type'];
 	$settings = is_array( $field['settings'] ) ? $field['settings'] : array();
-	
-	// Only format relational field types.
+
 	if ( ! in_array( $type, array( 'post_object', 'relationship', 'taxonomy', 'user' ), true ) ) {
 		return $value;
 	}
 
 	$return_format = $settings['return_format'] ?? 'id';
 
-	// If already ID format or no special formatting needed.
 	if ( 'id' === $return_format ) {
 		return $value;
 	}
 
-	// Handle based on field type.
 	switch ( $type ) {
 		case 'post_object':
 		case 'relationship':
@@ -562,7 +644,6 @@ function openfields_format_post_value( $value, $return_format ) {
 		return $value;
 	}
 
-	// 'object' format - return WP_Post object(s).
 	if ( is_array( $value ) ) {
 		return array_filter( array_map( 'get_post', $value ) );
 	}
@@ -582,7 +663,6 @@ function openfields_format_taxonomy_value( $value, $return_format ) {
 		return $value;
 	}
 
-	// 'object' format - return WP_Term object(s).
 	if ( is_array( $value ) ) {
 		return array_filter( array_map( function( $term_id ) {
 			return get_term( $term_id );
@@ -604,7 +684,6 @@ function openfields_format_user_value( $value, $return_format ) {
 		return $value;
 	}
 
-	// Handle arrays.
 	if ( is_array( $value ) ) {
 		return array_filter( array_map( function( $user_id ) use ( $return_format ) {
 			$user = get_userdata( $user_id );
@@ -620,11 +699,10 @@ function openfields_format_user_value( $value, $return_format ) {
 					'user_url'     => $user->user_url,
 				);
 			}
-			return $user; // 'object' format.
+			return $user;
 		}, $value ) );
 	}
 
-	// Single value.
 	$user = get_userdata( $value );
 	if ( ! $user ) {
 		return null;
@@ -640,8 +718,12 @@ function openfields_format_user_value( $value, $return_format ) {
 		);
 	}
 
-	return $user; // 'object' format.
+	return $user;
 }
+
+// =============================================================================
+// REGISTRATION FUNCTIONS (OpenFields-specific, always prefixed)
+// =============================================================================
 
 /**
  * Register a field type programmatically.
@@ -707,7 +789,6 @@ function openfields_register_options_page( $args ) {
 		}
 	);
 
-	// Register for location matching.
 	add_filter(
 		'openfields_options_pages',
 		function( $pages ) use ( $args ) {
@@ -754,21 +835,24 @@ function openfields_register_fieldset( $key, $args ) {
 	add_action(
 		'init',
 		function() use ( $key, $args ) {
-			/**
-			 * Filter programmatic fieldset registration.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param array  $args Fieldset arguments.
-			 * @param string $key  Fieldset key.
-			 */
+			/** This filter is documented in includes/api/functions.php */
 			$args = apply_filters( 'openfields_register_fieldset', $args, $key );
 
-			// Store in transient for runtime use.
-			$registered = get_transient( 'openfields_registered_fieldsets' ) ?: array();
-			$registered[ $key ] = $args;
+			$registered          = get_transient( 'openfields_registered_fieldsets' ) ?: array();
+			$registered[ $key ]  = $args;
 			set_transient( 'openfields_registered_fieldsets', $registered );
 		},
 		5
 	);
+}
+
+/**
+ * Check if ACF is active.
+ *
+ * @since 1.0.0
+ *
+ * @return bool
+ */
+function openfields_is_acf_active() {
+	return class_exists( 'ACF' );
 }

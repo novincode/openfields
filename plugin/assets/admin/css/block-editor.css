@@ -1,0 +1,67 @@
+/**
+ * OpenFields Block Editor Styles
+ *
+ * @package OpenFields
+ */
+
+/* Block placeholder in editor */
+.openfields-block-placeholder {
+	padding: 20px;
+	background: #f0f0f1;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	text-align: center;
+	color: #646970;
+}
+
+.openfields-block-placeholder .dashicons {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	margin-bottom: 8px;
+	display: block;
+}
+
+.openfields-block-placeholder p {
+	margin: 0;
+	font-size: 13px;
+}
+
+.openfields-block-empty {
+	background: #fcf0f1;
+	border-color: #d63638;
+	color: #d63638;
+}
+
+/* Preview in editor */
+.wp-block-openfields-field {
+	padding: 8px 0;
+}
+
+.openfields-block-label {
+	display: block;
+	font-weight: 600;
+	font-size: 12px;
+	text-transform: uppercase;
+	color: #646970;
+	margin-bottom: 4px;
+}
+
+.openfields-block-value {
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.openfields-block-value img {
+	max-width: 100%;
+	height: auto;
+}
+
+.openfields-block-value a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.openfields-block-value a:hover {
+	text-decoration: underline;
+}
