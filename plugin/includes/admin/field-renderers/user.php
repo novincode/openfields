@@ -56,12 +56,15 @@ function openfields_render_user_field( $field, $value, $field_id, $field_name, $
 		'data-roles'      => esc_attr( implode( ',', $roles ) ),
 	);
 
-	$data_string = '';
+	// Build escaped data attributes string.
+	$data_parts = array();
 	foreach ( $data_attrs as $key => $val ) {
-		$data_string .= ' ' . $key . '="' . $val . '"';
+		$data_parts[] = esc_attr( $key ) . '="' . esc_attr( $val ) . '"';
 	}
+	$data_string = implode( ' ', $data_parts );
 
 	?>
+	<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
 	<div class="openfields-user-field" <?php echo $data_string; ?>>
 		<?php if ( $multiple ) : ?>
 			<input type="hidden" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( implode( ',', array_column( $selected_users, 'id' ) ) ); ?>" />

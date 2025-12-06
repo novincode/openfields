@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name: OpenFields
- * Plugin URI: https://openfields.dev
+ * Plugin URI: https://openfields.codeideal.com
  * Description: Modern custom fields builder for WordPress - the open-source ACF alternative
  * Version: 0.1.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: OpenFields Contributors
- * Author URI: https://openfields.dev
+ * Author URI: https://codeideal.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: openfields

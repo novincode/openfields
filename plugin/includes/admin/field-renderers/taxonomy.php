@@ -58,14 +58,17 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 		'data-multiple'   => $multiple ? '1' : '0',
 	);
 
-	$data_string = '';
+	// Build escaped data attributes string.
+	$data_parts = array();
 	foreach ( $data_attrs as $key => $val ) {
-		$data_string .= ' ' . $key . '="' . $val . '"';
+		$data_parts[] = esc_attr( $key ) . '="' . esc_attr( $val ) . '"';
 	}
+	$data_string = implode( ' ', $data_parts );
 
 	switch ( $field_type ) {
 		case 'checkbox':
 			?>
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
 			<div class="openfields-taxonomy-field openfields-taxonomy-checkbox" <?php echo $data_string; ?>>
 				<fieldset>
 					<?php foreach ( $terms as $term ) : ?>
@@ -87,6 +90,7 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 
 		case 'radio':
 			?>
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
 			<div class="openfields-taxonomy-field openfields-taxonomy-radio" <?php echo $data_string; ?>>
 				<fieldset>
 					<?php if ( $allow_null ) : ?>
@@ -120,6 +124,7 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 		case 'select':
 		default:
 			?>
+			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
 			<div class="openfields-taxonomy-field openfields-taxonomy-select" <?php echo $data_string; ?>>
 				<select 
 					id="<?php echo esc_attr( $field_id ); ?>" 

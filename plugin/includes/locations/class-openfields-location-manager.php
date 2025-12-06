@@ -253,7 +253,6 @@ class OpenFields_Location_Manager {
 			"SELECT * FROM {$fieldsets_table} WHERE status = 'active' ORDER BY menu_order ASC"
 		);
 
-		error_log( 'OpenFields Debug - Total active fieldsets: ' . count( $fieldsets ) );
 
 		if ( empty( $fieldsets ) ) {
 			return array();
@@ -271,18 +270,14 @@ class OpenFields_Location_Manager {
 				)
 			);
 
-			error_log( 'OpenFields Debug - Fieldset "' . $fieldset->title . '" has ' . count( $location_rows ) . ' location rules' );
 
 			// Convert rows to grouped rules format.
 			$rules = $this->rows_to_rules( $location_rows );
 
-			error_log( 'OpenFields Debug - Rules for "' . $fieldset->title . '": ' . print_r( $rules, true ) );
 
 			if ( $this->match( $rules, $context ) ) {
-				error_log( 'OpenFields Debug - Fieldset "' . $fieldset->title . '" MATCHED!' );
 				$matched[] = $fieldset;
 			} else {
-				error_log( 'OpenFields Debug - Fieldset "' . $fieldset->title . '" did NOT match' );
 			}
 		}
 

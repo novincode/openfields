@@ -123,7 +123,7 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 						</p>
 					</div>
 					<a
-						href="https://openfields.dev/support"
+						href="https://openfields.codeideal.com/support"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"

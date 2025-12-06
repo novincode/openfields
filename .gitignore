@@ -43,3 +43,4 @@ wordpress/
 # Misc
 *.zip
 *.tar.gz
+openfields-next/src/generated/

@@ -190,7 +190,6 @@ class OpenFields_Meta_Box {
 	 * @param WP_Post $post      Post object.
 	 */
 	public function register_meta_boxes( $post_type, $post ) {
-		error_log( 'OpenFields: register_meta_boxes called for post_type=' . $post_type . ', post_id=' . $post->ID );
 
 		$context = array(
 			'post_type'     => $post_type,
@@ -199,10 +198,8 @@ class OpenFields_Meta_Box {
 		);
 
 		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
-		error_log( 'OpenFields: Found ' . count( $fieldsets ) . ' matching fieldsets' );
 
 		foreach ( $fieldsets as $fieldset ) {
-			error_log( 'OpenFields: Registering meta box: ' . $fieldset->title . ' (ID: ' . $fieldset->id . ')' );
 
 			$settings = json_decode( $fieldset->settings, true );
 			$position = ( $settings['position'] ?? 'normal' ) === 'side' ? 'side' : 'normal';
@@ -422,23 +419,19 @@ class OpenFields_Meta_Box {
 	public function save_post( $post_id, $post, $update ) {
 		// Skip autosave.
 		if ( wp_is_post_autosave( $post_id ) ) {
-			error_log( 'OpenFields: Skipping autosave' );
 			return;
 		}
 
 		// Skip revision.
 		if ( wp_is_post_revision( $post_id ) ) {
-			error_log( 'OpenFields: Skipping revision' );
 			return;
 		}
 
 		// Check capability.
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			error_log( 'OpenFields: User cannot edit post' );
 			return;
 		}
 
-		error_log( 'OpenFields: save_post called for post_id=' . $post_id . ', type=' . $post->post_type );
 
 		// Get fieldsets for this post.
 		$context = array(
@@ -447,7 +440,6 @@ class OpenFields_Meta_Box {
 		);
 
 		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
-		error_log( 'OpenFields: Found ' . count( $fieldsets ) . ' fieldsets for this context' );
 
 		// Process each fieldset.
 		foreach ( $fieldsets as $fieldset ) {
@@ -455,18 +447,15 @@ class OpenFields_Meta_Box {
 			$nonce_key = 'openfields_nonce_' . $fieldset->id;
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( empty( $_POST[ $nonce_key ] ) ) {
-				error_log( 'OpenFields: Nonce missing for fieldset ' . $fieldset->id );
 				continue;
 			}
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$nonce = wp_unslash( $_POST[ $nonce_key ] );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is immediately verified.
+			$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) );
 			if ( ! wp_verify_nonce( $nonce, 'openfields_save_' . $fieldset->id ) ) {
-				error_log( 'OpenFields: Nonce verification failed for fieldset ' . $fieldset->id );
 				continue;
 			}
 
-			error_log( 'OpenFields: Processing fieldset ' . $fieldset->id . ': ' . $fieldset->title );
 
 			// Get ALL fields including sub-fields for saving.
 			global $wpdb;
@@ -491,7 +480,6 @@ class OpenFields_Meta_Box {
 				}
 			}
 
-			error_log( 'OpenFields: Fieldset has ' . count( $root_fields ) . ' root fields' );
 
 			// Save each ROOT field.
 			foreach ( $root_fields as $field ) {
@@ -508,27 +496,21 @@ class OpenFields_Meta_Box {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$raw_value  = isset( $_POST[ $meta_key ] ) ? wp_unslash( $_POST[ $meta_key ] ) : '';
 
-					error_log( 'OpenFields: Processing field "' . $field_name . '" (type: ' . $field->type . ')' );
-					error_log( 'OpenFields: Raw value: ' . print_r( $raw_value, true ) );
 
 					// Sanitize the value.
 					$sanitized_value = $this->sanitize_value( $raw_value, $field->type );
 
-					error_log( 'OpenFields: Sanitized value: ' . print_r( $sanitized_value, true ) );
 
 					// Update postmeta with native WordPress function.
 					$result = update_post_meta( $post_id, $meta_key, $sanitized_value );
 
-					error_log( 'OpenFields: update_post_meta result: ' . ( $result ? 'SUCCESS' : 'NO_CHANGE' ) );
 
 					// Verify it was saved.
 					$verify = get_post_meta( $post_id, $meta_key, true );
-					error_log( 'OpenFields: Verify read back: ' . print_r( $verify, true ) );
 				}
 			}
 		}
 
-		error_log( 'OpenFields: save_post completed for post_id=' . $post_id );
 	}
 
 	/**
@@ -558,7 +540,6 @@ class OpenFields_Meta_Box {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
 
-		error_log( 'OpenFields: Saving repeater "' . $base_name . '" with ' . $row_count . ' rows (meta_key: ' . $meta_key . ')' );
 
 		// Save row count (ACF format - no prefix).
 		update_post_meta( $post_id, $meta_key, $row_count );
@@ -567,7 +548,6 @@ class OpenFields_Meta_Box {
 		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
 
 		if ( empty( $sub_fields ) ) {
-			error_log( 'OpenFields: No sub-fields found for repeater ' . $base_name );
 			return;
 		}
 
@@ -591,7 +571,6 @@ class OpenFields_Meta_Box {
 					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_post_meta( $post_id, $full_name, $sanitized );
-					error_log( 'OpenFields: Saved ' . $full_name . ' = ' . print_r( $sanitized, true ) );
 				}
 			}
 		}
@@ -616,13 +595,11 @@ class OpenFields_Meta_Box {
 			$base_name = $field->name;
 		}
 
-		error_log( 'OpenFields: Saving group "' . $base_name . '"' );
 
 		// Get sub-fields for this group.
 		$sub_fields = isset( $sub_fields_map[ $field->id ] ) ? $sub_fields_map[ $field->id ] : array();
 
 		if ( empty( $sub_fields ) ) {
-			error_log( 'OpenFields: No sub-fields found for group ' . $base_name );
 			return;
 		}
 
@@ -646,7 +623,6 @@ class OpenFields_Meta_Box {
 				$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 				$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 				update_post_meta( $post_id, $full_name, $sanitized );
-				error_log( 'OpenFields: Saved group sub-field ' . $full_name . ' = ' . print_r( $sanitized, true ) );
 			}
 		}
 	}
@@ -699,7 +675,6 @@ class OpenFields_Meta_Box {
 				// Delete if index is >= new row count.
 				if ( $index >= $row_count ) {
 					delete_post_meta( $post_id, $key );
-					error_log( 'OpenFields: Cleaned up old meta: ' . $key );
 				}
 			}
 		}
@@ -1032,11 +1007,14 @@ class OpenFields_Meta_Box {
 		foreach ( $fieldsets as $fieldset ) {
 			$nonce_key = 'openfields_term_nonce_' . $fieldset->id;
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( ! isset( $_POST[ $nonce_key ] ) ) {
 				continue;
 			}
 
-			if ( ! wp_verify_nonce( $_POST[ $nonce_key ], 'openfields_save_term_' . $fieldset->id ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is immediately verified.
+			$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) );
+			if ( ! wp_verify_nonce( $nonce, 'openfields_save_term_' . $fieldset->id ) ) {
 				continue;
 			}
 
@@ -1376,11 +1354,14 @@ class OpenFields_Meta_Box {
 		foreach ( $fieldsets as $fieldset ) {
 			$nonce_key = 'openfields_user_nonce_' . $fieldset->id;
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( ! isset( $_POST[ $nonce_key ] ) ) {
 				continue;
 			}
 
-			if ( ! wp_verify_nonce( $_POST[ $nonce_key ], 'openfields_save_user_' . $fieldset->id ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is immediately verified.
+			$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) );
+			if ( ! wp_verify_nonce( $nonce, 'openfields_save_user_' . $fieldset->id ) ) {
 				continue;
 			}
 

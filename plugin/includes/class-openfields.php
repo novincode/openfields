@@ -125,9 +125,14 @@ final class OpenFields_Plugin {
 	/**
 	 * Load plugin text domain.
 	 *
+	 * Note: Since WordPress 4.6, translations are automatically loaded from
+	 * WordPress.org for plugins hosted in the plugin directory.
+	 * This function is kept for backward compatibility and local development.
+	 *
 	 * @since 1.0.0
 	 */
 	public function load_textdomain() {
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Kept for backward compatibility.
 		load_plugin_textdomain(
 			'openfields',
 			false,

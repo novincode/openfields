@@ -293,7 +293,6 @@
 			this.initMediaFields();
 			this.bindEvents();
 
-			console.log('[OpenFields] Fields manager initialized');
 		},
 
 		/**
@@ -315,7 +314,6 @@
 			// Intercept form submission to validate
 			this.setupFormSubmitValidation();
 
-			console.log('[OpenFields] Validation system initialized');
 		},
 
 		/**
@@ -444,7 +442,6 @@
 				}
 			});
 
-			console.log(`[OpenFields] Initialized ${switches.length} switch fields`);
 		},
 
 		/**
@@ -681,7 +678,6 @@
 				input.addEventListener('change', (e) => this.handleFileSelect(e));
 			});
 
-			console.log(`[OpenFields] Initialized ${fileInputs.length} file fields`);
 		},
 
 		/**
@@ -760,7 +756,6 @@
 			this.initFileMediaFields();
 			this.initGalleryFields();
 			
-			console.log('[OpenFields] Media fields initialized');
 		},
 
 		/**
@@ -1399,10 +1394,8 @@
 		const metaBoxes = document.querySelectorAll('.openfields-meta-box');
 		
 		if (metaBoxes.length > 0) {
-			console.log('[OpenFields] Found', metaBoxes.length, 'meta boxes, initializing...');
 			FieldsManager.init();
 		} else {
-			console.log('[OpenFields] No meta boxes found yet, will retry...');
 		}
 	}
 
@@ -1422,7 +1415,6 @@
 					// Check if this is a meta box or contains meta boxes
 					if (node.classList?.contains('openfields-meta-box') || 
 					    node.querySelector?.('.openfields-meta-box')) {
-						console.log('[OpenFields] Meta box added dynamically, reinitializing...');
 						// Small delay to ensure DOM is fully rendered
 						setTimeout(() => FieldsManager.init(), 100);
 					}

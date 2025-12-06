@@ -47,6 +47,7 @@ class OpenFields_Admin {
 		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
 		add_action( 'admin_init', array( $this, 'maybe_redirect_after_activation' ) );
 		add_filter( 'plugin_action_links_' . OPENFIELDS_PLUGIN_BASENAME, array( $this, 'add_action_links' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_loading_styles' ) );
 	}
 
 	/**
@@ -92,7 +93,22 @@ class OpenFields_Admin {
 				<?php esc_html_e( 'Loading OpenFields...', 'openfields' ); ?>
 			</div>
 		</div>
-		<style>
+		<?php
+	}
+
+	/**
+	 * Enqueue loading styles for admin page.
+	 *
+	 * @since 1.0.0
+	 * @param string $hook Current admin page hook.
+	 */
+	public function enqueue_loading_styles( $hook ) {
+		// Only on our admin page.
+		if ( 'toplevel_page_openfields' !== $hook ) {
+			return;
+		}
+
+		$inline_css = '
 			#openfields-admin {
 				margin: 0;
 			}
@@ -114,8 +130,11 @@ class OpenFields_Admin {
 			.openfields-admin-wrap ~ .error {
 				display: none !important;
 			}
-		</style>
-		<?php
+		';
+
+		wp_register_style( 'openfields-admin-loading', false );
+		wp_enqueue_style( 'openfields-admin-loading' );
+		wp_add_inline_style( 'openfields-admin-loading', $inline_css );
 	}
 
 	/**

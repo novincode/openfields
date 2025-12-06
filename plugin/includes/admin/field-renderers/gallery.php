@@ -117,23 +117,23 @@ function openfields_render_gallery_field( $field, $value, $field_id, $field_name
 				printf(
 					/* translators: %1$d: current count, %2$d: min, %3$d: max */
 					esc_html__( '%1$d images selected (min: %2$d, max: %3$d)', 'openfields' ),
-					$count,
-					$min,
-					$max
+					absint( $count ),
+					absint( $min ),
+					absint( $max )
 				);
 			} elseif ( $min > 0 ) {
 				printf(
 					/* translators: %1$d: current count, %2$d: min */
 					esc_html__( '%1$d images selected (min: %2$d)', 'openfields' ),
-					$count,
-					$min
+					absint( $count ),
+					absint( $min )
 				);
 			} elseif ( $max > 0 ) {
 				printf(
 					/* translators: %1$d: current count, %2$d: max */
 					esc_html__( '%1$d images selected (max: %2$d)', 'openfields' ),
-					$count,
-					$max
+					absint( $count ),
+					absint( $max )
 				);
 			}
 			?>

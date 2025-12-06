@@ -56,12 +56,15 @@ function openfields_render_post_object_field( $field, $value, $field_id, $field_
 		'data-post-types' => esc_attr( implode( ',', $post_types ) ),
 	);
 
-	$data_string = '';
+	// Build escaped data attributes string.
+	$data_parts = array();
 	foreach ( $data_attrs as $key => $val ) {
-		$data_string .= ' ' . $key . '="' . $val . '"';
+		$data_parts[] = esc_attr( $key ) . '="' . esc_attr( $val ) . '"';
 	}
+	$data_string = implode( ' ', $data_parts );
 
 	?>
+	<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
 	<div class="openfields-post-object-field" <?php echo $data_string; ?>>
 		<?php if ( $multiple ) : ?>
 			<input type="hidden" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( implode( ',', array_column( $selected_posts, 'id' ) ) ); ?>" />

@@ -204,17 +204,6 @@ class OpenFields_REST_API {
 			)
 		);
 
-		// Debug endpoint - check locations table.
-		register_rest_route(
-			self::NAMESPACE,
-			'/debug/locations',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'debug_locations' ),
-				'permission_callback' => array( $this, 'check_admin_permission' ),
-			)
-		);
-
 		// -----------------------------------------------------------------
 		// Relational field search endpoints.
 		// -----------------------------------------------------------------
@@ -530,26 +519,17 @@ class OpenFields_REST_API {
 		$id    = absint( $request['id'] );
 		$table = $wpdb->prefix . 'openfields_fieldsets';
 
-		// Debug: log the entire request
-		error_log( 'OpenFields Debug - Full request params: ' . print_r( $request->get_params(), true ) );
-
-		// Extract location_groups from settings for saving to locations table
-		// Ensure settings is always an array (not a JSON string that would be double-encoded)
+		// Extract location_groups from settings for saving to locations table.
+		// Ensure settings is always an array (not a JSON string that would be double-encoded).
 		$settings = $request['settings'] ?? array();
 		if ( is_string( $settings ) ) {
 			$settings = json_decode( $settings, true ) ?: array();
 		}
 		$location_groups = $settings['location_groups'] ?? array();
 
-		error_log( 'OpenFields Debug - update_fieldset called for ID: ' . $id );
-		error_log( 'OpenFields Debug - settings type: ' . gettype( $settings ) );
-		error_log( 'OpenFields Debug - settings: ' . print_r( $settings, true ) );
-		error_log( 'OpenFields Debug - location_groups count: ' . count( $location_groups ) );
-
-		// Determine status - handle various truthy/falsy values
+		// Determine status - handle various truthy/falsy values.
 		$is_active = $request['is_active'] ?? true;
 		$status = ( $is_active === false || $is_active === 'false' || $is_active === 0 || $is_active === '0' ) ? 'inactive' : 'active';
-		error_log( 'OpenFields Debug - is_active raw: ' . var_export( $request['is_active'], true ) . ', status: ' . $status );
 
 		$data = array(
 			'title'       => sanitize_text_field( $request['title'] ),
@@ -561,8 +541,6 @@ class OpenFields_REST_API {
 			'updated_at'  => current_time( 'mysql' ),
 		);
 		
-		error_log( 'OpenFields Debug - Encoded settings being saved: ' . $data['settings'] );
-		error_log( 'OpenFields Debug - Encoded settings length: ' . strlen( $data['settings'] ) );
 
 		// Update field_key if provided
 		if ( ! empty( $request['field_key'] ) ) {
@@ -1246,8 +1224,6 @@ class OpenFields_REST_API {
 	private function save_location_groups( $fieldset_id, $location_groups ) {
 		global $wpdb;
 
-		error_log( 'OpenFields Debug - save_location_groups called for fieldset ' . $fieldset_id );
-		error_log( 'OpenFields Debug - location_groups data: ' . print_r( $location_groups, true ) );
 
 		$table = $wpdb->prefix . 'openfields_locations';
 
@@ -1263,7 +1239,6 @@ class OpenFields_REST_API {
 			foreach ( $rules as $rule ) {
 				// Skip empty rules
 				if ( empty( $rule['type'] ) ) {
-					error_log( 'OpenFields Debug - Skipping empty rule' );
 					continue;
 				}
 
@@ -1275,48 +1250,16 @@ class OpenFields_REST_API {
 					'group_id'    => $group_index,
 				);
 
-				error_log( 'OpenFields Debug - Inserting location: ' . print_r( $data, true ) );
 
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 				$result = $wpdb->insert( $table, $data );
 				
 				if ( $result === false ) {
-					error_log( 'OpenFields Debug - Insert FAILED: ' . $wpdb->last_error );
 				}
 			}
 
 			$group_index++;
 		}
-	}
-
-	/**
-	 * Debug endpoint to check locations table.
-	 *
-	 * @since  1.0.0
-	 * @return WP_REST_Response
-	 */
-	public function debug_locations() {
-		global $wpdb;
-
-		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
-		$locations_table = $wpdb->prefix . 'openfields_locations';
-
-		// Get all fieldsets.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$fieldsets = $wpdb->get_results( "SELECT id, title, status, settings FROM {$fieldsets_table}" );
-
-		// Get all locations.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$locations = $wpdb->get_results( "SELECT * FROM {$locations_table}" );
-
-		return rest_ensure_response(
-			array(
-				'fieldsets'       => $fieldsets,
-				'locations'       => $locations,
-				'fieldsets_count' => count( $fieldsets ),
-				'locations_count' => count( $locations ),
-			)
-		);
 	}
 
 	/**

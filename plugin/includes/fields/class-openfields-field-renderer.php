@@ -214,6 +214,7 @@ class OpenFields_Field_Renderer {
 			'maxlength'   => $maxlength ?: null,
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 	}
 
@@ -236,6 +237,7 @@ class OpenFields_Field_Renderer {
 			'data-validate' => 'email',
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 		echo '</div>';
 	}
@@ -259,6 +261,7 @@ class OpenFields_Field_Renderer {
 			'data-validate' => 'url',
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 		echo '</div>';
 	}
@@ -284,6 +287,7 @@ class OpenFields_Field_Renderer {
 			'step'        => $step !== '' ? $step : null,
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 	}
 
@@ -304,6 +308,7 @@ class OpenFields_Field_Renderer {
 			'maxlength'   => $maxlength ?: null,
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<textarea ' . $atts . '>' . esc_textarea( $value ) . '</textarea>';
 	}
 
@@ -322,6 +327,7 @@ class OpenFields_Field_Renderer {
 			'multiple' => $multiple ?: null,
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<select ' . $atts . '>';
 		
 		if ( ! $multiple ) {
@@ -436,6 +442,7 @@ class OpenFields_Field_Renderer {
 			'class' => 'widefat',
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 	}
 
@@ -451,6 +458,7 @@ class OpenFields_Field_Renderer {
 			'class' => 'widefat',
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 	}
 
@@ -466,6 +474,7 @@ class OpenFields_Field_Renderer {
 			'class' => 'widefat',
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 	}
 
@@ -480,6 +489,7 @@ class OpenFields_Field_Renderer {
 			'value' => $value ?: '#000000',
 		) );
 		
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $atts is pre-escaped by build_attributes().
 		echo '<input ' . $atts . ' />';
 	}
 
@@ -530,8 +540,11 @@ class OpenFields_Field_Renderer {
 	/**
 	 * Build HTML attributes string.
 	 *
+	 * This method already escapes all attribute keys and values.
+	 * The output is safe for direct use in HTML.
+	 *
 	 * @param array $attributes Key-value pairs.
-	 * @return string
+	 * @return string Pre-escaped attributes string.
 	 */
 	private function build_attributes( $attributes ) {
 		$parts = array();
