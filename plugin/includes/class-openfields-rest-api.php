@@ -74,7 +74,7 @@ class OpenFields_REST_API {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_fieldset' ),
 					'permission_callback' => array( $this, 'check_admin_permission' ),
-					'args'                => $this->get_fieldset_args(),
+					'args'                => $this->get_fieldset_create_args(),
 				),
 			)
 		);
@@ -92,7 +92,7 @@ class OpenFields_REST_API {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_fieldset' ),
 					'permission_callback' => array( $this, 'check_admin_permission' ),
-					'args'                => $this->get_fieldset_args(),
+					'args'                => $this->get_fieldset_update_args(),
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
@@ -518,33 +518,57 @@ class OpenFields_REST_API {
 
 		$id    = absint( $request['id'] );
 		$table = $wpdb->prefix . 'openfields_fieldsets';
+		
+		// Get all parameters from the request (merges URL params, query params, and JSON body)
+		$params = $request->get_params();
 
 		// Extract location_groups from settings for saving to locations table.
 		// Ensure settings is always an array (not a JSON string that would be double-encoded).
-		$settings = $request['settings'] ?? array();
+		$settings = $params['settings'] ?? array();
 		if ( is_string( $settings ) ) {
 			$settings = json_decode( $settings, true ) ?: array();
 		}
 		$location_groups = $settings['location_groups'] ?? array();
 
-		// Determine status - handle various truthy/falsy values.
-		$is_active = $request['is_active'] ?? true;
-		$status = ( $is_active === false || $is_active === 'false' || $is_active === 0 || $is_active === '0' ) ? 'inactive' : 'active';
-
+		// Build update data - only include fields that are actually provided
 		$data = array(
-			'title'       => sanitize_text_field( $request['title'] ),
-			'description' => sanitize_textarea_field( $request['description'] ?? '' ),
-			'status'      => $status,
-			'custom_css'  => wp_strip_all_tags( $request['custom_css'] ?? '' ),
-			'settings'    => wp_json_encode( $settings ),
-			'menu_order'  => absint( $request['menu_order'] ?? 0 ),
-			'updated_at'  => current_time( 'mysql' ),
+			'updated_at' => current_time( 'mysql' ),
 		);
-		
 
-		// Update field_key if provided
-		if ( ! empty( $request['field_key'] ) ) {
-			$data['field_key'] = sanitize_key( $request['field_key'] );
+		// Only update title if provided
+		if ( array_key_exists( 'title', $params ) ) {
+			$data['title'] = sanitize_text_field( $params['title'] );
+		}
+
+		// Only update description if provided
+		if ( array_key_exists( 'description', $params ) ) {
+			$data['description'] = sanitize_textarea_field( $params['description'] );
+		}
+
+		// Only update status if is_active is provided
+		if ( array_key_exists( 'is_active', $params ) ) {
+			$is_active = $params['is_active'];
+			$data['status'] = ( $is_active === false || $is_active === 'false' || $is_active === 0 || $is_active === '0' ) ? 'inactive' : 'active';
+		}
+
+		// Only update custom_css if provided
+		if ( array_key_exists( 'custom_css', $params ) ) {
+			$data['custom_css'] = wp_strip_all_tags( $params['custom_css'] );
+		}
+
+		// Only update settings if provided
+		if ( array_key_exists( 'settings', $params ) ) {
+			$data['settings'] = wp_json_encode( $settings );
+		}
+
+		// Only update menu_order if provided
+		if ( array_key_exists( 'menu_order', $params ) ) {
+			$data['menu_order'] = absint( $params['menu_order'] );
+		}
+
+		// Only update field_key if provided
+		if ( array_key_exists( 'field_key', $params ) && ! empty( $params['field_key'] ) ) {
+			$data['field_key'] = sanitize_key( $params['field_key'] );
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -558,14 +582,16 @@ class OpenFields_REST_API {
 			);
 		}
 
-		// Save location groups to locations table
-		if ( ! empty( $location_groups ) ) {
-			$this->save_location_groups( $id, $location_groups );
-		} else {
-			// Clear locations if no groups
-			$locations_table = $wpdb->prefix . 'openfields_locations';
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
+		// Save location groups to locations table - only if settings was provided
+		if ( array_key_exists( 'settings', $params ) ) {
+			if ( ! empty( $location_groups ) ) {
+				$this->save_location_groups( $id, $location_groups );
+			} else {
+				// Clear locations if settings provided but no groups
+				$locations_table = $wpdb->prefix . 'openfields_locations';
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
+			}
 		}
 
 		return $this->get_fieldset( $request );
@@ -836,6 +862,9 @@ class OpenFields_REST_API {
 
 		$id    = absint( $request['id'] );
 		$table = $wpdb->prefix . 'openfields_fields';
+		
+		// Get all parameters from the request (merges URL params, query params, and JSON body)
+		$params = $request->get_params();
 
 		// Start with updated timestamp
 		$data = array(
@@ -843,13 +872,13 @@ class OpenFields_REST_API {
 		);
 
 		// Handle all direct field updates - these override settings object values
-		if ( isset( $request['label'] ) ) {
-			$data['label'] = sanitize_text_field( $request['label'] );
+		if ( array_key_exists( 'label', $params ) ) {
+			$data['label'] = sanitize_text_field( $params['label'] );
 		}
 		
 		// If name is being changed, validate it.
-		if ( isset( $request['name'] ) ) {
-			$new_name = sanitize_key( $request['name'] );
+		if ( array_key_exists( 'name', $params ) ) {
+			$new_name = sanitize_key( $params['name'] );
 			
 			if ( empty( $new_name ) ) {
 				return new WP_Error(
@@ -886,39 +915,46 @@ class OpenFields_REST_API {
 			$data['name'] = $new_name;
 		}
 		
-		if ( isset( $request['type'] ) ) {
-			$data['type'] = sanitize_key( $request['type'] );
+		if ( array_key_exists( 'type', $params ) ) {
+			$data['type'] = sanitize_key( $params['type'] );
 		}
-		if ( isset( $request['menu_order'] ) ) {
-			$data['menu_order'] = absint( $request['menu_order'] );
+		if ( array_key_exists( 'menu_order', $params ) ) {
+			$data['menu_order'] = absint( $params['menu_order'] );
 		}
 		
 		// Handle fields that can be cleared (empty string is valid)
-		if ( array_key_exists( 'instructions', $request->get_params() ) ) {
-			$data['instructions'] = sanitize_textarea_field( $request['instructions'] ?? '' );
+		if ( array_key_exists( 'instructions', $params ) ) {
+			$data['instructions'] = sanitize_textarea_field( $params['instructions'] ?? '' );
 		}
-		if ( array_key_exists( 'default_value', $request->get_params() ) ) {
-			$data['default_value'] = sanitize_text_field( $request['default_value'] ?? '' );
+		if ( array_key_exists( 'default_value', $params ) ) {
+			$data['default_value'] = sanitize_text_field( $params['default_value'] ?? '' );
 		}
-		if ( array_key_exists( 'placeholder', $request->get_params() ) ) {
-			$data['placeholder'] = sanitize_text_field( $request['placeholder'] ?? '' );
+		if ( array_key_exists( 'placeholder', $params ) ) {
+			$data['placeholder'] = sanitize_text_field( $params['placeholder'] ?? '' );
 		}
-		if ( array_key_exists( 'required', $request->get_params() ) ) {
-			$data['required'] = absint( $request['required'] ?? 0 );
+		if ( array_key_exists( 'required', $params ) ) {
+			$data['required'] = absint( $params['required'] ?? 0 );
+		}
+		
+		// Handle parent_id for nested fields
+		if ( array_key_exists( 'parent_id', $params ) ) {
+			$parent_id = $params['parent_id'];
+			// Convert empty string, "0", 0 to null
+			$data['parent_id'] = ( empty( $parent_id ) || $parent_id === '0' || $parent_id === 0 ) ? null : absint( $parent_id );
 		}
 		
 		// Handle JSON fields - always encode, even if empty (to clear them)
-		if ( array_key_exists( 'conditional_logic', $request->get_params() ) ) {
-			$value = $request['conditional_logic'];
+		if ( array_key_exists( 'conditional_logic', $params ) ) {
+			$value = $params['conditional_logic'];
 			$data['conditional_logic'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
 		}
-		if ( array_key_exists( 'wrapper_config', $request->get_params() ) ) {
-			$value = $request['wrapper_config'];
+		if ( array_key_exists( 'wrapper_config', $params ) ) {
+			$value = $params['wrapper_config'];
 			$data['wrapper_config'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
 		}
 		// Handle settings - support both 'settings' and 'field_config' for backwards compatibility
-		if ( array_key_exists( 'settings', $request->get_params() ) || array_key_exists( 'field_config', $request->get_params() ) ) {
-			$value = $request['settings'] ?? $request['field_config'];
+		if ( array_key_exists( 'settings', $params ) || array_key_exists( 'field_config', $params ) ) {
+			$value = $params['settings'] ?? $params['field_config'];
 			$value = $this->sanitize_field_settings( $value );
 			$data['field_config'] = ( empty( $value ) ) ? '' : wp_json_encode( $value );
 		}
@@ -1268,7 +1304,13 @@ class OpenFields_REST_API {
 	 * @since  1.0.0
 	 * @return array
 	 */
-	private function get_fieldset_args() {
+	/**
+	 * Get fieldset arguments for creation (all required).
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_fieldset_create_args() {
 		return array(
 			'title' => array(
 				'required'          => true,
@@ -1276,6 +1318,60 @@ class OpenFields_REST_API {
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 		);
+	}
+
+	/**
+	 * Get fieldset arguments for updates (all optional for partial updates).
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_fieldset_update_args() {
+		return array(
+			'title' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'description' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+			),
+			'field_key' => array(
+				'required'          => false,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+			),
+			'is_active' => array(
+				'required'          => false,
+				'type'              => array( 'boolean', 'integer', 'string' ),
+			),
+			'settings' => array(
+				'required'          => false,
+				'type'              => array( 'object', 'array', 'string' ),
+			),
+			'custom_css' => array(
+				'required'          => false,
+				'type'              => 'string',
+			),
+			'menu_order' => array(
+				'required'          => false,
+				'type'              => 'integer',
+			),
+		);
+	}
+
+	/**
+	 * Get field arguments for validation.
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 *
+	 * @deprecated Use get_fieldset_create_args() instead for creation validation.
+	 */
+	private function get_fieldset_args() {
+		return $this->get_fieldset_create_args();
 	}
 
 	/**
@@ -1349,24 +1445,28 @@ class OpenFields_REST_API {
 			),
 			'conditional_logic' => array(
 				'required'          => false,
-				'type'              => 'array',
+				'type'              => array( 'array', 'object', 'string' ),
 			),
 			'wrapper_config' => array(
 				'required'          => false,
-				'type'              => 'object',
+				'type'              => array( 'object', 'array', 'string' ),
 			),
 			'field_config' => array(
 				'required'          => false,
-				'type'              => 'object',
+				'type'              => array( 'object', 'array', 'string' ),
 			),
 			'settings' => array(
 				'required'          => false,
-				'type'              => 'object',
+				'type'              => array( 'object', 'array', 'string' ),
 			),
 			'menu_order' => array(
 				'required'          => false,
 				'type'              => 'integer',
 				'sanitize_callback' => 'absint',
+			),
+			'parent_id' => array(
+				'required'          => false,
+				'type'              => array( 'integer', 'null', 'string' ),
 			),
 		);
 	}
