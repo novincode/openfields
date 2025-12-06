@@ -24,7 +24,7 @@ export default function SupportPage() {
 						Need Help?
 					</h1>
 					<p className="text-xl text-muted-foreground leading-relaxed">
-						We're here to support you. Whether you're just getting started or need advanced help,
+						We&apos;re here to support you. Whether you&apos;re just getting started or need advanced help,
 						find the resources you need below.
 					</p>
 				</div>
