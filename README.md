@@ -235,8 +235,12 @@ npm run wp-env stop
 # Development mode (hot reload)
 npm run dev
 
-# Production build
+# Production build (admin app only)
 npm run build
+
+# Build plugin for distribution
+npm run build:plugin              # Builds React app + copies assets
+npm run build:plugin:release      # Creates distributable ZIP file
 
 # Type checking
 npm run type-check
@@ -247,6 +251,8 @@ npm run lint
 # Format code
 npm run format
 ```
+
+See `docs/BUILD.md` for detailed build documentation.
 
 ### Testing
 

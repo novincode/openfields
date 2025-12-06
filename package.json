@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:plugin": "bash scripts/build.sh",
+    "build:plugin:release": "bash scripts/build.sh release",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "lint": "eslint admin/src --ext .ts,.tsx",
