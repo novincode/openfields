@@ -1001,8 +1001,13 @@ class OpenFields_Meta_Box {
 	public function save_taxonomy_fields( $term_id, $tt_id ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'openfields_fieldsets';
-		$fieldsets  = $wpdb->get_results( "SELECT * FROM {$table_name} WHERE status = 'active'" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fieldsets = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}openfields_fieldsets WHERE status = %s",
+				'active'
+			)
+		);
 
 		foreach ( $fieldsets as $fieldset ) {
 			$nonce_key = 'openfields_term_nonce_' . $fieldset->id;
@@ -1348,8 +1353,13 @@ class OpenFields_Meta_Box {
 
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'openfields_fieldsets';
-		$fieldsets  = $wpdb->get_results( "SELECT * FROM {$table_name} WHERE status = 'active'" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fieldsets = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}openfields_fieldsets WHERE status = %s",
+				'active'
+			)
+		);
 
 		foreach ( $fieldsets as $fieldset ) {
 			$nonce_key = 'openfields_user_nonce_' . $fieldset->id;
