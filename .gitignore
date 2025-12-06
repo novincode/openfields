@@ -6,6 +6,7 @@ vendor/
 
 # Build outputs
 assets/admin/
+plugin/assets/admin/
 dist/
 build/
 
