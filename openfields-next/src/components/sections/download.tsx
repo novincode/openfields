@@ -22,7 +22,7 @@ export function DownloadSection() {
 					{/* GitHub */}
 					<div className="flex flex-col p-6 rounded-lg border border-border bg-background">
 					<div className="flex items-center gap-3 mb-4">
-						<div className="flex size-10 items-center justify-center rounded-md bg-foreground/20 text-foreground">
+						<div className="flex size-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
 							<RiGithubFill className="size-5" />
 						</div>
 						<div>
