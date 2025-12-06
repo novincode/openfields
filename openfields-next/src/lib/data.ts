@@ -11,7 +11,7 @@ export const NAV_LINKS = [
 	{ label: "Home", href: "/" },
 	{ label: "Docs", href: "/docs" },
 	{ label: "Download", href: "#download" },
-	{ label: "Support", href: "https://github.com/sponsors/novincode", external: true },
+	{ label: "Support", href: "/support" },
 ] as const;
 
 // ============================================================================

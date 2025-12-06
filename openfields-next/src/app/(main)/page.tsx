@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Header, Footer } from "@/components/layout";
 import { HeroSection, FieldsSection, DownloadSection, SponsorsSection } from "@/components/sections";
 import { generateMetadata } from "@/lib/seo";
 
@@ -23,15 +22,11 @@ export const metadata: Metadata = generateMetadata({
 
 export default function Home() {
 	return (
-		<div className="min-h-screen flex flex-col">
-			<Header />
-			<main className="flex-1">
-				<HeroSection />
-				<FieldsSection />
-				<DownloadSection />
-				<SponsorsSection />
-			</main>
-			<Footer />
-		</div>
+		<>
+			<HeroSection />
+			<FieldsSection />
+			<DownloadSection />
+			<SponsorsSection />
+		</>
 	);
 }
