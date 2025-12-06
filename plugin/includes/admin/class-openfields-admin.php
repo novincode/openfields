@@ -132,7 +132,7 @@ class OpenFields_Admin {
 			}
 		';
 
-		wp_register_style( 'openfields-admin-loading', false );
+		wp_register_style( 'openfields-admin-loading', false, array(), OPENFIELDS_VERSION );
 		wp_enqueue_style( 'openfields-admin-loading' );
 		wp_add_inline_style( 'openfields-admin-loading', $inline_css );
 	}

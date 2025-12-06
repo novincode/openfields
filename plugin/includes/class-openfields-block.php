@@ -114,12 +114,14 @@ class OpenFields_Block {
 	private function get_available_fields() {
 		global $wpdb;
 
-		$table  = $wpdb->prefix . 'openfields_fields';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$fields_table    = $wpdb->prefix . 'openfields_fields';
+		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, derived from $wpdb->prefix.
 		$fields = $wpdb->get_results(
 			"SELECT f.id, f.label, f.name, f.type, fs.title as fieldset_title
-			 FROM {$table} f
-			 LEFT JOIN {$wpdb->prefix}openfields_fieldsets fs ON f.fieldset_id = fs.id
+			 FROM {$fields_table} f
+			 LEFT JOIN {$fieldsets_table} fs ON f.fieldset_id = fs.id
 			 WHERE f.parent_id IS NULL OR f.parent_id = 0
 			 ORDER BY fs.title, f.menu_order",
 			ARRAY_A

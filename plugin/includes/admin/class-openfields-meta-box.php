@@ -1057,8 +1057,10 @@ class OpenFields_Meta_Box {
 					// Standard field save.
 					$meta_key = self::META_PREFIX . $field->name;
 
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 					if ( isset( $_POST[ $meta_key ] ) ) {
-						$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
+						// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+						$value = $this->sanitize_value( wp_unslash( $_POST[ $meta_key ] ), $field->type );
 						update_term_meta( $term_id, $meta_key, $value );
 					} else {
 						// Handle unchecked checkboxes/switches.
@@ -1086,6 +1088,7 @@ class OpenFields_Meta_Box {
 		}
 
 		$meta_key  = $base_name;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in save_taxonomy_fields.
 		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
 
 		// Save row count.
@@ -1110,6 +1113,7 @@ class OpenFields_Meta_Box {
 				if ( $sub_field->type === 'repeater' ) {
 					$this->save_repeater_field_for_term( $term_id, $sub_field, $sub_fields_map, $full_name );
 				} else {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in save_taxonomy_fields.
 					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_term_meta( $term_id, $full_name, $sanitized );
@@ -1409,8 +1413,10 @@ class OpenFields_Meta_Box {
 					// Standard field save.
 					$meta_key = self::META_PREFIX . $field->name;
 
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 					if ( isset( $_POST[ $meta_key ] ) ) {
-						$value = $this->sanitize_value( $_POST[ $meta_key ], $field->type );
+						// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+						$value = $this->sanitize_value( wp_unslash( $_POST[ $meta_key ] ), $field->type );
 						update_user_meta( $user_id, $meta_key, $value );
 					} else {
 						// Handle unchecked checkboxes/switches.
@@ -1438,6 +1444,7 @@ class OpenFields_Meta_Box {
 		}
 
 		$meta_key  = $base_name;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in save_user_fields.
 		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
 
 		// Save row count.
@@ -1462,6 +1469,7 @@ class OpenFields_Meta_Box {
 				if ( $sub_field->type === 'repeater' ) {
 					$this->save_repeater_field_for_user( $user_id, $sub_field, $sub_fields_map, $full_name );
 				} else {
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in save_user_fields.
 					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_user_meta( $user_id, $full_name, $sanitized );

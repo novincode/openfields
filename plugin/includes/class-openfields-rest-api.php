@@ -1581,6 +1581,9 @@ class OpenFields_REST_API {
 		}
 
 		// Exclude specific IDs.
+		// Note: post__not_in can have performance implications on large sites.
+		// For this use case (admin field selection), the dataset is typically small.
+		// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 		if ( ! empty( $exclude ) && is_array( $exclude ) ) {
 			$args['post__not_in'] = array_map( 'absint', $exclude );
 		}
