@@ -115,6 +115,7 @@ export const DOWNLOAD_LINKS = {
 export const SOCIAL_LINKS = {
 	github: "https://github.com/novincode/openfields",
 	sponsor: "https://github.com/sponsors/novincode",
+	linkedin: "https://linkedin.com/in/shayanpng",
 } as const;
 
 // ============================================================================

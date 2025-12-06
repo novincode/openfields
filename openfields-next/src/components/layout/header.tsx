@@ -27,8 +27,8 @@ export function Header() {
 			<div className="mx-auto max-w-5xl px-4 sm:px-6">
 				<div className="flex h-14 items-center justify-between">
 			{/* Logo */}
-			<Link href="/" className="flex items-center gap-2 font-semibold text-lg">
-				<span className="font-bold">{SITE_CONFIG.name}</span>
+			<Link href="/" className="flex items-center gap-2 font-semibold text-xl">
+				<span className="font-extralight tracking-wide text-green-600 rounded-md border-2 border-dashed border-transparent hover:border-green-600 active:border-solid hover:bg-green-600/10 px-2 py-1">{SITE_CONFIG.name.toUpperCase()}</span>
 			</Link>					{/* Desktop Navigation */}
 					<nav className="hidden md:flex items-center gap-6">
 						{NAV_LINKS.map((link) => (
