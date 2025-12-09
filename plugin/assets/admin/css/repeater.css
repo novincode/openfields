@@ -199,13 +199,11 @@
 }
 
 .openfields-repeater-subfield-input {
-	width: 100%;
 }
 
 .openfields-repeater-subfield-input input,
 .openfields-repeater-subfield-input textarea,
 .openfields-repeater-subfield-input select {
-	width: 100%;
 }
 
 .openfields-repeater-subfield .description {

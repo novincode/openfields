@@ -5,8 +5,6 @@ vendor/
 .wp-env.json.local
 
 # Build outputs
-assets/admin/
-plugin/assets/admin/
 dist/
 build/
 

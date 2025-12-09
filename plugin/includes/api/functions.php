@@ -821,6 +821,10 @@ function openfields_get_all_meta( $object_id, $type = 'post' ) {
 /**
  * Apply return_format to a field value based on field settings.
  *
+ * Handles return_format for:
+ * - Choice fields (select, radio, checkbox): value, label, or array (both)
+ * - Relational fields (post_object, taxonomy, user): id or object/array
+ *
  * @since 1.0.0
  *
  * @param  string $field_name Field name.
@@ -837,6 +841,69 @@ function openfields_apply_return_format( $field_name, $value ) {
 	$type     = $field['type'];
 	$settings = is_array( $field['settings'] ) ? $field['settings'] : array();
 
+	// Handle choice fields (select, radio, checkbox)
+	if ( in_array( $type, array( 'select', 'radio', 'checkbox' ), true ) ) {
+		$return_format = $settings['return_format'] ?? 'value';
+		$choices       = $settings['choices'] ?? array();
+
+		// If no choices, return as-is
+		if ( empty( $choices ) ) {
+			return $value;
+		}
+
+		// For checkbox with multiple values
+		$values = is_array( $value ) ? $value : array( $value );
+
+		// If format is 'value', return as-is
+		if ( 'value' === $return_format ) {
+			return $value;
+		}
+
+		// If format is 'label', convert values to labels
+		if ( 'label' === $return_format ) {
+			$choice_map = array();
+			foreach ( $choices as $choice ) {
+				$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
+				$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
+				$choice_map[ $choice_value ] = $choice_label;
+			}
+
+			$result = array_map(
+				function( $v ) use ( $choice_map ) {
+					return $choice_map[ $v ] ?? $v;
+				},
+				$values
+			);
+
+			return is_array( $value ) ? $result : ( $result[0] ?? $value );
+		}
+
+		// If format is 'array', return both value and label
+		if ( 'array' === $return_format ) {
+			$choice_map = array();
+			foreach ( $choices as $choice ) {
+				$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
+				$choice_label = is_array( $choice ) ? ( $choice['label'] ?? $choice_value ) : $choice;
+				$choice_map[ $choice_value ] = $choice_label;
+			}
+
+			$result = array_map(
+				function( $v ) use ( $choice_map ) {
+					return array(
+						'value' => $v,
+						'label' => $choice_map[ $v ] ?? $v,
+					);
+				},
+				$values
+			);
+
+			return is_array( $value ) ? $result : ( $result[0] ?? null );
+		}
+
+		return $value;
+	}
+
+	// Handle relational fields
 	if ( ! in_array( $type, array( 'post_object', 'relationship', 'taxonomy', 'user' ), true ) ) {
 		return $value;
 	}

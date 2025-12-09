@@ -160,6 +160,14 @@ class OpenFields_Assets {
 		// Enqueue color picker styles.
 		wp_enqueue_style( 'wp-color-picker' );
 
+		// Enqueue choice fields styles (for radio, checkbox, select layout).
+		wp_enqueue_style(
+			'openfields-choice-fields',
+			OPENFIELDS_PLUGIN_URL . 'assets/admin/css/choice-fields.css',
+			array(),
+			OPENFIELDS_VERSION
+		);
+
 		// Localize script data.
 		wp_localize_script(
 			'openfields-meta-box',
