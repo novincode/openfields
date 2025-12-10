@@ -412,13 +412,13 @@ class OpenFields_Field_Renderer {
 	 */
 	private function render_switch( $field, $value, $field_id, $field_name, $settings ) {
 		$checked   = ! empty( $value ) && $value !== '0';
-		$on_label  = $this->get_setting( $settings, 'on_label', __( 'Yes', 'openfields' ) );
-		$off_label = $this->get_setting( $settings, 'off_label', __( 'No', 'openfields' ) );
+		$on_label  = $this->get_setting( $settings, 'on_text', __( 'Yes', 'openfields' ) );
+		$off_label = $this->get_setting( $settings, 'off_text', __( 'No', 'openfields' ) );
 		
-		echo '<input type="checkbox" class="openfields-switch-input" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
-		echo '<label class="openfields-switch-track" for="' . esc_attr( $field_id ) . '">';
-		echo '<div class="openfields-switch-label openfields-switch-label-off">' . esc_html( $off_label ) . '</div>';
-		echo '<div class="openfields-switch-label openfields-switch-label-on">' . esc_html( $on_label ) . '</div>';
+		echo '<input type="checkbox" class="openfields-switch-checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
+		echo '<label class="openfields-switch-container" for="' . esc_attr( $field_id ) . '">';
+		echo '<div>' . esc_html( $off_label ) . '</div>';
+		echo '<div>' . esc_html( $on_label ) . '</div>';
 		echo '</label>';
 	}
 

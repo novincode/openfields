@@ -227,113 +227,113 @@
 }
 
 /* ============================================================================
-   Switch Field - Custom Toggle
+   Switch Field - Pure CSS Grid Toggle (No JS hacks)
    ============================================================================ */
 
-.openfields-switch-field {
-	display: flex;
-	align-items: center;
-	gap: var(--of-spacing-md);
-}
-
-.openfields-switch-container {
-	display: inline-flex;
-	position: relative;
-	flex-shrink: 0;
-}
-
-/* Hide the actual checkbox */
-.openfields-switch-input {
+/* COMPLETELY hide the actual checkbox - not just display:none */
+.openfields-switch-checkbox {
 	position: absolute;
 	opacity: 0;
 	width: 0;
 	height: 0;
 	pointer-events: none;
+	margin: 0;
+	padding: 0;
 }
 
-/* Switch track styling - grid layout for No/Yes */
-.openfields-switch-track {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	width: fit-content;
-	background-color: var(--of-switch-off);
-	border-radius: 9999px;
-	cursor: pointer;
-	border: none;
+/* The label container - grid with 2 equal columns */
+.openfields-switch-container {
 	position: relative;
-	flex-shrink: 0;
-	box-sizing: border-box;
-	overflow: hidden;
-	gap: 0;
-	transition: var(--of-transition);
-}
-
-/* Sliding background that moves behind text */
-.openfields-switch-track::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 50%;
-	height: 100%;
-	background-color: var(--of-switch-on);
-	border-radius: 9999px;
-	transition: var(--of-transition);
-	z-index: 0;
-}
-
-/* Switch label text - always visible, positioned on grid */
-.openfields-switch-label {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	width: fit-content;
+	border: 2px solid #ccc;
+	border-radius: 20px;
+	background: #ccc;
+	cursor: pointer;
+	user-select: none;
+	font-weight: 500;
 	font-size: 12px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
 	line-height: 1;
-	padding: 8px 12px;
+	transition: all 0.25s ease;
+}
+
+/* Text divs in the grid */
+.openfields-switch-container div {
+	padding: 8px 10px;
 	text-align: center;
 	z-index: 1;
 	position: relative;
-	transition: var(--of-transition);
+	transition: all 0.25s ease;
 	white-space: nowrap;
-	cursor: pointer;
-	user-select: none;
+	min-width: max-content;
 }
 
-.openfields-switch-label-off {
-	color: #fff;
-	grid-column: 1;
+/* Default state: OFF/left side visible (white text on gray), ON/right side hidden (gray on gray) */
+.openfields-switch-checkbox:not(:checked) + .openfields-switch-container div:first-child {
+	color: #999;
 }
 
-.openfields-switch-label-on {
-	color: var(--of-text-secondary);
-	grid-column: 2;
+.openfields-switch-checkbox:not(:checked) + .openfields-switch-container div:last-child {
+	color: #000;
+	opacity: 0.3;
 }
 
-/* When checked: move background to right, swap text colors */
-.openfields-switch-input:checked + .openfields-switch-track::before {
-	left: 50%;
+/* Sliding thumb - the white background */
+.openfields-switch-container::after {
+	content: '';
+	position: absolute;
+	left: 2px;
+	top: 2px;
+	width: calc(50% - 6px);
+	height: calc(100% - 4px);
+	border-radius: 18px;
+	background: #fff;
+	transition: left 0.25s ease;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	z-index: 0;
 }
 
-.openfields-switch-input:checked + .openfields-switch-track .openfields-switch-label-off {
-	color: var(--of-text-secondary);
-	transition: var(--of-transition);
+/* CHECKED state: shift thumb to right, WordPress blue background, swap visibility */
+.openfields-switch-checkbox:checked + .openfields-switch-container {
+	background: #0073aa;
+	border-color: #0073aa;
 }
 
-.openfields-switch-input:checked + .openfields-switch-track .openfields-switch-label-on {
-	color: #fff;
-	transition: var(--of-transition);
+.openfields-switch-checkbox:checked + .openfields-switch-container::after {
+	left: calc(50% + 2px);
 }
 
-/* Focused state */
-.openfields-switch-input:focus + .openfields-switch-track {
-	outline: 2px solid var(--of-focus-color);
+/* When checked: OFF/left text hidden (blue on blue), ON/right text visible (white) */
+.openfields-switch-checkbox:checked + .openfields-switch-container div:first-child {
+	color: #999999;
+	opacity: 0.6;
+}
+
+.openfields-switch-checkbox:checked + .openfields-switch-container div:last-child {
+	color: #0073aa;
+	opacity: 1;
+}
+
+/* Focus state for accessibility */
+.openfields-switch-checkbox:focus + .openfields-switch-container {
+	outline: 2px solid #0073aa;
 	outline-offset: 2px;
 }
 
 /* Disabled state */
-.openfields-switch-input:disabled + .openfields-switch-track {
+.openfields-switch-checkbox:disabled + .openfields-switch-container {
 	opacity: 0.5;
 	cursor: not-allowed;
+}
+	cursor: not-allowed;
+	background: #ccc;
+	border-color: #ccc;
+}
+
+/* Active focus ring (visible keyboard navigation) */
+.openfields-switch-checkbox:focus-visible + .openfields-switch-container {
+	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 /* Switch label descriptor (optional text after switch) */

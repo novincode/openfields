@@ -298,47 +298,8 @@
 	}
 }
 
-/* ==========================================================================
-   Switch Field in Repeater
-   ========================================================================== */
-
-.openfields-repeater-subfield .openfields-switch-input {
-	position: absolute;
-	opacity: 0;
-	width: 0;
-	height: 0;
-}
-
-.openfields-repeater-subfield .openfields-switch-track {
-	position: relative;
-	display: inline-block;
-	width: 36px;
-	height: 20px;
-	background: #c3c4c7;
-	border-radius: 10px;
-	cursor: pointer;
-	transition: background var(--of-transition);
-}
-
-.openfields-repeater-subfield .openfields-switch-thumb {
-	position: absolute;
-	top: 2px;
-	left: 2px;
-	width: 16px;
-	height: 16px;
-	background: #fff;
-	border-radius: 50%;
-	transition: transform var(--of-transition);
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-}
-
-.openfields-repeater-subfield .openfields-switch-input:checked + .openfields-switch-track {
-	background: #2271b1;
-}
-
-.openfields-repeater-subfield .openfields-switch-input:checked + .openfields-switch-track .openfields-switch-thumb {
-	transform: translateX(16px);
-}
+/* Switch field in repeater uses the same grid-based styling from fields.css
+   No overrides needed - inherits from .openfields-switch-checkbox and .openfields-switch-container */
 
 /* ==========================================================================
    Media Preview in Repeater
