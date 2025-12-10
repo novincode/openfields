@@ -186,11 +186,22 @@ function openfields_get_raw_subfield_name( $sub_field_name, $parent_name ) {
  * @param bool   $is_template Whether rendering as template.
  */
 function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type = 'post', $is_template = false ) {
-	$settings = array();
+	// Parse field_config for field-specific settings (choices, layout, etc.)
+	$field_settings = array();
 	if ( ! empty( $sub_field->field_config ) ) {
 		$decoded  = json_decode( $sub_field->field_config, true );
-		$settings = is_array( $decoded ) ? $decoded : array();
+		$field_settings = is_array( $decoded ) ? $decoded : array();
 	}
+
+	// Parse wrapper_config for width, class, id
+	$wrapper_config = array();
+	if ( ! empty( $sub_field->wrapper_config ) ) {
+		$decoded  = json_decode( $sub_field->wrapper_config, true );
+		$wrapper_config = is_array( $decoded ) ? $decoded : array();
+	}
+
+	// Merge both configs - wrapper_config takes precedence
+	$settings = array_merge( $field_settings, $wrapper_config );
 
 	// Get the raw sub-field name (without parent prefix that DB might have).
 	// The database stores sub-fields as "parent_subfield", we need just "subfield".
@@ -224,33 +235,48 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 		$value = $sub_field->default_value;
 	}
 
-	// Width from settings.
-	$width = 100;
-	if ( isset( $settings['width'] ) ) {
-		$width = max( 10, min( 100, intval( $settings['width'] ) ) );
+	// Width from wrapper_config - default to 100% if not specified
+	$width = isset( $wrapper_config['width'] ) ? intval( $wrapper_config['width'] ) : 100;
+	$width = max( 10, min( 100, $width ) ); // Constrain between 10-100%
+
+	// Get optional CSS class and ID from wrapper_config
+	$wrapper_class = isset( $wrapper_config['class'] ) ? sanitize_html_class( $wrapper_config['class'] ) : '';
+	$wrapper_id = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
+	
+	// Build wrapper classes
+	$classes = array( 'openfields-repeater-subfield' );
+	if ( $wrapper_class ) {
+		$classes[] = $wrapper_class;
 	}
-	?>
-	<div class="openfields-repeater-subfield" style="flex: 0 0 <?php echo intval( $width ); ?>%; max-width: <?php echo intval( $width ); ?>%;">
-		<?php if ( ! empty( $sub_field->label ) ) : ?>
-			<label class="openfields-repeater-subfield-label" for="<?php echo esc_attr( $field_id ); ?>">
-				<?php echo esc_html( $sub_field->label ); ?>
-				<?php if ( ! empty( $sub_field->required ) ) : ?>
-					<span class="required">*</span>
-				<?php endif; ?>
-			</label>
-		<?php endif; ?>
 
-		<div class="openfields-repeater-subfield-input">
-			<?php
-			openfields_render_field_input( $sub_field, $value, $field_id, $full_name, $settings, $object_id, $object_type, $is_template, $base_name );
-			?>
-		</div>
+	// Build ID attribute if present
+	$id_attr = '';
+	if ( $wrapper_id ) {
+		$id_attr = ' id="' . esc_attr( $wrapper_id ) . '"';
+	}
 
-		<?php if ( ! empty( $sub_field->instructions ) ) : ?>
-			<p class="description"><?php echo wp_kses_post( $sub_field->instructions ); ?></p>
-		<?php endif; ?>
-	</div>
-	<?php
+	// Build style with CSS custom property - no inline PHP in attributes
+	$width_val = intval( $width );
+	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . $width_val . '%;" data-width="' . $width_val . '"' . $id_attr . '>';
+
+	if ( ! empty( $sub_field->label ) ) {
+		echo '<label class="openfields-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';
+		echo esc_html( $sub_field->label );
+		if ( ! empty( $sub_field->required ) ) {
+			echo '<span class="required">*</span>';
+		}
+		echo '</label>';
+	}
+
+	echo '<div class="openfields-repeater-subfield-input">';
+	openfields_render_field_input( $sub_field, $value, $field_id, $full_name, $field_settings, $object_id, $object_type, $is_template, $base_name );
+	echo '</div>';
+
+	if ( ! empty( $sub_field->instructions ) ) {
+		echo '<p class="description">' . wp_kses_post( $sub_field->instructions ) . '</p>';
+	}
+
+	echo '</div>';
 }
 
 /**

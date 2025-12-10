@@ -17,13 +17,8 @@ import { Card } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Badge } from '../../../components/ui/badge';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '../../../components/ui/select';
+import { Slider } from '../../../components/ui/slider';
+
 import {
     Collapsible,
     CollapsibleContent,
@@ -48,14 +43,7 @@ interface FieldItemProps {
     maxDepth?: number;
 }
 
-const WIDTH_OPTIONS = [
-    { value: '25', label: '25%' },
-    { value: '33', label: '33%' },
-    { value: '50', label: '50%' },
-    { value: '66', label: '66%' },
-    { value: '75', label: '75%' },
-    { value: '100', label: '100%' },
-];
+
 
 export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldItemProps) {
     // Use selectors for proper subscription
@@ -157,14 +145,15 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
     };
 
     // Wrapper width change
-    const handleWrapperWidthChange = (value: string) => {
-        setWrapperWidth(value);
+    const handleWrapperWidthChange = (value: number[]) => {
+        const widthValue = String(value[0]);
+        setWrapperWidth(widthValue);
         handleUpdate({
             settings: {
                 ...field.settings,
                 wrapper: {
                     ...field.settings?.wrapper,
-                    width: value,
+                    width: widthValue,
                 },
             },
         });
@@ -328,22 +317,19 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                                 <h4 className="text-sm font-medium mb-3">Wrapper Settings</h4>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
-                                        <Label htmlFor={`width-${field.id}`}>Width</Label>
-                                        <Select
-                                            value={wrapperWidth}
+                                        <div className="flex justify-between items-center mb-2">
+                                            <Label htmlFor={`width-${field.id}`}>Width</Label>
+                                            <span className="text-sm font-medium text-primary">{wrapperWidth}%</span>
+                                        </div>
+                                        <Slider
+                                            id={`width-${field.id}`}
+                                            min={10}
+                                            max={100}
+                                            step={1}
+                                            value={[parseInt(wrapperWidth, 10)]}
                                             onValueChange={handleWrapperWidthChange}
-                                        >
-                                            <SelectTrigger id={`width-${field.id}`}>
-                                                <SelectValue placeholder="Select width" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {WIDTH_OPTIONS.map((opt) => (
-                                                    <SelectItem key={opt.value} value={opt.value}>
-                                                        {opt.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                            className="w-full"
+                                        />
                                     </div>
                                     <div>
                                         <Label htmlFor={`class-${field.id}`}>CSS Class</Label>

@@ -89,23 +89,20 @@ class OpenFields_Field_Wrapper {
 		$wrapper_id = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 
 		// Build wrapper HTML.
-		$html = '<div class="openfields-field-wrapper"';
-
-		// Add inline width style.
-		$html .= ' style="width: ' . intval( $width ) . '%;"';
+		$html = '<div class="openfields-field-wrapper';
+		if ( $wrapper_class ) {
+			$html .= ' ' . $wrapper_class;
+		}
+		$html .= '"';
 
 		// Add ID if provided.
 		if ( $wrapper_id ) {
 			$html .= ' id="' . esc_attr( $wrapper_id ) . '"';
 		}
 
-		// Add classes.
-		$html .= ' class="openfields-field-wrapper ';
-		$html .= 'openfields-field-wrapper--width-' . intval( $width );
-		if ( $wrapper_class ) {
-			$html .= ' ' . $wrapper_class;
-		}
-		$html .= '"';
+		// Add width as CSS custom property and data attribute (for JS access).
+		$html .= ' style="--of-field-width: ' . intval( $width ) . '%;"';
+		$html .= ' data-width="' . intval( $width ) . '"';
 
 		// Add data attributes for conditional logic if present.
 		$conditions = isset( $config['conditional_logic'] ) ? $config['conditional_logic'] : array();

@@ -185,6 +185,11 @@
 	flex-direction: column;
 	gap: var(--of-spacing-xs);
 	min-width: 0;
+	box-sizing: border-box;
+	/* Flex: shrink=0 (don't shrink), grow=0 (don't grow), basis=width from custom property */
+	flex: 0 0 calc(var(--of-field-width, 100%) - calc(var(--of-spacing-xs)*2));
+	/* Width also set for IE fallback */
+	width: var(--of-field-width, 100%);
 }
 
 .openfields-repeater-subfield-label {
@@ -196,14 +201,6 @@
 .openfields-repeater-subfield-label .required {
 	color: #d63638;
 	margin-left: 2px;
-}
-
-.openfields-repeater-subfield-input {
-}
-
-.openfields-repeater-subfield-input input,
-.openfields-repeater-subfield-input textarea,
-.openfields-repeater-subfield-input select {
 }
 
 .openfields-repeater-subfield .description {
@@ -263,32 +260,29 @@
    Layout Variations
    ========================================================================== */
 
-/* Table layout */
+/* Table layout - respects width but no wrapping */
 [data-layout="table"] .openfields-repeater-row-content {
 	flex-wrap: nowrap;
+	gap: 8px;
 }
 
 [data-layout="table"] .openfields-repeater-subfield {
-	flex: 1;
+	flex-shrink: 0;
 }
 
 [data-layout="table"] .openfields-repeater-subfield-label {
 	font-size: 12px;
 }
 
-/* Row layout - inline */
+/* Row layout - inline, respects width */
 [data-layout="row"] .openfields-repeater-row-content {
 	flex-wrap: nowrap;
 	align-items: flex-end;
+	gap: 8px;
 }
 
 [data-layout="row"] .openfields-repeater-subfield {
-	flex: 0 1 auto;
-}
-
-/* Block layout - full width stacked */
-[data-layout="block"] .openfields-repeater-subfield {
-	flex: 0 0 100%;
+	flex-shrink: 0;
 }
 
 /* ==========================================================================

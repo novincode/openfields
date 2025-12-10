@@ -86,34 +86,10 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	flex-shrink: 0;
-	/* Width is set via inline style from PHP */
-}
-
-/* Use calc to account for gap when multiple fields are on same row */
-.openfields-field-wrapper[style*="width: 50%"] {
-	width: calc(50% - var(--of-spacing-lg) / 2) !important;
-}
-
-.openfields-field-wrapper[style*="width: 33%"] {
-	width: calc(33.333% - var(--of-spacing-lg) * 2 / 3) !important;
-}
-
-.openfields-field-wrapper[style*="width: 25%"] {
-	width: calc(25% - var(--of-spacing-lg) * 3 / 4) !important;
-}
-
-.openfields-field-wrapper[style*="width: 75%"] {
-	width: calc(75% - var(--of-spacing-lg) / 4) !important;
-}
-
-.openfields-field-wrapper[style*="width: 66%"] {
-	width: calc(66.666% - var(--of-spacing-lg) / 3) !important;
-}
-
-/* Keep 100% as full width */
-.openfields-field-wrapper[style*="width: 100%"] {
-	width: 100% !important;
+	/* Flex: shrink=0 (don't shrink), grow=0 (don't grow), basis=width from custom property */
+	flex: 0 0 var(--of-field-width, 100%);
+	/* Width also set for IE fallback */
+	width: var(--of-field-width, 100%);
 }
 
 /* ============================================================================
