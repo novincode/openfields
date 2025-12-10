@@ -364,10 +364,6 @@ class OpenFields_Field_Renderer {
 			echo '<input type="radio" id="' . esc_attr( $radio_id ) . '" name="' . esc_attr( $field_name ) . '" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
 			echo esc_html( $choice_label );
 			echo '</label>';
-			
-			if ( $layout === 'vertical' ) {
-				echo '<br />';
-			}
 		}
 		
 		echo '</fieldset>';
@@ -405,10 +401,6 @@ class OpenFields_Field_Renderer {
 				echo '<input type="checkbox" id="' . esc_attr( $checkbox_id ) . '" name="' . esc_attr( $field_name ) . '[]" value="' . esc_attr( $choice_value ) . '"' . checked( $checked, true, false ) . ' />';
 				echo esc_html( $choice_label );
 				echo '</label>';
-				
-				if ( $layout === 'vertical' ) {
-					echo '<br />';
-				}
 			}
 			
 			echo '</fieldset>';
