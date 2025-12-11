@@ -21,6 +21,16 @@
 
 ---
 
+## 📖 Quick Links
+
+| For Users | For Developers |
+|-----------|----------------|
+| **[📥 Installation Guide](./INSTALL.md)** | **[🤝 Contributing Guide](./CONTRIBUTING.md)** |
+| **[📚 User Documentation](https://openfields.codeideal.com/docs)** | **[📚 Developer Guide](./docs/DEVELOPER_GUIDE.md)** |
+| **[🚀 How to Release](./RELEASES.md)** | **[📖 All Documentation](./docs/INDEX.md)** |
+
+---
+
 ## 📥 Installation
 
 ### Option 1: From GitHub (Easy Download)
