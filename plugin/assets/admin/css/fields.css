@@ -325,8 +325,6 @@
 .openfields-switch-checkbox:disabled + .openfields-switch-container {
 	opacity: 0.5;
 	cursor: not-allowed;
-}
-	cursor: not-allowed;
 	background: #ccc;
 	border-color: #ccc;
 }

@@ -467,20 +467,52 @@
 		 * Setup event listeners for conditional logic evaluation.
 		 */
 		setupConditionalListeners() {
-			const formInputs = document.querySelectorAll(
-				'.openfields-meta-box input, .openfields-meta-box select, .openfields-meta-box textarea'
-			);
+			// Use event delegation on meta-box wrapper so new repeater rows trigger updates too
+			const metaBox = document.querySelector('.openfields-meta-box');
+			if (!metaBox) return;
 
-			formInputs.forEach(input => {
-				// Skip if already initialized to prevent duplicate event listeners.
-				if (input.dataset.ofConditionalInitialized) {
-					return;
+			// Single listener on parent element catches all bubbling change/input events
+			metaBox.addEventListener('change', (e) => {
+				// Check if this is a field input that should trigger conditional evaluation
+				const target = e.target;
+				if (this.isFieldInput(target)) {
+					this.evaluateAllConditions();
 				}
-				input.dataset.ofConditionalInitialized = 'true';
+			}, true); // Use capture phase to catch all events
 
-				input.addEventListener('change', () => this.evaluateAllConditions());
-				input.addEventListener('input', () => this.evaluateAllConditions());
-			});
+			metaBox.addEventListener('input', (e) => {
+				const target = e.target;
+				if (this.isFieldInput(target)) {
+					this.evaluateAllConditions();
+				}
+			}, true); // Use capture phase
+		},
+
+		/**
+		 * Check if an element is a field input that should trigger conditional evaluation.
+		 *
+		 * @param {HTMLElement} element - The element to check.
+		 * @returns {boolean} Whether this is a field input.
+		 */
+		isFieldInput(element) {
+			// Check if it's an input, select, or textarea
+			if (!element || !element.tagName) return false;
+			
+			const tag = element.tagName.toLowerCase();
+			if (['input', 'select', 'textarea'].includes(tag)) {
+				return true;
+			}
+
+			// Check if it's a switch or custom field input
+			if (element.classList && (
+				element.classList.contains('openfields-switch-checkbox') ||
+				element.classList.contains('openfields-toggle-input') ||
+				element.classList.contains('openfields-field-input')
+			)) {
+				return true;
+			}
+
+			return false;
 		},
 
 		/**
@@ -568,11 +600,21 @@
 
 				// rule.field is now a FIELD ID (immutable UUID/identifier)
 				// Look for any field with data-field-id attribute matching this ID
-				// This works for: root fields, repeater subfields, group subfields, anywhere
+				// This works for: root fields, repeater subfields, group subfields, anywhere in the DOM
 				const fieldId = rule.field;
 				let fieldElement = document.querySelector(`[data-field-id="${fieldId}"]`);
 				
+				if (fieldElement) {
+					// Found by field ID - this is the preferred method
+					// Look for the actual input element within this wrapper
+					const input = fieldElement.querySelector('input, select, textarea');
+					if (input) {
+						fieldElement = input;
+					}
+				}
+				
 				// Fallback: try to find by field name (backwards compatibility)
+				// This is for fields created before data-field-id was implemented
 				if (!fieldElement) {
 					const fieldName = rule.field;
 					fieldElement = document.querySelector(
@@ -584,7 +626,7 @@
 
 				if (!fieldElement) {
 					console.warn(`[OpenFields] Conditional field not found: ${fieldId}`);
-					return true; // If field not found, don't block.
+					return true; // If field not found, don't block (assume condition passes).
 				}
 
 				const currentValue = this.getFieldValue(fieldElement);
