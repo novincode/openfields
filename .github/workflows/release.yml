@@ -1,0 +1,65 @@
+name: Build & Release Plugin
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.24.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build plugin
+        run: pnpm run build:plugin:release
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/openfields-*.zip
+          draft: false
+          prerelease: false
+          body: |
+            # OpenFields v${{ steps.get_version.outputs.version }}
+
+            ## Installation
+
+            1. Download `openfields-${{ steps.get_version.outputs.version }}.zip` below
+            2. Go to WordPress Admin → **Plugins** → **Add New**
+            3. Click **Upload Plugin** and select the ZIP file
+            4. Click **Install Now** and then **Activate Plugin**
+
+            ## What's New
+
+            See the [full changelog](https://github.com/novincode/openfields/blob/main/CHANGELOG.md) for details.
+
+            ---
+
+            **OpenFields** - The free, open-source alternative to ACF for WordPress
+            
+            [Documentation](https://openfields.codeideal.com/docs) | [GitHub](https://github.com/novincode/openfields)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

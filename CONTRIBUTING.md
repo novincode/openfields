@@ -1,181 +1,245 @@
 # Contributing to OpenFields
 
-Thank you for your interest in contributing to OpenFields! This guide will help you get started.
+Thank you for contributing to OpenFields! This guide will help you get started.
 
-## Quick Links
+---
 
-- **Development Setup**: See README.md for local environment setup
-- **Build System**: `docs/BUILD.md` - Understanding the build process
-- **Architecture**: `docs/ARCHITECTURE.md` - How the plugin is structured
-- **Code Standards**: `docs/WORDPRESS_GUIDELINES.md` - WordPress coding standards we follow
-- **Developer Guide**: `docs/DEVELOPER_GUIDE.md` - API documentation and patterns
-- **Admin System**: `docs/ADMIN_SYSTEM.md` - How the admin UI works
+## Getting Started
 
-## Development Workflow
-
-### 1. Setup
+### 1. Fork & Clone
 
 ```bash
-npm install
-npm run wp-env start
-npm run dev
+git clone https://github.com/novincode/openfields.git
+cd openfields
 ```
 
-### 2. Make Changes
-
-- **Admin UI Changes**: Edit files in `admin/src/`
-- **PHP Backend**: Edit files in `plugin/includes/`
-- **Documentation**: Update relevant `.md` files in `docs/`
-
-### 3. Build & Test
+### 2. Install Dependencies
 
 ```bash
-# If modifying admin UI
-npm run build:plugin
-
-# Test in WordPress at http://localhost:8888/wp-admin
-
-# If ready to release
-npm run build:plugin:release
+pnpm install
+# or: npm install
 ```
 
-### 4. Commit & Push
+### 3. Start Development Environment
 
 ```bash
-git add .
-git commit -m "Add feature: xyz"
-git push origin main
+pnpm run wp-env:start
+# WordPress will be at http://localhost:8888
+# Admin: http://localhost:8888/wp-admin (user: admin / pass: password)
 ```
 
-## Coding Standards
+### 4. Run Development Server
+
+```bash
+pnpm run dev
+# This starts Vite dev server with hot reload
+```
+
+---
+
+## Making Changes
+
+### For Admin UI Changes
+
+Files to edit: `admin/src/**/*.tsx`
+
+```bash
+# The changes will auto-reload in the browser
+pnpm run dev
+
+# When ready, build the plugin:
+pnpm run build:plugin
+```
+
+### For PHP Backend Changes
+
+Files to edit: `plugin/includes/**/*.php`
+
+- Rebuild the plugin to test: `pnpm run build:plugin`
+- Changes take effect when you reload WordPress
+
+### For Documentation Changes
+
+Files to edit: `docs/**/*.md`
+
+- Test the markdown renders correctly on GitHub
+- Link to related docs where relevant
+
+---
+
+## Code Style
 
 ### PHP
-- Follow WordPress Coding Standards (checked via PHPCS)
-- All functions must be prefixed with `openfields_`
-- Use proper escaping and sanitization
-- Include PHPDoc comments
+- Use `openfields_` prefix for all functions and hooks
+- Follow WordPress Coding Standards
+- Include proper sanitization and escaping
+- Add PHPDoc comments to classes and functions
+
+**Check compliance:**
+```bash
+composer test
+```
 
 ### TypeScript/React
-- Use TypeScript - no plain JavaScript
-- Follow ESLint rules (run `npm run lint:fix`)
-- Use absolute imports with `@/` prefix
-- Include proper type definitions
+- All code must be TypeScript (no plain JS)
+- Run ESLint before committing
 
-### Documentation
-- Update relevant `.md` files when changing APIs
-- Include inline code comments for complex logic
-- Update QUICK_REFERENCE.md for user-facing features
+**Fix issues automatically:**
+```bash
+pnpm run lint:fix
+pnpm run format
+```
 
-## File Structure
+---
+
+## Testing Your Changes
+
+### Test in WordPress Admin
+
+1. Start the dev environment: `pnpm run wp-env:start`
+2. Go to http://localhost:8888/wp-admin
+3. Test your changes manually
+4. Build for testing: `pnpm run build:plugin`
+
+### Run Automated Tests
+
+```bash
+pnpm run test              # Run tests
+pnpm run test:ui           # Test UI (browser)
+pnpm run type-check        # TypeScript checking
+```
+
+---
+
+## Submitting Changes
+
+### Before Committing
+
+1. **Build the plugin** to ensure no errors:
+   ```bash
+   pnpm run build:plugin
+   ```
+
+2. **Run type checking**:
+   ```bash
+   pnpm run type-check
+   ```
+
+3. **Run linting & format**:
+   ```bash
+   pnpm run lint:fix
+   pnpm run format
+   ```
+
+### Commit Messages
+
+Write clear, descriptive commit messages:
+
+```bash
+git commit -m "feat: Add field conditional logic to repeaters"
+git commit -m "fix: Switch field styling in admin"
+git commit -m "docs: Update API reference for get_field()"
+```
+
+### Create a Pull Request
+
+1. Push to your fork
+2. Create PR to `main` branch
+3. Include a clear description of changes
+4. Link any related issues
+
+---
+
+## Project Structure
 
 ```
 openfields/
-├── admin/                    # React admin app
+├── admin/                      # React admin interface
 │   ├── src/
-│   │   ├── components/      # Reusable React components
-│   │   ├── pages/           # Main admin pages
-│   │   ├── lib/             # Utilities and helpers
-│   │   └── types/           # TypeScript definitions
-│   └── dist/                # Built output (don't edit)
+│   │   ├── components/         # UI components
+│   │   ├── pages/              # Admin pages
+│   │   └── stores/             # Zustand state
+│   └── dist/                   # Built output
 │
-├── plugin/                   # WordPress plugin
-│   ├── openfields.php        # Main plugin file
+├── plugin/                     # WordPress plugin
+│   ├── openfields.php          # Main plugin file
 │   ├── includes/
-│   │   ├── class-*.php       # Core classes
-│   │   ├── admin/            # Admin-specific code
-│   │   ├── api/              # REST API endpoints
-│   │   ├── fields/           # Field type implementations
-│   │   ├── locations/        # Location rule handlers
-│   │   └── storage/          # Data storage managers
-│   └── assets/               # Built CSS/JS (auto-generated)
+│   │   ├── class-openfields-*.php    # Core classes
+│   │   ├── admin/              # Admin functionality
+│   │   ├── fields/             # Field types
+│   │   └── storage/            # Data layer
+│   ├── assets/                 # CSS/JS (auto-generated)
+│   └── languages/              # Translations
 │
-├── scripts/                  # Build and deployment scripts
-│   └── build.sh             # Main build script
-│
-├── docs/                     # Documentation
-│   ├── BUILD.md             # Build system documentation
-│   ├── ARCHITECTURE.md       # System architecture
-│   ├── DEVELOPER_GUIDE.md    # API reference
+├── docs/                       # Documentation
+│   ├── BUILD.md
+│   ├── ARCHITECTURE.md
+│   ├── DEVELOPER_GUIDE.md
 │   └── ...
 │
-└── package.json             # Node.js configuration
+└── package.json
 ```
 
-## Common Tasks
+---
 
-### Build the plugin for testing
+## Documentation
+
+When adding features, update the relevant documentation:
+
+- **API changes** → `docs/DEVELOPER_GUIDE.md`
+- **Architecture changes** → `docs/ARCHITECTURE.md`
+- **Setup/installation** → `README.md`
+- **Build process** → `docs/BUILD.md`
+
+Link between docs using relative paths:
+
+```markdown
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for more details.
+See [Build System](../docs/BUILD.md) for building.
+```
+
+---
+
+## Common Commands
+
 ```bash
-npm run build:plugin
+# Development
+pnpm run dev                    # Start dev server
+pnpm run wp-env:start           # Start WordPress
+pnpm run wp-env:stop            # Stop WordPress
+
+# Building
+pnpm run build                  # Build React admin app
+pnpm run build:plugin           # Build plugin (dev)
+pnpm run build:plugin:release   # Build plugin (release ZIP)
+
+# Code Quality
+pnpm run type-check             # TypeScript check
+pnpm run lint                   # ESLint check
+pnpm run lint:fix               # Auto-fix linting
+pnpm run format                 # Prettier formatting
+
+# Testing
+pnpm run test                   # Run tests
+pnpm run test:ui                # Test UI in browser
 ```
 
-### Create a release
-```bash
-# Update version in package.json
-npm version patch
+---
 
-# Build release package
-npm run build:plugin:release
+## Questions?
 
-# The ZIP file is in dist/openfields-X.X.X.zip
-```
+- 📖 Check [DEVELOPER_GUIDE.md](./docs/DEVELOPER_GUIDE.md) for API reference
+- 📐 Check [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for technical details
+- 💬 Open an issue on GitHub
 
-### Run tests
-```bash
-npm run test
-```
+---
 
-### Check code quality
-```bash
-npm run type-check
-npm run lint
-```
+## Code of Conduct
 
-### Format code
-```bash
-npm run lint:fix
-npm run format
-```
+- Be respectful and inclusive
+- Help others learn
+- Share knowledge openly
+- Report issues responsibly
 
-## Reporting Issues
+Thank you for making OpenFields better! 🚀
 
-When reporting issues, please include:
-- WordPress version
-- PHP version
-- Steps to reproduce
-- Expected behavior vs actual behavior
-- Screenshots if applicable
-
-## Pull Request Process
-
-1. **Create a branch**: `git checkout -b feature/my-feature`
-2. **Make changes**: Follow coding standards above
-3. **Test thoroughly**: Use `npm run wp-env start` to test locally
-4. **Build release**: Run `npm run build:plugin:release` to verify
-5. **Create PR**: Include description of changes and testing steps
-
-## Architecture Overview
-
-**Backend (PHP)**
-- Field definitions stored in custom `wp_openfields_fields` table
-- Fieldset configurations stored in `wp_openfields_fieldsets` table
-- Field values stored in standard post/user/term meta
-- REST API at `/wp-json/openfields/v1/`
-
-**Frontend (React)**
-- Built with Vite for fast development
-- All UI components use TypeScript and Tailwind
-- State management with Zustand
-- Uses shadcn/ui for UI component library
-
-**Storage Layer**
-- `Storage_Manager` handles all data persistence
-- Supports post, user, term, and option storage
-- Automatic routing based on context
-
-## Need Help?
-
-- Check `docs/QUICK_REFERENCE.md` for common questions
-- Review `docs/AI_CONTEXT.md` for project context and decisions
-- Open an issue if you're stuck
-
-Thank you for contributing! 🚀

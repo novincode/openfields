@@ -183,7 +183,7 @@ export function ConditionalLogicPanel({
 											</SelectTrigger>
 										<SelectContent>
 											{otherFields.map((f) => (
-												<SelectItem key={f.id} value={f.id}>
+												<SelectItem key={f.id} value={String(f.id)}>
 													{f.label}
 												</SelectItem>
 											))}

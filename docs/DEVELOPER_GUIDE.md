@@ -2,10 +2,14 @@
 
 Welcome to OpenFields! This guide covers everything you need to know to contribute, extend, or understand the system.
 
+**📖 See Also:** [Documentation Index](./INDEX.md) | [Architecture](./ARCHITECTURE.md) | [Build Process](./BUILD.md) | [Admin System](./ADMIN_SYSTEM.md)
+
 ## Quick Links
 
 - [Plugin Structure](./PLUGIN_STRUCTURE.md) - Architecture, database schema, API endpoints
 - [Admin System](./ADMIN_SYSTEM.md) - React UI, state management, field type system
+- [Architecture](./ARCHITECTURE.md) - System design and database schema
+- [Build System](./BUILD.md) - Building and releasing the plugin
 - [Vision & Roadmap](./VISION.md) - Project goals and current status
 
 ## Getting Started
