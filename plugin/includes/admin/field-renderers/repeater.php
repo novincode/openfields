@@ -257,7 +257,12 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 
 	// Build style with CSS custom property - no inline PHP in attributes
 	$width_val = intval( $width );
-	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . $width_val . '%;" data-width="' . $width_val . '"' . $id_attr . '>';
+	$field_id_attr = '';
+	if ( ! empty( $sub_field->id ) ) {
+		$field_id_attr = ' data-field-id="' . esc_attr( $sub_field->id ) . '"';
+	}
+	
+	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . $width_val . '%;" data-width="' . $width_val . '"' . $id_attr . $field_id_attr . '>';
 
 	if ( ! empty( $sub_field->label ) ) {
 		echo '<label class="openfields-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';

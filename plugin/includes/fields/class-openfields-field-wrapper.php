@@ -104,6 +104,11 @@ class OpenFields_Field_Wrapper {
 		$html .= ' style="--of-field-width: ' . intval( $width ) . '%;"';
 		$html .= ' data-width="' . intval( $width ) . '"';
 
+		// Add unique field ID for conditional logic and form tracking.
+		if ( ! empty( $this->field->id ) ) {
+			$html .= ' data-field-id="' . esc_attr( $this->field->id ) . '"';
+		}
+
 		// Add data attributes for conditional logic if present.
 		$conditions = isset( $config['conditional_logic'] ) ? $config['conditional_logic'] : array();
 		if ( ! empty( $conditions ) ) {

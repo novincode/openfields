@@ -123,8 +123,12 @@ function openfields_render_group_subfield( $sub_field, $parent_name, $object_id,
 
 	?>
 	<div class="openfields-group-subfield openfields-field-wrapper openfields-field-wrapper--width-<?php echo intval( $wrapper_width ); ?><?php echo $wrapper_class ? ' ' . esc_attr( $wrapper_class ) : ''; ?>" 
-		style="width: <?php echo intval( $wrapper_width ); ?>%;"
+		style="--of-field-width: <?php echo intval( $wrapper_width ); ?>%;"
+		data-width="<?php echo intval( $wrapper_width ); ?>"
 		data-subfield-name="<?php echo esc_attr( $sub_field->name ); ?>"
+		<?php if ( ! empty( $sub_field->id ) ) : ?>
+			data-field-id="<?php echo esc_attr( $sub_field->id ); ?>"
+		<?php endif; ?>
 		<?php if ( $wrapper_id ) : ?>
 			id="<?php echo esc_attr( $wrapper_id ); ?>"
 		<?php endif; ?>

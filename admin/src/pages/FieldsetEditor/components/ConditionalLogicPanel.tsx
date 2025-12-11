@@ -181,13 +181,13 @@ export function ConditionalLogicPanel({
 											<SelectTrigger className="w-[140px]">
 												<SelectValue placeholder="Select field" />
 											</SelectTrigger>
-											<SelectContent>
-												{otherFields.map((f) => (
-													<SelectItem key={f.id} value={f.name}>
-														{f.label}
-													</SelectItem>
-												))}
-											</SelectContent>
+										<SelectContent>
+											{otherFields.map((f) => (
+												<SelectItem key={f.id} value={f.id}>
+													{f.label}
+												</SelectItem>
+											))}
+										</SelectContent>
 										</Select>
 
 										{/* Operator selector */}

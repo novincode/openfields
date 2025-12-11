@@ -566,17 +566,24 @@
 			return rules.every(rule => {
 				if (!rule || !rule.field) return true;
 
-				// Find the field element by name.
-				// Try multiple patterns since prefix may or may not be present.
-				const fieldName = rule.field;
-				const fieldElement = document.querySelector(
-					`[name="${fieldName}"], [name="${fieldName}[]"], ` +
-					`[name="openfields_${fieldName}"], [name="openfields_${fieldName}[]"], ` +
-					`[data-field="${fieldName}"], [id="${fieldName}"]`
-				);
+				// rule.field is now a FIELD ID (immutable UUID/identifier)
+				// Look for any field with data-field-id attribute matching this ID
+				// This works for: root fields, repeater subfields, group subfields, anywhere
+				const fieldId = rule.field;
+				let fieldElement = document.querySelector(`[data-field-id="${fieldId}"]`);
+				
+				// Fallback: try to find by field name (backwards compatibility)
+				if (!fieldElement) {
+					const fieldName = rule.field;
+					fieldElement = document.querySelector(
+						`[name="${fieldName}"], [name="${fieldName}[]"], ` +
+						`[name="openfields_${fieldName}"], [name="openfields_${fieldName}[]"], ` +
+						`[data-field="${fieldName}"], [id="${fieldName}"]`
+					);
+				}
 
 				if (!fieldElement) {
-					console.warn(`[OpenFields] Conditional field not found: ${fieldName}`);
+					console.warn(`[OpenFields] Conditional field not found: ${fieldId}`);
 					return true; // If field not found, don't block.
 				}
 
