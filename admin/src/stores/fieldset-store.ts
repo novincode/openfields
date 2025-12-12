@@ -591,6 +591,69 @@ export const useFieldsetStore = create<ExtendedFieldsetStore>()(
 					}),
 				}));
 				
+				// Step 3.5: Update conditional logic rules to use real IDs instead of temp IDs
+				const fieldsNeedingConditionalUpdate: string[] = [];
+				set((state) => ({
+					fields: state.fields.map((field) => {
+						// Check if field has conditional logic
+						if (field.settings?.conditional_logic && Array.isArray(field.settings.conditional_logic)) {
+							let hasChanges = false;
+							const updatedLogic = field.settings.conditional_logic.map((group: any) => {
+								if (Array.isArray(group)) {
+									return group.map((rule: any) => {
+										// If the rule references a temp field ID, replace it with the real ID
+										if (rule.field && String(rule.field).startsWith('temp-')) {
+											const realFieldId = tempIdToRealId.get(String(rule.field));
+											if (realFieldId) {
+												hasChanges = true;
+												return { ...rule, field: String(realFieldId) };
+											}
+										}
+										return rule;
+									});
+								}
+								return group;
+							});
+							
+							if (hasChanges) {
+								// Track that this field needs to be updated in the API
+								fieldsNeedingConditionalUpdate.push(String(field.id));
+								
+								return {
+									...field,
+									settings: {
+										...field.settings,
+										conditional_logic: updatedLogic,
+									},
+								};
+							}
+						}
+						return field;
+					}),
+				}));
+				
+				// Update the API for fields with changed conditional logic
+				const conditionalUpdatePromises: Promise<any>[] = [];
+				for (const fieldIdStr of fieldsNeedingConditionalUpdate) {
+					// Skip temp IDs (they were already created with updated logic above)
+					if (!fieldIdStr.startsWith('temp-')) {
+						const field = get().fields.find(f => String(f.id) === fieldIdStr);
+						if (field) {
+							conditionalUpdatePromises.push(
+								fieldApi.update(Number(fieldIdStr), {
+									label: field.label,
+									name: field.name,
+									type: field.type,
+									settings: field.settings,
+									menu_order: field.menu_order,
+									parent_id: field.parent_id,
+								})
+							);
+						}
+					}
+				}
+				await Promise.all(conditionalUpdatePromises);
+				
 				// Step 4: Update modified existing fields
 				// Get fresh fields state after all the creates
 				const currentFields = get().fields;

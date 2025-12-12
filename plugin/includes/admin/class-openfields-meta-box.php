@@ -350,6 +350,11 @@ class OpenFields_Meta_Box {
 			echo ' id="' . esc_attr( $wrapper_id ) . '"';
 		}
 
+		// Add field ID for conditional logic lookups
+		if ( ! empty( $field->id ) ) {
+			echo ' data-field-id="' . esc_attr( $field->id ) . '"';
+		}
+
 		// Add conditional logic data if present.
 		if ( ! empty( $config['conditional_logic'] ) ) {
 			echo ' data-conditional-logic="' . esc_attr( json_encode( $config['conditional_logic'] ) ) . '"';

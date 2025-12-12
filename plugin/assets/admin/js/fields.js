@@ -612,12 +612,12 @@
 
 				// rule.field is now a FIELD ID (immutable UUID/identifier)
 				const fieldId = rule.field;
-				let fieldElement = null;
+			let fieldElement = null;
 
-				// If we have a scope element (e.g., repeater row), search within it first
-				if (scopeElement) {
-					fieldElement = scopeElement.querySelector(`[data-field-id="${fieldId}"]`);
-				}
+			// If we have a scope element (e.g., repeater row), search within it first
+			if (scopeElement) {
+				fieldElement = scopeElement.querySelector(`[data-field-id="${fieldId}"]`);
+			}
 
 			// If not found in scope, search globally (for root fields)
 			if (!fieldElement) {
@@ -652,24 +652,24 @@
 						}
 					}
 				}
-			}				// Fallback: try to find by field name (backwards compatibility)
-				// This is for fields created before data-field-id was implemented
-				if (!fieldElement) {
-					const fieldName = rule.field;
-					const selector = 
-						`[name="${fieldName}"], [name="${fieldName}[]"], ` +
-						`[name="openfields_${fieldName}"], [name="openfields_${fieldName}[]"], ` +
-						`[data-field="${fieldName}"], [id="${fieldName}"]`;
-					
-					if (scopeElement) {
-						fieldElement = scopeElement.querySelector(selector);
-					}
-					if (!fieldElement) {
-						fieldElement = document.querySelector(selector);
-					}
+			}
+			
+			// Fallback: try to find by field name (backwards compatibility)
+			// This is for fields created before data-field-id was implemented
+			if (!fieldElement) {
+				const fieldName = rule.field;
+				const selector = 
+					`[name="${fieldName}"], [name="${fieldName}[]"], ` +
+					`[name="openfields_${fieldName}"], [name="openfields_${fieldName}[]"], ` +
+					`[data-field="${fieldName}"], [id="${fieldName}"]`;
+				
+				if (scopeElement) {
+					fieldElement = scopeElement.querySelector(selector);
 				}
-
 				if (!fieldElement) {
+					fieldElement = document.querySelector(selector);
+				}
+			}				if (!fieldElement) {
 					console.warn(`[OpenFields] Conditional field not found: ${fieldId}`);
 					return true; // If field not found, don't block (assume condition passes).
 				}
