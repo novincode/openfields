@@ -3,7 +3,7 @@
  * Plugin Name: OpenFields
  * Plugin URI: https://openfields.codeideal.com
  * Description: Modern custom fields builder for WordPress - the open-source ACF alternative
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: OpenFields Contributors
