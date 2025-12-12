@@ -325,24 +325,27 @@
 			// Add to container
 			rowsContainer.appendChild(newRow);
 
-			// Initialize nested repeaters in the new row
-			this.initAllRepeaters(newRow);
+		// Initialize nested repeaters in the new row
+		this.initAllRepeaters(newRow);
 
-			// Reindex and update
-			this.reindexRows(repeater);
-			this.updateState(repeater);
+		// Reindex and update
+		this.reindexRows(repeater);
+		this.updateState(repeater);
 
-			// Focus first input
-			const firstInput = newRow.querySelector('input:not([type="hidden"]), textarea, select');
-			if (firstInput) {
-				firstInput.focus();
-			}
+		// Trigger conditional logic evaluation for the new row
+		if (window.OpenFieldsManager && window.OpenFieldsManager.evaluateAllConditions) {
+			window.OpenFieldsManager.evaluateAllConditions();
+		}
 
-			// Scroll into view
-			newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-		},
+		// Focus first input
+		const firstInput = newRow.querySelector('input:not([type="hidden"]), textarea, select');
+		if (firstInput) {
+			firstInput.focus();
+		}
 
-		/**
+		// Scroll into view
+		newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+	},		/**
 		 * Remove a row
 		 * @param {HTMLElement} repeater
 		 * @param {HTMLElement} row

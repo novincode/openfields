@@ -275,7 +275,10 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 	// Add conditional logic attribute if present
 	$conditional_attr = '';
 	if ( ! empty( $sub_field->conditional_logic ) ) {
-		$conditional_attr = ' data-conditional-logic="' . esc_attr( wp_json_encode( $sub_field->conditional_logic ) ) . '"';
+		// Decode JSON string from database, then re-encode for safe HTML attribute
+		$decoded_conditions = json_decode( $sub_field->conditional_logic, true );
+		$conditions = is_array( $decoded_conditions ) ? $decoded_conditions : array();
+		$conditional_attr = ' data-conditional-logic="' . esc_attr( wp_json_encode( $conditions ) ) . '"';
 		$conditional_attr .= ' data-conditional-status="hidden"'; // Initially hidden, shown by JS if conditions met
 	}
 	

@@ -521,21 +521,34 @@
 		 */
 		evaluateAllConditions() {
 			const fieldsWithConditions = document.querySelectorAll('[data-conditional-logic]');
+			
+			console.debug(`[OpenFields] Found ${fieldsWithConditions.length} fields with conditional logic`);
 
-			fieldsWithConditions.forEach(field => {
-				const conditionsJson = field.dataset.conditionalLogic;
-				if (!conditionsJson) return;
+		fieldsWithConditions.forEach(field => {
+			const conditionsJson = field.dataset.conditionalLogic;
+			if (!conditionsJson) return;
 
-				try {
-					const conditions = JSON.parse(conditionsJson);
-					
-					// Determine scope: if this field is in a repeater row, scope to that row
+			const fieldId = field.getAttribute('data-field-id');
+			console.debug(`[OpenFields] Evaluating conditions for field ${fieldId}. Raw JSON: ${conditionsJson}`);
+
+			try {
+				// Decode HTML entities if present (from PHP esc_attr)
+				let decodedJson = conditionsJson;
+				if (decodedJson.includes('&quot;')) {
+					const textarea = document.createElement('textarea');
+					textarea.innerHTML = decodedJson;
+					decodedJson = textarea.value;
+					console.debug(`[OpenFields] Decoded JSON for field ${fieldId}: ${decodedJson}`);
+				}
+				
+				const conditions = JSON.parse(decodedJson);					// Determine scope: if this field is in a repeater row, scope to that row
 					// Otherwise, null scope means global field lookup
 					let scopeElement = null;
 					const repeaterRow = field.closest('.openfields-repeater-row');
 					if (repeaterRow) {
 						// Field is inside a repeater row - scope to this row
 						scopeElement = repeaterRow;
+						console.debug(`[OpenFields] Field ${fieldId} is in repeater row, scoping to row`);
 					}
 					
 					const shouldShow = this.evaluateCondition(conditions, scopeElement);
@@ -612,19 +625,22 @@
 
 				// rule.field is now a FIELD ID (immutable UUID/identifier)
 				const fieldId = rule.field;
-			let fieldElement = null;
+				let fieldElement = null;
 
-			// If we have a scope element (e.g., repeater row), search within it first
-			if (scopeElement) {
-				fieldElement = scopeElement.querySelector(`[data-field-id="${fieldId}"]`);
-			}
+				// If we have a scope element (e.g., repeater row), search within it first
+				if (scopeElement) {
+					fieldElement = scopeElement.querySelector(`[data-field-id="${fieldId}"]`);
+					
+					// Debug logging for repeater fields
+					if (!fieldElement) {
+						console.debug(`[OpenFields] Field ${fieldId} not found in scope (repeater row), searching globally`);
+					}
+				}
 
 			// If not found in scope, search globally (for root fields)
 			if (!fieldElement) {
 				fieldElement = document.querySelector(`[data-field-id="${fieldId}"]`);
-			}
-			
-			if (fieldElement) {
+			}			if (fieldElement) {
 				// Found by field ID - this is the preferred method
 				// Look for the actual input element within this wrapper
 				// For repeater subfields, the wrapper is .openfields-repeater-subfield
@@ -669,17 +685,22 @@
 				if (!fieldElement) {
 					fieldElement = document.querySelector(selector);
 				}
-			}				if (!fieldElement) {
-					console.warn(`[OpenFields] Conditional field not found: ${fieldId}`);
-					return true; // If field not found, don't block (assume condition passes).
-				}
+			}
+			
+			if (!fieldElement) {
+				console.warn(`[OpenFields] Conditional field not found: ${fieldId}`);
+				return true; // If field not found, don't block (assume condition passes).
+			}
 
-				const currentValue = this.getFieldValue(fieldElement);
-				return this.compareValues(currentValue, rule.operator, rule.value);
-			});
-		},
-
-		/**
+			const currentValue = this.getFieldValue(fieldElement);
+			const result = this.compareValues(currentValue, rule.operator, rule.value);
+			
+			// Debug logging for conditional logic
+			console.debug(`[OpenFields] Condition check: field=${fieldId}, value="${currentValue}", operator=${rule.operator}, expected="${rule.value}", result=${result}`);
+			
+			return result;
+		});
+	},		/**
 		 * Get the current value of a field element.
 		 *
 		 * @param {HTMLElement} element - The field element.
