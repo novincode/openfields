@@ -516,7 +516,8 @@
 		},
 
 		/**
-		 * Evaluate all conditional logic rules.
+		 * Evaluate all conditional logic rules in the document.
+		 * Scopes repeater subfields to their parent row for proper field lookup.
 		 */
 		evaluateAllConditions() {
 			const fieldsWithConditions = document.querySelectorAll('[data-conditional-logic]');
@@ -527,7 +528,17 @@
 
 				try {
 					const conditions = JSON.parse(conditionsJson);
-					const shouldShow = this.evaluateCondition(conditions);
+					
+					// Determine scope: if this field is in a repeater row, scope to that row
+					// Otherwise, null scope means global field lookup
+					let scopeElement = null;
+					const repeaterRow = field.closest('.openfields-repeater-row');
+					if (repeaterRow) {
+						// Field is inside a repeater row - scope to this row
+						scopeElement = repeaterRow;
+					}
+					
+					const shouldShow = this.evaluateCondition(conditions, scopeElement);
 
 					// Update visibility with smooth transition.
 					if (shouldShow) {
@@ -561,9 +572,10 @@
 		 * - Inner array: AND rules (all rules in group must pass)
 		 *
 		 * @param {Array} conditions - The conditions to evaluate.
+		 * @param {HTMLElement} scopeElement - Optional element to scope field lookup within (for repeater rows).
 		 * @returns {boolean} Whether the conditions are met.
 		 */
-		evaluateCondition(conditions) {
+		evaluateCondition(conditions, scopeElement = null) {
 			if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
 				return true;
 			}
@@ -574,7 +586,7 @@
 			
 			// If first item is an object with 'field', it's a flat array of AND rules.
 			if (firstItem && typeof firstItem === 'object' && 'field' in firstItem) {
-				return this.evaluateRuleGroup(conditions);
+				return this.evaluateRuleGroup(conditions, scopeElement);
 			}
 
 			// Otherwise, it's OR groups: [[rules], [rules], ...]
@@ -582,7 +594,7 @@
 			return conditions.some(group => {
 				if (!Array.isArray(group)) return true;
 				// ALL rules in group must pass (AND logic within group).
-				return this.evaluateRuleGroup(group);
+				return this.evaluateRuleGroup(group, scopeElement);
 			});
 		},
 
@@ -592,36 +604,69 @@
 		 * @param {Array} rules - Array of rule objects.
 		 * @returns {boolean} Whether all rules pass.
 		 */
-		evaluateRuleGroup(rules) {
+		evaluateRuleGroup(rules, scopeElement = null) {
 			if (!rules || rules.length === 0) return true;
 
 			return rules.every(rule => {
 				if (!rule || !rule.field) return true;
 
 				// rule.field is now a FIELD ID (immutable UUID/identifier)
-				// Look for any field with data-field-id attribute matching this ID
-				// This works for: root fields, repeater subfields, group subfields, anywhere in the DOM
 				const fieldId = rule.field;
-				let fieldElement = document.querySelector(`[data-field-id="${fieldId}"]`);
-				
-				if (fieldElement) {
-					// Found by field ID - this is the preferred method
-					// Look for the actual input element within this wrapper
-					const input = fieldElement.querySelector('input, select, textarea');
+				let fieldElement = null;
+
+				// If we have a scope element (e.g., repeater row), search within it first
+				if (scopeElement) {
+					fieldElement = scopeElement.querySelector(`[data-field-id="${fieldId}"]`);
+				}
+
+			// If not found in scope, search globally (for root fields)
+			if (!fieldElement) {
+				fieldElement = document.querySelector(`[data-field-id="${fieldId}"]`);
+			}
+			
+			if (fieldElement) {
+				// Found by field ID - this is the preferred method
+				// Look for the actual input element within this wrapper
+				// For repeater subfields, the wrapper is .openfields-repeater-subfield
+				// and the input is inside .openfields-repeater-subfield-input
+				const inputContainer = fieldElement.querySelector('.openfields-repeater-subfield-input');
+				if (inputContainer) {
+					// Look for input in the subfield container (prioritize visible inputs)
+					const input = inputContainer.querySelector('input:not([type="hidden"]), select, textarea');
 					if (input) {
 						fieldElement = input;
 					}
+				} else {
+					// Fallback for non-repeater fields - look in field-input wrapper
+					const fieldInputWrapper = fieldElement.querySelector('.openfields-field-input');
+					if (fieldInputWrapper) {
+						const input = fieldInputWrapper.querySelector('input, select, textarea');
+						if (input) {
+							fieldElement = input;
+						}
+					} else {
+						// Last fallback - direct child input
+						const input = fieldElement.querySelector('input, select, textarea');
+						if (input) {
+							fieldElement = input;
+						}
+					}
 				}
-				
-				// Fallback: try to find by field name (backwards compatibility)
+			}				// Fallback: try to find by field name (backwards compatibility)
 				// This is for fields created before data-field-id was implemented
 				if (!fieldElement) {
 					const fieldName = rule.field;
-					fieldElement = document.querySelector(
+					const selector = 
 						`[name="${fieldName}"], [name="${fieldName}[]"], ` +
 						`[name="openfields_${fieldName}"], [name="openfields_${fieldName}[]"], ` +
-						`[data-field="${fieldName}"], [id="${fieldName}"]`
-					);
+						`[data-field="${fieldName}"], [id="${fieldName}"]`;
+					
+					if (scopeElement) {
+						fieldElement = scopeElement.querySelector(selector);
+					}
+					if (!fieldElement) {
+						fieldElement = document.querySelector(selector);
+					}
 				}
 
 				if (!fieldElement) {
@@ -641,9 +686,9 @@
 		 * @returns {*} The field value.
 		 */
 		getFieldValue(element) {
-			// Handle checkboxes - return '1' if checked, '' if not (for empty/not_empty checks)
+			// Handle checkboxes - return '1' if checked, '0' if not (boolean-like values)
 			if (element.type === 'checkbox') {
-				return element.checked ? (element.value || '1') : '';
+				return element.checked ? '1' : '0';
 			}
 			// Handle radio buttons
 			if (element.type === 'radio') {
@@ -652,8 +697,8 @@
 				return checkedRadio ? checkedRadio.value : '';
 			}
 			// Handle switch fields (they use hidden checkbox)
-			if (element.classList.contains('openfields-switch-input')) {
-				return element.checked ? '1' : '';
+			if (element.classList.contains('openfields-switch-checkbox') || element.classList.contains('openfields-switch-input')) {
+				return element.checked ? '1' : '0';
 			}
 			if (element.tagName === 'SELECT') {
 				return element.value;
@@ -670,7 +715,18 @@
 		 * @returns {boolean} Result of the comparison.
 		 */
 		compareValues(value1, operator, value2) {
-			// Normalize value for comparison
+			// For boolean checks (switch/checkbox fields return '1' or '0')
+			if (operator === 'empty' || operator === 'is_empty') {
+				// A field is "empty" if value is '' or '0' (unchecked)
+				return value1 === '' || value1 === '0';
+			}
+			
+			if (operator === 'not_empty' || operator === 'is_not_empty') {
+				// A field is "not empty" if value is not '' and not '0'
+				return value1 !== '' && value1 !== '0';
+			}
+			
+			// For other operators, normalize values
 			const val1 = value1 === null || value1 === undefined ? '' : String(value1).trim();
 			const val2 = value2 === null || value2 === undefined ? '' : String(value2).trim();
 			
@@ -697,13 +753,6 @@
 				case '<=':
 				case 'less_than_or_equal':
 					return parseFloat(val1) <= parseFloat(val2);
-				// Support both 'empty'/'not_empty' (from UI) and 'is_empty'/'is_not_empty' (legacy)
-				case 'empty':
-				case 'is_empty':
-					return val1 === '' || val1 === '0' && operator === 'empty';
-				case 'not_empty':
-				case 'is_not_empty':
-					return val1 !== '';
 				default:
 					return false;
 			}

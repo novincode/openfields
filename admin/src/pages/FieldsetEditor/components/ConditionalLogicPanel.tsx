@@ -54,9 +54,16 @@ export function ConditionalLogicPanel({
 	useEffect(() => {
 		const hasLogic =
 			field.settings?.conditional_logic && field.settings.conditional_logic.length > 0;
-		if (hasLogic) {
+		if (hasLogic && field.settings?.conditional_logic) {
 			setEnabled(true);
-			setRuleGroups(field.settings?.conditional_logic || []);
+			// Ensure field IDs are strings for comparison
+			const normalizedLogic = field.settings.conditional_logic.map(group =>
+				group.map(rule => ({
+					...rule,
+					field: String(rule.field), // Convert to string for Select component
+				}))
+			);
+			setRuleGroups(normalizedLogic);
 		}
 	}, [field.settings?.conditional_logic]);
 
@@ -175,7 +182,7 @@ export function ConditionalLogicPanel({
 									<div className="flex items-center gap-2">
 										{/* Field selector */}
 										<Select
-											value={rule.field}
+											value={String(rule.field)}
 											onValueChange={(value) => handleUpdateRule(groupIndex, ruleIndex, 'field', value)}
 										>
 											<SelectTrigger className="w-[140px]">

@@ -437,21 +437,23 @@
 					input.name = input.name.replace(pattern, `$1${newIndex}$2`);
 				}
 
-				// Update ID
+				// Update ID - handle both numeric indices and {{INDEX}} placeholders
 				if (input.id) {
-					const pattern = new RegExp(`(${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+					// Match field_{base}_{index}_{subfield} pattern
+					const pattern = new RegExp(`(field_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
 					input.id = input.id.replace(pattern, `$1${newIndex}$2`);
 				}
 			});
 
-			// Update labels
+			// Update labels - they need to match the new input IDs
 			const labels = row.querySelectorAll('label[for]');
 			labels.forEach((label) => {
 				const closestRow = label.closest('.openfields-repeater-row');
 				if (closestRow !== row) return;
 
 				const forAttr = label.getAttribute('for');
-				const pattern = new RegExp(`(${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
+				// Match field_{base}_{index}_{subfield} pattern
+				const pattern = new RegExp(`(field_${this.escapeRegex(baseName)}_)${oldIndex}(_)`);
 				label.setAttribute('for', forAttr.replace(pattern, `$1${newIndex}$2`));
 			});
 

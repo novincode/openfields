@@ -210,7 +210,17 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 	// Build the full field name: base_index_subfield
 	// ACF format: repeater_0_subfield (no prefix)
 	$full_name = $base_name . '_' . $index . '_' . $raw_name;
-	$field_id  = 'field_' . str_replace( array( '[', ']', '{{', '}}' ), '_', $full_name );
+	
+	// Build field ID - handle {{INDEX}} placeholder properly for templates
+	if ( $is_template ) {
+		// For templates, keep {{INDEX}} as-is for JavaScript replacement
+		$field_id = 'field_' . $base_name . '_{{INDEX}}_' . $raw_name;
+	} else {
+		// For actual rows, use the numeric index
+		$field_id = 'field_' . $base_name . '_' . $index . '_' . $raw_name;
+	}
+	// Clean up any remaining special characters
+	$field_id = str_replace( array( '[', ']' ), '_', $field_id );
 
 	// Get value (only for real rows, not template).
 	$value = '';
@@ -261,8 +271,15 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 	if ( ! empty( $sub_field->id ) ) {
 		$field_id_attr = ' data-field-id="' . esc_attr( $sub_field->id ) . '"';
 	}
+
+	// Add conditional logic attribute if present
+	$conditional_attr = '';
+	if ( ! empty( $sub_field->conditional_logic ) ) {
+		$conditional_attr = ' data-conditional-logic="' . esc_attr( wp_json_encode( $sub_field->conditional_logic ) ) . '"';
+		$conditional_attr .= ' data-conditional-status="hidden"'; // Initially hidden, shown by JS if conditions met
+	}
 	
-	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . $width_val . '%;" data-width="' . $width_val . '"' . $id_attr . $field_id_attr . '>';
+	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . $width_val . '%;" data-width="' . $width_val . '"' . $id_attr . $field_id_attr . $conditional_attr . '>';
 
 	if ( ! empty( $sub_field->label ) ) {
 		echo '<label class="openfields-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';
