@@ -4,7 +4,7 @@
  *
  * Determines which fieldsets should display on which screens.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class OpenFields_Location_Manager {
+class COF_Location_Manager {
 
 	/**
 	 * Instance.
 	 *
-	 * @var OpenFields_Location_Manager|null
+	 * @var COF_Location_Manager|null
 	 */
 	private static $instance = null;
 
@@ -38,7 +38,7 @@ class OpenFields_Location_Manager {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return OpenFields_Location_Manager
+	 * @return COF_Location_Manager
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -66,7 +66,7 @@ class OpenFields_Location_Manager {
 		$this->register_location_type(
 			'post_type',
 			array(
-				'label'    => __( 'Post Type', 'openfields' ),
+				'label'    => __( 'Post Type', 'codeideal-open-fields' ),
 				'callback' => array( $this, 'match_post_type' ),
 				'options'  => array( $this, 'get_post_type_options' ),
 			)
@@ -76,7 +76,7 @@ class OpenFields_Location_Manager {
 		$this->register_location_type(
 			'page_template',
 			array(
-				'label'    => __( 'Page Template', 'openfields' ),
+				'label'    => __( 'Page Template', 'codeideal-open-fields' ),
 				'callback' => array( $this, 'match_page_template' ),
 				'options'  => array( $this, 'get_page_template_options' ),
 			)
@@ -86,7 +86,7 @@ class OpenFields_Location_Manager {
 		$this->register_location_type(
 			'post_category',
 			array(
-				'label'    => __( 'Post Category', 'openfields' ),
+				'label'    => __( 'Post Category', 'codeideal-open-fields' ),
 				'callback' => array( $this, 'match_post_category' ),
 				'options'  => array( $this, 'get_post_category_options' ),
 			)
@@ -96,7 +96,7 @@ class OpenFields_Location_Manager {
 		$this->register_location_type(
 			'post_format',
 			array(
-				'label'    => __( 'Post Format', 'openfields' ),
+				'label'    => __( 'Post Format', 'codeideal-open-fields' ),
 				'callback' => array( $this, 'match_post_format' ),
 				'options'  => array( $this, 'get_post_format_options' ),
 			)
@@ -106,7 +106,7 @@ class OpenFields_Location_Manager {
 		$this->register_location_type(
 			'taxonomy',
 			array(
-				'label'    => __( 'Taxonomy', 'openfields' ),
+				'label'    => __( 'Taxonomy', 'codeideal-open-fields' ),
 				'callback' => array( $this, 'match_taxonomy' ),
 				'options'  => array( $this, 'get_taxonomy_options' ),
 			)
@@ -116,7 +116,7 @@ class OpenFields_Location_Manager {
 		$this->register_location_type(
 			'user_role',
 			array(
-				'label'    => __( 'User Role', 'openfields' ),
+				'label'    => __( 'User Role', 'codeideal-open-fields' ),
 				'callback' => array( $this, 'match_user_role' ),
 				'options'  => array( $this, 'get_user_role_options' ),
 			)
@@ -126,7 +126,7 @@ class OpenFields_Location_Manager {
 		$this->register_location_type(
 			'options_page',
 			array(
-				'label'    => __( 'Options Page', 'openfields' ),
+				'label'    => __( 'Options Page', 'codeideal-open-fields' ),
 				'callback' => array( $this, 'match_options_page' ),
 				'options'  => array( $this, 'get_options_page_options' ),
 			)
@@ -244,8 +244,8 @@ class OpenFields_Location_Manager {
 	public function get_fieldsets_for_context( $context ) {
 		global $wpdb;
 
-		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
-		$locations_table = $wpdb->prefix . 'openfields_locations';
+		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
+		$locations_table = $wpdb->prefix . 'cof_locations';
 
 		// Get all active fieldsets.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -465,7 +465,7 @@ class OpenFields_Location_Manager {
 		$options   = array(
 			array(
 				'value' => 'default',
-				'label' => __( 'Default Template', 'openfields' ),
+				'label' => __( 'Default Template', 'codeideal-open-fields' ),
 			),
 		);
 
@@ -567,7 +567,7 @@ class OpenFields_Location_Manager {
 		 * @since 1.0.0
 		 * @param array $pages Registered options pages.
 		 */
-		$pages = apply_filters( 'openfields_options_pages', array() );
+		$pages = apply_filters( 'cof_options_pages', array() );
 
 		$options = array();
 		foreach ( $pages as $slug => $title ) {

@@ -2,7 +2,7 @@
 /**
  * Admin handler.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -12,16 +12,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields admin class.
+ * Codeideal Open Fields admin class.
  *
  * @since 1.0.0
  */
-class OpenFields_Admin {
+class COF_Admin {
 
 	/**
 	 * Instance.
 	 *
-	 * @var OpenFields_Admin|null
+	 * @var COF_Admin|null
 	 */
 	private static $instance = null;
 
@@ -29,7 +29,7 @@ class OpenFields_Admin {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return OpenFields_Admin
+	 * @return COF_Admin
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -46,7 +46,7 @@ class OpenFields_Admin {
 	private function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
 		add_action( 'admin_init', array( $this, 'maybe_redirect_after_activation' ) );
-		add_filter( 'plugin_action_links_' . OPENFIELDS_PLUGIN_BASENAME, array( $this, 'add_action_links' ) );
+		add_filter( 'plugin_action_links_' . COF_PLUGIN_BASENAME, array( $this, 'add_action_links' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_loading_styles' ) );
 	}
 
@@ -58,10 +58,10 @@ class OpenFields_Admin {
 	public function add_menu_pages() {
 		// Main menu page - single page with tabs for Field Sets, Settings, and Import/Export.
 		add_menu_page(
-			__( 'OpenFields', 'openfields' ),
-			__( 'OpenFields', 'openfields' ),
+			__( 'Open Fields', 'codeideal-open-fields' ),
+			__( 'Open Fields', 'codeideal-open-fields' ),
 			'manage_options',
-			'openfields',
+			'codeideal-open-fields',
 			array( $this, 'render_main_page' ),
 			'dashicons-forms',
 			30
@@ -69,11 +69,11 @@ class OpenFields_Admin {
 
 		// Field Groups submenu (same as main).
 		add_submenu_page(
-			'openfields',
-			__( 'Field Groups', 'openfields' ),
-			__( 'Field Groups', 'openfields' ),
+			'codeideal-open-fields',
+			__( 'Field Groups', 'codeideal-open-fields' ),
+			__( 'Field Groups', 'codeideal-open-fields' ),
 			'manage_options',
-			'openfields',
+			'codeideal-open-fields',
 			array( $this, 'render_main_page' )
 		);
 	}
@@ -87,10 +87,10 @@ class OpenFields_Admin {
 	 */
 	public function render_main_page() {
 		?>
-		<div id="openfields-admin" class="openfields-admin-wrap">
-			<div class="openfields-loading">
+		<div id="cof-admin" class="cof-admin-wrap">
+			<div class="cof-loading">
 				<span class="spinner is-active"></span>
-				<?php esc_html_e( 'Loading OpenFields...', 'openfields' ); ?>
+				<?php esc_html_e( 'Loading Open Fields...', 'codeideal-open-fields' ); ?>
 			</div>
 		</div>
 		<?php
@@ -104,15 +104,15 @@ class OpenFields_Admin {
 	 */
 	public function enqueue_loading_styles( $hook ) {
 		// Only on our admin page.
-		if ( 'toplevel_page_openfields' !== $hook ) {
+		if ( 'toplevel_page_codeideal-open-fields' !== $hook ) {
 			return;
 		}
 
 		$inline_css = '
-			#openfields-admin {
+			#cof-admin {
 				margin: 0;
 			}
-			.openfields-loading {
+			.cof-loading {
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -120,21 +120,21 @@ class OpenFields_Admin {
 				font-size: 14px;
 				color: #646970;
 			}
-			.openfields-loading .spinner {
+			.cof-loading .spinner {
 				float: none;
 				margin-right: 10px;
 			}
 			/* Hide WP admin notices on our pages */
-			.openfields-admin-wrap ~ .notice,
-			.openfields-admin-wrap ~ .updated,
-			.openfields-admin-wrap ~ .error {
+			.cof-admin-wrap ~ .notice,
+			.cof-admin-wrap ~ .updated,
+			.cof-admin-wrap ~ .error {
 				display: none !important;
 			}
 		';
 
-		wp_register_style( 'openfields-admin-loading', false, array(), OPENFIELDS_VERSION );
-		wp_enqueue_style( 'openfields-admin-loading' );
-		wp_add_inline_style( 'openfields-admin-loading', $inline_css );
+		wp_register_style( 'cof-admin-loading', false, array(), COF_VERSION );
+		wp_enqueue_style( 'cof-admin-loading' );
+		wp_add_inline_style( 'cof-admin-loading', $inline_css );
 	}
 
 	/**
@@ -143,11 +143,11 @@ class OpenFields_Admin {
 	 * @since 1.0.0
 	 */
 	public function maybe_redirect_after_activation() {
-		if ( get_transient( 'openfields_activation_redirect' ) ) {
-			delete_transient( 'openfields_activation_redirect' );
+		if ( get_transient( 'cof_activation_redirect' ) ) {
+			delete_transient( 'cof_activation_redirect' );
 
 			if ( ! isset( $_GET['activate-multi'] ) ) {
-				wp_safe_redirect( admin_url( 'admin.php?page=openfields' ) );
+				wp_safe_redirect( admin_url( 'admin.php?page=codeideal-open-fields' ) );
 				exit;
 			}
 		}
@@ -162,8 +162,8 @@ class OpenFields_Admin {
 	 */
 	public function add_action_links( $links ) {
 		$plugin_links = array(
-			'<a href="' . esc_url( admin_url( 'admin.php?page=openfields' ) ) . '">' . esc_html__( 'Field Groups', 'openfields' ) . '</a>',
-			'<a href="' . esc_url( admin_url( 'admin.php?page=openfields&tab=settings' ) ) . '">' . esc_html__( 'Settings', 'openfields' ) . '</a>',
+			'<a href="' . esc_url( admin_url( 'admin.php?page=codeideal-open-fields' ) ) . '">' . esc_html__( 'Field Groups', 'codeideal-open-fields' ) . '</a>',
+			'<a href="' . esc_url( admin_url( 'admin.php?page=codeideal-open-fields&tab=settings' ) ) . '">' . esc_html__( 'Settings', 'codeideal-open-fields' ) . '</a>',
 		);
 
 		return array_merge( $plugin_links, $links );

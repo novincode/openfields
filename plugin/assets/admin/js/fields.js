@@ -181,15 +181,15 @@
 		 * @param {Object} result - Validation result { valid, errors }.
 		 */
 		applyValidationState(element, result) {
-			const wrapper = element.closest('.openfields-field-wrapper') ||
-			                element.closest('.openfields-repeater-subfield') ||
+			const wrapper = element.closest('.cof-field-wrapper') ||
+			                element.closest('.cof-repeater-subfield') ||
 			                element.parentElement;
 
 			// Remove existing states
 			element.classList.remove('is-valid', 'is-invalid');
 
 			// Remove existing messages
-			const existingMsg = wrapper?.querySelector('.openfields-validation-message');
+			const existingMsg = wrapper?.querySelector('.cof-validation-message');
 			if (existingMsg) {
 				existingMsg.remove();
 			}
@@ -204,11 +204,11 @@
 				// Add error message
 				if (wrapper && result.errors.length > 0) {
 					const msgEl = document.createElement('div');
-					msgEl.className = 'openfields-validation-message is-error';
+					msgEl.className = 'cof-validation-message is-error';
 					msgEl.textContent = result.errors[0];
 					
-					const inputContainer = element.closest('.openfields-field-input') ||
-					                        element.closest('.openfields-repeater-subfield-input') ||
+					const inputContainer = element.closest('.cof-field-input') ||
+					                        element.closest('.cof-repeater-subfield-input') ||
 					                        element.parentElement;
 					if (inputContainer) {
 						inputContainer.appendChild(msgEl);
@@ -265,10 +265,10 @@
 				input.addEventListener('input', () => {
 					if (input.classList.contains('is-invalid')) {
 						input.classList.remove('is-invalid');
-						const wrapper = input.closest('.openfields-field-wrapper') ||
-						                input.closest('.openfields-repeater-subfield') ||
+						const wrapper = input.closest('.cof-field-wrapper') ||
+						                input.closest('.cof-repeater-subfield') ||
 						                input.parentElement;
-						const msg = wrapper?.querySelector('.openfields-validation-message');
+						const msg = wrapper?.querySelector('.cof-validation-message');
 						if (msg) msg.remove();
 					}
 				});
@@ -299,14 +299,14 @@
 		 * Initialize validation on all meta boxes.
 		 */
 		initValidation() {
-			const metaBoxes = document.querySelectorAll('.openfields-meta-box');
+			const metaBoxes = document.querySelectorAll('.cof-meta-box');
 			
 			metaBoxes.forEach(box => {
 				Validator.setupLiveValidation(box);
 			});
 
 			// Also setup on any repeater containers
-			const repeaters = document.querySelectorAll('.openfields-repeater');
+			const repeaters = document.querySelectorAll('.cof-repeater');
 			repeaters.forEach(repeater => {
 				Validator.setupLiveValidation(repeater);
 			});
@@ -328,7 +328,7 @@
 			form.dataset.ofSubmitValidationInit = 'true';
 
 			form.addEventListener('submit', (e) => {
-				const metaBoxes = form.querySelectorAll('.openfields-meta-box');
+				const metaBoxes = form.querySelectorAll('.cof-meta-box');
 				let isValid = true;
 
 				metaBoxes.forEach(box => {
@@ -361,11 +361,11 @@
 		 */
 		showNotice(message, type = 'info') {
 			// Remove existing OpenFields notices
-			const existing = document.querySelectorAll('.openfields-notice');
+			const existing = document.querySelectorAll('.cof-notice');
 			existing.forEach(n => n.remove());
 
 			const notice = document.createElement('div');
-			notice.className = `notice notice-${type} is-dismissible openfields-notice`;
+			notice.className = `notice notice-${type} is-dismissible cof-notice`;
 			notice.innerHTML = `<p>${message}</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss</span></button>`;
 
 			const heading = document.querySelector('.wrap > h1, .wrap > h2');
@@ -395,7 +395,7 @@
 		 * Converts hidden checkboxes into beautiful toggle switches with Yes/No labels.
 		 */
 		initSwitchFields() {
-			const switches = document.querySelectorAll('.openfields-switch-input');
+			const switches = document.querySelectorAll('.cof-switch-input');
 
 			switches.forEach(switchInput => {
 				// Skip if already initialized to prevent duplicate event listeners.
@@ -434,7 +434,7 @@
 
 				// Make the track clickable (but don't double-toggle since label.for handles it).
 				const track = switchInput.nextElementSibling;
-				if (track && track.classList.contains('openfields-switch-track')) {
+				if (track && track.classList.contains('cof-switch-track')) {
 					track.addEventListener('click', () => {
 						// Just focus the input, the label.for attribute handles the toggle
 						switchInput.focus();
@@ -468,7 +468,7 @@
 		 */
 		setupConditionalListeners() {
 			// Use event delegation on meta-box wrapper so new repeater rows trigger updates too
-			const metaBox = document.querySelector('.openfields-meta-box');
+			const metaBox = document.querySelector('.cof-meta-box');
 			if (!metaBox) return;
 
 			// Single listener on parent element catches all bubbling change/input events
@@ -505,9 +505,9 @@
 
 			// Check if it's a switch or custom field input
 			if (element.classList && (
-				element.classList.contains('openfields-switch-checkbox') ||
-				element.classList.contains('openfields-toggle-input') ||
-				element.classList.contains('openfields-field-input')
+				element.classList.contains('cof-switch-checkbox') ||
+				element.classList.contains('cof-toggle-input') ||
+				element.classList.contains('cof-field-input')
 			)) {
 				return true;
 			}
@@ -544,7 +544,7 @@
 				const conditions = JSON.parse(decodedJson);					// Determine scope: if this field is in a repeater row, scope to that row
 					// Otherwise, null scope means global field lookup
 					let scopeElement = null;
-					const repeaterRow = field.closest('.openfields-repeater-row');
+					const repeaterRow = field.closest('.cof-repeater-row');
 					if (repeaterRow) {
 						// Field is inside a repeater row - scope to this row
 						scopeElement = repeaterRow;
@@ -643,9 +643,9 @@
 			}			if (fieldElement) {
 				// Found by field ID - this is the preferred method
 				// Look for the actual input element within this wrapper
-				// For repeater subfields, the wrapper is .openfields-repeater-subfield
-				// and the input is inside .openfields-repeater-subfield-input
-				const inputContainer = fieldElement.querySelector('.openfields-repeater-subfield-input');
+				// For repeater subfields, the wrapper is .cof-repeater-subfield
+				// and the input is inside .cof-repeater-subfield-input
+				const inputContainer = fieldElement.querySelector('.cof-repeater-subfield-input');
 				if (inputContainer) {
 					// Look for input in the subfield container (prioritize visible inputs)
 					const input = inputContainer.querySelector('input:not([type="hidden"]), select, textarea');
@@ -654,7 +654,7 @@
 					}
 				} else {
 					// Fallback for non-repeater fields - look in field-input wrapper
-					const fieldInputWrapper = fieldElement.querySelector('.openfields-field-input');
+					const fieldInputWrapper = fieldElement.querySelector('.cof-field-input');
 					if (fieldInputWrapper) {
 						const input = fieldInputWrapper.querySelector('input, select, textarea');
 						if (input) {
@@ -718,7 +718,7 @@
 				return checkedRadio ? checkedRadio.value : '';
 			}
 			// Handle switch fields (they use hidden checkbox)
-			if (element.classList.contains('openfields-switch-checkbox') || element.classList.contains('openfields-switch-input')) {
+			if (element.classList.contains('cof-switch-checkbox') || element.classList.contains('cof-switch-input')) {
 				return element.checked ? '1' : '0';
 			}
 			if (element.tagName === 'SELECT') {
@@ -785,7 +785,7 @@
 		 * Handles file selection, preview generation, and management.
 		 */
 		initFileFields() {
-			const fileInputs = document.querySelectorAll('.openfields-file-upload input[type="file"]');
+			const fileInputs = document.querySelectorAll('.cof-file-upload input[type="file"]');
 
 			fileInputs.forEach(input => {
 				// Skip if already initialized to prevent duplicate event listeners.
@@ -806,7 +806,7 @@
 		 */
 		handleFileSelect(event) {
 			const input = event.target;
-			const container = input.closest('.openfields-file-field') || input.closest('.openfields-image-field');
+			const container = input.closest('.cof-file-field') || input.closest('.cof-image-field');
 
 			if (!container) return;
 
@@ -824,12 +824,12 @@
 			}
 
 			// Handle image preview if it's an image field.
-			if (container.classList.contains('openfields-image-field')) {
+			if (container.classList.contains('cof-image-field')) {
 				this.generateImagePreview(container, file);
 			}
 
 			// Update file name display.
-			const fileName = container.querySelector('.openfields-file-name');
+			const fileName = container.querySelector('.cof-file-name');
 			if (fileName) {
 				fileName.textContent = file.name;
 			}
@@ -853,7 +853,7 @@
 		generateImagePreview(container, file) {
 			const reader = new FileReader();
 			reader.onload = (e) => {
-				const preview = container.querySelector('.openfields-image-preview');
+				const preview = container.querySelector('.cof-image-preview');
 				if (preview) {
 					let img = preview.querySelector('img');
 					if (!img) {
@@ -881,7 +881,7 @@
 		 * Initialize image field media library interactions.
 		 */
 		initImageFields() {
-			const imageFields = document.querySelectorAll('.openfields-image-field');
+			const imageFields = document.querySelectorAll('.cof-image-field');
 			
 			imageFields.forEach(field => {
 				// Skip if already initialized to prevent duplicate event listeners.
@@ -890,9 +890,9 @@
 				}
 				field.dataset.ofInitialized = 'true';
 
-				const selectBtn = field.querySelector('.openfields-image-select');
-				const changeBtn = field.querySelector('.openfields-image-change');
-				const removeBtn = field.querySelector('.openfields-image-remove');
+				const selectBtn = field.querySelector('.cof-image-select');
+				const changeBtn = field.querySelector('.cof-image-change');
+				const removeBtn = field.querySelector('.cof-image-remove');
 				
 				if (selectBtn) {
 					selectBtn.addEventListener('click', () => this.openImageMediaLibrary(field));
@@ -939,11 +939,11 @@
 		 * @param {Object} attachment - WordPress attachment object.
 		 */
 		setImageValue(field, attachment) {
-			const input = field.querySelector('.openfields-image-value');
-			const preview = field.querySelector('.openfields-image-preview');
-			const selectBtn = field.querySelector('.openfields-image-select');
-			const changeBtn = field.querySelector('.openfields-image-change');
-			const removeBtn = field.querySelector('.openfields-image-remove');
+			const input = field.querySelector('.cof-image-value');
+			const preview = field.querySelector('.cof-image-preview');
+			const selectBtn = field.querySelector('.cof-image-select');
+			const changeBtn = field.querySelector('.cof-image-change');
+			const removeBtn = field.querySelector('.cof-image-remove');
 
 			// Update hidden input.
 			if (input) input.value = attachment.id;
@@ -952,9 +952,9 @@
 			const size = attachment.sizes?.medium || attachment.sizes?.thumbnail || { url: attachment.url };
 			
 			preview.innerHTML = `
-				<img src="${size.url}" alt="${attachment.alt || ''}" class="openfields-image-thumb" />
-				<div class="openfields-image-info">
-					<span class="openfields-image-name">${attachment.title || attachment.filename}</span>
+				<img src="${size.url}" alt="${attachment.alt || ''}" class="cof-image-thumb" />
+				<div class="cof-image-info">
+					<span class="cof-image-name">${attachment.title || attachment.filename}</span>
 				</div>
 			`;
 			preview.classList.remove('no-image');
@@ -972,20 +972,20 @@
 		 * @param {HTMLElement} field - The image field container.
 		 */
 		removeImage(field) {
-			const input = field.querySelector('.openfields-image-value');
-			const preview = field.querySelector('.openfields-image-preview');
-			const selectBtn = field.querySelector('.openfields-image-select');
-			const changeBtn = field.querySelector('.openfields-image-change');
-			const removeBtn = field.querySelector('.openfields-image-remove');
+			const input = field.querySelector('.cof-image-value');
+			const preview = field.querySelector('.cof-image-preview');
+			const selectBtn = field.querySelector('.cof-image-select');
+			const changeBtn = field.querySelector('.cof-image-change');
+			const removeBtn = field.querySelector('.cof-image-remove');
 
 			// Clear hidden input.
 			if (input) input.value = '';
 
 			// Reset preview.
 			preview.innerHTML = `
-				<div class="openfields-image-placeholder">
+				<div class="cof-image-placeholder">
 					<span class="dashicons dashicons-format-image"></span>
-					<span class="openfields-image-placeholder-text">No image selected</span>
+					<span class="cof-image-placeholder-text">No image selected</span>
 				</div>
 			`;
 			preview.classList.remove('has-image');
@@ -1001,7 +1001,7 @@
 		 * Initialize file field media library interactions.
 		 */
 		initFileMediaFields() {
-			const fileFields = document.querySelectorAll('.openfields-file-field');
+			const fileFields = document.querySelectorAll('.cof-file-field');
 			
 			fileFields.forEach(field => {
 				// Skip if already initialized to prevent duplicate event listeners.
@@ -1010,9 +1010,9 @@
 				}
 				field.dataset.ofInitialized = 'true';
 
-				const selectBtn = field.querySelector('.openfields-file-select');
-				const changeBtn = field.querySelector('.openfields-file-change');
-				const removeBtn = field.querySelector('.openfields-file-remove');
+				const selectBtn = field.querySelector('.cof-file-select');
+				const changeBtn = field.querySelector('.cof-file-change');
+				const removeBtn = field.querySelector('.cof-file-remove');
 				
 				if (selectBtn) {
 					selectBtn.addEventListener('click', () => this.openFileMediaLibrary(field));
@@ -1066,11 +1066,11 @@
 		 * @param {Object} attachment - WordPress attachment object.
 		 */
 		setFileValue(field, attachment) {
-			const input = field.querySelector('.openfields-file-value');
-			const info = field.querySelector('.openfields-file-info');
-			const selectBtn = field.querySelector('.openfields-file-select');
-			const changeBtn = field.querySelector('.openfields-file-change');
-			const removeBtn = field.querySelector('.openfields-file-remove');
+			const input = field.querySelector('.cof-file-value');
+			const info = field.querySelector('.cof-file-info');
+			const selectBtn = field.querySelector('.cof-file-select');
+			const changeBtn = field.querySelector('.cof-file-change');
+			const removeBtn = field.querySelector('.cof-file-remove');
 
 			// Update hidden input.
 			if (input) input.value = attachment.id;
@@ -1092,15 +1092,15 @@
 
 			// Update info display.
 			info.innerHTML = `
-				<div class="openfields-file-preview">
-					<span class="openfields-file-icon dashicons ${iconClass}"></span>
-					<div class="openfields-file-details">
-						<a href="${attachment.url}" target="_blank" class="openfields-file-name" title="Open in new tab">
+				<div class="cof-file-preview">
+					<span class="cof-file-icon dashicons ${iconClass}"></span>
+					<div class="cof-file-details">
+						<a href="${attachment.url}" target="_blank" class="cof-file-name" title="Open in new tab">
 							${attachment.filename || attachment.title}
 						</a>
-						<div class="openfields-file-meta">
-							<span class="openfields-file-type">${mimeShort}</span>
-							${attachment.filesizeHumanReadable ? `<span class="openfields-file-size">${attachment.filesizeHumanReadable}</span>` : ''}
+						<div class="cof-file-meta">
+							<span class="cof-file-type">${mimeShort}</span>
+							${attachment.filesizeHumanReadable ? `<span class="cof-file-size">${attachment.filesizeHumanReadable}</span>` : ''}
 						</div>
 					</div>
 				</div>
@@ -1120,20 +1120,20 @@
 		 * @param {HTMLElement} field - The file field container.
 		 */
 		removeFile(field) {
-			const input = field.querySelector('.openfields-file-value');
-			const info = field.querySelector('.openfields-file-info');
-			const selectBtn = field.querySelector('.openfields-file-select');
-			const changeBtn = field.querySelector('.openfields-file-change');
-			const removeBtn = field.querySelector('.openfields-file-remove');
+			const input = field.querySelector('.cof-file-value');
+			const info = field.querySelector('.cof-file-info');
+			const selectBtn = field.querySelector('.cof-file-select');
+			const changeBtn = field.querySelector('.cof-file-change');
+			const removeBtn = field.querySelector('.cof-file-remove');
 
 			// Clear hidden input.
 			if (input) input.value = '';
 
 			// Reset info display.
 			info.innerHTML = `
-				<div class="openfields-file-placeholder">
+				<div class="cof-file-placeholder">
 					<span class="dashicons dashicons-media-default"></span>
-					<span class="openfields-file-placeholder-text">No file selected</span>
+					<span class="cof-file-placeholder-text">No file selected</span>
 				</div>
 			`;
 			info.classList.remove('has-file');
@@ -1149,7 +1149,7 @@
 		 * Initialize gallery field interactions.
 		 */
 		initGalleryFields() {
-			const galleryFields = document.querySelectorAll('.openfields-gallery-field');
+			const galleryFields = document.querySelectorAll('.cof-gallery-field');
 			
 			galleryFields.forEach(field => {
 				// Skip if already initialized to prevent duplicate event listeners.
@@ -1159,7 +1159,7 @@
 				field.dataset.ofInitialized = 'true';
 
 				// Add buttons.
-				const addBtns = field.querySelectorAll('.openfields-gallery-add, .openfields-gallery-select');
+				const addBtns = field.querySelectorAll('.cof-gallery-add, .cof-gallery-select');
 				addBtns.forEach(btn => {
 					btn.addEventListener('click', () => this.openGalleryMediaLibrary(field));
 				});
@@ -1184,7 +1184,7 @@
 			}
 
 			const maxImages = parseInt(field.dataset.max) || 0;
-			const currentCount = field.querySelectorAll('.openfields-gallery-item').length;
+			const currentCount = field.querySelectorAll('.cof-gallery-item').length;
 
 			const frame = wp.media({
 				title: 'Select Images',
@@ -1220,10 +1220,10 @@
 		 * @param {Array} attachments - Array of attachment objects.
 		 */
 		addGalleryImages(field, attachments) {
-			const grid = field.querySelector('.openfields-gallery-grid');
-			const input = field.querySelector('.openfields-gallery-value');
-			const placeholder = field.querySelector('.openfields-gallery-placeholder');
-			const addItem = grid.querySelector('.openfields-gallery-add-item');
+			const grid = field.querySelector('.cof-gallery-grid');
+			const input = field.querySelector('.cof-gallery-value');
+			const placeholder = field.querySelector('.cof-gallery-placeholder');
+			const addItem = grid.querySelector('.cof-gallery-add-item');
 			const previewSize = field.dataset.previewSize || 'thumbnail';
 
 			// Get current IDs.
@@ -1238,18 +1238,18 @@
 				const size = attachment.sizes?.[previewSize] || attachment.sizes?.thumbnail || { url: attachment.url };
 				
 				const item = document.createElement('div');
-				item.className = 'openfields-gallery-item';
+				item.className = 'cof-gallery-item';
 				item.dataset.attachmentId = attachment.id;
 				item.innerHTML = `
-					<div class="openfields-gallery-thumb">
+					<div class="cof-gallery-thumb">
 						<img src="${size.url}" alt="${attachment.alt || ''}" />
 					</div>
-					<div class="openfields-gallery-item-actions">
-						<button type="button" class="openfields-gallery-item-remove" title="Remove">
+					<div class="cof-gallery-item-actions">
+						<button type="button" class="cof-gallery-item-remove" title="Remove">
 							<span class="dashicons dashicons-no-alt"></span>
 						</button>
 					</div>
-					<div class="openfields-gallery-item-drag" title="Drag to reorder">
+					<div class="cof-gallery-item-drag" title="Drag to reorder">
 						<span class="dashicons dashicons-move"></span>
 					</div>
 				`;
@@ -1262,7 +1262,7 @@
 				}
 
 				// Bind remove handler.
-				item.querySelector('.openfields-gallery-item-remove').addEventListener('click', () => {
+				item.querySelector('.cof-gallery-item-remove').addEventListener('click', () => {
 					this.removeGalleryItem(field, item);
 				});
 			});
@@ -1286,9 +1286,9 @@
 		 * @param {HTMLElement} item - The item to remove.
 		 */
 		removeGalleryItem(field, item) {
-			const grid = field.querySelector('.openfields-gallery-grid');
-			const input = field.querySelector('.openfields-gallery-value');
-			const placeholder = field.querySelector('.openfields-gallery-placeholder');
+			const grid = field.querySelector('.cof-gallery-grid');
+			const input = field.querySelector('.cof-gallery-value');
+			const placeholder = field.querySelector('.cof-gallery-placeholder');
 			const attachmentId = item.dataset.attachmentId;
 
 			// Remove from DOM.
@@ -1315,9 +1315,9 @@
 		 * @param {HTMLElement} field - The gallery field container.
 		 */
 		bindGalleryItemRemove(field) {
-			const items = field.querySelectorAll('.openfields-gallery-item');
+			const items = field.querySelectorAll('.cof-gallery-item');
 			items.forEach(item => {
-				const removeBtn = item.querySelector('.openfields-gallery-item-remove');
+				const removeBtn = item.querySelector('.cof-gallery-item-remove');
 				if (removeBtn) {
 					removeBtn.addEventListener('click', () => {
 						this.removeGalleryItem(field, item);
@@ -1332,11 +1332,11 @@
 		 * @param {HTMLElement} field - The gallery field container.
 		 */
 		initGalleryDragDrop(field) {
-			const grid = field.querySelector('.openfields-gallery-grid');
+			const grid = field.querySelector('.cof-gallery-grid');
 			let draggedItem = null;
 
 			grid.addEventListener('dragstart', (e) => {
-				if (e.target.classList.contains('openfields-gallery-item')) {
+				if (e.target.classList.contains('cof-gallery-item')) {
 					draggedItem = e.target;
 					e.target.classList.add('is-dragging');
 					e.dataTransfer.effectAllowed = 'move';
@@ -1355,7 +1355,7 @@
 				e.preventDefault();
 				e.dataTransfer.dropEffect = 'move';
 
-				const target = e.target.closest('.openfields-gallery-item');
+				const target = e.target.closest('.cof-gallery-item');
 				if (target && target !== draggedItem) {
 					const rect = target.getBoundingClientRect();
 					const midX = rect.left + rect.width / 2;
@@ -1369,7 +1369,7 @@
 			});
 
 			// Make items draggable.
-			const items = grid.querySelectorAll('.openfields-gallery-item');
+			const items = grid.querySelectorAll('.cof-gallery-item');
 			items.forEach(item => {
 				item.setAttribute('draggable', 'true');
 			});
@@ -1381,8 +1381,8 @@
 		 * @param {HTMLElement} field - The gallery field container.
 		 */
 		updateGalleryOrder(field) {
-			const input = field.querySelector('.openfields-gallery-value');
-			const items = field.querySelectorAll('.openfields-gallery-item');
+			const input = field.querySelector('.cof-gallery-value');
+			const items = field.querySelectorAll('.cof-gallery-item');
 			const ids = Array.from(items).map(item => item.dataset.attachmentId);
 			input.value = ids.join(',');
 		},
@@ -1393,12 +1393,12 @@
 		 * @param {HTMLElement} field - The gallery field container.
 		 */
 		updateGalleryLimits(field) {
-			const limits = field.querySelector('.openfields-gallery-limits');
+			const limits = field.querySelector('.cof-gallery-limits');
 			if (!limits) return;
 
 			const min = parseInt(field.dataset.min) || 0;
 			const max = parseInt(field.dataset.max) || 0;
-			const count = field.querySelectorAll('.openfields-gallery-item').length;
+			const count = field.querySelectorAll('.cof-gallery-item').length;
 
 			if (min > 0 && max > 0) {
 				limits.textContent = `${count} images selected (min: ${min}, max: ${max})`;
@@ -1429,7 +1429,7 @@
 		 */
 		showError(container, message) {
 			// Remove existing error.
-			const existingError = container.querySelector('.openfields-field-error-message');
+			const existingError = container.querySelector('.cof-field-error-message');
 			if (existingError) {
 				existingError.remove();
 			}
@@ -1438,13 +1438,13 @@
 			container.classList.add('is-error');
 
 			const errorEl = document.createElement('div');
-			errorEl.className = 'openfields-field-error-message';
+			errorEl.className = 'cof-field-error-message';
 			errorEl.textContent = message;
 			container.appendChild(errorEl);
 
 			// Remove error after 5 seconds if no user interaction.
 			setTimeout(() => {
-				if (container.querySelector('.openfields-field-error-message')) {
+				if (container.querySelector('.cof-field-error-message')) {
 					container.classList.remove('is-error');
 					errorEl.remove();
 				}
@@ -1457,7 +1457,7 @@
 		 * @returns {boolean} Whether all validations passed.
 		 */
 		validateForm() {
-			const requiredFields = document.querySelectorAll('.openfields-field-required');
+			const requiredFields = document.querySelectorAll('.cof-field-required');
 			let isValid = true;
 
 			requiredFields.forEach(label => {
@@ -1469,7 +1469,7 @@
 
 				const value = this.getFieldValue(field);
 				if (!value || value === '') {
-					this.showError(field.closest('.openfields-field-wrapper'), 'This field is required');
+					this.showError(field.closest('.cof-field-wrapper'), 'This field is required');
 					isValid = false;
 				}
 			});
@@ -1485,7 +1485,7 @@
 		getFormValues() {
 			const values = {};
 			const inputs = document.querySelectorAll(
-				'.openfields-meta-box input, .openfields-meta-box select, .openfields-meta-box textarea'
+				'.cof-meta-box input, .cof-meta-box select, .cof-meta-box textarea'
 			);
 
 			inputs.forEach(input => {
@@ -1510,7 +1510,7 @@
 	 */
 	function initOpenFields() {
 		// Check if we have any meta boxes
-		const metaBoxes = document.querySelectorAll('.openfields-meta-box');
+		const metaBoxes = document.querySelectorAll('.cof-meta-box');
 		
 		if (metaBoxes.length > 0) {
 			FieldsManager.init();
@@ -1532,8 +1532,8 @@
 			mutation.addedNodes.forEach((node) => {
 				if (node.nodeType === 1) { // Element node
 					// Check if this is a meta box or contains meta boxes
-					if (node.classList?.contains('openfields-meta-box') || 
-					    node.querySelector?.('.openfields-meta-box')) {
+					if (node.classList?.contains('cof-meta-box') || 
+					    node.querySelector?.('.cof-meta-box')) {
 						// Small delay to ensure DOM is fully rendered
 						setTimeout(() => FieldsManager.init(), 100);
 					}

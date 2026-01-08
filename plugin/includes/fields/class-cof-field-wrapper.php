@@ -5,7 +5,7 @@
  * Provides a reusable wrapper for rendering fields with consistent styling,
  * width management, conditional rendering, and shared metadata.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -26,12 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class OpenFields_Field_Wrapper {
+class COF_Field_Wrapper {
 
 	/**
 	 * Field instance.
 	 *
-	 * @var OpenFields_Base_Field
+	 * @var COF_Base_Field
 	 */
 	private $field;
 
@@ -60,7 +60,7 @@ class OpenFields_Field_Wrapper {
 	 * Constructor.
 	 *
 	 * @since 1.0.0
-	 * @param OpenFields_Base_Field $field       Field instance.
+	 * @param COF_Base_Field $field       Field instance.
 	 * @param mixed                 $value       Current field value.
 	 * @param string                $field_name  Field name/ID.
 	 * @param string                $meta_prefix Meta prefix for database storage (empty for ACF compatibility).
@@ -89,7 +89,7 @@ class OpenFields_Field_Wrapper {
 		$wrapper_id = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 
 		// Build wrapper HTML.
-		$html = '<div class="openfields-field-wrapper';
+		$html = '<div class="cof-field-wrapper';
 		if ( $wrapper_class ) {
 			$html .= ' ' . $wrapper_class;
 		}
@@ -122,13 +122,13 @@ class OpenFields_Field_Wrapper {
 		$html .= $this->render_label();
 
 		// Render the field itself.
-		$html .= '<div class="openfields-field-input">';
+		$html .= '<div class="cof-field-input">';
 		$html .= $this->field->render( $this->value );
 		$html .= '</div>';
 
 		// Render description if present.
 		if ( ! empty( $config['instructions'] ) ) {
-			$html .= '<p class="openfields-field-description">' . wp_kses_post( $config['instructions'] ) . '</p>';
+			$html .= '<p class="cof-field-description">' . wp_kses_post( $config['instructions'] ) . '</p>';
 		}
 
 		$html .= '</div>';
@@ -151,12 +151,12 @@ class OpenFields_Field_Wrapper {
 			return '';
 		}
 
-		$html = '<div class="openfields-field-label">';
+		$html = '<div class="cof-field-label">';
 		$html .= '<label for="' . esc_attr( $this->meta_prefix . $this->field_name ) . '">';
 		$html .= esc_html( $label );
 
 		if ( $required ) {
-			$html .= '<span class="openfields-field-required" aria-label="required">*</span>';
+			$html .= '<span class="cof-field-required" aria-label="required">*</span>';
 		}
 
 		$html .= '</label>';

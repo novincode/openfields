@@ -4,7 +4,7 @@
  *
  * Handles activation, deactivation, and database setup.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -14,11 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields installer class.
+ * Codeideal Open Fields installer class.
  *
  * @since 1.0.0
  */
-class OpenFields_Installer {
+class COF_Installer {
 
 	/**
 	 * Database version.
@@ -45,7 +45,7 @@ class OpenFields_Installer {
 		 *
 		 * @since 1.0.0
 		 */
-		do_action( 'openfields/activated' );
+		do_action( 'cof/activated' );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class OpenFields_Installer {
 	 */
 	public static function deactivate() {
 		// Clear scheduled hooks.
-		wp_clear_scheduled_hook( 'openfields_daily_cleanup' );
+		wp_clear_scheduled_hook( 'cof_daily_cleanup' );
 
 		// Clear the permalinks.
 		flush_rewrite_rules();
@@ -65,7 +65,7 @@ class OpenFields_Installer {
 		 *
 		 * @since 1.0.0
 		 */
-		do_action( 'openfields/deactivated' );
+		do_action( 'cof/deactivated' );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class OpenFields_Installer {
 		$charset_collate = $wpdb->get_charset_collate();
 
 		// Fieldsets table.
-		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
+		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
 		$fieldsets_sql   = "CREATE TABLE {$fieldsets_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			title varchar(255) NOT NULL,
@@ -98,7 +98,7 @@ class OpenFields_Installer {
 		) {$charset_collate};";
 
 		// Fields table.
-		$fields_table = $wpdb->prefix . 'openfields_fields';
+		$fields_table = $wpdb->prefix . 'cof_fields';
 		$fields_sql   = "CREATE TABLE {$fields_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			fieldset_id bigint(20) unsigned NOT NULL,
@@ -126,7 +126,7 @@ class OpenFields_Installer {
 		) {$charset_collate};";
 
 		// Location rules table.
-		$locations_table = $wpdb->prefix . 'openfields_locations';
+		$locations_table = $wpdb->prefix . 'cof_locations';
 		$locations_sql   = "CREATE TABLE {$locations_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			fieldset_id bigint(20) unsigned NOT NULL,
@@ -147,7 +147,7 @@ class OpenFields_Installer {
 		dbDelta( $locations_sql );
 
 		// Store the DB version.
-		update_option( 'openfields_db_version', self::DB_VERSION );
+		update_option( 'cof_db_version', self::DB_VERSION );
 	}
 
 	/**
@@ -157,13 +157,13 @@ class OpenFields_Installer {
 	 */
 	public static function create_options() {
 		$default_options = array(
-			'version'           => OPENFIELDS_VERSION,
+			'version'           => COF_VERSION,
 			'enable_rest_api'   => true,
 			'show_admin_column' => true,
 			'delete_data'       => false,
 		);
 
-		add_option( 'openfields_settings', $default_options );
+		add_option( 'cof_settings', $default_options );
 	}
 
 	/**
@@ -172,7 +172,7 @@ class OpenFields_Installer {
 	 * @since 1.0.0
 	 */
 	public static function set_version() {
-		update_option( 'openfields_version', OPENFIELDS_VERSION );
+		update_option( 'cof_version', COF_VERSION );
 	}
 
 	/**
@@ -182,7 +182,7 @@ class OpenFields_Installer {
 	 * @return bool
 	 */
 	public static function needs_db_update() {
-		$current_db_version = get_option( 'openfields_db_version', '0' );
+		$current_db_version = get_option( 'cof_db_version', '0' );
 		return version_compare( $current_db_version, self::DB_VERSION, '<' );
 	}
 
@@ -207,9 +207,9 @@ class OpenFields_Installer {
 		global $wpdb;
 
 		return array(
-			'fieldsets' => $wpdb->prefix . 'openfields_fieldsets',
-			'fields'    => $wpdb->prefix . 'openfields_fields',
-			'locations' => $wpdb->prefix . 'openfields_locations',
+			'fieldsets' => $wpdb->prefix . 'cof_fieldsets',
+			'fields'    => $wpdb->prefix . 'cof_fields',
+			'locations' => $wpdb->prefix . 'cof_locations',
 		);
 	}
 

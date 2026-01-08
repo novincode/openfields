@@ -5,7 +5,7 @@
  */
 
 /* Block placeholder in editor */
-.openfields-block-placeholder {
+.cof-block-placeholder {
 	padding: 20px;
 	background: #f0f0f1;
 	border: 1px dashed #c3c4c7;
@@ -14,7 +14,7 @@
 	color: #646970;
 }
 
-.openfields-block-placeholder .dashicons {
+.cof-block-placeholder .dashicons {
 	font-size: 32px;
 	width: 32px;
 	height: 32px;
@@ -22,23 +22,23 @@
 	display: block;
 }
 
-.openfields-block-placeholder p {
+.cof-block-placeholder p {
 	margin: 0;
 	font-size: 13px;
 }
 
-.openfields-block-empty {
+.cof-block-empty {
 	background: #fcf0f1;
 	border-color: #d63638;
 	color: #d63638;
 }
 
 /* Preview in editor */
-.wp-block-openfields-field {
+.wp-block-cof-field {
 	padding: 8px 0;
 }
 
-.openfields-block-label {
+.cof-block-label {
 	display: block;
 	font-weight: 600;
 	font-size: 12px;
@@ -47,21 +47,21 @@
 	margin-bottom: 4px;
 }
 
-.openfields-block-value {
+.cof-block-value {
 	font-size: 14px;
 	line-height: 1.5;
 }
 
-.openfields-block-value img {
+.cof-block-value img {
 	max-width: 100%;
 	height: auto;
 }
 
-.openfields-block-value a {
+.cof-block-value a {
 	color: #2271b1;
 	text-decoration: none;
 }
 
-.openfields-block-value a:hover {
+.cof-block-value a:hover {
 	text-decoration: underline;
 }

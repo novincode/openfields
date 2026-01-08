@@ -4,7 +4,7 @@
  *
  * Handles enqueueing of scripts and styles.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -14,16 +14,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields assets class.
+ * Codeideal Open Fields assets class.
  *
  * @since 1.0.0
  */
-class OpenFields_Assets {
+class COF_Assets {
 
 	/**
 	 * Instance.
 	 *
-	 * @var OpenFields_Assets|null
+	 * @var COF_Assets|null
 	 */
 	private static $instance = null;
 
@@ -31,7 +31,7 @@ class OpenFields_Assets {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return OpenFields_Assets
+	 * @return COF_Assets
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -58,40 +58,40 @@ class OpenFields_Assets {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function admin_scripts( $hook ) {
-		// Only load on OpenFields admin pages.
-		if ( ! $this->is_openfields_admin_page( $hook ) ) {
+		// Only load on Codeideal Open Fields admin pages.
+		if ( ! $this->is_cof_admin_page( $hook ) ) {
 			return;
 		}
 
 		// React admin app.
 		wp_enqueue_script(
-			'openfields-admin',
-			OPENFIELDS_PLUGIN_URL . 'assets/admin/js/admin.js',
+			'cof-admin',
+			COF_PLUGIN_URL . 'assets/admin/js/admin.js',
 			array(),
-			OPENFIELDS_VERSION,
+			COF_VERSION,
 			true
 		);
 
 		// Admin styles.
 		wp_enqueue_style(
-			'openfields-admin',
-			OPENFIELDS_PLUGIN_URL . 'assets/admin/css/admin.css',
+			'cof-admin',
+			COF_PLUGIN_URL . 'assets/admin/css/admin.css',
 			array(),
-			OPENFIELDS_VERSION
+			COF_VERSION
 		);
 
 		// Localize script data.
 		wp_localize_script(
-			'openfields-admin',
-			'openfieldsAdmin',
+			'cof-admin',
+			'cofAdmin',
 			$this->get_admin_data()
 		);
 
 		// Set script translations.
 		wp_set_script_translations(
-			'openfields-admin',
-			'openfields',
-			OPENFIELDS_PLUGIN_DIR . 'languages'
+			'cof-admin',
+			'codeideal-open-fields',
+			COF_PLUGIN_DIR . 'languages'
 		);
 	}
 
@@ -107,18 +107,18 @@ class OpenFields_Assets {
 		}
 
 		wp_enqueue_script(
-			'openfields-frontend',
-			OPENFIELDS_PLUGIN_URL . 'assets/public/js/frontend.js',
+			'cof-frontend',
+			COF_PLUGIN_URL . 'assets/public/js/frontend.js',
 			array(),
-			OPENFIELDS_VERSION,
+			COF_VERSION,
 			true
 		);
 
 		wp_enqueue_style(
-			'openfields-frontend',
-			OPENFIELDS_PLUGIN_URL . 'assets/public/css/frontend.css',
+			'cof-frontend',
+			COF_PLUGIN_URL . 'assets/public/css/frontend.css',
 			array(),
-			OPENFIELDS_VERSION
+			COF_VERSION
 		);
 	}
 
@@ -148,7 +148,7 @@ class OpenFields_Assets {
 			'post_format'   => get_post_format( $post->ID ) ?: 'standard',
 		);
 
-		$fieldsets = OpenFields_Location_Manager::instance()->get_fieldsets_for_context( $context );
+		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
 		if ( empty( $fieldsets ) ) {
 			return;
@@ -162,42 +162,42 @@ class OpenFields_Assets {
 
 		// Enqueue choice fields styles (for radio, checkbox, select layout).
 		wp_enqueue_style(
-			'openfields-choice-fields',
-			OPENFIELDS_PLUGIN_URL . 'assets/admin/css/choice-fields.css',
+			'cof-choice-fields',
+			COF_PLUGIN_URL . 'assets/admin/css/choice-fields.css',
 			array(),
-			OPENFIELDS_VERSION
+			COF_VERSION
 		);
 
 		// Localize script data.
 		wp_localize_script(
-			'openfields-meta-box',
-			'openfieldsMetaBox',
+			'cof-meta-box',
+			'cofMetaBox',
 			array(
 				'i18n' => array(
-					'selectImage' => __( 'Select Image', 'openfields' ),
-					'useImage'    => __( 'Use this image', 'openfields' ),
-					'selectFile'  => __( 'Select File', 'openfields' ),
-					'useFile'     => __( 'Use this file', 'openfields' ),
+					'selectImage' => __( 'Select Image', 'codeideal-open-fields' ),
+					'useImage'    => __( 'Use this image', 'codeideal-open-fields' ),
+					'selectFile'  => __( 'Select File', 'codeideal-open-fields' ),
+					'useFile'     => __( 'Use this file', 'codeideal-open-fields' ),
 				),
 			)
 		);
 	}
 
 	/**
-	 * Check if current page is an OpenFields admin page.
+	 * Check if current page is an Codeideal Open Fields admin page.
 	 *
 	 * @since  1.0.0
 	 * @param  string $hook Current admin page hook.
 	 * @return bool
 	 */
-	private function is_openfields_admin_page( $hook ) {
-		$openfields_pages = array(
-			'toplevel_page_openfields',
-			'openfields_page_openfields-settings',
-			'openfields_page_openfields-tools',
+	private function is_cof_admin_page( $hook ) {
+		$cof_pages = array(
+			'toplevel_page_codeideal-open-fields',
+			'open-fields_page_codeideal-open-fields-settings',
+			'open-fields_page_codeideal-open-fields-tools',
 		);
 
-		return in_array( $hook, $openfields_pages, true );
+		return in_array( $hook, $cof_pages, true );
 	}
 
 	/**
@@ -213,7 +213,7 @@ class OpenFields_Assets {
 		 * @since 1.0.0
 		 * @param bool $load Whether to load assets.
 		 */
-		return apply_filters( 'openfields/load_frontend_assets', false );
+		return apply_filters( 'cof/load_frontend_assets', false );
 	}
 
 	/**
@@ -224,12 +224,12 @@ class OpenFields_Assets {
 	 */
 	private function get_admin_data() {
 		return array(
-			'version'    => OPENFIELDS_VERSION,
+			'version'    => COF_VERSION,
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
-			'restUrl'    => rest_url( 'openfields/v1' ),
+			'restUrl'    => rest_url( 'codeideal-open-fields/v1' ),
 			'nonce'      => wp_create_nonce( 'wp_rest' ),
 			'adminUrl'   => admin_url(),
-			'pluginUrl'  => OPENFIELDS_PLUGIN_URL,
+			'pluginUrl'  => COF_PLUGIN_URL,
 			'postTypes'  => $this->get_post_types(),
 			'taxonomies' => $this->get_taxonomies(),
 			'userRoles'  => $this->get_user_roles(),
@@ -311,11 +311,11 @@ class OpenFields_Assets {
 	 * @return array
 	 */
 	private function get_field_types() {
-		if ( ! class_exists( 'OpenFields_Field_Registry' ) ) {
+		if ( ! class_exists( 'COF_Field_Registry' ) ) {
 			return array();
 		}
 
-		return OpenFields_Field_Registry::instance()->get_field_types_for_admin();
+		return COF_Field_Registry::instance()->get_field_types_for_admin();
 	}
 
 	/**
@@ -326,19 +326,19 @@ class OpenFields_Assets {
 	 */
 	private function get_i18n_strings() {
 		return array(
-			'save'           => __( 'Save', 'openfields' ),
-			'cancel'         => __( 'Cancel', 'openfields' ),
-			'delete'         => __( 'Delete', 'openfields' ),
-			'confirm'        => __( 'Are you sure?', 'openfields' ),
-			'saving'         => __( 'Saving...', 'openfields' ),
-			'saved'          => __( 'Saved!', 'openfields' ),
-			'error'          => __( 'Error', 'openfields' ),
-			'addField'       => __( 'Add Field', 'openfields' ),
-			'fieldSettings'  => __( 'Field Settings', 'openfields' ),
-			'noFieldsYet'    => __( 'No fields yet. Drag a field type to get started.', 'openfields' ),
-			'copyField'      => __( 'Copy Field', 'openfields' ),
-			'pasteField'     => __( 'Paste Field', 'openfields' ),
-			'duplicateField' => __( 'Duplicate Field', 'openfields' ),
+			'save'           => __( 'Save', 'codeideal-open-fields' ),
+			'cancel'         => __( 'Cancel', 'codeideal-open-fields' ),
+			'delete'         => __( 'Delete', 'codeideal-open-fields' ),
+			'confirm'        => __( 'Are you sure?', 'codeideal-open-fields' ),
+			'saving'         => __( 'Saving...', 'codeideal-open-fields' ),
+			'saved'          => __( 'Saved!', 'codeideal-open-fields' ),
+			'error'          => __( 'Error', 'codeideal-open-fields' ),
+			'addField'       => __( 'Add Field', 'codeideal-open-fields' ),
+			'fieldSettings'  => __( 'Field Settings', 'codeideal-open-fields' ),
+			'noFieldsYet'    => __( 'No fields yet. Drag a field type to get started.', 'codeideal-open-fields' ),
+			'copyField'      => __( 'Copy Field', 'codeideal-open-fields' ),
+			'pasteField'     => __( 'Paste Field', 'codeideal-open-fields' ),
+			'duplicateField' => __( 'Duplicate Field', 'codeideal-open-fields' ),
 		);
 	}
 }

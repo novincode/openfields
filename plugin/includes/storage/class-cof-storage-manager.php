@@ -4,7 +4,7 @@
  *
  * Routes storage operations to the correct handler.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class OpenFields_Storage_Manager {
+class COF_Storage_Manager {
 
 	/**
 	 * Instance.
 	 *
-	 * @var OpenFields_Storage_Manager|null
+	 * @var COF_Storage_Manager|null
 	 */
 	private static $instance = null;
 
@@ -39,7 +39,7 @@ class OpenFields_Storage_Manager {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return OpenFields_Storage_Manager
+	 * @return COF_Storage_Manager
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -206,7 +206,7 @@ class OpenFields_Storage_Manager {
 		global $wpdb;
 
 		// Get fieldset.
-		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
+		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
 			$wpdb->prepare(
@@ -220,7 +220,7 @@ class OpenFields_Storage_Manager {
 		}
 
 		// Get fields.
-		$fields_table = $wpdb->prefix . 'openfields_fields';
+		$fields_table = $wpdb->prefix . 'cof_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(

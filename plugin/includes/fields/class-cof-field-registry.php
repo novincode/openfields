@@ -4,7 +4,7 @@
  *
  * Central registry for all field types.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class OpenFields_Field_Registry {
+class COF_Field_Registry {
 
 	/**
 	 * Instance.
 	 *
-	 * @var OpenFields_Field_Registry|null
+	 * @var COF_Field_Registry|null
 	 */
 	private static $instance = null;
 
@@ -38,7 +38,7 @@ class OpenFields_Field_Registry {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return OpenFields_Field_Registry
+	 * @return COF_Field_Registry
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -64,112 +64,112 @@ class OpenFields_Field_Registry {
 	private function register_default_field_types() {
 		// Basic fields.
 		$this->register( 'text', array(
-			'label'       => __( 'Text', 'openfields' ),
-			'description' => __( 'Single line text input.', 'openfields' ),
+			'label'       => __( 'Text', 'codeideal-open-fields' ),
+			'description' => __( 'Single line text input.', 'codeideal-open-fields' ),
 			'category'    => 'basic',
 			'icon'        => 'type',
 			'schema'      => array(
 				'max_length' => array(
 					'type'    => 'number',
-					'label'   => __( 'Max Length', 'openfields' ),
+					'label'   => __( 'Max Length', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 				'prepend'    => array(
 					'type'    => 'text',
-					'label'   => __( 'Prepend', 'openfields' ),
+					'label'   => __( 'Prepend', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 				'append'     => array(
 					'type'    => 'text',
-					'label'   => __( 'Append', 'openfields' ),
+					'label'   => __( 'Append', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 			),
 		) );
 
 		$this->register( 'textarea', array(
-			'label'       => __( 'Textarea', 'openfields' ),
-			'description' => __( 'Multi-line text area.', 'openfields' ),
+			'label'       => __( 'Textarea', 'codeideal-open-fields' ),
+			'description' => __( 'Multi-line text area.', 'codeideal-open-fields' ),
 			'category'    => 'basic',
 			'icon'        => 'align-left',
 			'schema'      => array(
 				'rows'       => array(
 					'type'    => 'number',
-					'label'   => __( 'Rows', 'openfields' ),
+					'label'   => __( 'Rows', 'codeideal-open-fields' ),
 					'default' => 4,
 				),
 				'max_length' => array(
 					'type'    => 'number',
-					'label'   => __( 'Max Length', 'openfields' ),
+					'label'   => __( 'Max Length', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 			),
 		) );
 
 		$this->register( 'number', array(
-			'label'       => __( 'Number', 'openfields' ),
-			'description' => __( 'Numeric input field.', 'openfields' ),
+			'label'       => __( 'Number', 'codeideal-open-fields' ),
+			'description' => __( 'Numeric input field.', 'codeideal-open-fields' ),
 			'category'    => 'basic',
 			'icon'        => 'hash',
 			'schema'      => array(
 				'min'     => array(
 					'type'    => 'number',
-					'label'   => __( 'Minimum', 'openfields' ),
+					'label'   => __( 'Minimum', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 				'max'     => array(
 					'type'    => 'number',
-					'label'   => __( 'Maximum', 'openfields' ),
+					'label'   => __( 'Maximum', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 				'step'    => array(
 					'type'    => 'number',
-					'label'   => __( 'Step', 'openfields' ),
+					'label'   => __( 'Step', 'codeideal-open-fields' ),
 					'default' => 1,
 				),
 				'prepend' => array(
 					'type'    => 'text',
-					'label'   => __( 'Prepend', 'openfields' ),
+					'label'   => __( 'Prepend', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 				'append'  => array(
 					'type'    => 'text',
-					'label'   => __( 'Append', 'openfields' ),
+					'label'   => __( 'Append', 'codeideal-open-fields' ),
 					'default' => '',
 				),
 			),
 		) );
 
 		$this->register( 'email', array(
-			'label'       => __( 'Email', 'openfields' ),
-			'description' => __( 'Email address input.', 'openfields' ),
+			'label'       => __( 'Email', 'codeideal-open-fields' ),
+			'description' => __( 'Email address input.', 'codeideal-open-fields' ),
 			'category'    => 'basic',
 			'icon'        => 'mail',
 			'schema'      => array(),
 		) );
 
 		$this->register( 'url', array(
-			'label'       => __( 'URL', 'openfields' ),
-			'description' => __( 'URL input with validation.', 'openfields' ),
+			'label'       => __( 'URL', 'codeideal-open-fields' ),
+			'description' => __( 'URL input with validation.', 'codeideal-open-fields' ),
 			'category'    => 'basic',
 			'icon'        => 'external-link',
 			'schema'      => array(),
 		) );
 
 		$this->register( 'link', array(
-			'label'       => __( 'Link', 'openfields' ),
-			'description' => __( 'Link with URL, text, and target options.', 'openfields' ),
+			'label'       => __( 'Link', 'codeideal-open-fields' ),
+			'description' => __( 'Link with URL, text, and target options.', 'codeideal-open-fields' ),
 			'category'    => 'basic',
 			'icon'        => 'link',
 			'schema'      => array(
 				'show_title'  => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Show Link Text', 'openfields' ),
+					'label'   => __( 'Show Link Text', 'codeideal-open-fields' ),
 					'default' => true,
 				),
 				'show_target' => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Show Target', 'openfields' ),
+					'label'   => __( 'Show Target', 'codeideal-open-fields' ),
 					'default' => true,
 				),
 			),
@@ -177,74 +177,74 @@ class OpenFields_Field_Registry {
 
 		// Choice fields.
 		$this->register( 'select', array(
-			'label'       => __( 'Select', 'openfields' ),
-			'description' => __( 'Dropdown select field.', 'openfields' ),
+			'label'       => __( 'Select', 'codeideal-open-fields' ),
+			'description' => __( 'Dropdown select field.', 'codeideal-open-fields' ),
 			'category'    => 'choice',
 			'icon'        => 'chevron-down',
 			'schema'      => array(
 				'choices'    => array(
 					'type'    => 'repeater',
-					'label'   => __( 'Choices', 'openfields' ),
+					'label'   => __( 'Choices', 'codeideal-open-fields' ),
 					'default' => array(),
 				),
 				'multiple'   => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Allow Multiple', 'openfields' ),
+					'label'   => __( 'Allow Multiple', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 				'allow_null' => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Allow Null', 'openfields' ),
+					'label'   => __( 'Allow Null', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 			),
 		) );
 
 		$this->register( 'radio', array(
-			'label'       => __( 'Radio', 'openfields' ),
-			'description' => __( 'Radio button group.', 'openfields' ),
+			'label'       => __( 'Radio', 'codeideal-open-fields' ),
+			'description' => __( 'Radio button group.', 'codeideal-open-fields' ),
 			'category'    => 'choice',
 			'icon'        => 'circle-dot',
 			'schema'      => array(
 				'choices'     => array(
 					'type'    => 'repeater',
-					'label'   => __( 'Choices', 'openfields' ),
+					'label'   => __( 'Choices', 'codeideal-open-fields' ),
 					'default' => array(),
 				),
 				'layout'      => array(
 					'type'    => 'select',
-					'label'   => __( 'Layout', 'openfields' ),
+					'label'   => __( 'Layout', 'codeideal-open-fields' ),
 					'choices' => array(
-						'vertical'   => __( 'Vertical', 'openfields' ),
-						'horizontal' => __( 'Horizontal', 'openfields' ),
+						'vertical'   => __( 'Vertical', 'codeideal-open-fields' ),
+						'horizontal' => __( 'Horizontal', 'codeideal-open-fields' ),
 					),
 					'default' => 'vertical',
 				),
 				'allow_other' => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Allow Other', 'openfields' ),
+					'label'   => __( 'Allow Other', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 			),
 		) );
 
 		$this->register( 'checkbox', array(
-			'label'       => __( 'Checkbox', 'openfields' ),
-			'description' => __( 'Checkbox group.', 'openfields' ),
+			'label'       => __( 'Checkbox', 'codeideal-open-fields' ),
+			'description' => __( 'Checkbox group.', 'codeideal-open-fields' ),
 			'category'    => 'choice',
 			'icon'        => 'check-square',
 			'schema'      => array(
 				'choices' => array(
 					'type'    => 'repeater',
-					'label'   => __( 'Choices', 'openfields' ),
+					'label'   => __( 'Choices', 'codeideal-open-fields' ),
 					'default' => array(),
 				),
 				'layout'  => array(
 					'type'    => 'select',
-					'label'   => __( 'Layout', 'openfields' ),
+					'label'   => __( 'Layout', 'codeideal-open-fields' ),
 					'choices' => array(
-						'vertical'   => __( 'Vertical', 'openfields' ),
-						'horizontal' => __( 'Horizontal', 'openfields' ),
+						'vertical'   => __( 'Vertical', 'codeideal-open-fields' ),
+						'horizontal' => __( 'Horizontal', 'codeideal-open-fields' ),
 					),
 					'default' => 'vertical',
 				),
@@ -252,221 +252,221 @@ class OpenFields_Field_Registry {
 		) );
 
 		$this->register( 'switch', array(
-			'label'       => __( 'Switch', 'openfields' ),
-			'description' => __( 'True/False toggle switch.', 'openfields' ),
+			'label'       => __( 'Switch', 'codeideal-open-fields' ),
+			'description' => __( 'True/False toggle switch.', 'codeideal-open-fields' ),
 			'category'    => 'choice',
 			'icon'        => 'toggle-left',
 			'schema'      => array(
 				'on_text'  => array(
 					'type'    => 'text',
-					'label'   => __( 'On Text', 'openfields' ),
-					'default' => __( 'Yes', 'openfields' ),
+					'label'   => __( 'On Text', 'codeideal-open-fields' ),
+					'default' => __( 'Yes', 'codeideal-open-fields' ),
 				),
 				'off_text' => array(
 					'type'    => 'text',
-					'label'   => __( 'Off Text', 'openfields' ),
-					'default' => __( 'No', 'openfields' ),
+					'label'   => __( 'Off Text', 'codeideal-open-fields' ),
+					'default' => __( 'No', 'codeideal-open-fields' ),
 				),
 			),
 		) );
 
 		$this->register( 'repeater', array(
-			'label'          => __( 'Repeater', 'openfields' ),
-			'description'    => __( 'Repeatable group of sub-fields.', 'openfields' ),
+			'label'          => __( 'Repeater', 'codeideal-open-fields' ),
+			'description'    => __( 'Repeatable group of sub-fields.', 'codeideal-open-fields' ),
 			'category'       => 'layout',
 			'icon'           => 'list',
 			'has_sub_fields' => true,
 			'schema'         => array(
 				'min'          => array(
 					'type'    => 'number',
-					'label'   => __( 'Minimum Rows', 'openfields' ),
+					'label'   => __( 'Minimum Rows', 'codeideal-open-fields' ),
 					'default' => 0,
 				),
 				'max'          => array(
 					'type'    => 'number',
-					'label'   => __( 'Maximum Rows', 'openfields' ),
+					'label'   => __( 'Maximum Rows', 'codeideal-open-fields' ),
 					'default' => 0,
 				),
 				'layout'       => array(
 					'type'    => 'select',
-					'label'   => __( 'Layout', 'openfields' ),
+					'label'   => __( 'Layout', 'codeideal-open-fields' ),
 					'choices' => array(
-						'table' => __( 'Table', 'openfields' ),
-						'block' => __( 'Block', 'openfields' ),
-						'row'   => __( 'Row', 'openfields' ),
+						'table' => __( 'Table', 'codeideal-open-fields' ),
+						'block' => __( 'Block', 'codeideal-open-fields' ),
+						'row'   => __( 'Row', 'codeideal-open-fields' ),
 					),
 					'default' => 'table',
 				),
 				'button_label' => array(
 					'type'    => 'text',
-					'label'   => __( 'Button Label', 'openfields' ),
-					'default' => __( 'Add Row', 'openfields' ),
+					'label'   => __( 'Button Label', 'codeideal-open-fields' ),
+					'default' => __( 'Add Row', 'codeideal-open-fields' ),
 				),
 			),
 		) );
 
 		// Relational fields.
 		$this->register( 'post_object', array(
-			'label'       => __( 'Post Object', 'openfields' ),
-			'description' => __( 'Select posts from a searchable dropdown.', 'openfields' ),
+			'label'       => __( 'Post Object', 'codeideal-open-fields' ),
+			'description' => __( 'Select posts from a searchable dropdown.', 'codeideal-open-fields' ),
 			'category'    => 'relational',
 			'icon'        => 'file-text',
 			'schema'      => array(
 				'post_type'     => array(
 					'type'    => 'select',
-					'label'   => __( 'Post Type', 'openfields' ),
+					'label'   => __( 'Post Type', 'codeideal-open-fields' ),
 					'choices' => array(), // Dynamically populated.
 					'default' => 'post',
 					'multiple' => true,
 				),
 				'multiple'      => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Select Multiple', 'openfields' ),
+					'label'   => __( 'Select Multiple', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 				'return_format' => array(
 					'type'    => 'select',
-					'label'   => __( 'Return Format', 'openfields' ),
+					'label'   => __( 'Return Format', 'codeideal-open-fields' ),
 					'choices' => array(
-						'object' => __( 'Post Object', 'openfields' ),
-						'id'     => __( 'Post ID', 'openfields' ),
+						'object' => __( 'Post Object', 'codeideal-open-fields' ),
+						'id'     => __( 'Post ID', 'codeideal-open-fields' ),
 					),
 					'default' => 'object',
 				),
 				'allow_null'    => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Allow Null', 'openfields' ),
+					'label'   => __( 'Allow Null', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 			),
 		) );
 
 		$this->register( 'taxonomy', array(
-			'label'       => __( 'Taxonomy', 'openfields' ),
-			'description' => __( 'Select taxonomy terms.', 'openfields' ),
+			'label'       => __( 'Taxonomy', 'codeideal-open-fields' ),
+			'description' => __( 'Select taxonomy terms.', 'codeideal-open-fields' ),
 			'category'    => 'relational',
 			'icon'        => 'folder-tree',
 			'schema'      => array(
 				'taxonomy'      => array(
 					'type'    => 'select',
-					'label'   => __( 'Taxonomy', 'openfields' ),
+					'label'   => __( 'Taxonomy', 'codeideal-open-fields' ),
 					'choices' => array(), // Dynamically populated.
 					'default' => 'category',
 				),
 				'field_type'    => array(
 					'type'    => 'select',
-					'label'   => __( 'Appearance', 'openfields' ),
+					'label'   => __( 'Appearance', 'codeideal-open-fields' ),
 					'choices' => array(
-						'select'   => __( 'Select', 'openfields' ),
-						'checkbox' => __( 'Checkbox', 'openfields' ),
-						'radio'    => __( 'Radio Buttons', 'openfields' ),
+						'select'   => __( 'Select', 'codeideal-open-fields' ),
+						'checkbox' => __( 'Checkbox', 'codeideal-open-fields' ),
+						'radio'    => __( 'Radio Buttons', 'codeideal-open-fields' ),
 					),
 					'default' => 'select',
 				),
 				'multiple'      => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Select Multiple', 'openfields' ),
+					'label'   => __( 'Select Multiple', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 				'return_format' => array(
 					'type'    => 'select',
-					'label'   => __( 'Return Format', 'openfields' ),
+					'label'   => __( 'Return Format', 'codeideal-open-fields' ),
 					'choices' => array(
-						'object' => __( 'Term Object', 'openfields' ),
-						'id'     => __( 'Term ID', 'openfields' ),
+						'object' => __( 'Term Object', 'codeideal-open-fields' ),
+						'id'     => __( 'Term ID', 'codeideal-open-fields' ),
 					),
 					'default' => 'id',
 				),
 				'add_term'      => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Allow Add Term', 'openfields' ),
+					'label'   => __( 'Allow Add Term', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 				'load_terms'    => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Load Value from Post Terms', 'openfields' ),
+					'label'   => __( 'Load Value from Post Terms', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 				'save_terms'    => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Connect Selected Terms to Post', 'openfields' ),
+					'label'   => __( 'Connect Selected Terms to Post', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 			),
 		) );
 
 		$this->register( 'user', array(
-			'label'       => __( 'User', 'openfields' ),
-			'description' => __( 'Select users from a searchable dropdown.', 'openfields' ),
+			'label'       => __( 'User', 'codeideal-open-fields' ),
+			'description' => __( 'Select users from a searchable dropdown.', 'codeideal-open-fields' ),
 			'category'    => 'relational',
 			'icon'        => 'user',
 			'schema'      => array(
 				'role'          => array(
 					'type'     => 'select',
-					'label'    => __( 'Filter by Role', 'openfields' ),
+					'label'    => __( 'Filter by Role', 'codeideal-open-fields' ),
 					'choices'  => array(), // Dynamically populated.
 					'default'  => '',
 					'multiple' => true,
 				),
 				'multiple'      => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Select Multiple', 'openfields' ),
+					'label'   => __( 'Select Multiple', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 				'return_format' => array(
 					'type'    => 'select',
-					'label'   => __( 'Return Format', 'openfields' ),
+					'label'   => __( 'Return Format', 'codeideal-open-fields' ),
 					'choices' => array(
-						'object' => __( 'User Object', 'openfields' ),
-						'id'     => __( 'User ID', 'openfields' ),
-						'array'  => __( 'User Array', 'openfields' ),
+						'object' => __( 'User Object', 'codeideal-open-fields' ),
+						'id'     => __( 'User ID', 'codeideal-open-fields' ),
+						'array'  => __( 'User Array', 'codeideal-open-fields' ),
 					),
 					'default' => 'array',
 				),
 				'allow_null'    => array(
 					'type'    => 'boolean',
-					'label'   => __( 'Allow Null', 'openfields' ),
+					'label'   => __( 'Allow Null', 'codeideal-open-fields' ),
 					'default' => false,
 				),
 			),
 		) );
 
 		$this->register( 'relationship', array(
-			'label'       => __( 'Relationship', 'openfields' ),
-			'description' => __( 'A dual-column interface to select multiple posts.', 'openfields' ),
+			'label'       => __( 'Relationship', 'codeideal-open-fields' ),
+			'description' => __( 'A dual-column interface to select multiple posts.', 'codeideal-open-fields' ),
 			'category'    => 'relational',
 			'icon'        => 'git-branch',
 			'schema'      => array(
 				'post_type'     => array(
 					'type'     => 'select',
-					'label'    => __( 'Post Type', 'openfields' ),
+					'label'    => __( 'Post Type', 'codeideal-open-fields' ),
 					'choices'  => array(), // Dynamically populated.
 					'default'  => array( 'post' ),
 					'multiple' => true,
 				),
 				'taxonomy'      => array(
 					'type'     => 'select',
-					'label'    => __( 'Filter by Taxonomy', 'openfields' ),
+					'label'    => __( 'Filter by Taxonomy', 'codeideal-open-fields' ),
 					'choices'  => array(), // Dynamically populated.
 					'default'  => '',
 					'multiple' => true,
 				),
 				'min'           => array(
 					'type'    => 'number',
-					'label'   => __( 'Minimum Posts', 'openfields' ),
+					'label'   => __( 'Minimum Posts', 'codeideal-open-fields' ),
 					'default' => 0,
 				),
 				'max'           => array(
 					'type'    => 'number',
-					'label'   => __( 'Maximum Posts', 'openfields' ),
+					'label'   => __( 'Maximum Posts', 'codeideal-open-fields' ),
 					'default' => 0,
 				),
 				'return_format' => array(
 					'type'    => 'select',
-					'label'   => __( 'Return Format', 'openfields' ),
+					'label'   => __( 'Return Format', 'codeideal-open-fields' ),
 					'choices' => array(
-						'object' => __( 'Post Object', 'openfields' ),
-						'id'     => __( 'Post ID', 'openfields' ),
+						'object' => __( 'Post Object', 'codeideal-open-fields' ),
+						'id'     => __( 'Post ID', 'codeideal-open-fields' ),
 					),
 					'default' => 'object',
 				),
@@ -477,9 +477,9 @@ class OpenFields_Field_Registry {
 		 * Fires after default field types are registered.
 		 *
 		 * @since 1.0.0
-		 * @param OpenFields_Field_Registry $this Registry instance.
+		 * @param COF_Field_Registry $this Registry instance.
 		 */
-		do_action( 'openfields/register_field_types', $this );
+		do_action( 'cof/register_field_types', $this );
 	}
 
 	/**
@@ -563,13 +563,13 @@ class OpenFields_Field_Registry {
 	 */
 	public function get_categories() {
 		return array(
-			'basic'        => __( 'Basic', 'openfields' ),
-			'choice'       => __( 'Choice', 'openfields' ),
-			'content'      => __( 'Content', 'openfields' ),
-			'media'        => __( 'Media', 'openfields' ),
-			'relational'   => __( 'Relational', 'openfields' ),
-			'date_time'    => __( 'Date & Time', 'openfields' ),
-			'layout'       => __( 'Layout', 'openfields' ),
+			'basic'        => __( 'Basic', 'codeideal-open-fields' ),
+			'choice'       => __( 'Choice', 'codeideal-open-fields' ),
+			'content'      => __( 'Content', 'codeideal-open-fields' ),
+			'media'        => __( 'Media', 'codeideal-open-fields' ),
+			'relational'   => __( 'Relational', 'codeideal-open-fields' ),
+			'date_time'    => __( 'Date & Time', 'codeideal-open-fields' ),
+			'layout'       => __( 'Layout', 'codeideal-open-fields' ),
 		);
 	}
 }

@@ -4,7 +4,7 @@
  *
  * Renders a link field with URL, title, and target options.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function openfields_render_link_field( $field, $value, $field_id, $field_name, $settings ) {
+function cof_render_link_field( $field, $value, $field_id, $field_name, $settings ) {
 	// Parse value.
 	$link_data = array(
 		'url'    => '',
@@ -41,44 +41,44 @@ function openfields_render_link_field( $field, $value, $field_id, $field_name, $
 	$show_target = ! isset( $settings['show_target'] ) || $settings['show_target'];
 
 	?>
-	<div class="openfields-link-field" data-field-type="link">
+	<div class="cof-link-field" data-field-type="link">
 		<!-- URL Input -->
-		<div class="openfields-link-row">
-			<label class="openfields-link-label">
+		<div class="cof-link-row">
+			<label class="cof-link-label">
 				<span class="dashicons dashicons-admin-links"></span>
-				<?php esc_html_e( 'URL', 'openfields' ); ?>
+				<?php esc_html_e( 'URL', 'codeideal-open-fields' ); ?>
 			</label>
 			<input 
 				type="url" 
 				id="<?php echo esc_attr( $field_id ); ?>_url"
 				name="<?php echo esc_attr( $field_name ); ?>[url]" 
 				value="<?php echo esc_url( $link_data['url'] ); ?>"
-				class="widefat openfields-link-url"
-				placeholder="<?php esc_attr_e( 'https://example.com', 'openfields' ); ?>"
+				class="widefat cof-link-url"
+				placeholder="<?php esc_attr_e( 'https://example.com', 'codeideal-open-fields' ); ?>"
 			/>
 		</div>
 
 		<?php if ( $show_title ) : ?>
 		<!-- Title Input -->
-		<div class="openfields-link-row">
-			<label class="openfields-link-label">
-				<?php esc_html_e( 'Link Text', 'openfields' ); ?>
+		<div class="cof-link-row">
+			<label class="cof-link-label">
+				<?php esc_html_e( 'Link Text', 'codeideal-open-fields' ); ?>
 			</label>
 			<input 
 				type="text" 
 				id="<?php echo esc_attr( $field_id ); ?>_title"
 				name="<?php echo esc_attr( $field_name ); ?>[title]" 
 				value="<?php echo esc_attr( $link_data['title'] ); ?>"
-				class="widefat openfields-link-title"
-				placeholder="<?php esc_attr_e( 'Link text', 'openfields' ); ?>"
+				class="widefat cof-link-title"
+				placeholder="<?php esc_attr_e( 'Link text', 'codeideal-open-fields' ); ?>"
 			/>
 		</div>
 		<?php endif; ?>
 
 		<?php if ( $show_target ) : ?>
 		<!-- Target Checkbox -->
-		<div class="openfields-link-row openfields-link-target-row">
-			<label class="openfields-checkbox-inline">
+		<div class="cof-link-row cof-link-target-row">
+			<label class="cof-checkbox-inline">
 				<input 
 					type="checkbox" 
 					id="<?php echo esc_attr( $field_id ); ?>_target"
@@ -86,7 +86,7 @@ function openfields_render_link_field( $field, $value, $field_id, $field_name, $
 					value="_blank"
 					<?php checked( $link_data['target'], '_blank' ); ?>
 				/>
-				<?php esc_html_e( 'Open in new tab', 'openfields' ); ?>
+				<?php esc_html_e( 'Open in new tab', 'codeideal-open-fields' ); ?>
 			</label>
 		</div>
 		<?php endif; ?>
@@ -95,4 +95,4 @@ function openfields_render_link_field( $field, $value, $field_id, $field_name, $
 }
 
 // Register the renderer.
-add_action( 'openfields_render_field_link', 'openfields_render_link_field', 10, 5 );
+add_action( 'cof_render_field_link', 'cof_render_link_field', 10, 5 );

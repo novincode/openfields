@@ -4,7 +4,7 @@
  *
  * Abstract class for field types.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-abstract class OpenFields_Base_Field {
+abstract class COF_Base_Field {
 
 	/**
 	 * Field configuration.
@@ -233,14 +233,14 @@ abstract class OpenFields_Base_Field {
 	 */
 	protected function get_wrapper_attributes() {
 		$wrapper = $this->get_config( 'wrapper_config' );
-		$classes = array( 'openfields-field', 'openfields-field-' . static::get_type() );
+		$classes = array( 'cof-field', 'cof-field-' . static::get_type() );
 
 		if ( ! empty( $wrapper['class'] ) ) {
 			$classes[] = $wrapper['class'];
 		}
 
 		if ( $this->get_config( 'required' ) ) {
-			$classes[] = 'openfields-required';
+			$classes[] = 'cof-required';
 		}
 
 		$attrs = array(
@@ -303,11 +303,11 @@ abstract class OpenFields_Base_Field {
 			return '';
 		}
 
-		$html = '<label class="openfields-label" for="' . esc_attr( $this->get_input_id() ) . '">';
+		$html = '<label class="cof-label" for="' . esc_attr( $this->get_input_id() ) . '">';
 		$html .= esc_html( $label );
 
 		if ( $this->get_config( 'required' ) ) {
-			$html .= ' <span class="openfields-required-indicator">*</span>';
+			$html .= ' <span class="cof-required-indicator">*</span>';
 		}
 
 		$html .= '</label>';
@@ -328,7 +328,7 @@ abstract class OpenFields_Base_Field {
 			return '';
 		}
 
-		return '<p class="openfields-instructions">' . wp_kses_post( $instructions ) . '</p>';
+		return '<p class="cof-instructions">' . wp_kses_post( $instructions ) . '</p>';
 	}
 
 	/**
@@ -338,7 +338,7 @@ abstract class OpenFields_Base_Field {
 	 * @return string
 	 */
 	protected function get_input_id() {
-		return 'openfields-' . $this->get_config( 'name' );
+		return 'cof-' . $this->get_config( 'name' );
 	}
 
 	/**
@@ -348,6 +348,6 @@ abstract class OpenFields_Base_Field {
 	 * @return string
 	 */
 	protected function get_input_name() {
-		return 'openfields[' . $this->get_config( 'name' ) . ']';
+		return 'cof[' . $this->get_config( 'name' ) . ']';
 	}
 }

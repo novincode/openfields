@@ -1,10 +1,10 @@
-=== OpenFields ===
-Contributors: novincode
-Donate link: https://openfields.dev
+=== Codeideal Open Fields ===
+Contributors: shayancode
+Donate link: https://codeideal.com
 Tags: custom fields, acf alternative, meta box, custom meta, post meta
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -13,7 +13,7 @@ Modern custom fields builder for WordPress - the open-source ACF alternative. Cr
 
 == Description ==
 
-OpenFields is a powerful and lightweight custom fields plugin that allows you to add custom fields to posts, pages, custom post types, taxonomies, and users. It provides an intuitive, modern interface for creating field groups and managing custom data.
+Codeideal Open Fields is a powerful and lightweight custom fields plugin that allows you to add custom fields to posts, pages, custom post types, taxonomies, and users. It provides an intuitive, modern interface for creating field groups and managing custom data.
 
 = Key Features =
 
@@ -50,31 +50,31 @@ Assign your field groups based on:
 
 == Installation ==
 
-1. Upload the `openfields` folder to the `/wp-content/plugins/` directory
+1. Upload the `codeideal-open-fields` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to OpenFields in the admin menu to create your first field group
+3. Go to Open Fields in the admin menu to create your first field group
 
 == Frequently Asked Questions ==
 
-= Is OpenFields free? =
+= Is Codeideal Open Fields free? =
 
-Yes! OpenFields is 100% free and open source. All features are available without any premium version.
+Yes! Codeideal Open Fields is 100% free and open source. All features are available without any premium version.
 
 = Can I migrate from ACF? =
 
-While OpenFields uses similar concepts to ACF, there is no automatic migration tool at this time. You would need to recreate your field groups manually.
+While Codeideal Open Fields uses similar concepts to ACF, there is no automatic migration tool at this time. You would need to recreate your field groups manually.
 
-= Does OpenFields work with custom post types? =
+= Does Codeideal Open Fields work with custom post types? =
 
-Yes! OpenFields works with all post types, including custom post types created by other plugins or themes.
+Yes! Codeideal Open Fields works with all post types, including custom post types created by other plugins or themes.
 
-= Can I use OpenFields with page builders? =
+= Can I use Codeideal Open Fields with page builders? =
 
-Yes, OpenFields stores data as standard WordPress post meta, making it compatible with most page builders and themes.
+Yes, Codeideal Open Fields stores data as standard WordPress post meta, making it compatible with most page builders and themes.
 
 = How do I retrieve field values in my theme? =
 
-Use the standard WordPress functions like `get_post_meta()` or the OpenFields helper function `openfields_get_field()`.
+Use the standard WordPress functions like `get_post_meta()` or the helper function `get_field()`.
 
 == Screenshots ==
 
@@ -86,6 +86,11 @@ Use the standard WordPress functions like `get_post_meta()` or the OpenFields he
 
 == Changelog ==
 
+= 0.1.1 =
+* Rebranded to Codeideal Open Fields
+* Improved security and code quality
+* Various bug fixes
+
 = 0.1.0 =
 * Initial release
 * Field types: text, textarea, number, email, URL, select, checkbox, radio, switch, date, time, datetime, color, image, file, gallery, WYSIWYG, link, post object, taxonomy, user, repeater, group
@@ -96,5 +101,5 @@ Use the standard WordPress functions like `get_post_meta()` or the OpenFields he
 
 == Upgrade Notice ==
 
-= 0.1.0 =
-Initial release of OpenFields.
+= 0.1.1 =
+Rebranded to Codeideal Open Fields with various improvements.

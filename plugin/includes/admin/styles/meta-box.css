@@ -4,39 +4,39 @@
  * @package OpenFields
  */
 
-.openfields-meta-box {
+.cof-meta-box {
 	padding: 10px 0;
 }
 
-.openfields-field {
+.cof-field {
 	margin-bottom: 20px;
 }
 
-.openfields-field-label {
+.cof-field-label {
 	margin-bottom: 8px;
 }
 
-.openfields-field-label label {
+.cof-field-label label {
 	display: block;
 	font-weight: 600;
 	margin-bottom: 4px;
 }
 
-.openfields-field-input {
+.cof-field-input {
 	width: 100%;
 }
 
-.openfields-field-input input[type="text"],
-.openfields-field-input input[type="email"],
-.openfields-field-input input[type="url"],
-.openfields-field-input input[type="number"],
-.openfields-field-input textarea,
-.openfields-field-input select {
+.cof-field-input input[type="text"],
+.cof-field-input input[type="email"],
+.cof-field-input input[type="url"],
+.cof-field-input input[type="number"],
+.cof-field-input textarea,
+.cof-field-input select {
 	width: 100%;
 	box-sizing: border-box;
 }
 
-.openfields-field-description {
+.cof-field-description {
 	font-size: 12px;
 	color: #666;
 	margin-top: 4px;
@@ -44,20 +44,20 @@
 }
 
 /* Switch field styling */
-.openfields-switch-wrapper {
+.cof-switch-wrapper {
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
 	cursor: pointer;
 }
 
-.openfields-switch-input {
+.cof-switch-input {
 	margin: 0;
 	width: auto;
 	cursor: pointer;
 }
 
-.openfields-switch-toggle {
+.cof-switch-toggle {
 	display: inline-block;
 	width: 40px;
 	height: 24px;
@@ -68,11 +68,11 @@
 	background-color: #d1d5db;
 }
 
-.openfields-switch-toggle.active {
+.cof-switch-toggle.active {
 	background-color: #10b981;
 }
 
-.openfields-switch-toggle::after {
+.cof-switch-toggle::after {
 	content: '';
 	display: inline-block;
 	position: absolute;
@@ -85,12 +85,12 @@
 	transition: all 0.3s;
 }
 
-.openfields-switch-toggle.active::after {
+.cof-switch-toggle.active::after {
 	right: 2px;
 	left: auto;
 }
 
-.openfields-switch-label {
+.cof-switch-label {
 	display: inline-block;
 	min-width: 30px;
 	cursor: pointer;

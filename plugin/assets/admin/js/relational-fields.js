@@ -27,7 +27,7 @@
 	 * @return {string} The full URL
 	 */
 	function buildRestUrl(endpoint, params = {}) {
-		const baseUrl = openfieldsConfig.restUrl;
+		const baseUrl = cofConfig.restUrl;
 		
 		// Build query string
 		const queryString = Object.entries(params)
@@ -54,13 +54,13 @@
 	 */
 	function init() {
 		// Post Object fields.
-		document.querySelectorAll('.openfields-post-object-field').forEach(initPostObjectField);
+		document.querySelectorAll('.cof-post-object-field').forEach(initPostObjectField);
 
 		// User fields.
-		document.querySelectorAll('.openfields-user-field').forEach(initUserField);
+		document.querySelectorAll('.cof-user-field').forEach(initUserField);
 
 		// Taxonomy select fields (for searchable enhancement).
-		document.querySelectorAll('.openfields-taxonomy-select .openfields-searchable-select').forEach(initSearchableSelect);
+		document.querySelectorAll('.cof-taxonomy-select .cof-searchable-select').forEach(initSearchableSelect);
 	}
 
 	/**
@@ -70,17 +70,17 @@
 	 */
 	function initPostObjectField(container) {
 		const input = container.querySelector('input[type="hidden"]');
-		const searchInput = container.querySelector('.openfields-search-input');
-		const resultsContainer = container.querySelector('.openfields-search-results');
-		const selectedContainer = container.querySelector('.openfields-selected-items');
+		const searchInput = container.querySelector('.cof-search-input');
+		const resultsContainer = container.querySelector('.cof-search-results');
+		const selectedContainer = container.querySelector('.cof-selected-items');
 
 		const multiple = container.dataset.multiple === '1';
 		const postTypes = container.dataset.postTypes || 'post';
 
 		// Handle remove button clicks.
 		container.addEventListener('click', (e) => {
-			if (e.target.closest('.openfields-remove-item')) {
-				const item = e.target.closest('.openfields-selected-item');
+			if (e.target.closest('.cof-remove-item')) {
+				const item = e.target.closest('.cof-selected-item');
 				if (item) {
 					removeSelectedItem(item, input, multiple);
 				}
@@ -95,7 +95,7 @@
 				return;
 			}
 
-			resultsContainer.innerHTML = '<div class="openfields-search-loading">Searching...</div>';
+			resultsContainer.innerHTML = '<div class="cof-search-loading">Searching...</div>';
 			resultsContainer.classList.add('active');
 
 			try {
@@ -107,7 +107,7 @@
 
 				const response = await fetch(url, {
 					headers: {
-						'X-WP-Nonce': openfieldsConfig.restNonce
+						'X-WP-Nonce': cofConfig.restNonce
 					}
 				});
 
@@ -119,7 +119,7 @@
 					resultsContainer.classList.remove('active');
 				});
 			} catch (error) {
-				resultsContainer.innerHTML = '<div class="openfields-search-error">Search failed</div>';
+				resultsContainer.innerHTML = '<div class="cof-search-error">Search failed</div>';
 			}
 		}, 300);
 
@@ -140,17 +140,17 @@
 	 */
 	function initUserField(container) {
 		const input = container.querySelector('input[type="hidden"]');
-		const searchInput = container.querySelector('.openfields-search-input');
-		const resultsContainer = container.querySelector('.openfields-search-results');
-		const selectedContainer = container.querySelector('.openfields-selected-items');
+		const searchInput = container.querySelector('.cof-search-input');
+		const resultsContainer = container.querySelector('.cof-search-results');
+		const selectedContainer = container.querySelector('.cof-selected-items');
 
 		const multiple = container.dataset.multiple === '1';
 		const roles = container.dataset.roles || '';
 
 		// Handle remove button clicks.
 		container.addEventListener('click', (e) => {
-			if (e.target.closest('.openfields-remove-item')) {
-				const item = e.target.closest('.openfields-selected-item');
+			if (e.target.closest('.cof-remove-item')) {
+				const item = e.target.closest('.cof-selected-item');
 				if (item) {
 					removeSelectedItem(item, input, multiple);
 				}
@@ -165,7 +165,7 @@
 				return;
 			}
 
-			resultsContainer.innerHTML = '<div class="openfields-search-loading">Searching...</div>';
+			resultsContainer.innerHTML = '<div class="cof-search-loading">Searching...</div>';
 			resultsContainer.classList.add('active');
 
 			try {
@@ -181,7 +181,7 @@
 
 				const response = await fetch(url, {
 					headers: {
-						'X-WP-Nonce': openfieldsConfig.restNonce
+						'X-WP-Nonce': cofConfig.restNonce
 					}
 				});
 
@@ -193,7 +193,7 @@
 					resultsContainer.classList.remove('active');
 				});
 			} catch (error) {
-				resultsContainer.innerHTML = '<div class="openfields-search-error">Search failed</div>';
+				resultsContainer.innerHTML = '<div class="cof-search-error">Search failed</div>';
 			}
 		}, 300);
 
@@ -216,18 +216,18 @@
 	 */
 	function renderSearchResults(posts, container, onSelect) {
 		if (!posts.length) {
-			container.innerHTML = '<div class="openfields-search-empty">No results found</div>';
+			container.innerHTML = '<div class="cof-search-empty">No results found</div>';
 			return;
 		}
 
 		container.innerHTML = posts.map(post => `
-			<div class="openfields-search-result" data-id="${post.id}">
-				<span class="openfields-result-title">${escapeHtml(post.title)}</span>
-				<span class="openfields-result-type">${escapeHtml(post.type_label)}</span>
+			<div class="cof-search-result" data-id="${post.id}">
+				<span class="cof-result-title">${escapeHtml(post.title)}</span>
+				<span class="cof-result-type">${escapeHtml(post.type_label)}</span>
 			</div>
 		`).join('');
 
-		container.querySelectorAll('.openfields-search-result').forEach((el, i) => {
+		container.querySelectorAll('.cof-search-result').forEach((el, i) => {
 			el.addEventListener('click', () => onSelect(posts[i]));
 		});
 	}
@@ -241,19 +241,19 @@
 	 */
 	function renderUserResults(users, container, onSelect) {
 		if (!users.length) {
-			container.innerHTML = '<div class="openfields-search-empty">No users found</div>';
+			container.innerHTML = '<div class="cof-search-empty">No users found</div>';
 			return;
 		}
 
 		container.innerHTML = users.map(user => `
-			<div class="openfields-search-result" data-id="${user.id}">
-				<img src="${escapeHtml(user.avatar)}" alt="" class="openfields-user-avatar" />
-				<span class="openfields-result-title">${escapeHtml(user.display_name)}</span>
-				<span class="openfields-result-email">${escapeHtml(user.user_email)}</span>
+			<div class="cof-search-result" data-id="${user.id}">
+				<img src="${escapeHtml(user.avatar)}" alt="" class="cof-user-avatar" />
+				<span class="cof-result-title">${escapeHtml(user.display_name)}</span>
+				<span class="cof-result-email">${escapeHtml(user.user_email)}</span>
 			</div>
 		`).join('');
 
-		container.querySelectorAll('.openfields-search-result').forEach((el, i) => {
+		container.querySelectorAll('.cof-search-result').forEach((el, i) => {
 			el.addEventListener('click', () => onSelect(users[i]));
 		});
 	}
@@ -284,12 +284,12 @@
 
 		// Add selected item element.
 		const item = document.createElement('div');
-		item.className = 'openfields-selected-item';
+		item.className = 'cof-selected-item';
 		item.dataset.id = post.id;
 		item.innerHTML = `
-			<span class="openfields-item-title">${escapeHtml(post.title)}</span>
-			<span class="openfields-item-type">${escapeHtml(post.type_label)}</span>
-			<button type="button" class="openfields-remove-item" title="Remove">
+			<span class="cof-item-title">${escapeHtml(post.title)}</span>
+			<span class="cof-item-type">${escapeHtml(post.type_label)}</span>
+			<button type="button" class="cof-remove-item" title="Remove">
 				<span class="dashicons dashicons-no-alt"></span>
 			</button>
 		`;
@@ -322,12 +322,12 @@
 
 		// Add selected item element.
 		const item = document.createElement('div');
-		item.className = 'openfields-selected-item';
+		item.className = 'cof-selected-item';
 		item.dataset.id = user.id;
 		item.innerHTML = `
-			<img src="${escapeHtml(user.avatar)}" alt="" class="openfields-user-avatar" />
-			<span class="openfields-item-title">${escapeHtml(user.display_name)}</span>
-			<button type="button" class="openfields-remove-item" title="Remove">
+			<img src="${escapeHtml(user.avatar)}" alt="" class="cof-user-avatar" />
+			<span class="cof-item-title">${escapeHtml(user.display_name)}</span>
+			<button type="button" class="cof-remove-item" title="Remove">
 				<span class="dashicons dashicons-no-alt"></span>
 			</button>
 		`;
@@ -361,7 +361,7 @@
 	function initSearchableSelect(select) {
 		// Basic enhancement - could be expanded with a proper library like Select2.
 		// For now, add a simple filter.
-		const container = select.closest('.openfields-taxonomy-select');
+		const container = select.closest('.cof-taxonomy-select');
 		if (!container) return;
 
 		// The taxonomy select already works, this is for future enhancement.

@@ -5,7 +5,7 @@
  * Renders an image field with WordPress media library integration.
  * Supports preview size selection, return format options, and preview display.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function openfields_render_image_field( $field, $value, $field_id, $field_name, $settings ) {
+function cof_render_image_field( $field, $value, $field_id, $field_name, $settings ) {
 	$attachment_id  = absint( $value );
 	$preview_size   = isset( $settings['preview_size'] ) ? $settings['preview_size'] : 'medium';
 	$library        = isset( $settings['library'] ) ? $settings['library'] : 'all';
@@ -45,7 +45,7 @@ function openfields_render_image_field( $field, $value, $field_id, $field_name, 
 
 	$has_image = ! empty( $image_url );
 	?>
-	<div class="openfields-image-field" 
+	<div class="cof-image-field" 
 		 data-field-type="image"
 		 data-library="<?php echo esc_attr( $library ); ?>"
 		 data-min-width="<?php echo esc_attr( $min_width ); ?>"
@@ -58,40 +58,40 @@ function openfields_render_image_field( $field, $value, $field_id, $field_name, 
 			   id="<?php echo esc_attr( $field_id ); ?>" 
 			   name="<?php echo esc_attr( $field_name ); ?>" 
 			   value="<?php echo esc_attr( $attachment_id ); ?>"
-			   class="openfields-image-value" />
+			   class="cof-image-value" />
 
 		<!-- Preview container -->
-		<div class="openfields-image-preview <?php echo $has_image ? 'has-image' : 'no-image'; ?>">
+		<div class="cof-image-preview <?php echo $has_image ? 'has-image' : 'no-image'; ?>">
 			<?php if ( $has_image ) : ?>
 				<img src="<?php echo esc_url( $image_url ); ?>" 
 					 alt="<?php echo esc_attr( $image_alt ); ?>" 
-					 class="openfields-image-thumb" />
-				<div class="openfields-image-info">
-					<span class="openfields-image-name"><?php echo esc_html( $image_name ); ?></span>
+					 class="cof-image-thumb" />
+				<div class="cof-image-info">
+					<span class="cof-image-name"><?php echo esc_html( $image_name ); ?></span>
 				</div>
 			<?php else : ?>
-				<div class="openfields-image-placeholder">
+				<div class="cof-image-placeholder">
 					<span class="dashicons dashicons-format-image"></span>
-					<span class="openfields-image-placeholder-text"><?php esc_html_e( 'No image selected', 'openfields' ); ?></span>
+					<span class="cof-image-placeholder-text"><?php esc_html_e( 'No image selected', 'codeideal-open-fields' ); ?></span>
 				</div>
 			<?php endif; ?>
 		</div>
 
 		<!-- Action buttons -->
-		<div class="openfields-image-actions">
-			<button type="button" class="button openfields-image-select <?php echo $has_image ? 'hidden' : ''; ?>">
+		<div class="cof-image-actions">
+			<button type="button" class="button cof-image-select <?php echo $has_image ? 'hidden' : ''; ?>">
 				<span class="dashicons dashicons-upload"></span>
-				<?php esc_html_e( 'Select Image', 'openfields' ); ?>
+				<?php esc_html_e( 'Select Image', 'codeideal-open-fields' ); ?>
 			</button>
 			
-			<button type="button" class="button openfields-image-change <?php echo $has_image ? '' : 'hidden'; ?>">
+			<button type="button" class="button cof-image-change <?php echo $has_image ? '' : 'hidden'; ?>">
 				<span class="dashicons dashicons-edit"></span>
-				<?php esc_html_e( 'Change', 'openfields' ); ?>
+				<?php esc_html_e( 'Change', 'codeideal-open-fields' ); ?>
 			</button>
 			
-			<button type="button" class="button openfields-image-remove <?php echo $has_image ? '' : 'hidden'; ?>">
+			<button type="button" class="button cof-image-remove <?php echo $has_image ? '' : 'hidden'; ?>">
 				<span class="dashicons dashicons-trash"></span>
-				<?php esc_html_e( 'Remove', 'openfields' ); ?>
+				<?php esc_html_e( 'Remove', 'codeideal-open-fields' ); ?>
 			</button>
 		</div>
 	</div>
@@ -99,4 +99,4 @@ function openfields_render_image_field( $field, $value, $field_id, $field_name, 
 }
 
 // Register the renderer.
-add_action( 'openfields_render_field_image', 'openfields_render_image_field', 10, 5 );
+add_action( 'cof_render_field_image', 'cof_render_image_field', 10, 5 );

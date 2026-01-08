@@ -34,11 +34,11 @@
 				const target = e.target;
 
 				// Add row button
-				const addBtn = target.closest('.openfields-repeater-add');
+				const addBtn = target.closest('.cof-repeater-add');
 				if (addBtn) {
 					e.preventDefault();
 					e.stopPropagation();
-					const repeater = addBtn.closest('.openfields-repeater');
+					const repeater = addBtn.closest('.cof-repeater');
 					if (repeater) {
 						this.addRow(repeater);
 					}
@@ -46,11 +46,11 @@
 				}
 
 				// Remove row button
-				const removeBtn = target.closest('.openfields-repeater-row-remove');
+				const removeBtn = target.closest('.cof-repeater-row-remove');
 				if (removeBtn) {
 					e.preventDefault();
 					e.stopPropagation();
-					const row = removeBtn.closest('.openfields-repeater-row');
+					const row = removeBtn.closest('.cof-repeater-row');
 					const repeater = this.getClosestRepeater(row);
 					if (row && repeater) {
 						this.removeRow(repeater, row);
@@ -59,11 +59,11 @@
 				}
 
 				// Toggle/collapse button
-				const toggleBtn = target.closest('.openfields-repeater-row-toggle');
+				const toggleBtn = target.closest('.cof-repeater-row-toggle');
 				if (toggleBtn) {
 					e.preventDefault();
 					e.stopPropagation();
-					const row = toggleBtn.closest('.openfields-repeater-row');
+					const row = toggleBtn.closest('.cof-repeater-row');
 					if (row) {
 						this.toggleRow(row);
 					}
@@ -79,16 +79,16 @@
 		 */
 		getClosestRepeater(element) {
 			// Get the row first
-			const row = element.closest('.openfields-repeater-row');
+			const row = element.closest('.cof-repeater-row');
 			if (!row) return null;
 
-			// The repeater is the parent of .openfields-repeater-rows which contains this row
+			// The repeater is the parent of .cof-repeater-rows which contains this row
 			const rowsContainer = row.parentElement;
-			if (!rowsContainer || !rowsContainer.classList.contains('openfields-repeater-rows')) {
+			if (!rowsContainer || !rowsContainer.classList.contains('cof-repeater-rows')) {
 				return null;
 			}
 
-			return rowsContainer.closest('.openfields-repeater');
+			return rowsContainer.closest('.cof-repeater');
 		},
 
 		/**
@@ -96,7 +96,7 @@
 		 * @param {HTMLElement} container
 		 */
 		initAllRepeaters(container = document) {
-			const repeaters = container.querySelectorAll('.openfields-repeater:not([data-init])');
+			const repeaters = container.querySelectorAll('.cof-repeater:not([data-init])');
 			repeaters.forEach((repeater) => this.initRepeater(repeater));
 		},
 
@@ -134,9 +134,9 @@
 		 * @returns {NodeList}
 		 */
 		getRows(repeater) {
-			const rowsContainer = repeater.querySelector(':scope > .openfields-repeater-rows');
+			const rowsContainer = repeater.querySelector(':scope > .cof-repeater-rows');
 			if (!rowsContainer) return [];
-			return rowsContainer.querySelectorAll(':scope > .openfields-repeater-row');
+			return rowsContainer.querySelectorAll(':scope > .cof-repeater-row');
 		},
 
 		/**
@@ -145,7 +145,7 @@
 		 * @returns {HTMLElement|null}
 		 */
 		getRowsContainer(repeater) {
-			return repeater.querySelector(':scope > .openfields-repeater-rows');
+			return repeater.querySelector(':scope > .cof-repeater-rows');
 		},
 
 		/**
@@ -161,10 +161,10 @@
 
 			// Enable dragging via handle
 			rowsContainer.addEventListener('mousedown', (e) => {
-				const handle = e.target.closest('.openfields-repeater-row-handle');
+				const handle = e.target.closest('.cof-repeater-row-handle');
 				if (!handle) return;
 
-				const row = handle.closest('.openfields-repeater-row');
+				const row = handle.closest('.cof-repeater-row');
 				// Ensure this row belongs to THIS repeater (not a nested one)
 				if (!row || row.parentElement !== rowsContainer) return;
 
@@ -180,7 +180,7 @@
 			});
 
 			rowsContainer.addEventListener('dragstart', (e) => {
-				const row = e.target.closest('.openfields-repeater-row');
+				const row = e.target.closest('.cof-repeater-row');
 				// Only drag direct children - critical for nested repeaters
 				if (!row || row.parentElement !== rowsContainer) {
 					e.preventDefault();
@@ -195,7 +195,7 @@
 
 				// Create placeholder
 				placeholder = document.createElement('div');
-				placeholder.className = 'openfields-repeater-placeholder';
+				placeholder.className = 'cof-repeater-placeholder';
 				placeholder.style.height = row.offsetHeight + 'px';
 
 				setTimeout(() => {
@@ -299,7 +299,7 @@
 			}
 
 			// Get template
-			const template = repeater.querySelector(':scope > template.openfields-repeater-template');
+			const template = repeater.querySelector(':scope > template.cof-repeater-template');
 			if (!template) {
 				console.error('[OpenFields] No template found for repeater:', config.name);
 				return;
@@ -377,7 +377,7 @@
 		 */
 		toggleRow(row) {
 			row.classList.toggle('is-collapsed');
-			const icon = row.querySelector('.openfields-repeater-row-toggle .dashicons');
+			const icon = row.querySelector('.cof-repeater-row-toggle .dashicons');
 			if (icon) {
 				icon.classList.toggle('dashicons-arrow-up-alt2');
 				icon.classList.toggle('dashicons-arrow-down-alt2');
@@ -399,7 +399,7 @@
 				row.setAttribute('data-index', newIndex);
 
 				// Update row number display
-				const indexDisplay = row.querySelector(':scope > .openfields-repeater-row-handle .openfields-repeater-row-index');
+				const indexDisplay = row.querySelector(':scope > .cof-repeater-row-handle .cof-repeater-row-index');
 				if (indexDisplay) {
 					indexDisplay.textContent = newIndex + 1;
 				}
@@ -411,7 +411,7 @@
 			});
 
 			// Update count input
-			const countInput = repeater.querySelector(':scope > input.openfields-repeater-count');
+			const countInput = repeater.querySelector(':scope > input.cof-repeater-count');
 			if (countInput) {
 				countInput.value = rows.length;
 			}
@@ -430,7 +430,7 @@
 
 			inputs.forEach((input) => {
 				// Skip if this input is inside a nested repeater row
-				const closestRow = input.closest('.openfields-repeater-row');
+				const closestRow = input.closest('.cof-repeater-row');
 				if (closestRow !== row) return;
 
 				// Update name: {base}_{oldIndex}_{subfield} -> {base}_{newIndex}_{subfield}
@@ -451,7 +451,7 @@
 			// Update labels - they need to match the new input IDs
 			const labels = row.querySelectorAll('label[for]');
 			labels.forEach((label) => {
-				const closestRow = label.closest('.openfields-repeater-row');
+				const closestRow = label.closest('.cof-repeater-row');
 				if (closestRow !== row) return;
 
 				const forAttr = label.getAttribute('for');
@@ -461,7 +461,7 @@
 			});
 
 			// Also update nested repeater data-name and their count inputs
-			const nestedRepeaters = row.querySelectorAll(':scope > .openfields-repeater-row-content .openfields-repeater');
+			const nestedRepeaters = row.querySelectorAll(':scope > .cof-repeater-row-content .cof-repeater');
 			nestedRepeaters.forEach((nested) => {
 				const nestedName = nested.dataset.name;
 				if (nestedName) {
@@ -471,7 +471,7 @@
 					nested.dataset.name = newName;
 
 					// Update count input name (no prefix for ACF compatibility)
-					const countInput = nested.querySelector(':scope > input.openfields-repeater-count');
+					const countInput = nested.querySelector(':scope > input.cof-repeater-count');
 					if (countInput) {
 						countInput.name = newName;
 					}
@@ -526,7 +526,7 @@
 		updateState(repeater) {
 			const config = repeater._config;
 			const rows = this.getRows(repeater);
-			const addBtn = repeater.querySelector(':scope > .openfields-repeater-footer > .openfields-repeater-add');
+			const addBtn = repeater.querySelector(':scope > .cof-repeater-footer > .cof-repeater-add');
 
 			// Add button state
 			if (addBtn) {
@@ -534,7 +534,7 @@
 			}
 
 			// Remove button states
-			const removeBtns = repeater.querySelectorAll(':scope > .openfields-repeater-rows > .openfields-repeater-row > .openfields-repeater-row-actions > .openfields-repeater-row-remove');
+			const removeBtns = repeater.querySelectorAll(':scope > .cof-repeater-rows > .cof-repeater-row > .cof-repeater-row-actions > .cof-repeater-row-remove');
 			removeBtns.forEach((btn) => {
 				btn.disabled = config.min > 0 && rows.length <= config.min;
 			});

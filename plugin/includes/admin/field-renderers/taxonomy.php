@@ -4,7 +4,7 @@
  *
  * Renders a dropdown/checkbox/radio for selecting taxonomy terms.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function openfields_render_taxonomy_field( $field, $value, $field_id, $field_name, $settings ) {
+function cof_render_taxonomy_field( $field, $value, $field_id, $field_name, $settings ) {
 	$taxonomy   = $settings['taxonomy'] ?? 'category';
 	$field_type = $settings['field_type'] ?? 'select';
 	$multiple   = ! empty( $settings['multiple'] );
@@ -30,7 +30,7 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 
 	// Validate taxonomy.
 	if ( ! taxonomy_exists( $taxonomy ) ) {
-		echo '<p class="openfields-error">' . esc_html__( 'Invalid taxonomy.', 'openfields' ) . '</p>';
+		echo '<p class="cof-error">' . esc_html__( 'Invalid taxonomy.', 'codeideal-open-fields' ) . '</p>';
 		return;
 	}
 
@@ -43,7 +43,7 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 	) );
 
 	if ( is_wp_error( $terms ) ) {
-		echo '<p class="openfields-error">' . esc_html( $terms->get_error_message() ) . '</p>';
+		echo '<p class="cof-error">' . esc_html( $terms->get_error_message() ) . '</p>';
 		return;
 	}
 
@@ -69,10 +69,10 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 		case 'checkbox':
 			?>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
-			<div class="openfields-taxonomy-field openfields-taxonomy-checkbox" <?php echo $data_string; ?>>
+			<div class="cof-taxonomy-field cof-taxonomy-checkbox" <?php echo $data_string; ?>>
 				<fieldset>
 					<?php foreach ( $terms as $term ) : ?>
-						<label class="openfields-checkbox-label">
+						<label class="cof-checkbox-label">
 							<input 
 								type="checkbox" 
 								name="<?php echo esc_attr( $field_name ); ?>[]" 
@@ -80,7 +80,7 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 								<?php checked( in_array( $term->term_id, $selected_values, true ) ); ?>
 							/>
 							<?php echo esc_html( $term->name ); ?>
-							<span class="openfields-term-count">(<?php echo esc_html( $term->count ); ?>)</span>
+							<span class="cof-term-count">(<?php echo esc_html( $term->count ); ?>)</span>
 						</label>
 					<?php endforeach; ?>
 				</fieldset>
@@ -91,21 +91,21 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 		case 'radio':
 			?>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
-			<div class="openfields-taxonomy-field openfields-taxonomy-radio" <?php echo $data_string; ?>>
+			<div class="cof-taxonomy-field cof-taxonomy-radio" <?php echo $data_string; ?>>
 				<fieldset>
 					<?php if ( $allow_null ) : ?>
-						<label class="openfields-radio-label">
+						<label class="cof-radio-label">
 							<input 
 								type="radio" 
 								name="<?php echo esc_attr( $field_name ); ?>" 
 								value=""
 								<?php checked( empty( $selected_values ) ); ?>
 							/>
-							<?php esc_html_e( '— None —', 'openfields' ); ?>
+							<?php esc_html_e( '— None —', 'codeideal-open-fields' ); ?>
 						</label>
 					<?php endif; ?>
 					<?php foreach ( $terms as $term ) : ?>
-						<label class="openfields-radio-label">
+						<label class="cof-radio-label">
 							<input 
 								type="radio" 
 								name="<?php echo esc_attr( $field_name ); ?>" 
@@ -113,7 +113,7 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 								<?php checked( in_array( $term->term_id, $selected_values, true ) ); ?>
 							/>
 							<?php echo esc_html( $term->name ); ?>
-							<span class="openfields-term-count">(<?php echo esc_html( $term->count ); ?>)</span>
+							<span class="cof-term-count">(<?php echo esc_html( $term->count ); ?>)</span>
 						</label>
 					<?php endforeach; ?>
 				</fieldset>
@@ -125,15 +125,15 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 		default:
 			?>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
-			<div class="openfields-taxonomy-field openfields-taxonomy-select" <?php echo $data_string; ?>>
+			<div class="cof-taxonomy-field cof-taxonomy-select" <?php echo $data_string; ?>>
 				<select 
 					id="<?php echo esc_attr( $field_id ); ?>" 
 					name="<?php echo esc_attr( $field_name ); ?><?php echo $multiple ? '[]' : ''; ?>"
-					class="widefat openfields-searchable-select"
+					class="widefat cof-searchable-select"
 					<?php echo $multiple ? 'multiple' : ''; ?>
 				>
 					<?php if ( ! $multiple ) : ?>
-						<option value=""><?php esc_html_e( '— Select —', 'openfields' ); ?></option>
+						<option value=""><?php esc_html_e( '— Select —', 'codeideal-open-fields' ); ?></option>
 					<?php endif; ?>
 					<?php foreach ( $terms as $term ) : ?>
 						<option 
@@ -151,4 +151,4 @@ function openfields_render_taxonomy_field( $field, $value, $field_id, $field_nam
 }
 
 // Register the renderer.
-add_action( 'openfields_render_field_taxonomy', 'openfields_render_taxonomy_field', 10, 5 );
+add_action( 'cof_render_field_taxonomy', 'cof_render_taxonomy_field', 10, 5 );

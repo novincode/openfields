@@ -4,7 +4,7 @@
  *
  * A dynamic block to display custom field values in the block editor.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -16,19 +16,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Register the OpenFields display block.
  */
-class OpenFields_Block {
+class COF_Block {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var OpenFields_Block
+	 * @var COF_Block
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return OpenFields_Block
+	 * @return COF_Block
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -53,9 +53,9 @@ class OpenFields_Block {
 			return;
 		}
 
-		register_block_type( 'openfields/field', array(
+		register_block_type( 'cof/field', array(
 			'api_version'     => 2,
-			'editor_script'   => 'openfields-block-editor',
+			'editor_script'   => 'cof-block-editor',
 			'render_callback' => array( $this, 'render_block' ),
 			'attributes'      => array(
 				'fieldName'   => array(
@@ -87,22 +87,22 @@ class OpenFields_Block {
 	 */
 	public function enqueue_editor_assets() {
 		wp_enqueue_script(
-			'openfields-block-editor',
-			OPENFIELDS_PLUGIN_URL . 'assets/admin/js/block-editor.js',
+			'cof-block-editor',
+			COF_PLUGIN_URL . 'assets/admin/js/block-editor.js',
 			array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-i18n', 'wp-server-side-render' ),
-			OPENFIELDS_VERSION,
+			COF_VERSION,
 			true
 		);
 
-		wp_localize_script( 'openfields-block-editor', 'openfieldsBlock', array(
+		wp_localize_script( 'cof-block-editor', 'cofBlock', array(
 			'fields' => $this->get_available_fields(),
 		) );
 
 		wp_enqueue_style(
-			'openfields-block-editor',
-			OPENFIELDS_PLUGIN_URL . 'assets/admin/css/block-editor.css',
+			'cof-block-editor',
+			COF_PLUGIN_URL . 'assets/admin/css/block-editor.css',
 			array(),
-			OPENFIELDS_VERSION
+			COF_VERSION
 		);
 	}
 
@@ -114,8 +114,8 @@ class OpenFields_Block {
 	private function get_available_fields() {
 		global $wpdb;
 
-		$fields_table    = $wpdb->prefix . 'openfields_fields';
-		$fieldsets_table = $wpdb->prefix . 'openfields_fieldsets';
+		$fields_table    = $wpdb->prefix . 'cof_fields';
+		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, derived from $wpdb->prefix.
 		$fields = $wpdb->get_results(
@@ -158,14 +158,14 @@ class OpenFields_Block {
 		}
 
 		// Get the field value.
-		$value = function_exists( 'get_field' ) ? get_field( $field_name ) : openfields_get_field_raw( $field_name );
+		$value = function_exists( 'get_field' ) ? get_field( $field_name ) : cof_get_field_raw( $field_name );
 
 		if ( empty( $value ) && ! is_numeric( $value ) ) {
 			return '';
 		}
 
 		// Build output.
-		$classes = 'openfields-block openfields-field-' . esc_attr( $field_name );
+		$classes = 'cof-block cof-field-' . esc_attr( $field_name );
 		if ( ! empty( $class_name ) ) {
 			$classes .= ' ' . esc_attr( $class_name );
 		}
@@ -174,11 +174,11 @@ class OpenFields_Block {
 
 		// Show label if enabled.
 		if ( $show_label && ! empty( $field_label ) ) {
-			$output .= '<span class="openfields-block-label">' . esc_html( $field_label ) . '</span>';
+			$output .= '<span class="cof-block-label">' . esc_html( $field_label ) . '</span>';
 		}
 
 		// Format the value.
-		$output .= '<div class="openfields-block-value">';
+		$output .= '<div class="cof-block-value">';
 		$output .= $this->format_value( $value, $format );
 		$output .= '</div>';
 
@@ -244,4 +244,4 @@ class OpenFields_Block {
 }
 
 // Initialize.
-OpenFields_Block::instance();
+COF_Block::instance();

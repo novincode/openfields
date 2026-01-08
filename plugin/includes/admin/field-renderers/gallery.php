@@ -5,7 +5,7 @@
  * Renders a gallery field with WordPress media library integration.
  * Supports multiple image selection, drag-and-drop reordering, and preview display.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function openfields_render_gallery_field( $field, $value, $field_id, $field_name, $settings ) {
+function cof_render_gallery_field( $field, $value, $field_id, $field_name, $settings ) {
 	// Normalize value to array.
 	$attachment_ids = array();
 	if ( is_array( $value ) ) {
@@ -45,7 +45,7 @@ function openfields_render_gallery_field( $field, $value, $field_id, $field_name
 
 	$has_images = ! empty( $attachment_ids );
 	?>
-	<div class="openfields-gallery-field" 
+	<div class="cof-gallery-field" 
 		 data-field-type="gallery"
 		 data-library="<?php echo esc_attr( $library ); ?>"
 		 data-min="<?php echo esc_attr( $min ); ?>"
@@ -58,10 +58,10 @@ function openfields_render_gallery_field( $field, $value, $field_id, $field_name
 			   id="<?php echo esc_attr( $field_id ); ?>" 
 			   name="<?php echo esc_attr( $field_name ); ?>" 
 			   value="<?php echo esc_attr( implode( ',', $attachment_ids ) ); ?>"
-			   class="openfields-gallery-value" />
+			   class="cof-gallery-value" />
 
 		<!-- Gallery preview grid -->
-		<div class="openfields-gallery-grid <?php echo $has_images ? 'has-images' : 'no-images'; ?>">
+		<div class="cof-gallery-grid <?php echo $has_images ? 'has-images' : 'no-images'; ?>">
 			<?php if ( $has_images ) : ?>
 				<?php foreach ( $attachment_ids as $attachment_id ) : ?>
 					<?php
@@ -71,16 +71,16 @@ function openfields_render_gallery_field( $field, $value, $field_id, $field_name
 						continue;
 					}
 					?>
-					<div class="openfields-gallery-item" data-attachment-id="<?php echo esc_attr( $attachment_id ); ?>">
-						<div class="openfields-gallery-thumb">
+					<div class="cof-gallery-item" data-attachment-id="<?php echo esc_attr( $attachment_id ); ?>">
+						<div class="cof-gallery-thumb">
 							<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" />
 						</div>
-						<div class="openfields-gallery-item-actions">
-							<button type="button" class="openfields-gallery-item-remove" title="<?php esc_attr_e( 'Remove', 'openfields' ); ?>">
+						<div class="cof-gallery-item-actions">
+							<button type="button" class="cof-gallery-item-remove" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
 								<span class="dashicons dashicons-no-alt"></span>
 							</button>
 						</div>
-						<div class="openfields-gallery-item-drag" title="<?php esc_attr_e( 'Drag to reorder', 'openfields' ); ?>">
+						<div class="cof-gallery-item-drag" title="<?php esc_attr_e( 'Drag to reorder', 'codeideal-open-fields' ); ?>">
 							<span class="dashicons dashicons-move"></span>
 						</div>
 					</div>
@@ -88,35 +88,35 @@ function openfields_render_gallery_field( $field, $value, $field_id, $field_name
 			<?php endif; ?>
 
 			<!-- Add button (shown inside grid) -->
-			<div class="openfields-gallery-add-item">
-				<button type="button" class="openfields-gallery-add" title="<?php esc_attr_e( 'Add Images', 'openfields' ); ?>">
+			<div class="cof-gallery-add-item">
+				<button type="button" class="cof-gallery-add" title="<?php esc_attr_e( 'Add Images', 'codeideal-open-fields' ); ?>">
 					<span class="dashicons dashicons-plus-alt2"></span>
-					<span class="openfields-gallery-add-text"><?php esc_html_e( 'Add', 'openfields' ); ?></span>
+					<span class="cof-gallery-add-text"><?php esc_html_e( 'Add', 'codeideal-open-fields' ); ?></span>
 				</button>
 			</div>
 		</div>
 
 		<?php if ( ! $has_images ) : ?>
 		<!-- Empty state placeholder -->
-		<div class="openfields-gallery-placeholder">
+		<div class="cof-gallery-placeholder">
 			<span class="dashicons dashicons-images-alt2"></span>
-			<span class="openfields-gallery-placeholder-text"><?php esc_html_e( 'No images selected', 'openfields' ); ?></span>
-			<button type="button" class="button openfields-gallery-select">
+			<span class="cof-gallery-placeholder-text"><?php esc_html_e( 'No images selected', 'codeideal-open-fields' ); ?></span>
+			<button type="button" class="button cof-gallery-select">
 				<span class="dashicons dashicons-upload"></span>
-				<?php esc_html_e( 'Add Images', 'openfields' ); ?>
+				<?php esc_html_e( 'Add Images', 'codeideal-open-fields' ); ?>
 			</button>
 		</div>
 		<?php endif; ?>
 
 		<!-- Limits display -->
 		<?php if ( $min > 0 || $max > 0 ) : ?>
-		<div class="openfields-gallery-limits">
+		<div class="cof-gallery-limits">
 			<?php
 			$count = count( $attachment_ids );
 			if ( $min > 0 && $max > 0 ) {
 				printf(
 					/* translators: %1$d: current count, %2$d: min, %3$d: max */
-					esc_html__( '%1$d images selected (min: %2$d, max: %3$d)', 'openfields' ),
+					esc_html__( '%1$d images selected (min: %2$d, max: %3$d)', 'codeideal-open-fields' ),
 					absint( $count ),
 					absint( $min ),
 					absint( $max )
@@ -124,14 +124,14 @@ function openfields_render_gallery_field( $field, $value, $field_id, $field_name
 			} elseif ( $min > 0 ) {
 				printf(
 					/* translators: %1$d: current count, %2$d: min */
-					esc_html__( '%1$d images selected (min: %2$d)', 'openfields' ),
+					esc_html__( '%1$d images selected (min: %2$d)', 'codeideal-open-fields' ),
 					absint( $count ),
 					absint( $min )
 				);
 			} elseif ( $max > 0 ) {
 				printf(
 					/* translators: %1$d: current count, %2$d: max */
-					esc_html__( '%1$d images selected (max: %2$d)', 'openfields' ),
+					esc_html__( '%1$d images selected (max: %2$d)', 'codeideal-open-fields' ),
 					absint( $count ),
 					absint( $max )
 				);
@@ -144,4 +144,4 @@ function openfields_render_gallery_field( $field, $value, $field_id, $field_name
 }
 
 // Register the renderer.
-add_action( 'openfields_render_field_gallery', 'openfields_render_gallery_field', 10, 5 );
+add_action( 'cof_render_field_gallery', 'cof_render_gallery_field', 10, 5 );

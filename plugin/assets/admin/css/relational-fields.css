@@ -8,25 +8,25 @@
  */
 
 /* Base containers */
-.openfields-post-object-field,
-.openfields-user-field {
+.cof-post-object-field,
+.cof-user-field {
 	position: relative;
 }
 
 /* Selected items container */
-.openfields-selected-items {
+.cof-selected-items {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
 	margin-bottom: 8px;
 }
 
-.openfields-selected-items:empty {
+.cof-selected-items:empty {
 	margin-bottom: 0;
 }
 
 /* Individual selected item */
-.openfields-selected-item {
+.cof-selected-item {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -38,21 +38,21 @@
 	line-height: 1.4;
 }
 
-.openfields-selected-item:hover {
+.cof-selected-item:hover {
 	border-color: #8c8f94;
 }
 
-.openfields-item-title {
+.cof-item-title {
 	font-weight: 500;
 	color: #1d2327;
 }
 
-.openfields-item-type {
+.cof-item-type {
 	color: #646970;
 	font-size: 12px;
 }
 
-.openfields-remove-item {
+.cof-remove-item {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -67,30 +67,30 @@
 	transition: all 0.15s ease;
 }
 
-.openfields-remove-item:hover {
+.cof-remove-item:hover {
 	color: #d63638;
 	background: rgba(214, 54, 56, 0.1);
 }
 
-.openfields-remove-item .dashicons {
+.cof-remove-item .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
 /* User avatar in selected items */
-.openfields-selected-item .openfields-user-avatar {
+.cof-selected-item .cof-user-avatar {
 	width: 24px;
 	height: 24px;
 	border-radius: 50%;
 }
 
 /* Search container */
-.openfields-search-container {
+.cof-search-container {
 	position: relative;
 }
 
-.openfields-search-input {
+.cof-search-input {
 	width: 100%;
 	padding: 8px 12px;
 	border: 1px solid #8c8f94;
@@ -99,14 +99,14 @@
 	transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.openfields-search-input:focus {
+.cof-search-input:focus {
 	border-color: #2271b1;
 	box-shadow: 0 0 0 1px #2271b1;
 	outline: none;
 }
 
 /* Search results dropdown */
-.openfields-search-results {
+.cof-search-results {
 	position: absolute;
 	top: 100%;
 	left: 0;
@@ -122,26 +122,26 @@
 	display: none;
 }
 
-.openfields-search-results.active {
+.cof-search-results.active {
 	display: block;
 }
 
 /* Loading and empty states */
-.openfields-search-loading,
-.openfields-search-empty,
-.openfields-search-error {
+.cof-search-loading,
+.cof-search-empty,
+.cof-search-error {
 	padding: 12px 16px;
 	color: #646970;
 	font-size: 13px;
 	text-align: center;
 }
 
-.openfields-search-error {
+.cof-search-error {
 	color: #d63638;
 }
 
 /* Individual search result */
-.openfields-search-result {
+.cof-search-result {
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -151,21 +151,21 @@
 	transition: background-color 0.1s ease;
 }
 
-.openfields-search-result:last-child {
+.cof-search-result:last-child {
 	border-bottom: none;
 }
 
-.openfields-search-result:hover {
+.cof-search-result:hover {
 	background: #f6f7f7;
 }
 
-.openfields-result-title {
+.cof-result-title {
 	flex: 1;
 	font-weight: 500;
 	color: #1d2327;
 }
 
-.openfields-result-type {
+.cof-result-type {
 	color: #646970;
 	font-size: 12px;
 	background: #f0f0f1;
@@ -173,13 +173,13 @@
 	border-radius: 10px;
 }
 
-.openfields-result-email {
+.cof-result-email {
 	color: #646970;
 	font-size: 12px;
 }
 
 /* User avatar in search results */
-.openfields-search-result .openfields-user-avatar {
+.cof-search-result .cof-user-avatar {
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
@@ -187,12 +187,12 @@
 }
 
 /* Taxonomy field styles */
-.openfields-taxonomy-field {
+.cof-taxonomy-field {
 	width: 100%;
 }
 
-.openfields-taxonomy-checkbox,
-.openfields-taxonomy-radio {
+.cof-taxonomy-checkbox,
+.cof-taxonomy-radio {
 	max-height: 200px;
 	overflow-y: auto;
 	border: 1px solid #c3c4c7;
@@ -201,8 +201,8 @@
 	background: #fff;
 }
 
-.openfields-checkbox-label,
-.openfields-radio-label {
+.cof-checkbox-label,
+.cof-radio-label {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -212,29 +212,29 @@
 	transition: background-color 0.1s ease;
 }
 
-.openfields-checkbox-label:hover,
-.openfields-radio-label:hover {
+.cof-checkbox-label:hover,
+.cof-radio-label:hover {
 	background: #f6f7f7;
 }
 
-.openfields-term-count {
+.cof-term-count {
 	color: #646970;
 	font-size: 12px;
 	margin-left: auto;
 }
 
 /* Searchable select enhancement */
-.openfields-searchable-select {
+.cof-searchable-select {
 	min-height: 38px;
 }
 
 /* Multiple select styling */
-.openfields-searchable-select[multiple] {
+.cof-searchable-select[multiple] {
 	min-height: 150px;
 }
 
 /* Error state */
-.openfields-error {
+.cof-error {
 	color: #d63638;
 	background: #fcf0f1;
 	padding: 8px 12px;
@@ -246,19 +246,19 @@
    Link Field Styles
    ============================================================================ */
 
-.openfields-link-field {
+.cof-link-field {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.openfields-link-row {
+.cof-link-row {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.openfields-link-label {
+.cof-link-label {
 	display: flex;
 	align-items: center;
 	gap: 6px;
@@ -267,15 +267,15 @@
 	color: #1d2327;
 }
 
-.openfields-link-label .dashicons {
+.cof-link-label .dashicons {
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
 	color: #646970;
 }
 
-.openfields-link-url,
-.openfields-link-title {
+.cof-link-url,
+.cof-link-title {
 	width: 100%;
 	padding: 8px 12px;
 	border: 1px solid #8c8f94;
@@ -283,19 +283,19 @@
 	font-size: 14px;
 }
 
-.openfields-link-url:focus,
-.openfields-link-title:focus {
+.cof-link-url:focus,
+.cof-link-title:focus {
 	border-color: #2271b1;
 	box-shadow: 0 0 0 1px #2271b1;
 	outline: none;
 }
 
-.openfields-link-target-row {
+.cof-link-target-row {
 	flex-direction: row;
 	align-items: center;
 }
 
-.openfields-checkbox-inline {
+.cof-checkbox-inline {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -304,6 +304,6 @@
 	color: #1d2327;
 }
 
-.openfields-checkbox-inline input[type="checkbox"] {
+.cof-checkbox-inline input[type="checkbox"] {
 	margin: 0;
 }

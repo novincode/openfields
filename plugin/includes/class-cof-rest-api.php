@@ -2,7 +2,7 @@
 /**
  * REST API handler.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -12,23 +12,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields REST API class.
+ * Codeideal Open Fields REST API class.
  *
  * @since 1.0.0
  */
-class OpenFields_REST_API {
+class COF_REST_API {
 
 	/**
 	 * REST namespace.
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'openfields/v1';
+	const NAMESPACE = 'codeideal-open-fields/v1';
 
 	/**
 	 * Instance.
 	 *
-	 * @var OpenFields_REST_API|null
+	 * @var COF_REST_API|null
 	 */
 	private static $instance = null;
 
@@ -36,7 +36,7 @@ class OpenFields_REST_API {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return OpenFields_REST_API
+	 * @return COF_REST_API
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -367,8 +367,8 @@ class OpenFields_REST_API {
 	public function check_admin_permission() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
-				'openfields_rest_forbidden',
-				__( 'You do not have permission to access this resource.', 'openfields' ),
+				'cof_rest_forbidden',
+				__( 'You do not have permission to access this resource.', 'codeideal-open-fields' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -384,8 +384,8 @@ class OpenFields_REST_API {
 	public function check_edit_permission() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
-				'openfields_rest_forbidden',
-				__( 'You do not have permission to access this resource.', 'openfields' ),
+				'cof_rest_forbidden',
+				__( 'You do not have permission to access this resource.', 'codeideal-open-fields' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -402,7 +402,7 @@ class OpenFields_REST_API {
 	public function get_fieldsets( $request ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$table = $wpdb->prefix . 'cof_fieldsets';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldsets = $wpdb->get_results(
@@ -427,7 +427,7 @@ class OpenFields_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$table = $wpdb->prefix . 'cof_fieldsets';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
@@ -437,14 +437,14 @@ class OpenFields_REST_API {
 
 		if ( ! $fieldset ) {
 			return new WP_Error(
-				'openfields_not_found',
-				__( 'Fieldset not found.', 'openfields' ),
+				'cof_not_found',
+				__( 'Fieldset not found.', 'codeideal-open-fields' ),
 				array( 'status' => 404 )
 			);
 		}
 
 		// Get fields.
-		$fields_table       = $wpdb->prefix . 'openfields_fields';
+		$fields_table       = $wpdb->prefix . 'cof_fields';
 		$fieldset['fields'] = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$fields_table} WHERE fieldset_id = %d ORDER BY menu_order ASC",
@@ -469,7 +469,7 @@ class OpenFields_REST_API {
 	public function create_fieldset( $request ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$table = $wpdb->prefix . 'cof_fieldsets';
 		$now   = current_time( 'mysql' );
 
 		// Ensure settings is always an array (not a JSON string that would be double-encoded)
@@ -495,8 +495,8 @@ class OpenFields_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'openfields_create_failed',
-				__( 'Failed to create fieldset.', 'openfields' ),
+				'cof_create_failed',
+				__( 'Failed to create fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -517,7 +517,7 @@ class OpenFields_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$table = $wpdb->prefix . 'cof_fieldsets';
 		
 		// Get all parameters from the request (merges URL params, query params, and JSON body)
 		$params = $request->get_params();
@@ -576,8 +576,8 @@ class OpenFields_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'openfields_update_failed',
-				__( 'Failed to update fieldset.', 'openfields' ),
+				'cof_update_failed',
+				__( 'Failed to update fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -588,7 +588,7 @@ class OpenFields_REST_API {
 				$this->save_location_groups( $id, $location_groups );
 			} else {
 				// Clear locations if settings provided but no groups
-				$locations_table = $wpdb->prefix . 'openfields_locations';
+				$locations_table = $wpdb->prefix . 'cof_locations';
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
 			}
@@ -610,24 +610,24 @@ class OpenFields_REST_API {
 		$id = absint( $request['id'] );
 
 		// Delete fields first.
-		$fields_table = $wpdb->prefix . 'openfields_fields';
+		$fields_table = $wpdb->prefix . 'cof_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete( $fields_table, array( 'fieldset_id' => $id ) );
 
 		// Delete locations.
-		$locations_table = $wpdb->prefix . 'openfields_locations';
+		$locations_table = $wpdb->prefix . 'cof_locations';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
 
 		// Delete fieldset.
-		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$table = $wpdb->prefix . 'cof_fieldsets';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->delete( $table, array( 'id' => $id ) );
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'openfields_delete_failed',
-				__( 'Failed to delete fieldset.', 'openfields' ),
+				'cof_delete_failed',
+				__( 'Failed to delete fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -648,7 +648,7 @@ class OpenFields_REST_API {
 		$id = absint( $request['id'] );
 
 		// Get the fieldset to duplicate
-		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$table = $wpdb->prefix . 'cof_fieldsets';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
 			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
@@ -657,8 +657,8 @@ class OpenFields_REST_API {
 
 		if ( ! $fieldset ) {
 			return new WP_Error(
-				'openfields_fieldset_not_found',
-				__( 'Fieldset not found.', 'openfields' ),
+				'cof_fieldset_not_found',
+				__( 'Fieldset not found.', 'codeideal-open-fields' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -682,8 +682,8 @@ class OpenFields_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'openfields_duplicate_failed',
-				__( 'Failed to duplicate fieldset.', 'openfields' ),
+				'cof_duplicate_failed',
+				__( 'Failed to duplicate fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -691,7 +691,7 @@ class OpenFields_REST_API {
 		$new_fieldset_id = $wpdb->insert_id;
 
 		// Duplicate fields
-		$fields_table = $wpdb->prefix . 'openfields_fields';
+		$fields_table = $wpdb->prefix . 'cof_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
 			$wpdb->prepare( "SELECT * FROM {$fields_table} WHERE fieldset_id = %d", $id ),
@@ -711,7 +711,7 @@ class OpenFields_REST_API {
 		}
 
 		// Duplicate locations
-		$locations_table = $wpdb->prefix . 'openfields_locations';
+		$locations_table = $wpdb->prefix . 'cof_locations';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$locations = $wpdb->get_results(
 			$wpdb->prepare( "SELECT * FROM {$locations_table} WHERE fieldset_id = %d", $id ),
@@ -750,7 +750,7 @@ class OpenFields_REST_API {
 		global $wpdb;
 
 		$fieldset_id = absint( $request['fieldset_id'] );
-		$table       = $wpdb->prefix . 'openfields_fields';
+		$table       = $wpdb->prefix . 'cof_fields';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
@@ -777,15 +777,15 @@ class OpenFields_REST_API {
 	public function create_field( $request ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'openfields_fields';
+		$table = $wpdb->prefix . 'cof_fields';
 		$now   = current_time( 'mysql' );
 
 		// Sanitize and validate field name (becomes meta key).
 		$field_name = sanitize_key( $request['name'] );
 		if ( empty( $field_name ) ) {
 			return new WP_Error(
-				'openfields_invalid_field_name',
-				__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'openfields' ),
+				'cof_invalid_field_name',
+				__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -802,8 +802,8 @@ class OpenFields_REST_API {
 
 		if ( $existing > 0 ) {
 			return new WP_Error(
-				'openfields_duplicate_field_name',
-				__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'openfields' ),
+				'cof_duplicate_field_name',
+				__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -836,8 +836,8 @@ class OpenFields_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'openfields_create_failed',
-				__( 'Failed to create field.', 'openfields' ),
+				'cof_create_failed',
+				__( 'Failed to create field.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -861,7 +861,7 @@ class OpenFields_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'openfields_fields';
+		$table = $wpdb->prefix . 'cof_fields';
 		
 		// Get all parameters from the request (merges URL params, query params, and JSON body)
 		$params = $request->get_params();
@@ -882,8 +882,8 @@ class OpenFields_REST_API {
 			
 			if ( empty( $new_name ) ) {
 				return new WP_Error(
-					'openfields_invalid_field_name',
-					__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'openfields' ),
+					'cof_invalid_field_name',
+					__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'codeideal-open-fields' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -905,8 +905,8 @@ class OpenFields_REST_API {
 
 				if ( $duplicate > 0 ) {
 					return new WP_Error(
-						'openfields_duplicate_field_name',
-						__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'openfields' ),
+						'cof_duplicate_field_name',
+						__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'codeideal-open-fields' ),
 						array( 'status' => 400 )
 					);
 				}
@@ -964,8 +964,8 @@ class OpenFields_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'openfields_update_failed',
-				__( 'Failed to update field.', 'openfields' ),
+				'cof_update_failed',
+				__( 'Failed to update field.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -994,15 +994,15 @@ class OpenFields_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'openfields_fields';
+		$table = $wpdb->prefix . 'cof_fields';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->delete( $table, array( 'id' => $id ) );
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'openfields_delete_failed',
-				__( 'Failed to delete field.', 'openfields' ),
+				'cof_delete_failed',
+				__( 'Failed to delete field.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -1022,8 +1022,8 @@ class OpenFields_REST_API {
 
 		if ( ! is_array( $fields ) ) {
 			return new WP_Error(
-				'openfields_invalid_data',
-				__( 'Invalid fields data.', 'openfields' ),
+				'cof_invalid_data',
+				__( 'Invalid fields data.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -1051,7 +1051,7 @@ class OpenFields_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_field_types( $request ) {
-		$field_types = OpenFields_Field_Registry::instance()->get_field_types_for_admin();
+		$field_types = COF_Field_Registry::instance()->get_field_types_for_admin();
 		return rest_ensure_response( $field_types );
 	}
 
@@ -1066,7 +1066,7 @@ class OpenFields_REST_API {
 		global $wpdb;
 		
 		$fieldset_id = absint( $request['id'] );
-		$table = $wpdb->prefix . 'openfields_fieldsets';
+		$table = $wpdb->prefix . 'cof_fieldsets';
 		
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
@@ -1076,14 +1076,14 @@ class OpenFields_REST_API {
 		
 		if ( ! $fieldset ) {
 			return new WP_Error(
-				'openfields_fieldset_not_found',
-				__( 'Fieldset not found.', 'openfields' ),
+				'cof_fieldset_not_found',
+				__( 'Fieldset not found.', 'codeideal-open-fields' ),
 				array( 'status' => 404 )
 			);
 		}
 
 		// Get fields
-		$fields_table = $wpdb->prefix . 'openfields_fields';
+		$fields_table = $wpdb->prefix . 'cof_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(
@@ -1109,7 +1109,7 @@ class OpenFields_REST_API {
 		}
 
 		// Get locations
-		$locations_table = $wpdb->prefix . 'openfields_locations';
+		$locations_table = $wpdb->prefix . 'cof_locations';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$locations = $wpdb->get_results(
 			$wpdb->prepare(
@@ -1130,7 +1130,7 @@ class OpenFields_REST_API {
 		}
 
 		$export_data = array(
-			'version'  => OPENFIELDS_VERSION,
+			'version'  => COF_VERSION,
 			'exported' => current_time( 'mysql' ),
 			'fieldset' => array(
 				'title'       => $fieldset['title'],
@@ -1160,8 +1160,8 @@ class OpenFields_REST_API {
 
 		if ( ! isset( $import_data['fieldset'] ) ) {
 			return new WP_Error(
-				'openfields_invalid_import',
-				__( 'Invalid import data.', 'openfields' ),
+				'cof_invalid_import',
+				__( 'Invalid import data.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -1217,7 +1217,7 @@ class OpenFields_REST_API {
 	private function update_locations( $fieldset_id, $locations ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'openfields_locations';
+		$table = $wpdb->prefix . 'cof_locations';
 
 		// Delete existing locations.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -1261,7 +1261,7 @@ class OpenFields_REST_API {
 		global $wpdb;
 
 
-		$table = $wpdb->prefix . 'openfields_locations';
+		$table = $wpdb->prefix . 'cof_locations';
 
 		// Delete existing locations.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -1521,7 +1521,7 @@ class OpenFields_REST_API {
 
 		// Get locations if not already present
 		if ( ! isset( $fieldset['locations'] ) ) {
-			$locations_table = $wpdb->prefix . 'openfields_locations';
+			$locations_table = $wpdb->prefix . 'cof_locations';
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$fieldset['locations'] = $wpdb->get_results(
 				$wpdb->prepare(
@@ -1543,7 +1543,7 @@ class OpenFields_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_location_types( $request ) {
-		$manager = OpenFields_Location_Manager::instance();
+		$manager = COF_Location_Manager::instance();
 		$types   = $manager->get_location_types_for_api();
 
 		return rest_ensure_response( $types );
@@ -1729,7 +1729,7 @@ class OpenFields_REST_API {
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			return new WP_Error(
 				'invalid_taxonomy',
-				__( 'Invalid taxonomy.', 'openfields' ),
+				__( 'Invalid taxonomy.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -1927,11 +1927,11 @@ class OpenFields_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_settings( $request ) {
-		$settings = get_option( 'openfields_settings', array() );
+		$settings = get_option( 'cof_settings', array() );
 
 		// Ensure defaults.
 		$defaults = array(
-			'version'           => OPENFIELDS_VERSION,
+			'version'           => COF_VERSION,
 			'enable_rest_api'   => true,
 			'show_admin_column' => true,
 			'delete_data'       => false,
@@ -1950,7 +1950,7 @@ class OpenFields_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function update_settings( $request ) {
-		$current_settings = get_option( 'openfields_settings', array() );
+		$current_settings = get_option( 'cof_settings', array() );
 		$params           = $request->get_params();
 
 		// Only update allowed settings.
@@ -1962,7 +1962,7 @@ class OpenFields_REST_API {
 			}
 		}
 
-		update_option( 'openfields_settings', $current_settings );
+		update_option( 'cof_settings', $current_settings );
 
 		return rest_ensure_response( $current_settings );
 	}

@@ -13,7 +13,7 @@
  * - {parent}_{i}_{child} = count
  * - {parent}_{i}_{child}_{j}_{subfield} = value
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -32,19 +32,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param int    $object_id   Object ID (post, term, or user ID).
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  */
-function openfields_render_repeater_field( $field, $value, $field_id, $base_name, $settings, $object_id, $object_type = 'post' ) {
+function cof_render_repeater_field( $field, $value, $field_id, $base_name, $settings, $object_id, $object_type = 'post' ) {
 	global $wpdb;
 
 	// Get sub-fields for this repeater.
 	$sub_fields = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT * FROM {$wpdb->prefix}openfields_fields WHERE parent_id = %d ORDER BY menu_order ASC",
+			"SELECT * FROM {$wpdb->prefix}cof_fields WHERE parent_id = %d ORDER BY menu_order ASC",
 			$field->id
 		)
 	);
 
 	if ( empty( $sub_fields ) ) {
-		echo '<p class="description">' . esc_html__( 'No sub-fields configured for this repeater.', 'openfields' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'No sub-fields configured for this repeater.', 'codeideal-open-fields' ) . '</p>';
 		return;
 	}
 
@@ -52,7 +52,7 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 	$min          = isset( $settings['min'] ) ? absint( $settings['min'] ) : 0;
 	$max          = isset( $settings['max'] ) ? absint( $settings['max'] ) : 0;
 	$layout       = isset( $settings['layout'] ) ? $settings['layout'] : 'block';
-	$button_label = isset( $settings['button_label'] ) ? $settings['button_label'] : __( 'Add Row', 'openfields' );
+	$button_label = isset( $settings['button_label'] ) ? $settings['button_label'] : __( 'Add Row', 'codeideal-open-fields' );
 
 	// Determine row count.
 	$row_count = 0;
@@ -60,7 +60,7 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 		$row_count = absint( $value );
 	} else {
 		// Detect from existing meta.
-		$row_count = openfields_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type );
+		$row_count = cof_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type );
 	}
 
 	// Ensure minimum.
@@ -71,7 +71,7 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 	$unique_id = 'repeater-' . sanitize_key( $base_name ) . '-' . wp_rand( 1000, 9999 );
 	?>
 	<div 
-		class="openfields-repeater"
+		class="cof-repeater"
 		id="<?php echo esc_attr( $unique_id ); ?>"
 		data-name="<?php echo esc_attr( $base_name ); ?>"
 		data-min="<?php echo esc_attr( $min ); ?>"
@@ -83,23 +83,23 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 			type="hidden" 
 			name="<?php echo esc_attr( $base_name ); ?>" 
 			value="<?php echo esc_attr( $row_count ); ?>"
-			class="openfields-repeater-count"
+			class="cof-repeater-count"
 		/>
 
 		<!-- Rows -->
-		<div class="openfields-repeater-rows" data-layout="<?php echo esc_attr( $layout ); ?>">
+		<div class="cof-repeater-rows" data-layout="<?php echo esc_attr( $layout ); ?>">
 			<?php
 			for ( $i = 0; $i < $row_count; $i++ ) {
-				openfields_render_repeater_row( $field, $sub_fields, $i, $base_name, $layout, $object_id, $object_type, false );
+				cof_render_repeater_row( $field, $sub_fields, $i, $base_name, $layout, $object_id, $object_type, false );
 			}
 			?>
 		</div>
 
 		<!-- Add Button -->
-		<div class="openfields-repeater-footer">
+		<div class="cof-repeater-footer">
 			<button 
 				type="button" 
-				class="button openfields-repeater-add"
+				class="button cof-repeater-add"
 				<?php echo ( $max > 0 && $row_count >= $max ) ? 'disabled' : ''; ?>
 			>
 				<span class="dashicons dashicons-plus-alt2"></span>
@@ -108,8 +108,8 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
 		</div>
 
 		<!-- Template for JS -->
-		<template class="openfields-repeater-template">
-			<?php openfields_render_repeater_row( $field, $sub_fields, '{{INDEX}}', $base_name, $layout, $object_id, $object_type, true ); ?>
+		<template class="cof-repeater-template">
+			<?php cof_render_repeater_row( $field, $sub_fields, '{{INDEX}}', $base_name, $layout, $object_id, $object_type, true ); ?>
 		</template>
 	</div>
 	<?php
@@ -127,28 +127,28 @@ function openfields_render_repeater_field( $field, $value, $field_id, $base_name
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @param bool   $is_template Whether rendering as template.
  */
-function openfields_render_repeater_row( $field, $sub_fields, $index, $base_name, $layout, $object_id, $object_type = 'post', $is_template = false ) {
+function cof_render_repeater_row( $field, $sub_fields, $index, $base_name, $layout, $object_id, $object_type = 'post', $is_template = false ) {
 	$row_num = is_numeric( $index ) ? ( $index + 1 ) : '';
 	?>
-	<div class="openfields-repeater-row" data-index="<?php echo esc_attr( $index ); ?>">
-		<div class="openfields-repeater-row-handle">
+	<div class="cof-repeater-row" data-index="<?php echo esc_attr( $index ); ?>">
+		<div class="cof-repeater-row-handle">
 			<span class="dashicons dashicons-menu"></span>
-			<span class="openfields-repeater-row-index"><?php echo esc_html( $row_num ); ?></span>
+			<span class="cof-repeater-row-index"><?php echo esc_html( $row_num ); ?></span>
 		</div>
 
-		<div class="openfields-repeater-row-content">
+		<div class="cof-repeater-row-content">
 			<?php
 			foreach ( $sub_fields as $sub_field ) {
-				openfields_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type, $is_template );
+				cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type, $is_template );
 			}
 			?>
 		</div>
 
-		<div class="openfields-repeater-row-actions">
-			<button type="button" class="openfields-repeater-row-toggle" title="<?php esc_attr_e( 'Collapse', 'openfields' ); ?>">
+		<div class="cof-repeater-row-actions">
+			<button type="button" class="cof-repeater-row-toggle" title="<?php esc_attr_e( 'Collapse', 'codeideal-open-fields' ); ?>">
 				<span class="dashicons dashicons-arrow-up-alt2"></span>
 			</button>
-			<button type="button" class="openfields-repeater-row-remove" title="<?php esc_attr_e( 'Remove', 'openfields' ); ?>">
+			<button type="button" class="cof-repeater-row-remove" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
 				<span class="dashicons dashicons-trash"></span>
 			</button>
 		</div>
@@ -166,7 +166,7 @@ function openfields_render_repeater_row( $field, $sub_fields, $index, $base_name
  * @param string $parent_name    Parent repeater name.
  * @return string Raw sub-field name.
  */
-function openfields_get_raw_subfield_name( $sub_field_name, $parent_name ) {
+function cof_get_raw_subfield_name( $sub_field_name, $parent_name ) {
 	// If the sub-field name starts with parent name + underscore, strip it.
 	$prefix = $parent_name . '_';
 	if ( strpos( $sub_field_name, $prefix ) === 0 ) {
@@ -185,7 +185,7 @@ function openfields_get_raw_subfield_name( $sub_field_name, $parent_name ) {
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @param bool   $is_template Whether rendering as template.
  */
-function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type = 'post', $is_template = false ) {
+function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type = 'post', $is_template = false ) {
 	// Parse field_config for field-specific settings (choices, layout, etc.)
 	$field_settings = array();
 	if ( ! empty( $sub_field->field_config ) ) {
@@ -205,7 +205,7 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 
 	// Get the raw sub-field name (without parent prefix that DB might have).
 	// The database stores sub-fields as "parent_subfield", we need just "subfield".
-	$raw_name = openfields_get_raw_subfield_name( $sub_field->name, $base_name );
+	$raw_name = cof_get_raw_subfield_name( $sub_field->name, $base_name );
 
 	// Build the full field name: base_index_subfield
 	// ACF format: repeater_0_subfield (no prefix)
@@ -254,7 +254,7 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 	$wrapper_id = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 	
 	// Build wrapper classes
-	$classes = array( 'openfields-repeater-subfield' );
+	$classes = array( 'cof-repeater-subfield' );
 	if ( $wrapper_class ) {
 		$classes[] = $wrapper_class;
 	}
@@ -285,7 +285,7 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . $width_val . '%;" data-width="' . $width_val . '"' . $id_attr . $field_id_attr . $conditional_attr . '>';
 
 	if ( ! empty( $sub_field->label ) ) {
-		echo '<label class="openfields-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';
+		echo '<label class="cof-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';
 		echo esc_html( $sub_field->label );
 		if ( ! empty( $sub_field->required ) ) {
 			echo '<span class="required">*</span>';
@@ -293,8 +293,8 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 		echo '</label>';
 	}
 
-	echo '<div class="openfields-repeater-subfield-input">';
-	openfields_render_field_input( $sub_field, $value, $field_id, $full_name, $field_settings, $object_id, $object_type, $is_template, $base_name );
+	echo '<div class="cof-repeater-subfield-input">';
+	cof_render_field_input( $sub_field, $value, $field_id, $full_name, $field_settings, $object_id, $object_type, $is_template, $base_name );
 	echo '</div>';
 
 	if ( ! empty( $sub_field->instructions ) ) {
@@ -307,7 +307,7 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
 /**
  * Unified field input renderer.
  *
- * Delegates to the centralized OpenFields_Field_Renderer class for consistency.
+ * Delegates to the centralized COF_Field_Renderer class for consistency.
  *
  * @param object $field       Field database object.
  * @param mixed  $value       Current value.
@@ -319,7 +319,7 @@ function openfields_render_repeater_subfield( $sub_field, $index, $base_name, $o
  * @param bool   $is_template Whether rendering as template.
  * @param string $parent_name Parent repeater name for nested repeaters.
  */
-function openfields_render_field_input( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type = 'post', $is_template = false, $parent_name = '' ) {
+function cof_render_field_input( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type = 'post', $is_template = false, $parent_name = '' ) {
 	// Use the centralized field renderer.
 	$context = array(
 		'object_id'   => $object_id,
@@ -334,7 +334,7 @@ function openfields_render_field_input( $field, $value, $field_id, $full_name, $
 		return;
 	}
 
-	openfields_render_field( $field, $value, $field_id, $full_name, $settings, $context );
+	cof_render_field( $field, $value, $field_id, $full_name, $settings, $context );
 }
 
 /**
@@ -346,7 +346,7 @@ function openfields_render_field_input( $field, $value, $field_id, $full_name, $
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @return int
  */
-function openfields_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type = 'post' ) {
+function cof_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type = 'post' ) {
 	if ( ! $object_id || empty( $sub_fields ) ) {
 		return 0;
 	}
@@ -372,7 +372,7 @@ function openfields_detect_repeater_rows( $object_id, $base_name, $sub_fields, $
 
 	// Use first sub-field for detection.
 	// Get raw name without parent prefix.
-	$first_sub_raw = openfields_get_raw_subfield_name( $sub_fields[0]->name, $base_name );
+	$first_sub_raw = cof_get_raw_subfield_name( $sub_fields[0]->name, $base_name );
 
 	// Pattern: {base}_{index}_{subfield} (no prefix)
 	$keys = $wpdb->get_col(

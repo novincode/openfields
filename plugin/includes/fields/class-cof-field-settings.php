@@ -5,7 +5,7 @@
  * Bridges TypeScript field definitions with PHP rendering.
  * Reads field type configurations and provides PHP-friendly accessors.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class OpenFields_Field_Settings {
+class COF_Field_Settings {
 
 	/**
 	 * Field type configurations - defines how each field type should render

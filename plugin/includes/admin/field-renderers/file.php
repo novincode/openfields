@@ -5,7 +5,7 @@
  * Renders a file field with WordPress media library integration.
  * Supports file type restrictions and return format options.
  *
- * @package OpenFields
+ * @package Codeideal_Open_Fields
  * @since   1.0.0
  */
 
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function openfields_render_file_field( $field, $value, $field_id, $field_name, $settings ) {
+function cof_render_file_field( $field, $value, $field_id, $field_name, $settings ) {
 	$attachment_id = absint( $value );
 	$library       = isset( $settings['library'] ) ? $settings['library'] : 'all';
 	$mime_types    = isset( $settings['mime_types'] ) ? $settings['mime_types'] : '';
@@ -73,7 +73,7 @@ function openfields_render_file_field( $field, $value, $field_id, $field_name, $
 
 	$has_file = ! empty( $file_url );
 	?>
-	<div class="openfields-file-field" 
+	<div class="cof-file-field" 
 		 data-field-type="file"
 		 data-library="<?php echo esc_attr( $library ); ?>"
 		 data-mime-types="<?php echo esc_attr( $mime_types ); ?>"
@@ -85,53 +85,53 @@ function openfields_render_file_field( $field, $value, $field_id, $field_name, $
 			   id="<?php echo esc_attr( $field_id ); ?>" 
 			   name="<?php echo esc_attr( $field_name ); ?>" 
 			   value="<?php echo esc_attr( $attachment_id ); ?>"
-			   class="openfields-file-value" />
+			   class="cof-file-value" />
 
 		<!-- File info container -->
-		<div class="openfields-file-info <?php echo $has_file ? 'has-file' : 'no-file'; ?>">
+		<div class="cof-file-info <?php echo $has_file ? 'has-file' : 'no-file'; ?>">
 			<?php if ( $has_file ) : ?>
-				<div class="openfields-file-preview">
-					<span class="openfields-file-icon dashicons <?php echo esc_attr( $file_icon ); ?>"></span>
-					<div class="openfields-file-details">
+				<div class="cof-file-preview">
+					<span class="cof-file-icon dashicons <?php echo esc_attr( $file_icon ); ?>"></span>
+					<div class="cof-file-details">
 						<a href="<?php echo esc_url( $file_url ); ?>" 
 						   target="_blank" 
-						   class="openfields-file-name"
-						   title="<?php esc_attr_e( 'Open in new tab', 'openfields' ); ?>">
+						   class="cof-file-name"
+						   title="<?php esc_attr_e( 'Open in new tab', 'codeideal-open-fields' ); ?>">
 							<?php echo esc_html( $file_name ); ?>
 						</a>
-						<div class="openfields-file-meta">
+						<div class="cof-file-meta">
 							<?php if ( $file_type ) : ?>
-								<span class="openfields-file-type"><?php echo esc_html( $file_type ); ?></span>
+								<span class="cof-file-type"><?php echo esc_html( $file_type ); ?></span>
 							<?php endif; ?>
 							<?php if ( $file_size ) : ?>
-								<span class="openfields-file-size"><?php echo esc_html( $file_size ); ?></span>
+								<span class="cof-file-size"><?php echo esc_html( $file_size ); ?></span>
 							<?php endif; ?>
 						</div>
 					</div>
 				</div>
 			<?php else : ?>
-				<div class="openfields-file-placeholder">
+				<div class="cof-file-placeholder">
 					<span class="dashicons dashicons-media-default"></span>
-					<span class="openfields-file-placeholder-text"><?php esc_html_e( 'No file selected', 'openfields' ); ?></span>
+					<span class="cof-file-placeholder-text"><?php esc_html_e( 'No file selected', 'codeideal-open-fields' ); ?></span>
 				</div>
 			<?php endif; ?>
 		</div>
 
 		<!-- Action buttons -->
-		<div class="openfields-file-actions">
-			<button type="button" class="button openfields-file-select <?php echo $has_file ? 'hidden' : ''; ?>">
+		<div class="cof-file-actions">
+			<button type="button" class="button cof-file-select <?php echo $has_file ? 'hidden' : ''; ?>">
 				<span class="dashicons dashicons-upload"></span>
-				<?php esc_html_e( 'Select File', 'openfields' ); ?>
+				<?php esc_html_e( 'Select File', 'codeideal-open-fields' ); ?>
 			</button>
 			
-			<button type="button" class="button openfields-file-change <?php echo $has_file ? '' : 'hidden'; ?>">
+			<button type="button" class="button cof-file-change <?php echo $has_file ? '' : 'hidden'; ?>">
 				<span class="dashicons dashicons-edit"></span>
-				<?php esc_html_e( 'Change', 'openfields' ); ?>
+				<?php esc_html_e( 'Change', 'codeideal-open-fields' ); ?>
 			</button>
 			
-			<button type="button" class="button openfields-file-remove <?php echo $has_file ? '' : 'hidden'; ?>">
+			<button type="button" class="button cof-file-remove <?php echo $has_file ? '' : 'hidden'; ?>">
 				<span class="dashicons dashicons-trash"></span>
-				<?php esc_html_e( 'Remove', 'openfields' ); ?>
+				<?php esc_html_e( 'Remove', 'codeideal-open-fields' ); ?>
 			</button>
 		</div>
 	</div>
@@ -139,4 +139,4 @@ function openfields_render_file_field( $field, $value, $field_id, $field_name, $
 }
 
 // Register the renderer.
-add_action( 'openfields_render_field_file', 'openfields_render_file_field', 10, 5 );
+add_action( 'cof_render_field_file', 'cof_render_file_field', 10, 5 );

@@ -47,12 +47,12 @@
    Meta Box Container
    ============================================================================ */
 
-.openfields-meta-box {
+.cof-meta-box {
 	padding: var(--of-spacing-md);
 	background: #fff;
 }
 
-.openfields-meta-box-title {
+.cof-meta-box-title {
 	font-size: 14px;
 	font-weight: 600;
 	color: var(--of-text);
@@ -61,7 +61,7 @@
 	border-bottom: 1px solid var(--of-border-light);
 }
 
-.openfields-fieldset-description {
+.cof-fieldset-description {
 	font-size: 13px;
 	color: var(--of-text-secondary);
 	margin: 0 0 var(--of-spacing-lg) 0;
@@ -75,14 +75,14 @@
    Field Wrapper - Layout & Spacing
    ============================================================================ */
 
-.openfields-fields-container {
+.cof-fields-container {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--of-spacing-lg);
 	margin: 0;
 }
 
-.openfields-field-wrapper {
+.cof-field-wrapper {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
@@ -96,14 +96,14 @@
    Label & Description
    ============================================================================ */
 
-.openfields-field-label {
+.cof-field-label {
 	margin-bottom: var(--of-spacing-sm);
 	display: flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.openfields-field-label label {
+.cof-field-label label {
 	display: block;
 	font-size: 13px;
 	font-weight: 500;
@@ -113,18 +113,18 @@
 	cursor: pointer;
 }
 
-.openfields-field-label label:hover {
+.cof-field-label label:hover {
 	color: var(--of-primary);
 }
 
-.openfields-field-required {
+.cof-field-required {
 	color: var(--of-error);
 	font-weight: bold;
 	font-size: 12px;
 	line-height: 1;
 }
 
-.openfields-field-description {
+.cof-field-description {
 	margin: var(--of-spacing-sm) 0 0 0;
 	font-size: 12px;
 	color: var(--of-text-secondary);
@@ -136,24 +136,24 @@
    Field Input Container
    ============================================================================ */
 
-.openfields-field-input {
+.cof-field-input {
 	position: relative;
 }
 
-.openfields-field-input input[type="text"],
-.openfields-field-input input[type="email"],
-.openfields-field-input input[type="tel"],
-.openfields-field-input input[type="url"],
-.openfields-field-input input[type="number"],
-.openfields-field-input input[type="date"],
-.openfields-field-input input[type="time"],
-.openfields-field-input input[type="datetime-local"],
-.openfields-field-input input[type="month"],
-.openfields-field-input input[type="week"],
-.openfields-field-input input[type="password"],
-.openfields-field-input input[type="search"],
-.openfields-field-input textarea,
-.openfields-field-input select {
+.cof-field-input input[type="text"],
+.cof-field-input input[type="email"],
+.cof-field-input input[type="tel"],
+.cof-field-input input[type="url"],
+.cof-field-input input[type="number"],
+.cof-field-input input[type="date"],
+.cof-field-input input[type="time"],
+.cof-field-input input[type="datetime-local"],
+.cof-field-input input[type="month"],
+.cof-field-input input[type="week"],
+.cof-field-input input[type="password"],
+.cof-field-input input[type="search"],
+.cof-field-input textarea,
+.cof-field-input select {
 	width: 100%;
 	padding: 8px 12px;
 	border: 1px solid var(--of-border);
@@ -166,27 +166,27 @@
 	box-sizing: border-box;
 }
 
-.openfields-field-input input::placeholder,
-.openfields-field-input textarea::placeholder {
+.cof-field-input input::placeholder,
+.cof-field-input textarea::placeholder {
 	color: #999;
 }
 
-.openfields-field-input input:focus,
-.openfields-field-input textarea:focus,
-.openfields-field-input select:focus {
+.cof-field-input input:focus,
+.cof-field-input textarea:focus,
+.cof-field-input select:focus {
 	outline: none;
 	border-color: var(--of-primary);
 	box-shadow: 0 0 0 1px var(--of-focus-color);
 }
 
-.openfields-field-input textarea {
+.cof-field-input textarea {
 	min-height: 100px;
 	resize: vertical;
 	font-family: 'Courier New', monospace;
 	line-height: 1.5;
 }
 
-.openfields-field-input select {
+.cof-field-input select {
 	cursor: pointer;
 	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 	background-repeat: no-repeat;
@@ -197,9 +197,9 @@
 }
 
 /* Disabled states */
-.openfields-field-input input:disabled,
-.openfields-field-input textarea:disabled,
-.openfields-field-input select:disabled {
+.cof-field-input input:disabled,
+.cof-field-input textarea:disabled,
+.cof-field-input select:disabled {
 	background-color: var(--of-disabled-bg);
 	color: var(--of-disabled);
 	cursor: not-allowed;
@@ -207,14 +207,14 @@
 }
 
 /* Error states */
-.openfields-field-wrapper.is-error .openfields-field-input input,
-.openfields-field-wrapper.is-error .openfields-field-input textarea,
-.openfields-field-wrapper.is-error .openfields-field-input select {
+.cof-field-wrapper.is-error .cof-field-input input,
+.cof-field-wrapper.is-error .cof-field-input textarea,
+.cof-field-wrapper.is-error .cof-field-input select {
 	border-color: var(--of-error);
 	background-color: var(--of-error-bg);
 }
 
-.openfields-field-error-message {
+.cof-field-error-message {
 	display: block;
 	margin: var(--of-spacing-sm) 0 0 0;
 	padding: 8px 12px;
@@ -231,7 +231,7 @@
    ============================================================================ */
 
 /* COMPLETELY hide the actual checkbox - not just display:none */
-.openfields-switch-checkbox {
+.cof-switch-checkbox {
 	position: absolute;
 	opacity: 0;
 	width: 0;
@@ -242,7 +242,7 @@
 }
 
 /* The label container - grid with 2 equal columns */
-.openfields-switch-container {
+.cof-switch-container {
 	position: relative;
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
@@ -259,7 +259,7 @@
 }
 
 /* Text divs in the grid */
-.openfields-switch-container div {
+.cof-switch-container div {
 	padding: 8px 10px;
 	text-align: center;
 	z-index: 1;
@@ -270,17 +270,17 @@
 }
 
 /* Default state: OFF/left side visible (white text on gray), ON/right side hidden (gray on gray) */
-.openfields-switch-checkbox:not(:checked) + .openfields-switch-container div:first-child {
+.cof-switch-checkbox:not(:checked) + .cof-switch-container div:first-child {
 	color: #999;
 }
 
-.openfields-switch-checkbox:not(:checked) + .openfields-switch-container div:last-child {
+.cof-switch-checkbox:not(:checked) + .cof-switch-container div:last-child {
 	color: #000;
 	opacity: 0.3;
 }
 
 /* Sliding thumb - the white background */
-.openfields-switch-container::after {
+.cof-switch-container::after {
 	content: '';
 	position: absolute;
 	left: 2px;
@@ -295,34 +295,34 @@
 }
 
 /* CHECKED state: shift thumb to right, WordPress blue background, swap visibility */
-.openfields-switch-checkbox:checked + .openfields-switch-container {
+.cof-switch-checkbox:checked + .cof-switch-container {
 	background: #0073aa;
 	border-color: #0073aa;
 }
 
-.openfields-switch-checkbox:checked + .openfields-switch-container::after {
+.cof-switch-checkbox:checked + .cof-switch-container::after {
 	left: calc(50% + 2px);
 }
 
 /* When checked: OFF/left text hidden (blue on blue), ON/right text visible (white) */
-.openfields-switch-checkbox:checked + .openfields-switch-container div:first-child {
+.cof-switch-checkbox:checked + .cof-switch-container div:first-child {
 	color: #999999;
 	opacity: 0.6;
 }
 
-.openfields-switch-checkbox:checked + .openfields-switch-container div:last-child {
+.cof-switch-checkbox:checked + .cof-switch-container div:last-child {
 	color: #0073aa;
 	opacity: 1;
 }
 
 /* Focus state for accessibility */
-.openfields-switch-checkbox:focus + .openfields-switch-container {
+.cof-switch-checkbox:focus + .cof-switch-container {
 	outline: 2px solid #0073aa;
 	outline-offset: 2px;
 }
 
 /* Disabled state */
-.openfields-switch-checkbox:disabled + .openfields-switch-container {
+.cof-switch-checkbox:disabled + .cof-switch-container {
 	opacity: 0.5;
 	cursor: not-allowed;
 	background: #ccc;
@@ -330,12 +330,12 @@
 }
 
 /* Active focus ring (visible keyboard navigation) */
-.openfields-switch-checkbox:focus-visible + .openfields-switch-container {
+.cof-switch-checkbox:focus-visible + .cof-switch-container {
 	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 /* Switch label descriptor (optional text after switch) */
-.openfields-switch-descriptor {
+.cof-switch-descriptor {
 	font-size: 12px;
 	color: var(--of-text-secondary);
 	margin-left: var(--of-spacing-sm);
@@ -345,23 +345,23 @@
    Checkbox & Radio Groups
    ============================================================================ */
 
-.openfields-checkbox-group,
-.openfields-radio-group {
+.cof-checkbox-group,
+.cof-radio-group {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.openfields-checkbox-item,
-.openfields-radio-item {
+.cof-checkbox-item,
+.cof-radio-item {
 	display: flex;
 	align-items: center;
 	gap: var(--of-spacing-sm);
 	cursor: pointer;
 }
 
-.openfields-checkbox-input,
-.openfields-radio-input {
+.cof-checkbox-input,
+.cof-radio-input {
 	width: 16px;
 	height: 16px;
 	margin: 0;
@@ -372,8 +372,8 @@
 	accent-color: var(--of-primary);
 }
 
-.openfields-checkbox-label,
-.openfields-radio-label {
+.cof-checkbox-label,
+.cof-radio-label {
 	font-size: 13px;
 	color: var(--of-text);
 	cursor: pointer;
@@ -382,8 +382,8 @@
 	user-select: none;
 }
 
-.openfields-checkbox-item:hover .openfields-checkbox-label,
-.openfields-radio-item:hover .openfields-radio-label {
+.cof-checkbox-item:hover .cof-checkbox-label,
+.cof-radio-item:hover .cof-radio-label {
 	color: var(--of-primary);
 }
 
@@ -391,19 +391,19 @@
    File & Image Fields
    ============================================================================ */
 
-.openfields-file-field,
-.openfields-image-field {
+.cof-file-field,
+.cof-image-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.openfields-file-upload {
+.cof-file-upload {
 	position: relative;
 	display: inline-block;
 }
 
-.openfields-file-upload input[type="file"] {
+.cof-file-upload input[type="file"] {
 	position: absolute;
 	opacity: 0;
 	width: 0;
@@ -411,7 +411,7 @@
 	cursor: pointer;
 }
 
-.openfields-file-upload-button {
+.cof-file-upload-button {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-sm);
@@ -426,18 +426,18 @@
 	transition: var(--of-transition);
 }
 
-.openfields-file-upload-button:hover {
+.cof-file-upload-button:hover {
 	background-color: var(--of-bg-hover);
 	border-color: var(--of-primary);
 	color: var(--of-primary);
 }
 
-.openfields-file-upload-button:focus {
+.cof-file-upload-button:focus {
 	outline: none;
 	box-shadow: 0 0 0 1px var(--of-focus-color);
 }
 
-.openfields-image-preview {
+.cof-image-preview {
 	width: 100px;
 	height: 100px;
 	border: 1px solid var(--of-border);
@@ -450,13 +450,13 @@
 	flex-shrink: 0;
 }
 
-.openfields-image-preview img {
+.cof-image-preview img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
 
-.openfields-file-name {
+.cof-file-name {
 	font-size: 12px;
 	color: var(--of-text-secondary);
 	word-break: break-all;
@@ -469,16 +469,16 @@
    Conditional Logic
    ============================================================================ */
 
-.openfields-field-wrapper[data-conditional-logic] {
+.cof-field-wrapper[data-conditional-logic] {
 	transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 /* Hidden by JS - use display:none for reliable hiding */
-.openfields-field-wrapper[data-conditional-status="hidden"] {
+.cof-field-wrapper[data-conditional-status="hidden"] {
 	display: none !important;
 }
 
-.openfields-field-wrapper[data-conditional-status="visible"] {
+.cof-field-wrapper[data-conditional-status="visible"] {
 	display: block;
 	opacity: 1;
 	visibility: visible;
@@ -490,19 +490,19 @@
    ============================================================================ */
 
 @media (max-width: 782px) {
-	.openfields-field-wrapper--width-50,
-	.openfields-field-wrapper--width-33,
-	.openfields-field-wrapper--width-25 {
+	.cof-field-wrapper--width-50,
+	.cof-field-wrapper--width-33,
+	.cof-field-wrapper--width-25 {
 		width: 100%;
 	}
 
-	.openfields-fields-container {
+	.cof-fields-container {
 		gap: var(--of-spacing-md);
 	}
 
-	.openfields-field-input input,
-	.openfields-field-input textarea,
-	.openfields-field-input select {
+	.cof-field-input input,
+	.cof-field-input textarea,
+	.cof-field-input select {
 		font-size: 16px; /* Prevents zoom on iOS */
 	}
 }
@@ -517,7 +517,7 @@
 }
 
 /* Screen reader only text */
-.openfields-sr-only {
+.cof-sr-only {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -533,34 +533,34 @@
    Utility Classes
    ============================================================================ */
 
-.openfields-field--hidden {
+.cof-field--hidden {
 	display: none;
 }
 
-.openfields-field--disabled {
+.cof-field--disabled {
 	opacity: 0.6;
 	pointer-events: none;
 }
 
-.openfields-field-hint {
+.cof-field-hint {
 	font-size: 11px;
 	color: var(--of-text-secondary);
 	margin-top: 4px;
 	font-style: italic;
 }
 
-.openfields-field-success {
+.cof-field-success {
 	border-color: var(--of-success) !important;
 	background-color: #efe !important;
 }
 
-.openfields-field-loading {
+.cof-field-loading {
 	position: relative;
 	opacity: 0.6;
 	pointer-events: none;
 }
 
-.openfields-field-loading::after {
+.cof-field-loading::after {
 	content: '';
 	position: absolute;
 	top: 50%;
@@ -584,13 +584,13 @@
    Input with Icon (Email, URL, etc.)
    ============================================================================ */
 
-.openfields-input-with-icon {
+.cof-input-with-icon {
 	position: relative;
 	display: flex;
 	align-items: stretch;
 }
 
-.openfields-input-icon {
+.cof-input-icon {
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
@@ -605,24 +605,24 @@
 	font-size: 16px;
 }
 
-.openfields-input-icon-left .openfields-input-icon {
+.cof-input-icon-left .cof-input-icon {
 	left: 10px;
 }
 
-.openfields-input-icon-right .openfields-input-icon {
+.cof-input-icon-right .cof-input-icon {
 	right: 10px;
 }
 
-.openfields-input-icon-left .openfields-input-has-icon {
+.cof-input-icon-left .cof-input-has-icon {
 	padding-left: 36px !important;
 }
 
-.openfields-input-icon-right .openfields-input-has-icon {
+.cof-input-icon-right .cof-input-has-icon {
 	padding-right: 36px !important;
 }
 
 /* Icon color changes on focus */
-.openfields-input-with-icon:focus-within .openfields-input-icon {
+.cof-input-with-icon:focus-within .cof-input-icon {
 	color: var(--of-primary);
 }
 
@@ -631,30 +631,30 @@
    ============================================================================ */
 
 /* Valid input */
-.openfields-field-input input.is-valid,
-.openfields-field-input textarea.is-valid,
-.openfields-field-input select.is-valid {
+.cof-field-input input.is-valid,
+.cof-field-input textarea.is-valid,
+.cof-field-input select.is-valid {
 	border-color: var(--of-success);
 }
 
-.openfields-input-with-icon:has(input.is-valid) .openfields-input-icon {
+.cof-input-with-icon:has(input.is-valid) .cof-input-icon {
 	color: var(--of-success);
 }
 
 /* Invalid input */
-.openfields-field-input input.is-invalid,
-.openfields-field-input textarea.is-invalid,
-.openfields-field-input select.is-invalid {
+.cof-field-input input.is-invalid,
+.cof-field-input textarea.is-invalid,
+.cof-field-input select.is-invalid {
 	border-color: var(--of-error);
 	background-color: var(--of-error-bg);
 }
 
-.openfields-input-with-icon:has(input.is-invalid) .openfields-input-icon {
+.cof-input-with-icon:has(input.is-invalid) .cof-input-icon {
 	color: var(--of-error);
 }
 
 /* Validation message */
-.openfields-validation-message {
+.cof-validation-message {
 	display: none;
 	margin: var(--of-spacing-xs) 0 0 0;
 	padding: var(--of-spacing-xs) var(--of-spacing-sm);
@@ -663,13 +663,13 @@
 	line-height: 1.4;
 }
 
-.openfields-validation-message.is-error {
+.cof-validation-message.is-error {
 	display: block;
 	color: var(--of-error);
 	background-color: var(--of-error-bg);
 }
 
-.openfields-validation-message.is-success {
+.cof-validation-message.is-success {
 	display: block;
 	color: var(--of-success);
 	background-color: #e8f5e9;
@@ -679,13 +679,13 @@
    Image Field
    ============================================================================ */
 
-.openfields-image-field {
+.cof-image-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.openfields-image-preview {
+.cof-image-preview {
 	position: relative;
 	border: 2px dashed var(--of-border);
 	border-radius: var(--of-radius);
@@ -698,16 +698,16 @@
 	transition: var(--of-transition);
 }
 
-.openfields-image-preview.has-image {
+.cof-image-preview.has-image {
 	border-style: solid;
 	padding: var(--of-spacing-sm);
 }
 
-.openfields-image-preview:hover {
+.cof-image-preview:hover {
 	border-color: var(--of-primary-light);
 }
 
-.openfields-image-thumb {
+.cof-image-thumb {
 	max-width: 200px;
 	max-height: 200px;
 	width: auto;
@@ -716,7 +716,7 @@
 	object-fit: contain;
 }
 
-.openfields-image-info {
+.cof-image-info {
 	position: absolute;
 	bottom: var(--of-spacing-sm);
 	left: var(--of-spacing-sm);
@@ -731,7 +731,7 @@
 	text-overflow: ellipsis;
 }
 
-.openfields-image-placeholder {
+.cof-image-placeholder {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -739,31 +739,31 @@
 	color: var(--of-text-secondary);
 }
 
-.openfields-image-placeholder .dashicons {
+.cof-image-placeholder .dashicons {
 	font-size: 48px;
 	width: 48px;
 	height: 48px;
 	opacity: 0.5;
 }
 
-.openfields-image-actions {
+.cof-image-actions {
 	display: flex;
 	gap: var(--of-spacing-sm);
 }
 
-.openfields-image-actions .button {
+.cof-image-actions .button {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.openfields-image-actions .dashicons {
+.cof-image-actions .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.openfields-image-actions .hidden {
+.cof-image-actions .hidden {
 	display: none !important;
 }
 
@@ -771,20 +771,20 @@
    File Field
    ============================================================================ */
 
-.openfields-file-field {
+.cof-file-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.openfields-file-info {
+.cof-file-info {
 	border: 1px solid var(--of-border);
 	border-radius: var(--of-radius);
 	padding: var(--of-spacing-md);
 	background: var(--of-bg);
 }
 
-.openfields-file-info.no-file {
+.cof-file-info.no-file {
 	border-style: dashed;
 	min-height: 80px;
 	display: flex;
@@ -792,13 +792,13 @@
 	justify-content: center;
 }
 
-.openfields-file-preview {
+.cof-file-preview {
 	display: flex;
 	align-items: center;
 	gap: var(--of-spacing-md);
 }
 
-.openfields-file-icon {
+.cof-file-icon {
 	font-size: 36px;
 	width: 36px;
 	height: 36px;
@@ -806,12 +806,12 @@
 	flex-shrink: 0;
 }
 
-.openfields-file-details {
+.cof-file-details {
 	flex: 1;
 	min-width: 0;
 }
 
-.openfields-file-name {
+.cof-file-name {
 	display: block;
 	font-weight: 500;
 	color: var(--of-primary);
@@ -819,11 +819,11 @@
 	word-break: break-word;
 }
 
-.openfields-file-name:hover {
+.cof-file-name:hover {
 	text-decoration: underline;
 }
 
-.openfields-file-meta {
+.cof-file-meta {
 	display: flex;
 	gap: var(--of-spacing-sm);
 	margin-top: var(--of-spacing-xs);
@@ -831,7 +831,7 @@
 	color: var(--of-text-secondary);
 }
 
-.openfields-file-type {
+.cof-file-type {
 	background: var(--of-border-light);
 	padding: 2px 6px;
 	border-radius: 3px;
@@ -840,7 +840,7 @@
 	font-size: 10px;
 }
 
-.openfields-file-placeholder {
+.cof-file-placeholder {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -848,31 +848,31 @@
 	color: var(--of-text-secondary);
 }
 
-.openfields-file-placeholder .dashicons {
+.cof-file-placeholder .dashicons {
 	font-size: 36px;
 	width: 36px;
 	height: 36px;
 	opacity: 0.5;
 }
 
-.openfields-file-actions {
+.cof-file-actions {
 	display: flex;
 	gap: var(--of-spacing-sm);
 }
 
-.openfields-file-actions .button {
+.cof-file-actions .button {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.openfields-file-actions .dashicons {
+.cof-file-actions .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.openfields-file-actions .hidden {
+.cof-file-actions .hidden {
 	display: none !important;
 }
 
@@ -880,13 +880,13 @@
    Gallery Field
    ============================================================================ */
 
-.openfields-gallery-field {
+.cof-gallery-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.openfields-gallery-grid {
+.cof-gallery-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 	gap: var(--of-spacing-sm);
@@ -897,11 +897,11 @@
 	min-height: 120px;
 }
 
-.openfields-gallery-grid.no-images {
+.cof-gallery-grid.no-images {
 	display: none;
 }
 
-.openfields-gallery-item {
+.cof-gallery-item {
 	position: relative;
 	aspect-ratio: 1;
 	border-radius: var(--of-radius);
@@ -910,27 +910,27 @@
 	transition: var(--of-transition);
 }
 
-.openfields-gallery-item:hover {
+.cof-gallery-item:hover {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.openfields-gallery-item.is-dragging {
+.cof-gallery-item.is-dragging {
 	opacity: 0.5;
 	cursor: grabbing;
 }
 
-.openfields-gallery-thumb {
+.cof-gallery-thumb {
 	width: 100%;
 	height: 100%;
 }
 
-.openfields-gallery-thumb img {
+.cof-gallery-thumb img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
 
-.openfields-gallery-item-actions {
+.cof-gallery-item-actions {
 	position: absolute;
 	top: 4px;
 	right: 4px;
@@ -938,11 +938,11 @@
 	transition: opacity 0.2s;
 }
 
-.openfields-gallery-item:hover .openfields-gallery-item-actions {
+.cof-gallery-item:hover .cof-gallery-item-actions {
 	opacity: 1;
 }
 
-.openfields-gallery-item-remove {
+.cof-gallery-item-remove {
 	background: rgba(220, 53, 69, 0.9);
 	color: #fff;
 	border: none;
@@ -957,18 +957,18 @@
 	transition: var(--of-transition);
 }
 
-.openfields-gallery-item-remove:hover {
+.cof-gallery-item-remove:hover {
 	background: #dc3545;
 	transform: scale(1.1);
 }
 
-.openfields-gallery-item-remove .dashicons {
+.cof-gallery-item-remove .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.openfields-gallery-item-drag {
+.cof-gallery-item-drag {
 	position: absolute;
 	bottom: 4px;
 	left: 4px;
@@ -980,17 +980,17 @@
 	padding: 2px;
 }
 
-.openfields-gallery-item:hover .openfields-gallery-item-drag {
+.cof-gallery-item:hover .cof-gallery-item-drag {
 	opacity: 1;
 }
 
-.openfields-gallery-item-drag .dashicons {
+.cof-gallery-item-drag .dashicons {
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
 }
 
-.openfields-gallery-add-item {
+.cof-gallery-add-item {
 	aspect-ratio: 1;
 	border: 2px dashed var(--of-border);
 	border-radius: var(--of-radius);
@@ -1000,12 +1000,12 @@
 	transition: var(--of-transition);
 }
 
-.openfields-gallery-add-item:hover {
+.cof-gallery-add-item:hover {
 	border-color: var(--of-primary);
 	background: rgba(0, 115, 170, 0.05);
 }
 
-.openfields-gallery-add {
+.cof-gallery-add {
 	background: none;
 	border: none;
 	cursor: pointer;
@@ -1018,22 +1018,22 @@
 	transition: var(--of-transition);
 }
 
-.openfields-gallery-add:hover {
+.cof-gallery-add:hover {
 	color: var(--of-primary);
 }
 
-.openfields-gallery-add .dashicons {
+.cof-gallery-add .dashicons {
 	font-size: 24px;
 	width: 24px;
 	height: 24px;
 }
 
-.openfields-gallery-add-text {
+.cof-gallery-add-text {
 	font-size: 11px;
 	font-weight: 500;
 }
 
-.openfields-gallery-placeholder {
+.cof-gallery-placeholder {
 	border: 2px dashed var(--of-border);
 	border-radius: var(--of-radius);
 	padding: var(--of-spacing-xl);
@@ -1045,7 +1045,7 @@
 	text-align: center;
 }
 
-.openfields-gallery-placeholder .dashicons {
+.cof-gallery-placeholder .dashicons {
 	font-size: 48px;
 	width: 48px;
 	height: 48px;
@@ -1053,23 +1053,23 @@
 	opacity: 0.5;
 }
 
-.openfields-gallery-placeholder-text {
+.cof-gallery-placeholder-text {
 	color: var(--of-text-secondary);
 }
 
-.openfields-gallery-select {
+.cof-gallery-select {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.openfields-gallery-select .dashicons {
+.cof-gallery-select .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.openfields-gallery-limits {
+.cof-gallery-limits {
 	font-size: 12px;
 	color: var(--of-text-secondary);
 	text-align: center;
@@ -1081,7 +1081,7 @@
    Taxonomy Term Fields
    ============================================================================ */
 
-.openfields-taxonomy-fieldset {
+.cof-taxonomy-fieldset {
 margin: var(--of-spacing-lg) 0;
 padding: var(--of-spacing-lg);
 background: #fff;
@@ -1089,7 +1089,7 @@ border: 1px solid var(--of-border);
 border-radius: var(--of-radius);
 }
 
-.openfields-taxonomy-fieldset .openfields-fieldset-title {
+.cof-taxonomy-fieldset .cof-fieldset-title {
 margin: 0 0 var(--of-spacing-lg) 0;
 padding-bottom: var(--of-spacing-md);
 border-bottom: 1px solid var(--of-border-light);
@@ -1097,23 +1097,23 @@ font-size: 14px;
 font-weight: 600;
 }
 
-.openfields-taxonomy-fieldset-row .openfields-fieldset-title {
+.cof-taxonomy-fieldset-row .cof-fieldset-title {
 font-size: 14px;
 font-weight: 600;
 color: var(--of-text);
 }
 
 /* Add form (non-table layout) */
-.openfields-taxonomy-fieldset .openfields-field-wrapper {
+.cof-taxonomy-fieldset .cof-field-wrapper {
 margin-bottom: var(--of-spacing-lg);
 }
 
 /* Edit form (table layout) */
-.openfields-field-row .openfields-field-wrapper {
+.cof-field-row .cof-field-wrapper {
 margin: 0;
 }
 
-.openfields-field-row .openfields-fields-row {
+.cof-field-row .cof-fields-row {
 margin: 0;
 }
 
@@ -1121,14 +1121,14 @@ margin: 0;
    User Profile Fields
    ============================================================================ */
 
-.openfields-user-fieldset {
+.cof-user-fieldset {
 margin: var(--of-spacing-lg) 0;
 }
 
-.openfields-user-field-row .openfields-field-wrapper {
+.cof-user-field-row .cof-field-wrapper {
 margin: 0;
 }
 
-.openfields-user-field-row .openfields-fields-row {
+.cof-user-field-row .cof-fields-row {
 margin: 0;
 }
