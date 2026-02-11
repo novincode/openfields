@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields field wrapper class.
+ * Codeideal Open Fields field wrapper class.
  *
  * Wraps individual field instances with common functionality:
  * - Width and layout control

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields location manager class.
+ * Codeideal Open Fields location manager class.
  *
  * @since 1.0.0
  */

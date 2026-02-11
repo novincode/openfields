@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields meta box class.
+ * Codeideal Open Fields meta box class.
  *
  * @since 1.0.0
  */

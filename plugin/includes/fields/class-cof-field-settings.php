@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields Field Settings class.
+ * Codeideal Open Fields Field Settings class.
  * 
  * This class provides a bridge between TypeScript field definitions
  * and PHP field rendering. Instead of duplicating logic, we maintain

@@ -134,7 +134,7 @@ class COF_Assets {
 			return;
 		}
 
-		// Check if there are any OpenFields meta boxes for this post type.
+		// Check if there are any Codeideal Open Fields meta boxes for this post type.
 		global $post;
 		if ( ! $post ) {
 			return;

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields field registry class.
+ * Codeideal Open Fields field registry class.
  *
  * @since 1.0.0
  */

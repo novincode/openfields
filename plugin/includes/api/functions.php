@@ -52,7 +52,7 @@ function cof_acf_compatibility_notice() {
 }
 
 // =============================================================================
-// MAIN API FUNCTIONS (Prefixed - OpenFields Core)
+// MAIN API FUNCTIONS (Prefixed - Core API)
 // =============================================================================
 
 /**
@@ -296,7 +296,7 @@ if ( ! function_exists( 'get_field_object' ) ) {
 }
 
 // =============================================================================
-// REPEATER / ROW FUNCTIONS (Prefixed - OpenFields Core)
+// REPEATER / ROW FUNCTIONS (Prefixed - Core API)
 // =============================================================================
 
 /**
@@ -583,7 +583,7 @@ if ( ! function_exists( 'get_row_layout' ) ) {
 }
 
 // =============================================================================
-// SUB-FIELD FUNCTIONS (Prefixed - OpenFields Core)
+// SUB-FIELD FUNCTIONS (Prefixed - Core API)
 // =============================================================================
 
 /**
@@ -701,7 +701,7 @@ if ( ! function_exists( 'get_sub_field_object' ) ) {
 }
 
 // =============================================================================
-// OPENFIELDS-SPECIFIC FUNCTIONS (Always available, prefixed)
+// PLUGIN-SPECIFIC FUNCTIONS (Always available, prefixed)
 // =============================================================================
 
 /**
@@ -1021,7 +1021,7 @@ function cof_format_user_value( $value, $return_format ) {
 }
 
 // =============================================================================
-// REGISTRATION FUNCTIONS (OpenFields-specific, always prefixed)
+// REGISTRATION FUNCTIONS (Plugin-specific, always prefixed)
 // =============================================================================
 
 /**

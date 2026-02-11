@@ -1,6 +1,6 @@
 <?php
 /**
- * OpenFields Gutenberg Block
+ * Codeideal Open Fields Gutenberg Block
  *
  * A dynamic block to display custom field values in the block editor.
  *
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Register the OpenFields display block.
+ * Register the Codeideal Open Fields display block.
  */
 class COF_Block {
 

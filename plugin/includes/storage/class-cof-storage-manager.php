@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * OpenFields storage manager class.
+ * Codeideal Open Fields storage manager class.
  *
  * @since 1.0.0
  */
