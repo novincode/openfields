@@ -282,7 +282,10 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
 		$conditional_attr .= ' data-conditional-status="hidden"'; // Initially hidden, shown by JS if conditions met
 	}
 	
-	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . $width_val . '%;" data-width="' . $width_val . '"' . $id_attr . $field_id_attr . $conditional_attr . '>';
+	echo '<div class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '" style="--of-field-width: ' . esc_attr( $width_val ) . '%;" data-width="' . esc_attr( $width_val ) . '"';
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $id_attr, $field_id_attr, $conditional_attr are pre-escaped with esc_attr() above.
+	echo $id_attr . $field_id_attr . $conditional_attr;
+	echo '>';
 
 	if ( ! empty( $sub_field->label ) ) {
 		echo '<label class="cof-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';

@@ -1,9 +1,9 @@
 {
   "name": "openfields",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
-  "description": "Modern custom fields plugin for WordPress - the open-source ACF alternative",
-  "author": "OpenFields Contributors",
+  "description": "Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive interface.",
+  "author": "Codeideal",
   "license": "GPL-2.0-or-later",
   "packageManager": "pnpm@10.24.0",
   "scripts": {

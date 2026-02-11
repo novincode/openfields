@@ -15,23 +15,23 @@ NC='\033[0m' # No Color
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PLUGIN_DIR="$ROOT_DIR/plugin"
 BUILD_DIR="$ROOT_DIR/dist"
-ZIP_NAME="openfields"
+ZIP_NAME="codeideal-open-fields"
 PACKAGE_JSON="$ROOT_DIR/package.json"
-PLUGIN_FILE="$PLUGIN_DIR/openfields.php"
+PLUGIN_FILE="$PLUGIN_DIR/codeideal-open-fields.php"
 
 # Get version from package.json
 get_version() {
     grep '"version"' "$PACKAGE_JSON" | head -1 | sed 's/.*"version": "\([^"]*\)".*/\1/'
 }
 
-# Update plugin version in openfields.php
+# Update plugin version in codeideal-open-fields.php
 update_plugin_version() {
     local version=$1
     echo -e "${YELLOW}→ Updating plugin version to $version${NC}"
     
     # macOS compatible sed (using .bak for backup, then deleting it)
     sed -i.bak "s/\* Version: .*/\* Version: $version/" "$PLUGIN_FILE"
-    sed -i.bak "s/define( 'OPENFIELDS_VERSION', .*/define( 'OPENFIELDS_VERSION', '$version' );/" "$PLUGIN_FILE"
+    sed -i.bak "s/define( 'COF_VERSION', .*/define( 'COF_VERSION', '$version' );/" "$PLUGIN_FILE"
     rm -f "${PLUGIN_FILE}.bak"
 }
 
@@ -76,7 +76,7 @@ clean_build() {
 create_distribution() {
     local version=$1
     local git_hash=$2
-    local dist_dir="$BUILD_DIR/openfields"
+    local dist_dir="$BUILD_DIR/$ZIP_NAME"
     
     echo -e "${YELLOW}→ Creating plugin distribution...${NC}"
     
@@ -101,13 +101,13 @@ create_distribution() {
 create_zip() {
     local version=$1
     local git_hash=$2
-    local dist_dir="$BUILD_DIR/openfields"
+    local dist_dir="$BUILD_DIR/$ZIP_NAME"
     local zip_file="$BUILD_DIR/${ZIP_NAME}-${version}.zip"
     
     echo -e "${YELLOW}→ Creating ZIP file...${NC}"
     
     cd "$BUILD_DIR"
-    zip -r "${ZIP_NAME}-${version}.zip" openfields/ > /dev/null
+    zip -r "${ZIP_NAME}-${version}.zip" "$ZIP_NAME"/ > /dev/null
     cd - > /dev/null
     
     echo -e "${GREEN}✓ ZIP created: $zip_file${NC}"
