@@ -2,10 +2,10 @@
 /**
  * Repeater Field Renderer
  *
- * Renders repeater fields with ACF-compatible data storage format.
+ * Renders repeater fields with standard WordPress meta storage format.
  * Supports nested repeaters through recursive rendering.
  *
- * ACF Data Format (no prefix, 0-based index):
+ * Meta Storage Format (no prefix, 0-based index):
  * - {field_name} = count (integer)
  * - {field_name}_{index}_{subfield} = value
  *
@@ -78,7 +78,7 @@ function cof_render_repeater_field( $field, $value, $field_id, $base_name, $sett
 		data-max="<?php echo esc_attr( $max ); ?>"
 		data-layout="<?php echo esc_attr( $layout ); ?>"
 	>
-		<!-- Hidden count input - NO PREFIX for ACF compatibility -->
+		<!-- Hidden count input - NO PREFIX for cross-plugin compatibility -->
 		<input 
 			type="hidden" 
 			name="<?php echo esc_attr( $base_name ); ?>" 
@@ -160,7 +160,7 @@ function cof_render_repeater_row( $field, $sub_fields, $index, $base_name, $layo
  * Get raw sub-field name (without parent prefix).
  *
  * Sub-fields in the database are stored with parent prefix (e.g., "field_3_field_1").
- * For ACF-compatible data format, we need the raw name (e.g., "field_1").
+ * For the standard meta storage format, we need the raw name (e.g., "field_1").
  *
  * @param string $sub_field_name Full sub-field name from database.
  * @param string $parent_name    Parent repeater name.
@@ -208,7 +208,7 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
 	$raw_name = cof_get_raw_subfield_name( $sub_field->name, $base_name );
 
 	// Build the full field name: base_index_subfield
-	// ACF format: repeater_0_subfield (no prefix)
+	// Meta format: repeater_0_subfield (no prefix)
 	$full_name = $base_name . '_' . $index . '_' . $raw_name;
 	
 	// Build field ID - handle {{INDEX}} placeholder properly for templates

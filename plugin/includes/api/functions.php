@@ -3,11 +3,12 @@
  * Public API functions.
  *
  * Developer-facing functions for template use.
- * These functions are ACF-compatible - same function names, same output format.
+ * These functions provide a standard API for retrieving custom field values.
  * 
- * If ACF is already active, these functions won't be defined to avoid conflicts.
- * Since OpenFields stores data in the same format as ACF, ACF's functions will
- * work with OpenFields data automatically.
+ * When another custom fields plugin is active, the generic function
+ * names (get_field, the_field, etc.) won't be redefined to avoid conflicts.
+ * Since Codeideal Open Fields stores data using standard WordPress meta,
+ * other plugins' functions will work with this data automatically.
  *
  * @package Codeideal_Open_Fields
  * @since   1.0.0
@@ -19,16 +20,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // =============================================================================
-// ACF COMPATIBILITY NOTICE
+// COMPATIBILITY NOTICE
 // =============================================================================
 
 /**
- * Check if ACF is active and add admin notice if needed.
+ * Check if another custom fields plugin is active and add admin notice if needed.
  */
 add_action( 'admin_notices', 'cof_acf_compatibility_notice' );
 
 function cof_acf_compatibility_notice() {
-	// Only show to admins on OpenFields pages.
+	// Only show to admins on Codeideal Open Fields pages.
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
@@ -42,8 +43,8 @@ function cof_acf_compatibility_notice() {
 		?>
 		<div class="notice notice-info is-dismissible">
 			<p>
-				<strong><?php esc_html_e( 'OpenFields + ACF Detected', 'codeideal-open-fields' ); ?></strong>
-				<?php esc_html_e( 'Both plugins are active. OpenFields stores data in ACF-compatible format, so ACF\'s template functions will work with OpenFields data. You can use either plugin\'s API.', 'codeideal-open-fields' ); ?>
+				<strong><?php esc_html_e( 'Codeideal Open Fields - Compatibility Notice', 'codeideal-open-fields' ); ?></strong>
+				<?php esc_html_e( 'Another custom fields plugin has been detected. Codeideal Open Fields stores data using standard WordPress meta, so both plugins can coexist. You can use either API to retrieve field values.', 'codeideal-open-fields' ); ?>
 			</p>
 		</div>
 		<?php
@@ -57,7 +58,7 @@ function cof_acf_compatibility_notice() {
 /**
  * Get a field value.
  *
- * For repeater fields, if the value is an integer (ACF format row count),
+ * For repeater fields, if the value is an integer (standard row count format),
  * this function returns the reconstructed array of rows.
  *
  * For relational fields (post_object, taxonomy, user), applies return_format
@@ -95,15 +96,15 @@ function cof_get_field( $field_name, $object_id = null, $format_value = true ) {
 }
 
 // =============================================================================
-// ACF-COMPATIBLE WRAPPERS (Only defined if ACF is not active)
-// These provide backward compatibility with ACF function names.
+// COMPATIBLE WRAPPERS (Only defined if no other custom fields plugin is active)
+// These provide standard function names used across the WordPress ecosystem.
 // The phpcs:ignore comments are needed because PHPCS cannot understand
 // that function_exists() makes these conditional declarations.
 // =============================================================================
 
 if ( ! function_exists( 'get_field' ) ) {
 	/**
-	 * Get a field value (ACF-compatible wrapper).
+	 * Get a field value (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
@@ -112,7 +113,7 @@ if ( ! function_exists( 'get_field' ) ) {
 	 * @param  bool     $format_value Whether to format the value based on return_format.
 	 * @return mixed    Field value.
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper, only defined if ACF not present.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared by another plugin.
 	function get_field( $field_name, $object_id = null, $format_value = true ) {
 		return cof_get_field( $field_name, $object_id, $format_value );
 	}
@@ -139,7 +140,7 @@ function cof_the_field( $field_name, $object_id = null ) {
 
 if ( ! function_exists( 'the_field' ) ) {
 	/**
-	 * Get and echo a field value (ACF-compatible wrapper).
+	 * Get and echo a field value (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
@@ -147,7 +148,7 @@ if ( ! function_exists( 'the_field' ) ) {
 	 * @param  int|null $object_id  Object ID. Defaults to current post.
 	 * @return void
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function the_field( $field_name, $object_id = null ) {
 		cof_the_field( $field_name, $object_id );
 	}
@@ -168,14 +169,14 @@ function cof_get_fields( $object_id = null ) {
 
 if ( ! function_exists( 'get_fields' ) ) {
 	/**
-	 * Get all field values for an object (ACF-compatible wrapper).
+	 * Get all field values for an object (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param  int|null $object_id Object ID. Defaults to current post.
 	 * @return array    Array of field values.
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_fields( $object_id = null ) {
 		return cof_get_fields( $object_id );
 	}
@@ -198,7 +199,7 @@ function cof_update_field( $field_name, $value, $object_id = null ) {
 
 if ( ! function_exists( 'update_field' ) ) {
 	/**
-	 * Update a field value (ACF-compatible wrapper).
+	 * Update a field value (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
@@ -207,7 +208,7 @@ if ( ! function_exists( 'update_field' ) ) {
 	 * @param  int|null $object_id  Object ID. Defaults to current post.
 	 * @return bool
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function update_field( $field_name, $value, $object_id = null ) {
 		return cof_update_field( $field_name, $value, $object_id );
 	}
@@ -229,7 +230,7 @@ function cof_delete_field( $field_name, $object_id = null ) {
 
 if ( ! function_exists( 'delete_field' ) ) {
 	/**
-	 * Delete a field value (ACF-compatible wrapper).
+	 * Delete a field value (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
@@ -237,7 +238,7 @@ if ( ! function_exists( 'delete_field' ) ) {
 	 * @param  int|null $object_id  Object ID. Defaults to current post.
 	 * @return bool
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function delete_field( $field_name, $object_id = null ) {
 		return cof_delete_field( $field_name, $object_id );
 	}
@@ -281,14 +282,14 @@ function cof_get_field_object( $field_name ) {
 
 if ( ! function_exists( 'get_field_object' ) ) {
 	/**
-	 * Get field object (ACF-compatible wrapper).
+	 * Get field object (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param  string $field_name Field name.
 	 * @return array|null
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_field_object( $field_name ) {
 		return cof_get_field_object( $field_name );
 	}
@@ -331,7 +332,7 @@ function cof_have_rows( $field_name, $object_id = null ) {
 
 if ( ! function_exists( 'have_rows' ) ) {
 	/**
-	 * Check if repeater has rows (ACF-compatible wrapper).
+	 * Check if repeater has rows (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
@@ -339,7 +340,7 @@ if ( ! function_exists( 'have_rows' ) ) {
 	 * @param  int|null $object_id  Object ID.
 	 * @return bool
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function have_rows( $field_name, $object_id = null ) {
 		return cof_have_rows( $field_name, $object_id );
 	}
@@ -396,7 +397,7 @@ function cof_the_row( $field_name = '', $object_id = null ) {
 
 if ( ! function_exists( 'the_row' ) ) {
 	/**
-	 * Iterate through repeater rows (ACF-compatible wrapper).
+	 * Iterate through repeater rows (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
@@ -404,7 +405,7 @@ if ( ! function_exists( 'the_row' ) ) {
 	 * @param  int|null $object_id  Object ID.
 	 * @return bool
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function the_row( $field_name = '', $object_id = null ) {
 		return cof_the_row( $field_name, $object_id );
 	}
@@ -424,13 +425,13 @@ function cof_get_row() {
 
 if ( ! function_exists( 'get_row' ) ) {
 	/**
-	 * Get the current row data (ACF-compatible wrapper).
+	 * Get the current row data (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return array|null Current row data.
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_row() {
 		return cof_get_row();
 	}
@@ -479,7 +480,7 @@ function cof_get_rows( $field_name, $object_id = null ) {
 
 if ( ! function_exists( 'get_rows' ) ) {
 	/**
-	 * Get repeater rows as an array (ACF-compatible wrapper).
+	 * Get repeater rows as an array (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
@@ -487,7 +488,7 @@ if ( ! function_exists( 'get_rows' ) ) {
 	 * @param  int|null $object_id  Object ID.
 	 * @return array
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_rows( $field_name, $object_id = null ) {
 		return cof_get_rows( $field_name, $object_id );
 	}
@@ -515,14 +516,14 @@ function cof_reset_rows( $field_name = '' ) {
 
 if ( ! function_exists( 'reset_rows' ) ) {
 	/**
-	 * Reset the row loop (ACF-compatible wrapper).
+	 * Reset the row loop (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param  string $field_name Field name.
 	 * @return void
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function reset_rows( $field_name = '' ) {
 		cof_reset_rows( $field_name );
 	}
@@ -543,13 +544,13 @@ function cof_get_row_index() {
 
 if ( ! function_exists( 'get_row_index' ) ) {
 	/**
-	 * Get row index (ACF-compatible wrapper).
+	 * Get row index (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return int
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_row_index() {
 		return cof_get_row_index();
 	}
@@ -569,13 +570,13 @@ function cof_get_row_layout() {
 
 if ( ! function_exists( 'get_row_layout' ) ) {
 	/**
-	 * Get the current row layout (ACF-compatible wrapper).
+	 * Get the current row layout (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return string|null Layout name.
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_row_layout() {
 		return cof_get_row_layout();
 	}
@@ -600,14 +601,14 @@ function cof_get_sub_field( $field_name ) {
 
 if ( ! function_exists( 'get_sub_field' ) ) {
 	/**
-	 * Get a sub-field value from the current row (ACF-compatible wrapper).
+	 * Get a sub-field value from the current row (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param  string $field_name Sub-field name.
 	 * @return mixed
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_sub_field( $field_name ) {
 		return cof_get_sub_field( $field_name );
 	}
@@ -631,14 +632,14 @@ function cof_the_sub_field( $field_name ) {
 
 if ( ! function_exists( 'the_sub_field' ) ) {
 	/**
-	 * Echo a sub-field value (ACF-compatible wrapper).
+	 * Echo a sub-field value (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param  string $field_name Sub-field name.
 	 * @return void
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function the_sub_field( $field_name ) {
 		cof_the_sub_field( $field_name );
 	}
@@ -659,14 +660,14 @@ function cof_have_sub_field( $field_name ) {
 
 if ( ! function_exists( 'have_sub_field' ) ) {
 	/**
-	 * Check if a sub-field has a value (ACF-compatible wrapper).
+	 * Check if a sub-field has a value (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param  string $field_name Sub-field name.
 	 * @return bool
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function have_sub_field( $field_name ) {
 		return cof_have_sub_field( $field_name );
 	}
@@ -686,14 +687,14 @@ function cof_get_sub_field_object( $field_name ) {
 
 if ( ! function_exists( 'get_sub_field_object' ) ) {
 	/**
-	 * Get sub-field object from the current row (ACF-compatible wrapper).
+	 * Get sub-field object from the current row (compatibility wrapper).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param  string $field_name Sub-field name.
 	 * @return array|null
 	 */
-	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- ACF compatibility wrapper.
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_sub_field_object( $field_name ) {
 		return cof_get_sub_field_object( $field_name );
 	}
@@ -1145,7 +1146,10 @@ function cof_register_fieldset( $key, $args ) {
 }
 
 /**
- * Check if ACF is active.
+ * Check if another custom fields plugin (ACF) is active.
+ *
+ * Used internally to determine whether compatibility wrappers
+ * (get_field, the_field, etc.) should be declared.
  *
  * @since 1.0.0
  *

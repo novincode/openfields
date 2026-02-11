@@ -53,7 +53,7 @@ function cof_render_user_field( $field, $value, $field_id, $field_name, $setting
 		'data-field-type' => 'user',
 		'data-multiple'   => $multiple ? '1' : '0',
 		'data-allow-null' => $allow_null ? '1' : '0',
-		'data-roles'      => esc_attr( implode( ',', $roles ) ),
+		'data-roles'      => implode( ',', $roles ),
 	);
 
 	// Build escaped data attributes string.

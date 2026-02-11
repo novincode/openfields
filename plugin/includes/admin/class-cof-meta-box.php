@@ -29,7 +29,7 @@ class COF_Meta_Box {
 
 	/**
 	 * Meta prefix.
-	 * Empty string for ACF compatibility - fields save directly with their name.
+	 * Empty string for cross-plugin compatibility - fields save directly with their name.
 	 *
 	 * @var string
 	 */
@@ -357,7 +357,7 @@ class COF_Meta_Box {
 
 		// Add conditional logic data if present.
 		if ( ! empty( $config['conditional_logic'] ) ) {
-			echo ' data-conditional-logic="' . esc_attr( json_encode( $config['conditional_logic'] ) ) . '"';
+			echo ' data-conditional-logic="' . esc_attr( wp_json_encode( $config['conditional_logic'] ) ) . '"';
 			echo ' data-conditional-status="hidden"';
 		}
 
@@ -489,7 +489,7 @@ class COF_Meta_Box {
 			// Save each ROOT field.
 			foreach ( $root_fields as $field ) {
 				if ( $field->type === 'repeater' ) {
-					// Handle repeater field in ACF format.
+					// Handle repeater field in meta storage format.
 					$this->save_repeater_field( $post_id, $field, $sub_fields_map );
 				} elseif ( $field->type === 'group' ) {
 					// Handle group field - similar to repeater but without rows.
@@ -519,9 +519,9 @@ class COF_Meta_Box {
 	}
 
 	/**
-	 * Save a repeater field and its sub-fields in ACF-compatible format.
+	 * Save a repeater field and its sub-fields in standard meta storage format.
 	 *
-	 * ACF Format (no prefix, 0-based index):
+	 * Meta Storage Format (no prefix, 0-based index):
 	 * - {field} = row count
 	 * - {field}_{index}_{subfield} = value
 	 *
@@ -538,7 +538,7 @@ class COF_Meta_Box {
 			$base_name = $field->name;
 		}
 
-		// No prefix for ACF compatibility.
+		// No prefix for cross-plugin compatibility.
 		$meta_key = $base_name;
 
 		// Get row count from POST (stored in hidden input without prefix).
@@ -546,7 +546,7 @@ class COF_Meta_Box {
 		$row_count = isset( $_POST[ $meta_key ] ) ? absint( $_POST[ $meta_key ] ) : 0;
 
 
-		// Save row count (ACF format - no prefix).
+		// Save row count (no prefix).
 		update_post_meta( $post_id, $meta_key, $row_count );
 
 		// Get sub-fields for this repeater.
@@ -582,9 +582,9 @@ class COF_Meta_Box {
 	}
 
 	/**
-	 * Save a group field and its sub-fields in ACF-compatible format.
+	 * Save a group field and its sub-fields in standard meta storage format.
 	 *
-	 * ACF Format:
+	 * Meta Storage Format:
 	 * - {group}_{subfield} = value
 	 *
 	 * @since 1.0.0
@@ -1053,7 +1053,7 @@ class COF_Meta_Box {
 			// Save each ROOT field.
 			foreach ( $root_fields as $field ) {
 				if ( $field->type === 'repeater' ) {
-					// Handle repeater field in ACF format.
+					// Handle repeater field in meta storage format.
 					$this->save_repeater_field_for_term( $term_id, $field, $sub_fields_map );
 				} elseif ( $field->type === 'group' ) {
 					// Handle group field.
@@ -1409,7 +1409,7 @@ class COF_Meta_Box {
 			// Save each ROOT field.
 			foreach ( $root_fields as $field ) {
 				if ( $field->type === 'repeater' ) {
-					// Handle repeater field in ACF format.
+					// Handle repeater field in meta storage format.
 					$this->save_repeater_field_for_user( $user_id, $field, $sub_fields_map );
 				} elseif ( $field->type === 'group' ) {
 					// Handle group field.

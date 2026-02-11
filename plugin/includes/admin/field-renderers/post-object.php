@@ -53,7 +53,7 @@ function cof_render_post_object_field( $field, $value, $field_id, $field_name, $
 		'data-field-type' => 'post_object',
 		'data-multiple'   => $multiple ? '1' : '0',
 		'data-allow-null' => $allow_null ? '1' : '0',
-		'data-post-types' => esc_attr( implode( ',', $post_types ) ),
+		'data-post-types' => implode( ',', $post_types ),
 	);
 
 	// Build escaped data attributes string.

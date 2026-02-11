@@ -1,7 +1,7 @@
 === Codeideal Open Fields ===
 Contributors: shayancode
 Donate link: https://codeideal.com
-Tags: custom fields, acf alternative, meta box, custom meta, post meta
+Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9
 Stable tag: 0.1.1
@@ -9,11 +9,11 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Modern custom fields builder for WordPress - the open-source ACF alternative. Create and manage custom field groups with an intuitive interface.
+Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive, developer-friendly interface.
 
 == Description ==
 
-Codeideal Open Fields is a powerful and lightweight custom fields plugin that allows you to add custom fields to posts, pages, custom post types, taxonomies, and users. It provides an intuitive, modern interface for creating field groups and managing custom data.
+Codeideal Open Fields is a powerful, lightweight, and 100% open-source custom fields plugin for WordPress. Add custom fields to posts, pages, custom post types, taxonomies, and users with an intuitive, modern interface for creating field groups and managing custom data.
 
 = Key Features =
 
@@ -22,7 +22,7 @@ Codeideal Open Fields is a powerful and lightweight custom fields plugin that al
 * **Flexible Locations** - Assign field groups to specific post types, page templates, taxonomies, or users
 * **Repeater Fields** - Create repeatable sets of fields for dynamic content
 * **Group Fields** - Organize related fields into collapsible groups
-* **ACF Compatible** - Designed with familiar concepts for easy migration
+* **Standards Compatible** - Uses standard WordPress meta storage for maximum compatibility
 * **Developer Friendly** - Clean codebase with hooks and filters for customization
 * **Lightweight** - No bloat, only what you need
 * **100% Free** - All features available, no premium version
@@ -60,9 +60,9 @@ Assign your field groups based on:
 
 Yes! Codeideal Open Fields is 100% free and open source. All features are available without any premium version.
 
-= Can I migrate from ACF? =
+= Can I migrate from other custom fields plugins? =
 
-While Codeideal Open Fields uses similar concepts to ACF, there is no automatic migration tool at this time. You would need to recreate your field groups manually.
+Codeideal Open Fields uses standard WordPress post meta storage, making it compatible with data from other custom fields plugins. You may need to recreate your field groups manually.
 
 = Does Codeideal Open Fields work with custom post types? =
 

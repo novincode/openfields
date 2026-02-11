@@ -63,7 +63,7 @@ class COF_Field_Wrapper {
 	 * @param COF_Base_Field $field       Field instance.
 	 * @param mixed                 $value       Current field value.
 	 * @param string                $field_name  Field name/ID.
-	 * @param string                $meta_prefix Meta prefix for database storage (empty for ACF compatibility).
+	 * @param string                $meta_prefix Meta prefix for database storage (empty for cross-plugin compatibility).
 	 */
 	public function __construct( $field, $value, $field_name, $meta_prefix = '' ) {
 		$this->field         = $field;
@@ -112,7 +112,7 @@ class COF_Field_Wrapper {
 		// Add data attributes for conditional logic if present.
 		$conditions = isset( $config['conditional_logic'] ) ? $config['conditional_logic'] : array();
 		if ( ! empty( $conditions ) ) {
-			$html .= ' data-conditional-logic="' . esc_attr( json_encode( $conditions ) ) . '"';
+			$html .= ' data-conditional-logic="' . esc_attr( wp_json_encode( $conditions ) ) . '"';
 			$html .= ' data-conditional-status="hidden"'; // Initially hidden, shown by JS if conditions met.
 		}
 

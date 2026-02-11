@@ -64,42 +64,14 @@ function cof_delete_all_data() {
 	delete_option( 'cof_version' );
 	delete_option( 'cof_db_version' );
 
-	// Delete all post meta created by the plugin.
-	// Note: Meta key prefix 'cof_' is used for new data.
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE %s",
-			'cof_%'
-		)
-	);
-
-	// Delete all term meta created by the plugin.
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->termmeta} WHERE meta_key LIKE %s",
-			'cof_%'
-		)
-	);
-
-	// Delete all user meta created by the plugin.
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE %s",
-			'cof_%'
-		)
-	);
-
-	// Delete all comment meta created by the plugin.
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$wpdb->commentmeta} WHERE meta_key LIKE %s",
-			'cof_%'
-		)
-	);
+	// Note: User-created field data is stored as standard WordPress meta
+	// (post meta, term meta, user meta) without a plugin-specific prefix.
+	// This data is intentionally NOT deleted during uninstall because:
+	// 1. It's impossible to distinguish plugin-created meta from other meta.
+	// 2. The field names are user-defined and could match any meta key.
+	// 3. Preserving this data allows migration to other custom fields plugins.
+	// The custom tables (cof_fieldsets, cof_fields, cof_locations) that store
+	// the field group definitions ARE deleted above.
 
 	// Clear any transients.
 	delete_transient( 'cof_cache' );

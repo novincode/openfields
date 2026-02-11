@@ -29,7 +29,7 @@ class COF_Storage_Manager {
 
 	/**
 	 * Meta prefix.
-	 * Empty for ACF compatibility - fields save directly with their name.
+	 * Empty for cross-plugin compatibility - fields save directly with their name.
 	 *
 	 * @var string
 	 */

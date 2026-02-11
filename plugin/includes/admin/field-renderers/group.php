@@ -2,10 +2,10 @@
 /**
  * Group Field Renderer
  *
- * Renders group fields with sub-fields in ACF-compatible data storage format.
+ * Renders group fields with sub-fields in standard WordPress meta storage format.
  * Groups are like repeaters but without repetition - just a single container for sub-fields.
  *
- * ACF Data Format:
+ * Meta Storage Format:
  * - {field_name}_{subfield} = value
  *
  * @package Codeideal_Open_Fields
@@ -167,7 +167,7 @@ function cof_render_group_subfield( $sub_field, $parent_name, $object_id, $objec
  * Get raw sub-field name without parent prefix.
  *
  * Sub-fields in the database are stored with parent prefix (e.g., "group_subfield").
- * For ACF-compatible data format, we need the raw name (e.g., "subfield").
+ * For the standard meta storage format, we need the raw name (e.g., "subfield").
  *
  * @since 1.0.0
  * @param string $sub_field_name Full sub-field name from database.

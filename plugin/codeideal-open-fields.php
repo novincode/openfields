@@ -2,12 +2,13 @@
 /**
  * Plugin Name: Codeideal Open Fields
  * Plugin URI: https://openfields.codeideal.com
- * Description: Modern custom fields builder for WordPress - the open-source ACF alternative
+ * Description: Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive interface.
  * Version: 0.1.1
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Codeideal
  * Author URI: https://codeideal.com
+ * Update URI: false
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: codeideal-open-fields

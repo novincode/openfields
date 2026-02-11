@@ -146,6 +146,7 @@ class COF_Admin {
 		if ( get_transient( 'cof_activation_redirect' ) ) {
 			delete_transient( 'cof_activation_redirect' );
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking if param exists during activation redirect, no data processing.
 			if ( ! isset( $_GET['activate-multi'] ) ) {
 				wp_safe_redirect( admin_url( 'admin.php?page=codeideal-open-fields' ) );
 				exit;
