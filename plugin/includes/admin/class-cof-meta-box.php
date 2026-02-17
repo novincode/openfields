@@ -80,6 +80,7 @@ class COF_Meta_Box {
 		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/taxonomy.php';
 		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/user.php';
 		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/link.php';
+		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/switch.php';
 		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/image.php';
 		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/file.php';
 		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/gallery.php';
@@ -195,6 +196,8 @@ class COF_Meta_Box {
 			'post_type'     => $post_type,
 			'post_id'       => $post->ID,
 			'page_template' => get_page_template_slug( $post->ID ),
+			'categories'    => array_map( 'strval', wp_get_post_categories( $post->ID ) ),
+			'post_format'   => get_post_format( $post->ID ) ?: 'standard',
 		);
 
 		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
@@ -439,9 +442,19 @@ class COF_Meta_Box {
 
 
 		// Get fieldsets for this post.
+		// Build FULL context including page_template, categories, post_format.
+		// This must match the context used in register_meta_boxes() and meta_box_scripts()
+		// so location rules are evaluated consistently.
+		$page_template = get_page_template_slug( $post_id );
+		$categories    = wp_get_post_categories( $post_id, array( 'fields' => 'ids' ) );
+		$post_format   = get_post_format( $post_id );
+
 		$context = array(
-			'post_type' => $post->post_type,
-			'post_id'   => $post_id,
+			'post_type'     => $post->post_type,
+			'post_id'       => $post_id,
+			'page_template' => $page_template ? $page_template : '',
+			'categories'    => is_array( $categories ) ? array_map( 'strval', $categories ) : array(),
+			'post_format'   => $post_format ? $post_format : 'standard',
 		);
 
 		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );

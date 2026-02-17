@@ -81,9 +81,10 @@ class COF_Assets {
 		);
 
 		// Localize script data.
+		// The variable name MUST match what the React frontend expects: window.openfieldsAdmin
 		wp_localize_script(
 			'cof-admin',
-			'cofAdmin',
+			'openfieldsAdmin',
 			$this->get_admin_data()
 		);
 
@@ -144,7 +145,7 @@ class COF_Assets {
 			'post_type'     => $post->post_type,
 			'post_id'       => $post->ID,
 			'page_template' => get_page_template_slug( $post->ID ),
-			'categories'    => wp_get_post_categories( $post->ID ),
+			'categories'    => array_map( 'strval', wp_get_post_categories( $post->ID ) ),
 			'post_format'   => get_post_format( $post->ID ) ?: 'standard',
 		);
 
@@ -224,17 +225,20 @@ class COF_Assets {
 	 */
 	private function get_admin_data() {
 		return array(
-			'version'    => COF_VERSION,
-			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
-			'restUrl'    => rest_url( 'codeideal-open-fields/v1' ),
-			'nonce'      => wp_create_nonce( 'wp_rest' ),
-			'adminUrl'   => admin_url(),
-			'pluginUrl'  => COF_PLUGIN_URL,
-			'postTypes'  => $this->get_post_types(),
-			'taxonomies' => $this->get_taxonomies(),
-			'userRoles'  => $this->get_user_roles(),
-			'fieldTypes' => $this->get_field_types(),
-			'i18n'       => $this->get_i18n_strings(),
+			'version'       => COF_VERSION,
+			'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+			'restUrl'       => rest_url( 'codeideal-open-fields/v1' ),
+			'nonce'         => wp_create_nonce( 'wp_rest' ),
+			'adminUrl'      => admin_url(),
+			'pluginUrl'     => COF_PLUGIN_URL,
+			'postTypes'     => $this->get_post_types(),
+			'taxonomies'    => $this->get_taxonomies(),
+			'userRoles'     => $this->get_user_roles(),
+			'pageTemplates' => $this->get_page_templates(),
+			'categories'    => $this->get_categories(),
+			'postFormats'   => $this->get_post_formats(),
+			'fieldTypes'    => $this->get_field_types(),
+			'i18n'          => $this->get_i18n_strings(),
 		);
 	}
 
@@ -298,6 +302,110 @@ class COF_Assets {
 			$result[] = array(
 				'name'  => $key,
 				'label' => $role['name'],
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get page templates for all public post types.
+	 *
+	 * Returns templates from classic themes AND block themes.
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_page_templates() {
+		$options = array(
+			array(
+				'name'  => 'default',
+				'label' => __( 'Default Template', 'codeideal-open-fields' ),
+			),
+		);
+
+		$seen = array();
+
+		// Get templates for all public post types.
+		$post_types = get_post_types( array( 'public' => true ) );
+		foreach ( $post_types as $post_type ) {
+			$templates = wp_get_theme()->get_page_templates( null, $post_type );
+			foreach ( $templates as $file => $name ) {
+				if ( isset( $seen[ $file ] ) ) {
+					continue;
+				}
+				$seen[ $file ] = true;
+				$options[]     = array(
+					'name'  => $file,
+					'label' => $name,
+				);
+			}
+		}
+
+		// Include block-theme templates (WordPress 5.9+ Full Site Editing).
+		if ( function_exists( 'get_block_templates' ) ) {
+			try {
+				$block_templates = get_block_templates( array(), 'wp_template' );
+				if ( is_array( $block_templates ) ) {
+					foreach ( $block_templates as $template ) {
+						$slug = $template->slug ?? '';
+						if ( empty( $slug ) || isset( $seen[ $slug ] ) ) {
+							continue;
+						}
+						$seen[ $slug ] = true;
+						$title         = ! empty( $template->title ) ? $template->title : $slug;
+						$options[]     = array(
+							'name'  => $slug,
+							'label' => $title,
+						);
+					}
+				}
+			} catch ( \Exception $e ) {
+				// Silently fail — block templates are optional.
+			}
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get post categories.
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_categories() {
+		$categories = get_categories( array( 'hide_empty' => false ) );
+		$result     = array();
+
+		if ( is_wp_error( $categories ) ) {
+			return $result;
+		}
+
+		foreach ( $categories as $cat ) {
+			$result[] = array(
+				'name'  => (string) $cat->term_id,
+				'label' => $cat->name,
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get post format options.
+	 *
+	 * @since  1.0.0
+	 * @return array
+	 */
+	private function get_post_formats() {
+		$formats = get_post_format_strings();
+		$result  = array();
+
+		foreach ( $formats as $slug => $name ) {
+			$result[] = array(
+				'name'  => $slug,
+				'label' => $name,
 			);
 		}
 

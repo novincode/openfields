@@ -336,6 +336,9 @@ class COF_Location_Manager {
 	/**
 	 * Match page template.
 	 *
+	 * Handles the mismatch between get_page_template_slug() which returns ''
+	 * for the default template, and the location rule which stores 'default'.
+	 *
 	 * @param  string $value    Expected value.
 	 * @param  string $operator Operator.
 	 * @param  array  $context  Context.
@@ -343,6 +346,16 @@ class COF_Location_Manager {
 	 */
 	public function match_page_template( $value, $operator, $context ) {
 		$current = $context['page_template'] ?? '';
+
+		// Normalize: get_page_template_slug() returns '' for the default template,
+		// but the UI stores 'default'. Treat both '' and 'default' as the same value.
+		if ( '' === $current || 'default' === $current ) {
+			$current = 'default';
+		}
+		if ( '' === $value || 'default' === $value ) {
+			$value = 'default';
+		}
+
 		return $this->compare( $current, $value, $operator );
 	}
 
@@ -458,22 +471,61 @@ class COF_Location_Manager {
 	/**
 	 * Get page template options.
 	 *
+	 * Fetches templates from multiple sources:
+	 * 1. Classic PHP-based page templates (Template Name: header in .php files)
+	 * 2. Templates registered via theme.json / block themes
+	 * 3. Templates for ALL public post types, not just pages
+	 *
+	 * @since 1.0.0
 	 * @return array
 	 */
 	public function get_page_template_options() {
-		$templates = wp_get_theme()->get_page_templates();
-		$options   = array(
+		$options = array(
 			array(
 				'value' => 'default',
 				'label' => __( 'Default Template', 'codeideal-open-fields' ),
 			),
 		);
 
-		foreach ( $templates as $file => $name ) {
-			$options[] = array(
-				'value' => $file,
-				'label' => $name,
-			);
+		$seen = array();
+
+		// Get templates for all public post types.
+		$post_types = get_post_types( array( 'public' => true ) );
+		foreach ( $post_types as $post_type ) {
+			$templates = wp_get_theme()->get_page_templates( null, $post_type );
+			foreach ( $templates as $file => $name ) {
+				if ( isset( $seen[ $file ] ) ) {
+					continue;
+				}
+				$seen[ $file ] = true;
+				$options[]     = array(
+					'value' => $file,
+					'label' => $name,
+				);
+			}
+		}
+
+		// Also include block-theme templates (WordPress 5.9+ Full Site Editing).
+		if ( function_exists( 'get_block_templates' ) ) {
+			try {
+				$block_templates = get_block_templates( array(), 'wp_template' );
+				if ( is_array( $block_templates ) ) {
+					foreach ( $block_templates as $template ) {
+						$slug = $template->slug ?? '';
+						if ( empty( $slug ) || isset( $seen[ $slug ] ) ) {
+							continue;
+						}
+						$seen[ $slug ] = true;
+						$title         = ! empty( $template->title ) ? $template->title : $slug;
+						$options[]     = array(
+							'value' => $slug,
+							'label' => $title,
+						);
+					}
+				}
+			} catch ( \Exception $e ) {
+				// Silently fail — block templates are optional.
+			}
 		}
 
 		return $options;

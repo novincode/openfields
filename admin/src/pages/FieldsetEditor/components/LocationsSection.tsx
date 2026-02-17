@@ -2,10 +2,13 @@
  * Locations Section Component
  * 
  * Handles location rules for where the fieldset should appear.
+ * Fetches actual templates, categories, and post formats from WordPress
+ * via the localized `window.openfieldsAdmin` data OR the REST API.
  *
  * @package OpenFields
  */
 
+import { useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { Card } from '../../../components/ui/card';
 import {
@@ -23,10 +26,72 @@ interface LocationsSectionProps {
 	onLocationGroupsChange: (groups: LocationGroup[]) => void;
 }
 
+interface OptionItem {
+	name: string;
+	label: string;
+}
+
 export function LocationsSection({
 	locationGroups,
 	onLocationGroupsChange,
 }: LocationsSectionProps) {
+	// State for dynamically fetched location options
+	const [pageTemplates, setPageTemplates] = useState<OptionItem[]>([]);
+	const [categories, setCategories] = useState<OptionItem[]>([]);
+	const [postFormats, setPostFormats] = useState<OptionItem[]>([]);
+
+	// Load location options from WordPress localized data or REST API
+	useEffect(() => {
+		// Page templates: from localized data or REST API
+		const wpTemplates = window.openfieldsAdmin?.pageTemplates;
+		if (wpTemplates && wpTemplates.length > 0) {
+			setPageTemplates(wpTemplates);
+		} else {
+			// Fallback: fetch from REST API
+			const restUrl = window.openfieldsAdmin?.restUrl || '/wp-json/codeideal-open-fields/v1';
+			const nonce = window.openfieldsAdmin?.nonce || '';
+			fetch(`${restUrl}/locations/types`, {
+				headers: { 'X-WP-Nonce': nonce },
+			})
+				.then((res) => res.json())
+				.then((types: { key: string; label: string; options: { value: string; label: string }[] }[]) => {
+					const templateType = types.find((t) => t.key === 'page_template');
+					if (templateType?.options) {
+						setPageTemplates(
+							templateType.options.map((o) => ({ name: o.value, label: o.label }))
+						);
+					}
+					const catType = types.find((t) => t.key === 'post_category');
+					if (catType?.options) {
+						setCategories(
+							catType.options.map((o) => ({ name: o.value, label: o.label }))
+						);
+					}
+					const formatType = types.find((t) => t.key === 'post_format');
+					if (formatType?.options) {
+						setPostFormats(
+							formatType.options.map((o) => ({ name: o.value, label: o.label }))
+						);
+					}
+				})
+				.catch(() => {
+					// Fallback defaults
+					setPageTemplates([{ name: 'default', label: 'Default Template' }]);
+				});
+		}
+
+		// Categories: from localized data
+		const wpCategories = window.openfieldsAdmin?.categories;
+		if (wpCategories && wpCategories.length > 0) {
+			setCategories(wpCategories);
+		}
+
+		// Post formats: from localized data
+		const wpFormats = window.openfieldsAdmin?.postFormats;
+		if (wpFormats && wpFormats.length > 0) {
+			setPostFormats(wpFormats);
+		}
+	}, []);
 	// Update a rule in a group
 	const handleUpdateRule = (
 		groupIndex: number,
@@ -91,8 +156,8 @@ export function LocationsSection({
 		]);
 	};
 
-	// Get value options based on rule type
-	const getValueOptions = (ruleType: string) => {
+	// Get value options based on rule type — uses dynamic data from WordPress
+	const getValueOptions = (ruleType: string): OptionItem[] => {
 		switch (ruleType) {
 			case 'post_type':
 				return (
@@ -117,10 +182,13 @@ export function LocationsSection({
 					]
 				);
 			case 'page_template':
-				return [
-					{ name: 'default', label: 'Default Template' },
-					{ name: 'full-width', label: 'Full Width' },
-				];
+				return pageTemplates.length > 0
+					? pageTemplates
+					: [{ name: 'default', label: 'Default Template' }];
+			case 'post_category':
+				return categories;
+			case 'post_format':
+				return postFormats;
 			default:
 				return [];
 		}
@@ -172,6 +240,12 @@ export function LocationsSection({
 												<SelectItem value="post_type">Post Type</SelectItem>
 												<SelectItem value="page_template">
 													Page Template
+												</SelectItem>
+												<SelectItem value="post_category">
+													Post Category
+												</SelectItem>
+												<SelectItem value="post_format">
+													Post Format
 												</SelectItem>
 												<SelectItem value="taxonomy">Taxonomy</SelectItem>
 												<SelectItem value="user_role">User Role</SelectItem>

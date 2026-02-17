@@ -221,6 +221,9 @@ declare global {
 			postTypes: { name: string; label: string }[];
 			taxonomies: { name: string; label: string }[];
 			userRoles: { name: string; label: string }[];
+			pageTemplates: { name: string; label: string }[];
+			categories: { name: string; label: string }[];
+			postFormats: { name: string; label: string }[];
 			fieldTypes: { key: string; label: string }[];
 			i18n: Record<string, string>;
 		};
