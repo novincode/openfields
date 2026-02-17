@@ -955,8 +955,8 @@ class COF_Meta_Box {
 		$meta_key = self::META_PREFIX . $field->name;
 		$value    = $term_id ? get_term_meta( $term_id, $meta_key, true ) : '';
 
-		// Use default value if no saved value.
-		if ( empty( $value ) && ! empty( $field->default_value ) ) {
+		// Use default value if meta doesn't exist yet.
+		if ( $term_id && ! metadata_exists( 'term', $term_id, $meta_key ) && ! empty( $field->default_value ) ) {
 			$value = $field->default_value;
 		}
 
@@ -1308,8 +1308,8 @@ class COF_Meta_Box {
 		$meta_key = self::META_PREFIX . $field->name;
 		$value    = $user_id ? get_user_meta( $user_id, $meta_key, true ) : '';
 
-		// Use default value if no saved value.
-		if ( empty( $value ) && ! empty( $field->default_value ) ) {
+		// Use default value if meta doesn't exist yet.
+		if ( $user_id && ! metadata_exists( 'user', $user_id, $meta_key ) && ! empty( $field->default_value ) ) {
 			$value = $field->default_value;
 		}
 

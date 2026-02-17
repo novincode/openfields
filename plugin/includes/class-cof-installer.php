@@ -37,8 +37,8 @@ class COF_Installer {
 		self::create_options();
 		self::set_version();
 
-		// Clear the permalinks.
-		flush_rewrite_rules();
+		// Set transient for activation redirect.
+		set_transient( 'cof_activation_redirect', 1, 30 );
 
 		/**
 		 * Fires after plugin activation.
@@ -54,11 +54,8 @@ class COF_Installer {
 	 * @since 1.0.0
 	 */
 	public static function deactivate() {
-		// Clear scheduled hooks.
-		wp_clear_scheduled_hook( 'cof_daily_cleanup' );
-
-		// Clear the permalinks.
-		flush_rewrite_rules();
+		// Delete activation redirect transient.
+		delete_transient( 'cof_activation_redirect' );
 
 		/**
 		 * Fires after plugin deactivation.

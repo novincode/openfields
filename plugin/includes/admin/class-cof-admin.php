@@ -63,7 +63,7 @@ class COF_Admin {
 			'manage_options',
 			'codeideal-open-fields',
 			array( $this, 'render_main_page' ),
-			'dashicons-forms',
+			'dashicons-editor-table',
 			30
 		);
 
@@ -87,7 +87,7 @@ class COF_Admin {
 	 */
 	public function render_main_page() {
 		?>
-		<div id="cof-admin" class="cof-admin-wrap">
+		<div id="openfields-admin" class="cof-admin-wrap">
 			<div class="cof-loading">
 				<span class="spinner is-active"></span>
 				<?php esc_html_e( 'Loading Open Fields...', 'codeideal-open-fields' ); ?>
@@ -109,7 +109,7 @@ class COF_Admin {
 		}
 
 		$inline_css = '
-			#cof-admin {
+			#openfields-admin {
 				margin: 0;
 			}
 			.cof-loading {

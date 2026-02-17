@@ -102,6 +102,13 @@ final class COF_Plugin {
 	 * @since 1.0.0
 	 */
 	public function init() {
+		// Load plugin text domain for translations.
+		load_plugin_textdomain(
+			'codeideal-open-fields',
+			false,
+			dirname( COF_PLUGIN_BASENAME ) . '/languages'
+		);
+
 		// Initialize components.
 		COF_Assets::instance();
 		COF_Field_Registry::instance();

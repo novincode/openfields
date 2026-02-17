@@ -171,7 +171,7 @@ class COF_Assets {
 
 		// Localize script data.
 		wp_localize_script(
-			'cof-meta-box',
+			'cof-fields',
 			'cofMetaBox',
 			array(
 				'i18n' => array(
