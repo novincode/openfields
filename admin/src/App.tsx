@@ -56,16 +56,16 @@ function OpenFieldsRouter() {
 	const tab = params.get('tab') as TabType | null;
 
 	// Only handle openfields pages
-	if (!page?.startsWith('openfields')) {
+	if (!page?.startsWith('codeideal-open-fields')) {
 		return null;
 	}
 
 	// If editing a fieldset, show the editor directly
-	if (page === 'openfields' && action === 'edit' && id) {
+	if (page === 'codeideal-open-fields' && action === 'edit' && id) {
 		return <FieldsetEditor fieldsetId={parseInt(id, 10)} />;
 	}
 
-	if (page === 'openfields' && action === 'new') {
+	if (page === 'codeideal-open-fields' && action === 'new') {
 		return <FieldsetEditor isNew />;
 	}
 

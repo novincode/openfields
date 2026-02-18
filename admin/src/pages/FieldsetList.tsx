@@ -165,12 +165,12 @@ export default function FieldsetList() {
 
 	const navigateToEdit = (id: number) => {
 		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
-		window.location.href = `${adminUrl}admin.php?page=openfields&action=edit&id=${id}`;
+		window.location.href = `${adminUrl}admin.php?page=codeideal-open-fields&action=edit&id=${id}`;
 	};
 
 	const navigateToNew = () => {
 		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
-		window.location.href = `${adminUrl}admin.php?page=openfields&action=new`;
+		window.location.href = `${adminUrl}admin.php?page=codeideal-open-fields&action=new`;
 	};
 
 	// Get location summary for a fieldset

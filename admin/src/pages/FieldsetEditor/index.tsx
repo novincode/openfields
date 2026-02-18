@@ -99,7 +99,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	// Handle back navigation with unsaved changes check
 	const handleBackClick = useCallback(() => {
 		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
-		const backUrl = `${adminUrl}admin.php?page=openfields`;
+		const backUrl = `${adminUrl}admin.php?page=codeideal-open-fields`;
 		
 		if (unsavedChanges) {
 			setPendingNavigation(backUrl);
@@ -132,7 +132,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			} else if (isNew) {
 				try {
 					const newFieldset = await createFieldset({ title: 'New Fieldset' });
-					window.location.href = `admin.php?page=openfields&action=edit&id=${newFieldset.id}`;
+					window.location.href = `admin.php?page=codeideal-open-fields&action=edit&id=${newFieldset.id}`;
 				} catch {
 					showToast('error', 'Failed to create fieldset');
 				}
