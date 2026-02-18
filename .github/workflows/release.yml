@@ -37,17 +37,17 @@ jobs:
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: dist/openfields-*.zip
+          files: dist/codeideal-open-fields-*.zip
           draft: false
           prerelease: false
           body: |
-            # OpenFields v${{ steps.get_version.outputs.version }}
+            # Codeideal Open Fields v${{ steps.get_version.outputs.version }}
 
             ## Installation
 
-            1. Download `openfields-${{ steps.get_version.outputs.version }}.zip` below
+            1. Download `codeideal-open-fields-${{ steps.get_version.outputs.version }}.zip` below
             2. Go to WordPress Admin → **Plugins** → **Add New**
             3. Click **Upload Plugin** and select the ZIP file
             4. Click **Install Now** and then **Activate Plugin**
@@ -58,7 +58,7 @@ jobs:
 
             ---
 
-            **OpenFields** - The free, open-source alternative to ACF for WordPress
+            **Codeideal Open Fields** - The free, open-source custom fields plugin for WordPress
             
             [Documentation](https://openfields.codeideal.com/docs) | [GitHub](https://github.com/novincode/openfields)
         env:

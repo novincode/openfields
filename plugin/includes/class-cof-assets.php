@@ -102,25 +102,20 @@ class COF_Assets {
 	 * @since 1.0.0
 	 */
 	public function frontend_scripts() {
-		// Only load if needed.
+		// Only load if needed — currently no frontend assets are required.
 		if ( ! $this->should_load_frontend_assets() ) {
 			return;
 		}
 
-		wp_enqueue_script(
-			'cof-frontend',
-			COF_PLUGIN_URL . 'assets/public/js/frontend.js',
-			array(),
-			COF_VERSION,
-			true
-		);
-
-		wp_enqueue_style(
-			'cof-frontend',
-			COF_PLUGIN_URL . 'assets/public/css/frontend.css',
-			array(),
-			COF_VERSION
-		);
+		/**
+		 * Fires when frontend assets should be loaded.
+		 *
+		 * Developers can use the 'cof/load_frontend_assets' filter to
+		 * trigger this, then enqueue their own styles/scripts here.
+		 *
+		 * @since 1.0.0
+		 */
+		do_action( 'cof/frontend_enqueue_scripts' );
 	}
 
 	/**
@@ -169,18 +164,21 @@ class COF_Assets {
 			COF_VERSION
 		);
 
-		// Localize script data.
-		wp_localize_script(
-			'cof-fields',
-			'cofMetaBox',
-			array(
-				'i18n' => array(
-					'selectImage' => __( 'Select Image', 'codeideal-open-fields' ),
-					'useImage'    => __( 'Use this image', 'codeideal-open-fields' ),
-					'selectFile'  => __( 'Select File', 'codeideal-open-fields' ),
-					'useFile'     => __( 'Use this file', 'codeideal-open-fields' ),
-				),
-			)
+		// Localize meta box data for field renderers.
+		wp_add_inline_script(
+			'wp-color-picker',
+			sprintf(
+				'var cofMetaBox = %s;',
+				wp_json_encode( array(
+					'i18n' => array(
+						'selectImage' => __( 'Select Image', 'codeideal-open-fields' ),
+						'useImage'    => __( 'Use this image', 'codeideal-open-fields' ),
+						'selectFile'  => __( 'Select File', 'codeideal-open-fields' ),
+						'useFile'     => __( 'Use this file', 'codeideal-open-fields' ),
+					),
+				) )
+			),
+			'before'
 		);
 	}
 

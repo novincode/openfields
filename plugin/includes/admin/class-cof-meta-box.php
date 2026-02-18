@@ -511,7 +511,7 @@ class COF_Meta_Box {
 					// Standard field save.
 					$field_name = $field->name;
 					$meta_key   = self::META_PREFIX . $field_name;
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via $this->sanitize_value() below.
 					$raw_value  = isset( $_POST[ $meta_key ] ) ? wp_unslash( $_POST[ $meta_key ] ) : '';
 
 
@@ -585,7 +585,7 @@ class COF_Meta_Box {
 				if ( $sub_field->type === 'repeater' ) {
 					$this->save_repeater_field( $post_id, $sub_field, $sub_fields_map, $full_name );
 				} else {
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via $this->sanitize_value() below.
 					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_post_meta( $post_id, $full_name, $sanitized );
@@ -637,7 +637,7 @@ class COF_Meta_Box {
 				$this->save_group_field( $post_id, $sub_field, $sub_fields_map, $full_name );
 			} else {
 				// Standard sub-field save.
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via $this->sanitize_value() below.
 				$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 				$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 				update_post_meta( $post_id, $full_name, $sanitized );
@@ -1077,7 +1077,7 @@ class COF_Meta_Box {
 
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 					if ( isset( $_POST[ $meta_key ] ) ) {
-						// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+						// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; sanitized via $this->sanitize_value().
 						$value = $this->sanitize_value( wp_unslash( $_POST[ $meta_key ] ), $field->type );
 						update_term_meta( $term_id, $meta_key, $value );
 					} else {
@@ -1131,7 +1131,7 @@ class COF_Meta_Box {
 				if ( $sub_field->type === 'repeater' ) {
 					$this->save_repeater_field_for_term( $term_id, $sub_field, $sub_fields_map, $full_name );
 				} else {
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in save_taxonomy_fields.
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in save_taxonomy_fields; sanitized via $this->sanitize_value().
 					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_term_meta( $term_id, $full_name, $sanitized );
@@ -1165,7 +1165,7 @@ class COF_Meta_Box {
 			} elseif ( $sub_field->type === 'group' ) {
 				$this->save_group_field_for_term( $term_id, $sub_field, $sub_fields_map, $full_name );
 			} else {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in save_taxonomy_fields; sanitized via $this->sanitize_value().
 				$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 				$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 				update_term_meta( $term_id, $full_name, $sanitized );
@@ -1433,7 +1433,7 @@ class COF_Meta_Box {
 
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
 					if ( isset( $_POST[ $meta_key ] ) ) {
-						// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+						// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above; sanitized via $this->sanitize_value().
 						$value = $this->sanitize_value( wp_unslash( $_POST[ $meta_key ] ), $field->type );
 						update_user_meta( $user_id, $meta_key, $value );
 					} else {
@@ -1487,7 +1487,7 @@ class COF_Meta_Box {
 				if ( $sub_field->type === 'repeater' ) {
 					$this->save_repeater_field_for_user( $user_id, $sub_field, $sub_fields_map, $full_name );
 				} else {
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in save_user_fields.
+					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in save_user_fields; sanitized via $this->sanitize_value().
 					$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 					$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 					update_user_meta( $user_id, $full_name, $sanitized );
@@ -1521,7 +1521,7 @@ class COF_Meta_Box {
 			} elseif ( $sub_field->type === 'group' ) {
 				$this->save_group_field_for_user( $user_id, $sub_field, $sub_fields_map, $full_name );
 			} else {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified in save_user_fields; sanitized via $this->sanitize_value().
 				$raw_value = isset( $_POST[ $full_name ] ) ? wp_unslash( $_POST[ $full_name ] ) : '';
 				$sanitized = $this->sanitize_value( $raw_value, $sub_field->type );
 				update_user_meta( $user_id, $full_name, $sanitized );
