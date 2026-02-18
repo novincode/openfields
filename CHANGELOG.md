@@ -7,22 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- GitHub Actions workflow for automated releases
-- Comprehensive documentation index
-- Cross-linked documentation for better navigation
-- LICENSE file at repository root
-- Updated CONTRIBUTING.md with step-by-step guide
-- GitHub Actions build verification workflow
+---
+
+## [0.2.0] - 2025-07-13
 
 ### Fixed
+- **Page templates not fetched** (GitHub #1) — now dynamically scans all public post types and block theme templates
+- Template matching failure when default template is selected (value mismatch between `get_page_template_slug()` returning `''` and rules storing `'default'`)
+- Fields not saving when fieldsets have template, category, or post format location rules (missing context in `save_post()`)
+- Admin interface failed to load any data — localized script variable name mismatch (`cofAdmin` → `openfieldsAdmin`)
+- Invalid menu icon (`dashicons-forms` does not exist, replaced with `dashicons-editor-table`)
+- Meta box script localization targeting non-existent `cof-meta-box` handle (changed to `cof-fields`)
+- Term and user default value logic overriding intentional `0`/empty values (now uses `metadata_exists()`)
+- Admin mount point ID mismatch between PHP (`cof-admin`) and React (`openfields-admin`)
 - TypeScript type error in ConditionalLogicPanel (field ID to string conversion)
 - Deprecated `get_openfields()` reference removed from documentation
 
+### Added
+- Dynamic page template options in location rule builder (fetched from WordPress instead of hardcoded)
+- Post Category and Post Format location rule types in admin UI
+- Categories, post formats, and page templates provided to admin via localized data
+- Plugin text domain loading for translation support
+- Activation redirect transient for first-time setup experience
+- Switch field renderer include (was missing)
+- GitHub Actions workflow for automated releases
+- Comprehensive documentation index with cross-linked navigation
+
 ### Changed
+- Removed unnecessary `flush_rewrite_rules()` on activation/deactivation
+- Removed phantom scheduled hook cleanup for non-existent cron event
 - Completely redesigned README for user-friendliness
 - Simplified and reorganized CONTRIBUTING.md
-- Added "See Also" links to all main documentation files
 - Improved documentation discoverability with INDEX.md
 
 ---

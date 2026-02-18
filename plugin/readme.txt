@@ -4,7 +4,7 @@ Donate link: https://codeideal.com
 Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.1.1
+Stable tag: 0.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -85,6 +85,24 @@ Use the standard WordPress functions like `get_post_meta()` or the helper functi
 5. Location Rules - Control where your fields appear
 
 == Changelog ==
+
+= 0.2 =
+* Fixed: Page templates not fetched dynamically — now scans all public post types and block theme templates
+* Fixed: Template matching failure when default template is selected (value mismatch between WordPress API and stored rules)
+* Fixed: Fields not saving when fieldsets use template, category, or post format location rules
+* Fixed: Admin interface failed to load data (localized script variable name mismatch)
+* Fixed: Invalid menu icon (dashicons-forms does not exist)
+* Fixed: Meta box script localization targeting non-existent script handle
+* Fixed: Term and user default value logic overriding intentional "0" or empty values
+* Added: Dynamic page template options in location rule builder (fetched from WordPress, no longer hardcoded)
+* Added: Post Category and Post Format location rule types in admin UI
+* Added: Categories, post formats, and page templates provided to admin via localized data
+* Added: Plugin text domain loading for translation support
+* Added: Activation redirect transient for first-time setup experience
+* Added: Switch field renderer include (was missing)
+* Improved: Removed unnecessary flush_rewrite_rules on activation/deactivation
+* Improved: Removed phantom scheduled hook cleanup for non-existent cron event
+* Improved: Admin mount point ID aligned between PHP and React
 
 = 0.1.1 =
 * Rebranded to Codeideal Open Fields

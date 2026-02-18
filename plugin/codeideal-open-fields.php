@@ -3,7 +3,7 @@
  * Plugin Name: Codeideal Open Fields
  * Plugin URI: https://openfields.codeideal.com
  * Description: Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive interface.
- * Version: 0.1.1
+ * Version: 0.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Codeideal
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'COF_VERSION', '0.1.1' );
+define( 'COF_VERSION', '0.2' );
 define( 'COF_PLUGIN_FILE', __FILE__ );
 define( 'COF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'COF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
