@@ -83,6 +83,9 @@ create_distribution() {
     # Create plugin directory in dist
     mkdir -p "$dist_dir"
     
+    # Remove any 0-byte junk files from plugin dir before copying
+    find "$PLUGIN_DIR" -maxdepth 1 -size 0 -type f -delete 2>/dev/null || true
+
     # Copy plugin files, excluding unnecessary files
     rsync -av --delete \
         --exclude='.git' \
@@ -93,7 +96,16 @@ create_distribution() {
         --exclude='README.md' \
         --exclude='.env*' \
         "$PLUGIN_DIR/" "$dist_dir/"
-    
+
+    # Verify no 0-byte junk files made it through
+    local junk_count
+    junk_count=$(find "$dist_dir" -maxdepth 1 -size 0 -type f | wc -l | tr -d ' ')
+    if [[ "$junk_count" -gt 0 ]]; then
+        echo -e "${RED}✗ Found $junk_count zero-byte junk files in distribution:${NC}"
+        find "$dist_dir" -maxdepth 1 -size 0 -type f
+        exit 1
+    fi
+
     echo -e "${GREEN}✓ Distribution created${NC}"
 }
 
