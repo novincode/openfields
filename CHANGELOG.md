@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-02-20
+
+### Security
+- REST API `/search/users` and `/options/roles` endpoints now require `list_users` capability instead of `edit_posts`
+- Added `current_user_can( 'edit_term' )` capability check to taxonomy field save handler
+- All bare `echo` ternary output wrapped in `esc_attr()` for consistent escaping discipline
+
+### Changed
+- **BREAKING:** Plugin prefix renamed from `cof` (3 chars) to `cofld` (5 chars) per WordPress.org prefix length guidelines
+  - All PHP constants: `COF_*` → `COFLD_*`
+  - All PHP classes: `COF_*` → `COFLD_*`
+  - All PHP functions: `cof_*()` → `cofld_*()`
+  - All CSS classes: `.cof-*` → `.cofld-*`
+  - All JS variables: `cofConfig` → `cofldConfig`, `cofMetaBox` → `cofldMetaBox`, `openfieldsAdmin` → `cofldAdmin`
+  - Database tables: `cof_fieldsets` → `cofld_fieldsets`, `cof_fields` → `cofld_fields`, `cof_locations` → `cofld_locations`
+  - PHP file names: `class-cof-*.php` → `class-cofld-*.php`
+
+### Added
+- Source code & build instructions section in readme.txt for compressed JS/CSS assets
+- `check_list_users_permission()` REST API method for user-data endpoints
+
+---
+
 ## [0.2.0] - 2025-07-13
 
 ### Fixed

@@ -4,7 +4,7 @@ Donate link: https://codeideal.com
 Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.2.1
+Stable tag: 0.3.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -99,6 +99,15 @@ Use the standard WordPress functions like `get_post_meta()` or the helper functi
 5. Location Rules - Control where your fields appear
 
 == Changelog ==
+
+= 0.3.0 =
+* Security: REST API `/search/users` and `/options/roles` endpoints now require `list_users` capability instead of `edit_posts`
+* Security: Added `current_user_can( 'edit_term' )` capability check to taxonomy field save handler
+* Security: All bare `echo` output now wrapped in proper escaping functions (`esc_attr`, `esc_html`)
+* Changed: Plugin prefix renamed from `cof` (3 chars) to `cofld` (5 chars) to comply with WordPress.org prefix length requirements — affects all constants, functions, CSS classes, JS variables, database table names, hooks, and file names
+* Added: Source code documentation section in readme explaining where to find uncompressed source for built JS/CSS assets
+* Developer note: Database table names changed from `cof_fieldsets`, `cof_fields`, `cof_locations` to `cofld_fieldsets`, `cofld_fields`, `cofld_locations`
+* Developer note: All public API functions renamed (e.g. `cof_get_field` → `cofld_get_field`)
 
 = 0.2 =
 * Fixed: Page templates not fetched dynamically — now scans all public post types and block theme templates

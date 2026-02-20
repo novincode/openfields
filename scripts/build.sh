@@ -31,7 +31,7 @@ update_plugin_version() {
     
     # macOS compatible sed (using .bak for backup, then deleting it)
     sed -i.bak "s/\* Version: .*/\* Version: $version/" "$PLUGIN_FILE"
-    sed -i.bak "s/define( 'COF_VERSION', .*/define( 'COF_VERSION', '$version' );/" "$PLUGIN_FILE"
+    sed -i.bak "s/define( 'COFLD_VERSION', .*/define( 'COFLD_VERSION', '$version' );/" "$PLUGIN_FILE"
     rm -f "${PLUGIN_FILE}.bak"
 }
 

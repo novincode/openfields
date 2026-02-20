@@ -1,45 +1,53 @@
 # Reply to WordPress.org Plugin Review
 
 **To:** plugins@wordpress.org  
-**Subject:** Re: [WordPress Plugin Directory] Codeideal Open Fields - Review Response
+**Subject:** Re: [WordPress Plugin Directory] Codeideal Open Fields - Review Response (v0.3.0)
 
 ---
 
 Hi,
 
-Thank you for the review. I've addressed every item below.
+Thank you for the thorough review — I've gone through every point and addressed them all in this update (v0.3.0).
 
-**1. Plugin Name / Trademark**
+**1. Compressed/Generated Code — Source Documentation**
 
-The plugin has been rebranded to **"Codeideal Open Fields"** — prefixed with our brand name. All references to competitor trademarks (ACF, Advanced Custom Fields, Meta Box) have been removed from the plugin name, description, readme tags, FAQ, and all internal code comments throughout the entire codebase.
+Added a "Source Code & Build Instructions" section to `readme.txt`. The compiled admin JS (`assets/admin/js/admin.js`) is built from React/TypeScript source included in our public GitHub repository (`admin/src/`). Build steps and source file locations are now documented in the readme.
 
-**2. Slug**
+**2. REST API `permission_callback` Issues**
 
-The current slug is `codeideal-open-fields`, which matches our text domain and all internal references. Could you please confirm or assign this slug?
+- `/search/users` — now requires `list_users` instead of `edit_posts`
+- `/options/roles` — now requires `list_users` instead of `edit_posts`
+- Added a dedicated `check_list_users_permission()` method for these user-data endpoints
 
-**3. Contributor / Ownership**
+All other endpoints already used `check_admin_permission()` (`manage_options`) — no changes needed there.
 
-The readme.txt contributor has been corrected to `shayancode`, matching my WordPress.org username. I am the owner and sole developer of codeideal.com — you can verify this via the Author URI in the plugin header (`https://codeideal.com`).
+**3. Nonce & Capability Checks**
 
-**4. Code Quality Fixes**
+Added `current_user_can( 'edit_term', $term_id )` at the top of `save_taxonomy_fields()`. The post and user save handlers already had proper capability checks — I verified all three are now covered:
 
-- Replaced all `json_encode()` calls with `wp_json_encode()`
-- Added `phpcs:ignore` annotation with justification for the `$_GET['activate-multi']` check in the activation redirect (standard WordPress pattern, no data processing)
-- Fixed unescaped output variables in `repeater.php` field renderer
-- Fixed double-escaping in two field renderers (post-object, user)
-- Removed `Update URI` header (not allowed on wordpress.org-hosted plugins)
-- Fixed a bug in `uninstall.php` where meta cleanup queries used an incorrect prefix pattern
+- `save_post()` → `current_user_can( 'edit_post', $post_id )`
+- `save_taxonomy_fields()` → `current_user_can( 'edit_term', $term_id )` *(added)*
+- `save_user_fields()` → `current_user_can( 'edit_user', $user_id )`
 
-**5. Security**
+**4. Escaped Output**
 
-All `$_POST` data access is behind nonce verification (`wp_verify_nonce`), capability checks (`current_user_can`), and sanitized with `sanitize_text_field()`, `wp_unslash()`, `absint()`, or type-specific sanitization. The REST API uses `permission_callback` on every route with `manage_options` or `edit_posts` capability checks and `$wpdb->prepare()` for all queries.
+Wrapped all bare `echo` ternary expressions in `esc_attr()` across the field renderer templates (`image.php`, `file.php`, `gallery.php`, `repeater.php`, `taxonomy.php`). The `$data_string` and `$atts` echo patterns were already pre-escaped via `esc_attr()` during construction — each has a `phpcs:ignore` annotation with justification explaining so. I verified these are correct.
 
-**6. load_plugin_textdomain**
+**5. Prefix Length**
 
-Not called — the plugin relies on WordPress 4.6+ automatic translation loading from translate.wordpress.org, as recommended.
+Renamed the entire prefix from `cof` (3 chars) to `cofld` (5 chars). This touched every PHP file, CSS file, JS file, and the React source:
 
-Please let me know if anything else is needed.
+- Constants: `COF_*` → `COFLD_*`
+- Classes: `COF_*` → `COFLD_*`
+- Functions: `cof_*()` → `cofld_*()`
+- CSS classes: `.cof-*` → `.cofld-*`
+- JS variables: `cofConfig` → `cofldConfig`, `cofMetaBox` → `cofldMetaBox`, etc.
+- DB tables: `cof_fieldsets` → `cofld_fieldsets`, `cof_fields` → `cofld_fields`, `cof_locations` → `cofld_locations`
+- File names: `class-cof-*.php` → `class-cofld-*.php`
 
-Best regards,  
-Shayan Moradi  
-https://codeideal.com
+Ran a final automated grep across the entire built ZIP — zero remaining old-prefix references.
+
+Please let me know if anything else needs attention.
+
+Best regards
+Shayan
