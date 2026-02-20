@@ -15,6 +15,20 @@ Modern custom fields builder for WordPress. Create and manage custom field group
 
 Codeideal Open Fields is a powerful, lightweight, and 100% open-source custom fields plugin for WordPress. Add custom fields to posts, pages, custom post types, taxonomies, and users with an intuitive, modern interface for creating field groups and managing custom data.
 
+= Source Code & Build Instructions =
+
+The admin interface JavaScript (`assets/admin/js/admin.js`) is built from uncompressed React/TypeScript source code included in the development repository.
+
+**Source files:** The full uncompressed source is available at [https://github.com/codeideal/openfields](https://github.com/codeideal/openfields) in the `admin/src/` directory.
+
+**To build from source:**
+
+1. Clone the repository: `git clone https://github.com/codeideal/openfields.git`
+2. Install dependencies: `pnpm install`
+3. Build the admin JS: `pnpm run build`
+
+The build output is placed in `plugin/assets/admin/js/admin.js`. All other CSS and JavaScript files in the plugin are uncompressed and human-readable.
+
 = Key Features =
 
 * **Modern Interface** - Built with React for a smooth, intuitive user experience

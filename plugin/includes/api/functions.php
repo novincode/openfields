@@ -26,9 +26,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Check if another custom fields plugin is active and add admin notice if needed.
  */
-add_action( 'admin_notices', 'cof_acf_compatibility_notice' );
+add_action( 'admin_notices', 'cofld_acf_compatibility_notice' );
 
-function cof_acf_compatibility_notice() {
+function cofld_acf_compatibility_notice() {
 	// Only show to admins on Codeideal Open Fields pages.
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
@@ -71,25 +71,25 @@ function cof_acf_compatibility_notice() {
  * @param  bool     $format_value Whether to format the value based on return_format.
  * @return mixed    Field value.
  */
-function cof_get_field( $field_name, $object_id = null, $format_value = true ) {
-	$context = cof_detect_context( $object_id );
-	$value   = COF_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+function cofld_get_field( $field_name, $object_id = null, $format_value = true ) {
+	$context = cofld_detect_context( $object_id );
+	$value   = COFLD_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
 
 	// Check if this is a repeater field (value is integer row count).
 	if ( is_numeric( $value ) && (int) $value > 0 ) {
-		$all_meta = cof_get_all_meta( $context['id'], $context['type'] );
+		$all_meta = cofld_get_all_meta( $context['id'], $context['type'] );
 		$test_key = $field_name . '_0_';
 
 		foreach ( $all_meta as $key => $v ) {
 			if ( strpos( $key, $test_key ) === 0 ) {
-				return cof_get_rows( $field_name, $object_id );
+				return cofld_get_rows( $field_name, $object_id );
 			}
 		}
 	}
 
 	// Apply return_format for relational fields if formatting is enabled.
 	if ( $format_value && ! empty( $value ) ) {
-		$value = cof_apply_return_format( $field_name, $value );
+		$value = cofld_apply_return_format( $field_name, $value );
 	}
 
 	return $value;
@@ -115,7 +115,7 @@ if ( ! function_exists( 'get_field' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared by another plugin.
 	function get_field( $field_name, $object_id = null, $format_value = true ) {
-		return cof_get_field( $field_name, $object_id, $format_value );
+		return cofld_get_field( $field_name, $object_id, $format_value );
 	}
 }
 
@@ -128,8 +128,8 @@ if ( ! function_exists( 'get_field' ) ) {
  * @param  int|null $object_id  Object ID. Defaults to current post.
  * @return void
  */
-function cof_the_field( $field_name, $object_id = null ) {
-	$value = cof_get_field( $field_name, $object_id );
+function cofld_the_field( $field_name, $object_id = null ) {
+	$value = cofld_get_field( $field_name, $object_id );
 
 	if ( is_array( $value ) || is_object( $value ) ) {
 		return;
@@ -150,7 +150,7 @@ if ( ! function_exists( 'the_field' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function the_field( $field_name, $object_id = null ) {
-		cof_the_field( $field_name, $object_id );
+		cofld_the_field( $field_name, $object_id );
 	}
 }
 
@@ -162,9 +162,9 @@ if ( ! function_exists( 'the_field' ) ) {
  * @param  int|null $object_id Object ID. Defaults to current post.
  * @return array    Array of field values.
  */
-function cof_get_fields( $object_id = null ) {
-	$context = cof_detect_context( $object_id );
-	return COF_Storage_Manager::get_all_values( $context['id'], $context['type'] );
+function cofld_get_fields( $object_id = null ) {
+	$context = cofld_detect_context( $object_id );
+	return COFLD_Storage_Manager::get_all_values( $context['id'], $context['type'] );
 }
 
 if ( ! function_exists( 'get_fields' ) ) {
@@ -178,7 +178,7 @@ if ( ! function_exists( 'get_fields' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_fields( $object_id = null ) {
-		return cof_get_fields( $object_id );
+		return cofld_get_fields( $object_id );
 	}
 }
 
@@ -192,9 +192,9 @@ if ( ! function_exists( 'get_fields' ) ) {
  * @param  int|null $object_id  Object ID. Defaults to current post.
  * @return bool
  */
-function cof_update_field( $field_name, $value, $object_id = null ) {
-	$context = cof_detect_context( $object_id );
-	return COF_Storage_Manager::update_value( $field_name, $value, $context['id'], $context['type'] );
+function cofld_update_field( $field_name, $value, $object_id = null ) {
+	$context = cofld_detect_context( $object_id );
+	return COFLD_Storage_Manager::update_value( $field_name, $value, $context['id'], $context['type'] );
 }
 
 if ( ! function_exists( 'update_field' ) ) {
@@ -210,7 +210,7 @@ if ( ! function_exists( 'update_field' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function update_field( $field_name, $value, $object_id = null ) {
-		return cof_update_field( $field_name, $value, $object_id );
+		return cofld_update_field( $field_name, $value, $object_id );
 	}
 }
 
@@ -223,9 +223,9 @@ if ( ! function_exists( 'update_field' ) ) {
  * @param  int|null $object_id  Object ID. Defaults to current post.
  * @return bool
  */
-function cof_delete_field( $field_name, $object_id = null ) {
-	$context = cof_detect_context( $object_id );
-	return COF_Storage_Manager::delete_value( $field_name, $context['id'], $context['type'] );
+function cofld_delete_field( $field_name, $object_id = null ) {
+	$context = cofld_detect_context( $object_id );
+	return COFLD_Storage_Manager::delete_value( $field_name, $context['id'], $context['type'] );
 }
 
 if ( ! function_exists( 'delete_field' ) ) {
@@ -240,7 +240,7 @@ if ( ! function_exists( 'delete_field' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function delete_field( $field_name, $object_id = null ) {
-		return cof_delete_field( $field_name, $object_id );
+		return cofld_delete_field( $field_name, $object_id );
 	}
 }
 
@@ -252,13 +252,13 @@ if ( ! function_exists( 'delete_field' ) ) {
  * @param  string $field_name Field name.
  * @return array|null
  */
-function cof_get_field_object( $field_name ) {
+function cofld_get_field_object( $field_name ) {
 	global $wpdb;
 
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$field = $wpdb->get_row(
 		$wpdb->prepare(
-			"SELECT * FROM {$wpdb->prefix}cof_fields WHERE name = %s",
+			"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE name = %s",
 			$field_name
 		),
 		ARRAY_A
@@ -291,7 +291,7 @@ if ( ! function_exists( 'get_field_object' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_field_object( $field_name ) {
-		return cof_get_field_object( $field_name );
+		return cofld_get_field_object( $field_name );
 	}
 }
 
@@ -308,16 +308,16 @@ if ( ! function_exists( 'get_field_object' ) ) {
  * @param  int|null $object_id  Object ID.
  * @return bool
  */
-function cof_have_rows( $field_name, $object_id = null ) {
-	global $cof_rows, $cof_row_index;
+function cofld_have_rows( $field_name, $object_id = null ) {
+	global $cofld_rows, $cofld_row_index;
 
-	if ( isset( $cof_rows[ $field_name ] ) ) {
-		$index = $cof_row_index[ $field_name ] ?? 0;
-		return $index < count( $cof_rows[ $field_name ] );
+	if ( isset( $cofld_rows[ $field_name ] ) ) {
+		$index = $cofld_row_index[ $field_name ] ?? 0;
+		return $index < count( $cofld_rows[ $field_name ] );
 	}
 
-	$context   = cof_detect_context( $object_id );
-	$row_count = COF_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+	$context   = cofld_detect_context( $object_id );
+	$row_count = COFLD_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
 
 	if ( is_numeric( $row_count ) ) {
 		return (int) $row_count > 0;
@@ -342,7 +342,7 @@ if ( ! function_exists( 'have_rows' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function have_rows( $field_name, $object_id = null ) {
-		return cof_have_rows( $field_name, $object_id );
+		return cofld_have_rows( $field_name, $object_id );
 	}
 }
 
@@ -350,9 +350,9 @@ if ( ! function_exists( 'have_rows' ) ) {
  * Iterate through repeater rows.
  *
  * Usage:
- * while ( cof_have_rows( 'my_repeater' ) ) {
- *     cof_the_row();
- *     echo cof_get_sub_field( 'text_field' );
+ * while ( cofld_have_rows( 'my_repeater' ) ) {
+ *     cofld_the_row();
+ *     echo cofld_get_sub_field( 'text_field' );
  * }
  *
  * @since 1.0.0
@@ -361,36 +361,36 @@ if ( ! function_exists( 'have_rows' ) ) {
  * @param  int|null $object_id  Object ID.
  * @return bool
  */
-function cof_the_row( $field_name = '', $object_id = null ) {
-	global $cof_rows, $cof_row_index, $cof_row, $cof_current_field;
+function cofld_the_row( $field_name = '', $object_id = null ) {
+	global $cofld_rows, $cofld_row_index, $cofld_row, $cofld_current_field;
 
 	if ( ! empty( $field_name ) ) {
-		$cof_current_field = $field_name;
+		$cofld_current_field = $field_name;
 	} else {
-		$field_name = $cof_current_field ?? '';
+		$field_name = $cofld_current_field ?? '';
 	}
 
 	if ( empty( $field_name ) ) {
 		return false;
 	}
 
-	if ( ! isset( $cof_rows[ $field_name ] ) ) {
-		$cof_rows[ $field_name ]      = cof_get_rows( $field_name, $object_id );
-		$cof_row_index[ $field_name ] = 0;
+	if ( ! isset( $cofld_rows[ $field_name ] ) ) {
+		$cofld_rows[ $field_name ]      = cofld_get_rows( $field_name, $object_id );
+		$cofld_row_index[ $field_name ] = 0;
 	}
 
-	$rows  = $cof_rows[ $field_name ];
-	$index = $cof_row_index[ $field_name ];
+	$rows  = $cofld_rows[ $field_name ];
+	$index = $cofld_row_index[ $field_name ];
 
 	if ( $index < count( $rows ) ) {
-		$cof_row = $rows[ $index ];
-		++$cof_row_index[ $field_name ];
+		$cofld_row = $rows[ $index ];
+		++$cofld_row_index[ $field_name ];
 		return true;
 	}
 
-	unset( $cof_rows[ $field_name ], $cof_row_index[ $field_name ] );
-	$cof_row           = null;
-	$cof_current_field = null;
+	unset( $cofld_rows[ $field_name ], $cofld_row_index[ $field_name ] );
+	$cofld_row           = null;
+	$cofld_current_field = null;
 
 	return false;
 }
@@ -407,7 +407,7 @@ if ( ! function_exists( 'the_row' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function the_row( $field_name = '', $object_id = null ) {
-		return cof_the_row( $field_name, $object_id );
+		return cofld_the_row( $field_name, $object_id );
 	}
 }
 
@@ -418,9 +418,9 @@ if ( ! function_exists( 'the_row' ) ) {
  *
  * @return array|null Current row data.
  */
-function cof_get_row() {
-	global $cof_row;
-	return $cof_row;
+function cofld_get_row() {
+	global $cofld_row;
+	return $cofld_row;
 }
 
 if ( ! function_exists( 'get_row' ) ) {
@@ -433,7 +433,7 @@ if ( ! function_exists( 'get_row' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_row() {
-		return cof_get_row();
+		return cofld_get_row();
 	}
 }
 
@@ -446,9 +446,9 @@ if ( ! function_exists( 'get_row' ) ) {
  * @param  int|null $object_id  Object ID.
  * @return array
  */
-function cof_get_rows( $field_name, $object_id = null ) {
-	$context   = cof_detect_context( $object_id );
-	$row_count = COF_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+function cofld_get_rows( $field_name, $object_id = null ) {
+	$context   = cofld_detect_context( $object_id );
+	$row_count = COFLD_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
 
 	if ( is_array( $row_count ) ) {
 		return $row_count;
@@ -459,7 +459,7 @@ function cof_get_rows( $field_name, $object_id = null ) {
 	}
 
 	$rows     = array();
-	$all_meta = cof_get_all_meta( $context['id'], $context['type'] );
+	$all_meta = cofld_get_all_meta( $context['id'], $context['type'] );
 	$prefix_pattern = '/^' . preg_quote( $field_name, '/' ) . '_(\d+)_(.+)$/';
 
 	foreach ( $all_meta as $key => $value ) {
@@ -490,7 +490,7 @@ if ( ! function_exists( 'get_rows' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_rows( $field_name, $object_id = null ) {
-		return cof_get_rows( $field_name, $object_id );
+		return cofld_get_rows( $field_name, $object_id );
 	}
 }
 
@@ -502,16 +502,16 @@ if ( ! function_exists( 'get_rows' ) ) {
  * @param  string $field_name Field name.
  * @return void
  */
-function cof_reset_rows( $field_name = '' ) {
-	global $cof_rows, $cof_row_index, $cof_row;
+function cofld_reset_rows( $field_name = '' ) {
+	global $cofld_rows, $cofld_row_index, $cofld_row;
 
-	if ( $field_name && isset( $cof_rows[ $field_name ] ) ) {
-		$cof_row_index[ $field_name ] = 0;
+	if ( $field_name && isset( $cofld_rows[ $field_name ] ) ) {
+		$cofld_row_index[ $field_name ] = 0;
 	} else {
-		$cof_rows      = array();
-		$cof_row_index = array();
+		$cofld_rows      = array();
+		$cofld_row_index = array();
 	}
-	$cof_row = null;
+	$cofld_row = null;
 }
 
 if ( ! function_exists( 'reset_rows' ) ) {
@@ -525,7 +525,7 @@ if ( ! function_exists( 'reset_rows' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function reset_rows( $field_name = '' ) {
-		cof_reset_rows( $field_name );
+		cofld_reset_rows( $field_name );
 	}
 }
 
@@ -536,10 +536,10 @@ if ( ! function_exists( 'reset_rows' ) ) {
  *
  * @return int
  */
-function cof_get_row_index() {
-	global $cof_row_index, $cof_current_field;
-	$field_name = $cof_current_field ?? '';
-	return ( $cof_row_index[ $field_name ] ?? 1 ) - 1;
+function cofld_get_row_index() {
+	global $cofld_row_index, $cofld_current_field;
+	$field_name = $cofld_current_field ?? '';
+	return ( $cofld_row_index[ $field_name ] ?? 1 ) - 1;
 }
 
 if ( ! function_exists( 'get_row_index' ) ) {
@@ -552,7 +552,7 @@ if ( ! function_exists( 'get_row_index' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_row_index() {
-		return cof_get_row_index();
+		return cofld_get_row_index();
 	}
 }
 
@@ -563,9 +563,9 @@ if ( ! function_exists( 'get_row_index' ) ) {
  *
  * @return string|null Layout name.
  */
-function cof_get_row_layout() {
-	global $cof_row;
-	return $cof_row['acf_fc_layout'] ?? null;
+function cofld_get_row_layout() {
+	global $cofld_row;
+	return $cofld_row['acf_fc_layout'] ?? null;
 }
 
 if ( ! function_exists( 'get_row_layout' ) ) {
@@ -578,7 +578,7 @@ if ( ! function_exists( 'get_row_layout' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_row_layout() {
-		return cof_get_row_layout();
+		return cofld_get_row_layout();
 	}
 }
 
@@ -594,9 +594,9 @@ if ( ! function_exists( 'get_row_layout' ) ) {
  * @param  string $field_name Sub-field name.
  * @return mixed
  */
-function cof_get_sub_field( $field_name ) {
-	global $cof_row;
-	return $cof_row[ $field_name ] ?? null;
+function cofld_get_sub_field( $field_name ) {
+	global $cofld_row;
+	return $cofld_row[ $field_name ] ?? null;
 }
 
 if ( ! function_exists( 'get_sub_field' ) ) {
@@ -610,7 +610,7 @@ if ( ! function_exists( 'get_sub_field' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_sub_field( $field_name ) {
-		return cof_get_sub_field( $field_name );
+		return cofld_get_sub_field( $field_name );
 	}
 }
 
@@ -622,8 +622,8 @@ if ( ! function_exists( 'get_sub_field' ) ) {
  * @param  string $field_name Sub-field name.
  * @return void
  */
-function cof_the_sub_field( $field_name ) {
-	$value = cof_get_sub_field( $field_name );
+function cofld_the_sub_field( $field_name ) {
+	$value = cofld_get_sub_field( $field_name );
 	if ( is_array( $value ) || is_object( $value ) ) {
 		return;
 	}
@@ -641,7 +641,7 @@ if ( ! function_exists( 'the_sub_field' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function the_sub_field( $field_name ) {
-		cof_the_sub_field( $field_name );
+		cofld_the_sub_field( $field_name );
 	}
 }
 
@@ -653,8 +653,8 @@ if ( ! function_exists( 'the_sub_field' ) ) {
  * @param  string $field_name Sub-field name.
  * @return bool
  */
-function cof_have_sub_field( $field_name ) {
-	$value = cof_get_sub_field( $field_name );
+function cofld_have_sub_field( $field_name ) {
+	$value = cofld_get_sub_field( $field_name );
 	return ! empty( $value );
 }
 
@@ -669,7 +669,7 @@ if ( ! function_exists( 'have_sub_field' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function have_sub_field( $field_name ) {
-		return cof_have_sub_field( $field_name );
+		return cofld_have_sub_field( $field_name );
 	}
 }
 
@@ -681,8 +681,8 @@ if ( ! function_exists( 'have_sub_field' ) ) {
  * @param  string $field_name Sub-field name.
  * @return array|null
  */
-function cof_get_sub_field_object( $field_name ) {
-	return cof_get_field_object( $field_name );
+function cofld_get_sub_field_object( $field_name ) {
+	return cofld_get_field_object( $field_name );
 }
 
 if ( ! function_exists( 'get_sub_field_object' ) ) {
@@ -696,7 +696,7 @@ if ( ! function_exists( 'get_sub_field_object' ) ) {
 	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Compatibility wrapper, only defined if not already declared.
 	function get_sub_field_object( $field_name ) {
-		return cof_get_sub_field_object( $field_name );
+		return cofld_get_sub_field_object( $field_name );
 	}
 }
 
@@ -713,9 +713,9 @@ if ( ! function_exists( 'get_sub_field_object' ) ) {
  * @param  int|null $object_id  Object ID. Defaults to current post.
  * @return mixed    Raw field value.
  */
-function cof_get_field_raw( $field_name, $object_id = null ) {
-	$context = cof_detect_context( $object_id );
-	return COF_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
+function cofld_get_field_raw( $field_name, $object_id = null ) {
+	$context = cofld_detect_context( $object_id );
+	return COFLD_Storage_Manager::get_value( $field_name, $context['id'], $context['type'] );
 }
 
 /**
@@ -727,8 +727,8 @@ function cof_get_field_raw( $field_name, $object_id = null ) {
  * @param  int|null $object_id  Object ID. Defaults to current post.
  * @return bool
  */
-function cof_have_field( $field_name, $object_id = null ) {
-	$value = cof_get_field( $field_name, $object_id );
+function cofld_have_field( $field_name, $object_id = null ) {
+	$value = cofld_get_field( $field_name, $object_id );
 	return ! empty( $value );
 }
 
@@ -741,9 +741,9 @@ function cof_have_field( $field_name, $object_id = null ) {
  * @param  int|null $object_id    Object ID. Defaults to current post.
  * @return array
  */
-function cof_get_fieldset( $fieldset_key, $object_id = null ) {
-	$context = cof_detect_context( $object_id );
-	return COF_Storage_Manager::get_fieldset_values( $fieldset_key, $context['id'], $context['type'] );
+function cofld_get_fieldset( $fieldset_key, $object_id = null ) {
+	$context = cofld_detect_context( $object_id );
+	return COFLD_Storage_Manager::get_fieldset_values( $fieldset_key, $context['id'], $context['type'] );
 }
 
 // =============================================================================
@@ -758,7 +758,7 @@ function cof_get_fieldset( $fieldset_key, $object_id = null ) {
  * @param  mixed $object_id Object ID or prefix like 'user_123', 'term_456'.
  * @return array
  */
-function cof_detect_context( $object_id = null ) {
+function cofld_detect_context( $object_id = null ) {
 	if ( is_string( $object_id ) ) {
 		if ( strpos( $object_id, 'user_' ) === 0 ) {
 			return array(
@@ -797,7 +797,7 @@ function cof_detect_context( $object_id = null ) {
  * @param  string $type      Context type (post, user, term).
  * @return array
  */
-function cof_get_all_meta( $object_id, $type = 'post' ) {
+function cofld_get_all_meta( $object_id, $type = 'post' ) {
 	switch ( $type ) {
 		case 'post':
 			$all = get_post_meta( $object_id );
@@ -832,8 +832,8 @@ function cof_get_all_meta( $object_id, $type = 'post' ) {
  * @param  mixed  $value      Raw field value.
  * @return mixed  Formatted value.
  */
-function cof_apply_return_format( $field_name, $value ) {
-	$field = cof_get_field_object( $field_name );
+function cofld_apply_return_format( $field_name, $value ) {
+	$field = cofld_get_field_object( $field_name );
 
 	if ( ! $field || empty( $field['type'] ) ) {
 		return $value;
@@ -918,13 +918,13 @@ function cof_apply_return_format( $field_name, $value ) {
 	switch ( $type ) {
 		case 'post_object':
 		case 'relationship':
-			return cof_format_post_value( $value, $return_format );
+			return cofld_format_post_value( $value, $return_format );
 
 		case 'taxonomy':
-			return cof_format_taxonomy_value( $value, $return_format );
+			return cofld_format_taxonomy_value( $value, $return_format );
 
 		case 'user':
-			return cof_format_user_value( $value, $return_format );
+			return cofld_format_user_value( $value, $return_format );
 
 		default:
 			return $value;
@@ -938,7 +938,7 @@ function cof_apply_return_format( $field_name, $value ) {
  * @param  string $return_format 'object' or 'id'.
  * @return mixed
  */
-function cof_format_post_value( $value, $return_format ) {
+function cofld_format_post_value( $value, $return_format ) {
 	if ( 'id' === $return_format ) {
 		return $value;
 	}
@@ -957,7 +957,7 @@ function cof_format_post_value( $value, $return_format ) {
  * @param  string $return_format 'object' or 'id'.
  * @return mixed
  */
-function cof_format_taxonomy_value( $value, $return_format ) {
+function cofld_format_taxonomy_value( $value, $return_format ) {
 	if ( 'id' === $return_format ) {
 		return $value;
 	}
@@ -978,7 +978,7 @@ function cof_format_taxonomy_value( $value, $return_format ) {
  * @param  string $return_format 'object', 'array', or 'id'.
  * @return mixed
  */
-function cof_format_user_value( $value, $return_format ) {
+function cofld_format_user_value( $value, $return_format ) {
 	if ( 'id' === $return_format ) {
 		return $value;
 	}
@@ -1033,8 +1033,8 @@ function cof_format_user_value( $value, $return_format ) {
  * @param  array  $args Field type arguments.
  * @return void
  */
-function cof_register_field_type( $key, $args ) {
-	COF_Field_Registry::instance()->register( $key, $args );
+function cofld_register_field_type( $key, $args ) {
+	COFLD_Field_Registry::instance()->register( $key, $args );
 }
 
 /**
@@ -1045,7 +1045,7 @@ function cof_register_field_type( $key, $args ) {
  * @param  array $args Options page arguments.
  * @return void
  */
-function cof_register_options_page( $args ) {
+function cofld_register_options_page( $args ) {
 	$defaults = array(
 		'page_title' => '',
 		'menu_title' => '',
@@ -1069,7 +1069,7 @@ function cof_register_options_page( $args ) {
 					$args['capability'],
 					$args['menu_slug'],
 					function() use ( $args ) {
-						cof_render_options_page( $args['menu_slug'] );
+						cofld_render_options_page( $args['menu_slug'] );
 					}
 				);
 			} else {
@@ -1079,7 +1079,7 @@ function cof_register_options_page( $args ) {
 					$args['capability'],
 					$args['menu_slug'],
 					function() use ( $args ) {
-						cof_render_options_page( $args['menu_slug'] );
+						cofld_render_options_page( $args['menu_slug'] );
 					},
 					$args['icon'],
 					$args['position']
@@ -1089,7 +1089,7 @@ function cof_register_options_page( $args ) {
 	);
 
 	add_filter(
-		'cof_options_pages',
+		'cofld_options_pages',
 		function( $pages ) use ( $args ) {
 			$pages[ $args['menu_slug'] ] = $args['page_title'];
 			return $pages;
@@ -1105,9 +1105,9 @@ function cof_register_options_page( $args ) {
  * @param  string $page_slug Page slug.
  * @return void
  */
-function cof_render_options_page( $page_slug ) {
+function cofld_render_options_page( $page_slug ) {
 	echo '<div class="wrap">';
-	echo '<div id="cof-options-page" data-page="' . esc_attr( $page_slug ) . '"></div>';
+	echo '<div id="cofld-options-page" data-page="' . esc_attr( $page_slug ) . '"></div>';
 	echo '</div>';
 }
 
@@ -1120,7 +1120,7 @@ function cof_render_options_page( $page_slug ) {
  * @param  array  $args Fieldset arguments.
  * @return void
  */
-function cof_register_fieldset( $key, $args ) {
+function cofld_register_fieldset( $key, $args ) {
 	$defaults = array(
 		'title'    => '',
 		'fields'   => array(),
@@ -1135,11 +1135,11 @@ function cof_register_fieldset( $key, $args ) {
 		'init',
 		function() use ( $key, $args ) {
 			/** This filter is documented in includes/api/functions.php */
-			$args = apply_filters( 'cof_register_fieldset', $args, $key );
+			$args = apply_filters( 'cofld_register_fieldset', $args, $key );
 
-			$registered          = get_transient( 'cof_registered_fieldsets' ) ?: array();
+			$registered          = get_transient( 'cofld_registered_fieldsets' ) ?: array();
 			$registered[ $key ]  = $args;
-			set_transient( 'cof_registered_fieldsets', $registered );
+			set_transient( 'cofld_registered_fieldsets', $registered );
 		},
 		5
 	);
@@ -1155,6 +1155,6 @@ function cof_register_fieldset( $key, $args ) {
  *
  * @return bool
  */
-function cof_is_acf_active() {
+function cofld_is_acf_active() {
 	return class_exists( 'ACF' );
 }

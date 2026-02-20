@@ -21,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Field_Renderer {
+class COFLD_Field_Renderer {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var COF_Field_Renderer
+	 * @var COFLD_Field_Renderer
 	 */
 	private static $instance = null;
 
@@ -40,7 +40,7 @@ class COF_Field_Renderer {
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return COF_Field_Renderer
+	 * @return COFLD_Field_Renderer
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -54,7 +54,7 @@ class COF_Field_Renderer {
 	 */
 	private function __construct() {
 		// Allow custom renderers via action.
-		do_action( 'cof_register_field_renderers', $this );
+		do_action( 'cofld_register_field_renderers', $this );
 	}
 
 	/**
@@ -150,15 +150,15 @@ class COF_Field_Renderer {
 				break;
 
 			case 'image':
-				cof_render_image_field( $field, $value, $field_id, $field_name, $settings );
+				cofld_render_image_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'file':
-				cof_render_file_field( $field, $value, $field_id, $field_name, $settings );
+				cofld_render_file_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'gallery':
-				cof_render_gallery_field( $field, $value, $field_id, $field_name, $settings );
+				cofld_render_gallery_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'wysiwyg':
@@ -166,33 +166,33 @@ class COF_Field_Renderer {
 				break;
 
 			case 'link':
-				cof_render_link_field( $field, $value, $field_id, $field_name, $settings );
+				cofld_render_link_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'post_object':
 			case 'relationship':
-				cof_render_post_object_field( $field, $value, $field_id, $field_name, $settings );
+				cofld_render_post_object_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'taxonomy':
-				cof_render_taxonomy_field( $field, $value, $field_id, $field_name, $settings );
+				cofld_render_taxonomy_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'user':
-				cof_render_user_field( $field, $value, $field_id, $field_name, $settings );
+				cofld_render_user_field( $field, $value, $field_id, $field_name, $settings );
 				break;
 
 			case 'repeater':
-				cof_render_repeater_field( $field, $value, $field_id, $context['parent_name'] ?: $field->name, $settings, $context['object_id'], $context['object_type'] );
+				cofld_render_repeater_field( $field, $value, $field_id, $context['parent_name'] ?: $field->name, $settings, $context['object_id'], $context['object_type'] );
 				break;
 
 			case 'group':
-				cof_render_group_field( $field, $value, $field_id, $context['parent_name'] ?: $field->name, $settings, $context['object_id'], $context['object_type'] );
+				cofld_render_group_field( $field, $value, $field_id, $context['parent_name'] ?: $field->name, $settings, $context['object_id'], $context['object_type'] );
 				break;
 
 			default:
 				// Allow custom field types via action.
-				do_action( 'cof_render_field_' . $type, $field, $value, $field_id, $field_name, $settings, $context );
+				do_action( 'cofld_render_field_' . $type, $field, $value, $field_id, $field_name, $settings, $context );
 				break;
 		}
 	}
@@ -224,8 +224,8 @@ class COF_Field_Renderer {
 	private function render_email( $field, $value, $field_id, $field_name, $settings ) {
 		$placeholder = $this->get_placeholder( $field, $settings, 'email@example.com' );
 		
-		echo '<div class="cof-input-with-icon cof-input-icon-left">';
-		echo '<span class="cof-input-icon dashicons dashicons-email"></span>';
+		echo '<div class="cofld-input-with-icon cof-input-icon-left">';
+		echo '<span class="cofld-input-icon dashicons dashicons-email"></span>';
 		
 		$atts = $this->build_attributes( array(
 			'type'         => 'email',
@@ -248,8 +248,8 @@ class COF_Field_Renderer {
 	private function render_url( $field, $value, $field_id, $field_name, $settings ) {
 		$placeholder = $this->get_placeholder( $field, $settings, 'https://' );
 		
-		echo '<div class="cof-input-with-icon cof-input-icon-left">';
-		echo '<span class="cof-input-icon dashicons dashicons-admin-links"></span>';
+		echo '<div class="cofld-input-with-icon cof-input-icon-left">';
+		echo '<span class="cofld-input-icon dashicons dashicons-admin-links"></span>';
 		
 		$atts = $this->build_attributes( array(
 			'type'         => 'url',
@@ -352,7 +352,7 @@ class COF_Field_Renderer {
 		$choices = $this->get_setting( $settings, 'choices', array() );
 		$layout  = $this->get_setting( $settings, 'layout', 'vertical' );
 		
-		echo '<fieldset class="cof-radio-group cof-radio-' . esc_attr( $layout ) . '">';
+		echo '<fieldset class="cofld-radio-group cof-radio-' . esc_attr( $layout ) . '">';
 		
 		foreach ( $choices as $i => $choice ) {
 			$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
@@ -389,7 +389,7 @@ class COF_Field_Renderer {
 			$values = is_array( $value ) ? $value : array();
 			$layout = $this->get_setting( $settings, 'layout', 'vertical' );
 			
-			echo '<fieldset class="cof-checkbox-group cof-checkbox-' . esc_attr( $layout ) . '">';
+			echo '<fieldset class="cofld-checkbox-group cof-checkbox-' . esc_attr( $layout ) . '">';
 			
 			foreach ( $choices as $i => $choice ) {
 				$choice_value = is_array( $choice ) ? ( $choice['value'] ?? '' ) : $choice;
@@ -415,8 +415,8 @@ class COF_Field_Renderer {
 		$on_label  = $this->get_setting( $settings, 'on_text', __( 'Yes', 'codeideal-open-fields' ) );
 		$off_label = $this->get_setting( $settings, 'off_text', __( 'No', 'codeideal-open-fields' ) );
 		
-		echo '<input type="checkbox" class="cof-switch-checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
-		echo '<label class="cof-switch-container" for="' . esc_attr( $field_id ) . '">';
+		echo '<input type="checkbox" class="cofld-switch-checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1"' . checked( $checked, true, false ) . ' />';
+		echo '<label class="cofld-switch-container" for="' . esc_attr( $field_id ) . '">';
 		echo '<div>' . esc_html( $off_label ) . '</div>';
 		echo '<div>' . esc_html( $on_label ) . '</div>';
 		echo '</label>';
@@ -523,8 +523,8 @@ class COF_Field_Renderer {
 	 * @return mixed
 	 */
 	private function get_setting( $settings, $key, $default = '' ) {
-		if ( class_exists( 'COF_Field_Settings' ) ) {
-			return COF_Field_Settings::get_setting( $settings, $key, $default );
+		if ( class_exists( 'COFLD_Field_Settings' ) ) {
+			return COFLD_Field_Settings::get_setting( $settings, $key, $default );
 		}
 		return isset( $settings[ $key ] ) ? $settings[ $key ] : $default;
 	}
@@ -560,10 +560,10 @@ class COF_Field_Renderer {
 /**
  * Helper function to get the field renderer instance.
  *
- * @return COF_Field_Renderer
+ * @return COFLD_Field_Renderer
  */
-function cof_field_renderer() {
-	return COF_Field_Renderer::instance();
+function cofld_field_renderer() {
+	return COFLD_Field_Renderer::instance();
 }
 
 /**
@@ -576,6 +576,6 @@ function cof_field_renderer() {
  * @param array        $settings   Field settings.
  * @param array        $context    Optional context.
  */
-function cof_render_field( $field, $value, $field_id, $field_name, $settings = array(), $context = array() ) {
-	cof_field_renderer()->render( $field, $value, $field_id, $field_name, $settings, $context );
+function cofld_render_field( $field, $value, $field_id, $field_name, $settings = array(), $context = array() ) {
+	cofld_field_renderer()->render( $field, $value, $field_id, $field_name, $settings, $context );
 }

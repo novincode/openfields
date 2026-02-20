@@ -27,13 +27,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param int    $object_id   Object ID (post, term, or user ID).
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  */
-function cof_render_group_field( $field, $value, $field_id, $base_name, $settings, $object_id, $object_type = 'post' ) {
+function cofld_render_group_field( $field, $value, $field_id, $base_name, $settings, $object_id, $object_type = 'post' ) {
 	global $wpdb;
 
 	// Get sub-fields for this group.
 	$sub_fields = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT * FROM {$wpdb->prefix}cof_fields WHERE parent_id = %d ORDER BY menu_order ASC",
+			"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE parent_id = %d ORDER BY menu_order ASC",
 			$field->id
 		)
 	);
@@ -49,15 +49,15 @@ function cof_render_group_field( $field, $value, $field_id, $base_name, $setting
 	$unique_id = 'group-' . sanitize_key( $base_name ) . '-' . wp_rand( 1000, 9999 );
 	?>
 	<div 
-		class="cof-group"
+		class="cofld-group"
 		id="<?php echo esc_attr( $unique_id ); ?>"
 		data-name="<?php echo esc_attr( $base_name ); ?>"
 		data-layout="<?php echo esc_attr( $layout ); ?>"
 	>
-		<div class="cof-group-content" data-layout="<?php echo esc_attr( $layout ); ?>">
+		<div class="cofld-group-content" data-layout="<?php echo esc_attr( $layout ); ?>">
 			<?php
 			foreach ( $sub_fields as $sub_field ) {
-				cof_render_group_subfield( $sub_field, $base_name, $object_id, $object_type );
+				cofld_render_group_subfield( $sub_field, $base_name, $object_id, $object_type );
 			}
 			?>
 		</div>
@@ -73,9 +73,9 @@ function cof_render_group_field( $field, $value, $field_id, $base_name, $setting
  * @param int    $object_id    Object ID (post, term, or user ID).
  * @param string $object_type  Object type: 'post', 'term', or 'user'.
  */
-function cof_render_group_subfield( $sub_field, $parent_name, $object_id, $object_type = 'post' ) {
+function cofld_render_group_subfield( $sub_field, $parent_name, $object_id, $object_type = 'post' ) {
 	// Get the raw sub-field name (strip parent prefix if present in database).
-	$raw_sub_name = cof_get_raw_group_subfield_name( $sub_field->name, $parent_name );
+	$raw_sub_name = cofld_get_raw_group_subfield_name( $sub_field->name, $parent_name );
 	
 	// Sub-field meta key: {parent}_{subfield}
 	$sub_meta_key = $parent_name . '_' . $raw_sub_name;
@@ -122,7 +122,7 @@ function cof_render_group_subfield( $sub_field, $parent_name, $object_id, $objec
 	$wrapper_id    = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 
 	?>
-	<div class="cof-group-subfield cof-field-wrapper cof-field-wrapper--width-<?php echo intval( $wrapper_width ); ?><?php echo $wrapper_class ? ' ' . esc_attr( $wrapper_class ) : ''; ?>" 
+	<div class="cofld-group-subfield cof-field-wrapper cof-field-wrapper--width-<?php echo intval( $wrapper_width ); ?><?php echo $wrapper_class ? ' ' . esc_attr( $wrapper_class ) : ''; ?>" 
 		style="--of-field-width: <?php echo intval( $wrapper_width ); ?>%;"
 		data-width="<?php echo intval( $wrapper_width ); ?>"
 		data-subfield-name="<?php echo esc_attr( $sub_field->name ); ?>"
@@ -138,24 +138,24 @@ function cof_render_group_subfield( $sub_field, $parent_name, $object_id, $objec
 		<?php endif; ?>
 	>
 		<?php if ( ! empty( $sub_field->label ) ) : ?>
-			<div class="cof-field-label">
+			<div class="cofld-field-label">
 				<label for="<?php echo esc_attr( $sub_meta_key ); ?>">
 					<?php echo esc_html( $sub_field->label ); ?>
 					<?php if ( ! empty( $sub_settings['required'] ) || ! empty( $sub_field->required ) ) : ?>
-						<span class="cof-field-required" aria-label="required">*</span>
+						<span class="cofld-field-required" aria-label="required">*</span>
 					<?php endif; ?>
 				</label>
 			</div>
 		<?php endif; ?>
 
-		<div class="cof-field-input">
+		<div class="cofld-field-input">
 			<?php
-			cof_render_group_subfield_input( $sub_field, $sub_value, $sub_meta_key, $sub_meta_key, $sub_settings, $object_id, $object_type, $parent_name );
+			cofld_render_group_subfield_input( $sub_field, $sub_value, $sub_meta_key, $sub_meta_key, $sub_settings, $object_id, $object_type, $parent_name );
 			?>
 		</div>
 
 		<?php if ( ! empty( $sub_settings['instructions'] ) || ! empty( $sub_field->instructions ) ) : ?>
-			<p class="cof-field-description">
+			<p class="cofld-field-description">
 				<?php echo wp_kses_post( $sub_settings['instructions'] ?? $sub_field->instructions ); ?>
 			</p>
 		<?php endif; ?>
@@ -174,7 +174,7 @@ function cof_render_group_subfield( $sub_field, $parent_name, $object_id, $objec
  * @param string $parent_name    Parent group name.
  * @return string Raw sub-field name.
  */
-function cof_get_raw_group_subfield_name( $sub_field_name, $parent_name ) {
+function cofld_get_raw_group_subfield_name( $sub_field_name, $parent_name ) {
 	// If the sub-field name starts with parent name + underscore, strip it.
 	$prefix = $parent_name . '_';
 	if ( strpos( $sub_field_name, $prefix ) === 0 ) {
@@ -186,7 +186,7 @@ function cof_get_raw_group_subfield_name( $sub_field_name, $parent_name ) {
 /**
  * Render the input for a group sub-field.
  *
- * Delegates to the centralized COF_Field_Renderer class for consistency.
+ * Delegates to the centralized COFLD_Field_Renderer class for consistency.
  *
  * @param object $sub_field    Sub-field object.
  * @param mixed  $value        Current value.
@@ -197,9 +197,9 @@ function cof_get_raw_group_subfield_name( $sub_field_name, $parent_name ) {
  * @param string $object_type  Object type.
  * @param string $parent_name  Parent group name.
  */
-function cof_render_group_subfield_input( $sub_field, $value, $field_id, $field_name, $settings, $object_id, $object_type, $parent_name ) {
+function cofld_render_group_subfield_input( $sub_field, $value, $field_id, $field_name, $settings, $object_id, $object_type, $parent_name ) {
 	// Get the raw sub-field name for proper nesting.
-	$raw_sub_name = cof_get_raw_group_subfield_name( $sub_field->name, $parent_name );
+	$raw_sub_name = cofld_get_raw_group_subfield_name( $sub_field->name, $parent_name );
 	
 	// Use the centralized field renderer.
 	$context = array(
@@ -208,5 +208,5 @@ function cof_render_group_subfield_input( $sub_field, $value, $field_id, $field_
 		'parent_name' => $parent_name . '_' . $raw_sub_name,
 	);
 
-	cof_render_field( $sub_field, $value, $field_id, $field_name, $settings, $context );
+	cofld_render_field( $sub_field, $value, $field_id, $field_name, $settings, $context );
 }

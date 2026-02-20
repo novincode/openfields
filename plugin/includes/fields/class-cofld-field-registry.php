@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Field_Registry {
+class COFLD_Field_Registry {
 
 	/**
 	 * Instance.
 	 *
-	 * @var COF_Field_Registry|null
+	 * @var COFLD_Field_Registry|null
 	 */
 	private static $instance = null;
 
@@ -38,7 +38,7 @@ class COF_Field_Registry {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_Field_Registry
+	 * @return COFLD_Field_Registry
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -477,9 +477,9 @@ class COF_Field_Registry {
 		 * Fires after default field types are registered.
 		 *
 		 * @since 1.0.0
-		 * @param COF_Field_Registry $this Registry instance.
+		 * @param COFLD_Field_Registry $this Registry instance.
 		 */
-		do_action( 'cof/register_field_types', $this );
+		do_action( 'cofld/register_field_types', $this );
 	}
 
 	/**

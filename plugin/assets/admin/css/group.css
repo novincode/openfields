@@ -12,7 +12,7 @@
    CSS Custom Properties
    ========================================================================== */
 
-.cof-group {
+.cofld-group {
 	--of-border-color: #c3c4c7;
 	--of-border-radius: 4px;
 	--of-spacing-xs: 4px;
@@ -27,7 +27,7 @@
    Group Container
    ========================================================================== */
 
-.cof-group {
+.cofld-group {
 	box-sizing: border-box;
 	background: var(--of-group-bg);
 	border: 1px solid var(--of-border-color);
@@ -35,9 +35,9 @@
 	padding: var(--of-spacing-lg);
 }
 
-.cof-group *,
-.cof-group *::before,
-.cof-group *::after {
+.cofld-group *,
+.cofld-group *::before,
+.cofld-group *::after {
 	box-sizing: border-box;
 }
 
@@ -45,7 +45,7 @@
    Group Content (Sub-fields Container)
    ========================================================================== */
 
-.cof-group-content {
+.cofld-group-content {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--of-spacing-lg);
@@ -53,38 +53,38 @@
 }
 
 /* Block layout - full width sub-fields */
-.cof-group-content[data-layout="block"] {
+.cofld-group-content[data-layout="block"] {
 	flex-direction: column;
 }
 
-.cof-group-content[data-layout="block"] .cof-group-subfield {
+.cofld-group-content[data-layout="block"] .cofld-group-subfield {
 	width: 100% !important;
 }
 
 /* Row layout - horizontal sub-fields */
-.cof-group-content[data-layout="row"] {
+.cofld-group-content[data-layout="row"] {
 	flex-direction: row;
 }
 
 /* Table layout - table-like appearance */
-.cof-group-content[data-layout="table"] {
+.cofld-group-content[data-layout="table"] {
 	display: table;
 	width: 100%;
 	border-collapse: collapse;
 }
 
-.cof-group-content[data-layout="table"] .cof-group-subfield {
+.cofld-group-content[data-layout="table"] .cofld-group-subfield {
 	display: table-row;
 }
 
-.cof-group-content[data-layout="table"] .cof-field-label,
-.cof-group-content[data-layout="table"] .cof-field-input {
+.cofld-group-content[data-layout="table"] .cofld-field-label,
+.cofld-group-content[data-layout="table"] .cofld-field-input {
 	display: table-cell;
 	padding: var(--of-spacing-sm);
 	vertical-align: top;
 }
 
-.cof-group-content[data-layout="table"] .cof-field-label {
+.cofld-group-content[data-layout="table"] .cofld-field-label {
 	width: 200px;
 	white-space: nowrap;
 }
@@ -93,21 +93,21 @@
    Sub-field Styling
    ========================================================================== */
 
-.cof-group-subfield {
-	/* Inherits from .cof-field-wrapper */
+.cofld-group-subfield {
+	/* Inherits from .cofld-field-wrapper */
 	position: relative;
 }
 
 /* Width handling for row layout */
-.cof-group-content[data-layout="row"] .cof-group-subfield[style*="width: 50%"] {
+.cofld-group-content[data-layout="row"] .cofld-group-subfield[style*="width: 50%"] {
 	width: calc(50% - var(--of-spacing-lg) / 2) !important;
 }
 
-.cof-group-content[data-layout="row"] .cof-group-subfield[style*="width: 33%"] {
+.cofld-group-content[data-layout="row"] .cofld-group-subfield[style*="width: 33%"] {
 	width: calc(33.333% - var(--of-spacing-lg) * 2 / 3) !important;
 }
 
-.cof-group-content[data-layout="row"] .cof-group-subfield[style*="width: 25%"] {
+.cofld-group-content[data-layout="row"] .cofld-group-subfield[style*="width: 25%"] {
 	width: calc(25% - var(--of-spacing-lg) * 3 / 4) !important;
 }
 
@@ -115,12 +115,12 @@
    Nested Groups
    ========================================================================== */
 
-.cof-group .cof-group {
+.cofld-group .cofld-group {
 	background: #fff;
 	margin-top: var(--of-spacing-md);
 }
 
-.cof-group .cof-group .cof-group {
+.cofld-group .cofld-group .cofld-group {
 	background: var(--of-group-bg);
 }
 
@@ -129,24 +129,24 @@
    ========================================================================== */
 
 @media screen and (max-width: 782px) {
-	.cof-group-content {
+	.cofld-group-content {
 		flex-direction: column;
 	}
 
-	.cof-group-content .cof-group-subfield {
+	.cofld-group-content .cofld-group-subfield {
 		width: 100% !important;
 	}
 
-	.cof-group-content[data-layout="table"] {
+	.cofld-group-content[data-layout="table"] {
 		display: block;
 	}
 
-	.cof-group-content[data-layout="table"] .cof-group-subfield {
+	.cofld-group-content[data-layout="table"] .cofld-group-subfield {
 		display: block;
 	}
 
-	.cof-group-content[data-layout="table"] .cof-field-label,
-	.cof-group-content[data-layout="table"] .cof-field-input {
+	.cofld-group-content[data-layout="table"] .cofld-field-label,
+	.cofld-group-content[data-layout="table"] .cofld-field-input {
 		display: block;
 		width: 100%;
 	}

@@ -16,12 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Admin {
+class COFLD_Admin {
 
 	/**
 	 * Instance.
 	 *
-	 * @var COF_Admin|null
+	 * @var COFLD_Admin|null
 	 */
 	private static $instance = null;
 
@@ -29,7 +29,7 @@ class COF_Admin {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_Admin
+	 * @return COFLD_Admin
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -46,7 +46,7 @@ class COF_Admin {
 	private function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
 		add_action( 'admin_init', array( $this, 'maybe_redirect_after_activation' ) );
-		add_filter( 'plugin_action_links_' . COF_PLUGIN_BASENAME, array( $this, 'add_action_links' ) );
+		add_filter( 'plugin_action_links_' . COFLD_PLUGIN_BASENAME, array( $this, 'add_action_links' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_loading_styles' ) );
 	}
 
@@ -87,8 +87,8 @@ class COF_Admin {
 	 */
 	public function render_main_page() {
 		?>
-		<div id="openfields-admin" class="cof-admin-wrap">
-			<div class="cof-loading">
+		<div id="openfields-admin" class="cofld-admin-wrap">
+			<div class="cofld-loading">
 				<span class="spinner is-active"></span>
 				<?php esc_html_e( 'Loading Open Fields...', 'codeideal-open-fields' ); ?>
 			</div>
@@ -132,9 +132,9 @@ class COF_Admin {
 			}
 		';
 
-		wp_register_style( 'cof-admin-loading', false, array(), COF_VERSION );
-		wp_enqueue_style( 'cof-admin-loading' );
-		wp_add_inline_style( 'cof-admin-loading', $inline_css );
+		wp_register_style( 'cofld-admin-loading', false, array(), COFLD_VERSION );
+		wp_enqueue_style( 'cofld-admin-loading' );
+		wp_add_inline_style( 'cofld-admin-loading', $inline_css );
 	}
 
 	/**
@@ -143,8 +143,8 @@ class COF_Admin {
 	 * @since 1.0.0
 	 */
 	public function maybe_redirect_after_activation() {
-		if ( get_transient( 'cof_activation_redirect' ) ) {
-			delete_transient( 'cof_activation_redirect' );
+		if ( get_transient( 'cofld_activation_redirect' ) ) {
+			delete_transient( 'cofld_activation_redirect' );
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking if param exists during activation redirect, no data processing.
 			if ( ! isset( $_GET['activate-multi'] ) ) {

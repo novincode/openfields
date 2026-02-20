@@ -17,7 +17,7 @@
 	const { __ } = wp.i18n;
 
 	// Get available fields from localized data.
-	const availableFields = window.cofBlock?.fields || [];
+	const availableFields = window.cofldBlock?.fields || [];
 
 	// Group fields by fieldset.
 	const groupedFields = availableFields.reduce( ( groups, field ) => {
@@ -122,14 +122,14 @@
 								EmptyResponsePlaceholder: function() {
 									return el(
 										'div',
-										{ className: 'cof-block-placeholder cof-block-empty' },
+										{ className: 'cofld-block-placeholder cofld-block-empty' },
 										__( 'No value found for this field.', 'openfields' )
 									);
 								},
 						  } )
 						: el(
 								'div',
-								{ className: 'cof-block-placeholder' },
+								{ className: 'cofld-block-placeholder' },
 								el( 'span', { className: 'dashicons dashicons-forms' } ),
 								el( 'p', {}, __( 'Select a field from the sidebar.', 'openfields' ) )
 						  )

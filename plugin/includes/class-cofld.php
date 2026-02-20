@@ -16,13 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-final class COF_Plugin {
+final class COFLD_Plugin {
 
 	/**
 	 * Plugin instance.
 	 *
 	 * @since 1.0.0
-	 * @var   COF_Plugin|null
+	 * @var   COFLD_Plugin|null
 	 */
 	private static $instance = null;
 
@@ -30,7 +30,7 @@ final class COF_Plugin {
 	 * Get plugin instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_Plugin
+	 * @return COFLD_Plugin
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -56,32 +56,32 @@ final class COF_Plugin {
 	 */
 	private function includes() {
 		// Core includes.
-		require_once COF_PLUGIN_DIR . 'includes/class-cof-installer.php';
-		require_once COF_PLUGIN_DIR . 'includes/class-cof-assets.php';
-		require_once COF_PLUGIN_DIR . 'includes/class-cof-rest-api.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/class-cofld-installer.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/class-cofld-assets.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/class-cofld-rest-api.php';
 
 		// Admin includes.
 		if ( is_admin() ) {
-			require_once COF_PLUGIN_DIR . 'includes/admin/class-cof-admin.php';
-			require_once COF_PLUGIN_DIR . 'includes/admin/class-cof-meta-box.php';
+			require_once COFLD_PLUGIN_DIR . 'includes/admin/class-cofld-admin.php';
+			require_once COFLD_PLUGIN_DIR . 'includes/admin/class-cofld-meta-box.php';
 		}
 
 		// Field includes.
-		require_once COF_PLUGIN_DIR . 'includes/fields/class-cof-field-registry.php';
-		require_once COF_PLUGIN_DIR . 'includes/fields/class-cof-base-field.php';
-		require_once COF_PLUGIN_DIR . 'includes/fields/class-cof-field-settings.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/fields/class-cofld-field-registry.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/fields/class-cofld-base-field.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/fields/class-cofld-field-settings.php';
 
 		// Storage includes.
-		require_once COF_PLUGIN_DIR . 'includes/storage/class-cof-storage-manager.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/storage/class-cofld-storage-manager.php';
 
 		// Location includes.
-		require_once COF_PLUGIN_DIR . 'includes/locations/class-cof-location-manager.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/locations/class-cofld-location-manager.php';
 
 		// Public API.
-		require_once COF_PLUGIN_DIR . 'includes/api/functions.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/api/functions.php';
 
 		// Gutenberg block.
-		require_once COF_PLUGIN_DIR . 'includes/class-cof-block.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/class-cofld-block.php';
 	}
 
 	/**
@@ -93,7 +93,7 @@ final class COF_Plugin {
 		add_action( 'init', array( $this, 'init' ), 0 );
 
 		// Initialize REST API early - rest_api_init fires before init on REST requests.
-		COF_REST_API::instance();
+		COFLD_REST_API::instance();
 	}
 
 	/**
@@ -103,14 +103,14 @@ final class COF_Plugin {
 	 */
 	public function init() {
 		// Initialize components.
-		COF_Assets::instance();
-		COF_Field_Registry::instance();
-		COF_Storage_Manager::instance();
-		COF_Location_Manager::instance();
+		COFLD_Assets::instance();
+		COFLD_Field_Registry::instance();
+		COFLD_Storage_Manager::instance();
+		COFLD_Location_Manager::instance();
 
 		if ( is_admin() ) {
-			COF_Admin::instance();
-			COF_Meta_Box::instance();
+			COFLD_Admin::instance();
+			COFLD_Meta_Box::instance();
 		}
 
 		/**
@@ -118,7 +118,7 @@ final class COF_Plugin {
 		 *
 		 * @since 1.0.0
 		 */
-		do_action( 'cof/init' );
+		do_action( 'cofld/init' );
 	}
 
 	/**
@@ -129,7 +129,7 @@ final class COF_Plugin {
 	 * @return string
 	 */
 	public function plugin_path( $path = '' ) {
-		return COF_PLUGIN_DIR . ltrim( $path, '/' );
+		return COFLD_PLUGIN_DIR . ltrim( $path, '/' );
 	}
 
 	/**
@@ -140,7 +140,7 @@ final class COF_Plugin {
 	 * @return string
 	 */
 	public function plugin_url( $path = '' ) {
-		return COF_PLUGIN_URL . ltrim( $path, '/' );
+		return COFLD_PLUGIN_URL . ltrim( $path, '/' );
 	}
 
 	/**

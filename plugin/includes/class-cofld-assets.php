@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Assets {
+class COFLD_Assets {
 
 	/**
 	 * Instance.
 	 *
-	 * @var COF_Assets|null
+	 * @var COFLD_Assets|null
 	 */
 	private static $instance = null;
 
@@ -31,7 +31,7 @@ class COF_Assets {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_Assets
+	 * @return COFLD_Assets
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -65,34 +65,34 @@ class COF_Assets {
 
 		// React admin app.
 		wp_enqueue_script(
-			'cof-admin',
-			COF_PLUGIN_URL . 'assets/admin/js/admin.js',
+			'cofld-admin',
+			COFLD_PLUGIN_URL . 'assets/admin/js/admin.js',
 			array(),
-			COF_VERSION,
+			COFLD_VERSION,
 			true
 		);
 
 		// Admin styles.
 		wp_enqueue_style(
-			'cof-admin',
-			COF_PLUGIN_URL . 'assets/admin/css/admin.css',
+			'cofld-admin',
+			COFLD_PLUGIN_URL . 'assets/admin/css/admin.css',
 			array(),
-			COF_VERSION
+			COFLD_VERSION
 		);
 
 		// Localize script data.
-		// The variable name MUST match what the React frontend expects: window.openfieldsAdmin
+		// The variable name MUST match what the React frontend expects: window.cofldAdmin
 		wp_localize_script(
-			'cof-admin',
-			'openfieldsAdmin',
+			'cofld-admin',
+			'cofldAdmin',
 			$this->get_admin_data()
 		);
 
 		// Set script translations.
 		wp_set_script_translations(
-			'cof-admin',
+			'cofld-admin',
 			'codeideal-open-fields',
-			COF_PLUGIN_DIR . 'languages'
+			COFLD_PLUGIN_DIR . 'languages'
 		);
 	}
 
@@ -110,12 +110,12 @@ class COF_Assets {
 		/**
 		 * Fires when frontend assets should be loaded.
 		 *
-		 * Developers can use the 'cof/load_frontend_assets' filter to
+		 * Developers can use the 'cofld/load_frontend_assets' filter to
 		 * trigger this, then enqueue their own styles/scripts here.
 		 *
 		 * @since 1.0.0
 		 */
-		do_action( 'cof/frontend_enqueue_scripts' );
+		do_action( 'cofld/frontend_enqueue_scripts' );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class COF_Assets {
 			'post_format'   => get_post_format( $post->ID ) ?: 'standard',
 		);
 
-		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
+		$fieldsets = COFLD_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
 		if ( empty( $fieldsets ) ) {
 			return;
@@ -158,17 +158,17 @@ class COF_Assets {
 
 		// Enqueue choice fields styles (for radio, checkbox, select layout).
 		wp_enqueue_style(
-			'cof-choice-fields',
-			COF_PLUGIN_URL . 'assets/admin/css/choice-fields.css',
+			'cofld-choice-fields',
+			COFLD_PLUGIN_URL . 'assets/admin/css/choice-fields.css',
 			array(),
-			COF_VERSION
+			COFLD_VERSION
 		);
 
 		// Localize meta box data for field renderers.
 		wp_add_inline_script(
 			'wp-color-picker',
 			sprintf(
-				'var cofMetaBox = %s;',
+				'var cofldMetaBox = %s;',
 				wp_json_encode( array(
 					'i18n' => array(
 						'selectImage' => __( 'Select Image', 'codeideal-open-fields' ),
@@ -190,13 +190,13 @@ class COF_Assets {
 	 * @return bool
 	 */
 	private function is_cof_admin_page( $hook ) {
-		$cof_pages = array(
+		$cofld_pages = array(
 			'toplevel_page_codeideal-open-fields',
 			'open-fields_page_codeideal-open-fields-settings',
 			'open-fields_page_codeideal-open-fields-tools',
 		);
 
-		return in_array( $hook, $cof_pages, true );
+		return in_array( $hook, $cofld_pages, true );
 	}
 
 	/**
@@ -212,7 +212,7 @@ class COF_Assets {
 		 * @since 1.0.0
 		 * @param bool $load Whether to load assets.
 		 */
-		return apply_filters( 'cof/load_frontend_assets', false );
+		return apply_filters( 'cofld/load_frontend_assets', false );
 	}
 
 	/**
@@ -223,12 +223,12 @@ class COF_Assets {
 	 */
 	private function get_admin_data() {
 		return array(
-			'version'       => COF_VERSION,
+			'version'       => COFLD_VERSION,
 			'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
 			'restUrl'       => rest_url( 'codeideal-open-fields/v1' ),
 			'nonce'         => wp_create_nonce( 'wp_rest' ),
 			'adminUrl'      => admin_url(),
-			'pluginUrl'     => COF_PLUGIN_URL,
+			'pluginUrl'     => COFLD_PLUGIN_URL,
 			'postTypes'     => $this->get_post_types(),
 			'taxonomies'    => $this->get_taxonomies(),
 			'userRoles'     => $this->get_user_roles(),
@@ -417,11 +417,11 @@ class COF_Assets {
 	 * @return array
 	 */
 	private function get_field_types() {
-		if ( ! class_exists( 'COF_Field_Registry' ) ) {
+		if ( ! class_exists( 'COFLD_Field_Registry' ) ) {
 			return array();
 		}
 
-		return COF_Field_Registry::instance()->get_field_types_for_admin();
+		return COFLD_Field_Registry::instance()->get_field_types_for_admin();
 	}
 
 	/**

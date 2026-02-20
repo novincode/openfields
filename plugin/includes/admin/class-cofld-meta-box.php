@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Meta_Box {
+class COFLD_Meta_Box {
 
 	/**
 	 * Instance.
 	 *
-	 * @var COF_Meta_Box|null
+	 * @var COFLD_Meta_Box|null
 	 */
 	private static $instance = null;
 
@@ -39,7 +39,7 @@ class COF_Meta_Box {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_Meta_Box
+	 * @return COFLD_Meta_Box
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -71,19 +71,19 @@ class COF_Meta_Box {
 		add_action( 'user_register', array( $this, 'save_user_fields' ) );
 
 		// Include the unified field renderer first (required by other renderers).
-		require_once COF_PLUGIN_DIR . 'includes/fields/class-cof-field-renderer.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/fields/class-cofld-field-renderer.php';
 
 		// Include field renderers.
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/repeater.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/group.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/post-object.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/taxonomy.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/user.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/link.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/switch.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/image.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/file.php';
-		require_once COF_PLUGIN_DIR . 'includes/admin/field-renderers/gallery.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/repeater.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/group.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/post-object.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/taxonomy.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/user.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/link.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/switch.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/image.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/file.php';
+		require_once COFLD_PLUGIN_DIR . 'includes/admin/field-renderers/gallery.php';
 	}
 
 	/**
@@ -113,70 +113,70 @@ class COF_Meta_Box {
 
 		// Enqueue field styles.
 		wp_enqueue_style(
-			'cof-fields',
-			plugin_dir_url( COF_PLUGIN_FILE ) . 'assets/admin/css/fields.css',
+			'cofld-fields',
+			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/css/fields.css',
 			array(),
-			COF_VERSION
+			COFLD_VERSION
 		);
 
 		// Enqueue repeater styles.
 		wp_enqueue_style(
-			'cof-repeater',
-			plugin_dir_url( COF_PLUGIN_FILE ) . 'assets/admin/css/repeater.css',
-			array( 'cof-fields' ),
-			COF_VERSION
+			'cofld-repeater',
+			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/css/repeater.css',
+			array( 'cofld-fields' ),
+			COFLD_VERSION
 		);
 
 		// Enqueue group styles.
 		wp_enqueue_style(
-			'cof-group',
-			plugin_dir_url( COF_PLUGIN_FILE ) . 'assets/admin/css/group.css',
-			array( 'cof-fields' ),
-			COF_VERSION
+			'cofld-group',
+			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/css/group.css',
+			array( 'cofld-fields' ),
+			COFLD_VERSION
 		);
 
 		// Enqueue relational field styles.
 		wp_enqueue_style(
-			'cof-relational',
-			plugin_dir_url( COF_PLUGIN_FILE ) . 'assets/admin/css/relational-fields.css',
-			array( 'cof-fields', 'dashicons' ),
-			COF_VERSION
+			'cofld-relational',
+			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/css/relational-fields.css',
+			array( 'cofld-fields', 'dashicons' ),
+			COFLD_VERSION
 		);
 
 		// Enqueue field JavaScript.
 		wp_enqueue_script(
-			'cof-fields',
-			plugin_dir_url( COF_PLUGIN_FILE ) . 'assets/admin/js/fields.js',
+			'cofld-fields',
+			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/js/fields.js',
 			array(),
-			COF_VERSION,
+			COFLD_VERSION,
 			true
 		);
 
 		// Enqueue repeater JavaScript.
 		wp_enqueue_script(
-			'cof-repeater',
-			plugin_dir_url( COF_PLUGIN_FILE ) . 'assets/admin/js/repeater.js',
-			array( 'cof-fields' ),
-			COF_VERSION,
+			'cofld-repeater',
+			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/js/repeater.js',
+			array( 'cofld-fields' ),
+			COFLD_VERSION,
 			true
 		);
 
 		// Enqueue relational fields JavaScript.
 		wp_enqueue_script(
-			'cof-relational',
-			plugin_dir_url( COF_PLUGIN_FILE ) . 'assets/admin/js/relational-fields.js',
-			array( 'cof-fields' ),
-			COF_VERSION,
+			'cofld-relational',
+			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/js/relational-fields.js',
+			array( 'cofld-fields' ),
+			COFLD_VERSION,
 			true
 		);
 
 		// Localize script with any necessary data.
 		wp_localize_script(
-			'cof-fields',
-			'cofConfig',
+			'cofld-fields',
+			'cofldConfig',
 			array(
 				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-				'nonce'     => wp_create_nonce( 'cof_ajax' ),
+				'nonce'     => wp_create_nonce( 'cofld_ajax' ),
 				'restUrl'   => rest_url(),
 				'restNonce' => wp_create_nonce( 'wp_rest' ),
 			)
@@ -200,7 +200,7 @@ class COF_Meta_Box {
 			'post_format'   => get_post_format( $post->ID ) ?: 'standard',
 		);
 
-		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
+		$fieldsets = COFLD_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
 		foreach ( $fieldsets as $fieldset ) {
 
@@ -209,7 +209,7 @@ class COF_Meta_Box {
 			$priority = $settings['priority'] ?? 'high';
 
 			add_meta_box(
-				'cof-' . $fieldset->field_key,
+				'cofld-' . $fieldset->field_key,
 				$fieldset->title,
 				array( $this, 'render_meta_box' ),
 				$post_type,
@@ -231,27 +231,27 @@ class COF_Meta_Box {
 		$fieldset_id = $meta_box['args']['fieldset_id'];
 
 		// Nonce for security.
-		wp_nonce_field( 'cof_save_' . $fieldset_id, 'cof_nonce_' . $fieldset_id );
+		wp_nonce_field( 'cofld_save_' . $fieldset_id, 'cofld_nonce_' . $fieldset_id );
 
 		// Get fieldset from database to show description.
 		global $wpdb;
 		$fieldset = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}cof_fieldsets WHERE id = %d",
+				"SELECT * FROM {$wpdb->prefix}cofld_fieldsets WHERE id = %d",
 				$fieldset_id
 			)
 		);
 
 		// Show fieldset description if available.
 		if ( $fieldset && ! empty( $fieldset->description ) ) {
-			echo '<p class="cof-fieldset-description">' . wp_kses_post( $fieldset->description ) . '</p>';
+			echo '<p class="cofld-fieldset-description">' . wp_kses_post( $fieldset->description ) . '</p>';
 		}
 
 		// Get ROOT-LEVEL fields only (no parent_id) from database.
 		// Sub-fields are rendered by their parent repeater/group field.
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}cof_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
+				"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
 				$fieldset_id
 			)
 		);
@@ -262,8 +262,8 @@ class COF_Meta_Box {
 		}
 
 		// Render fields in a flex container.
-		echo '<div class="cof-meta-box">';
-		echo '<div class="cof-fields-container">';
+		echo '<div class="cofld-meta-box">';
+		echo '<div class="cofld-fields-container">';
 
 		foreach ( $fields as $field ) {
 			$this->render_field( $field, $post->ID );
@@ -343,7 +343,7 @@ class COF_Meta_Box {
 		$wrapper_id = isset( $config['wrapper_config']['id'] ) ? sanitize_html_class( $config['wrapper_config']['id'] ) : '';
 
 		// Build wrapper HTML.
-		echo '<div class="cof-field-wrapper cof-field-wrapper--width-' . intval( $wrapper_width ) . '';
+		echo '<div class="cofld-field-wrapper cof-field-wrapper--width-' . intval( $wrapper_width ) . '';
 		if ( $wrapper_class ) {
 			echo ' ' . esc_attr( $wrapper_class );
 		}
@@ -368,12 +368,12 @@ class COF_Meta_Box {
 
 		// Render label section.
 		if ( ! empty( $config['label'] ) ) {
-			echo '<div class="cof-field-label">';
+			echo '<div class="cofld-field-label">';
 			echo '<label for="' . esc_attr( self::META_PREFIX . $field->name ) . '">';
 			echo esc_html( $config['label'] );
 
 			if ( $config['required'] ) {
-				echo '<span class="cof-field-required" aria-label="required">*</span>';
+				echo '<span class="cofld-field-required" aria-label="required">*</span>';
 			}
 
 			echo '</label>';
@@ -381,13 +381,13 @@ class COF_Meta_Box {
 		}
 
 		// Render the input field.
-		echo '<div class="cof-field-input">';
+		echo '<div class="cofld-field-input">';
 		$this->render_input( $field, $value, self::META_PREFIX . $field->name, self::META_PREFIX . $field->name, $settings, $post_id, 'post' );
 		echo '</div>';
 
 		// Render description if present.
 		if ( ! empty( $config['instructions'] ) ) {
-			echo '<p class="cof-field-description">' . wp_kses_post( $config['instructions'] ) . '</p>';
+			echo '<p class="cofld-field-description">' . wp_kses_post( $config['instructions'] ) . '</p>';
 		}
 
 		echo '</div>';
@@ -413,7 +413,7 @@ class COF_Meta_Box {
 			'parent_name' => $field->name,
 		);
 
-		cof_render_field( $field, $value, $field_id, $field_name, $settings, $context );
+		cofld_render_field( $field, $value, $field_id, $field_name, $settings, $context );
 	}
 
 	/**
@@ -457,12 +457,12 @@ class COF_Meta_Box {
 			'post_format'   => $post_format ? $post_format : 'standard',
 		);
 
-		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
+		$fieldsets = COFLD_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
 		// Process each fieldset.
 		foreach ( $fieldsets as $fieldset ) {
 			// Verify nonce.
-			$nonce_key = 'cof_nonce_' . $fieldset->id;
+			$nonce_key = 'cofld_nonce_' . $fieldset->id;
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( empty( $_POST[ $nonce_key ] ) ) {
 				continue;
@@ -470,7 +470,7 @@ class COF_Meta_Box {
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is immediately verified.
 			$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) );
-			if ( ! wp_verify_nonce( $nonce, 'cof_save_' . $fieldset->id ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'cofld_save_' . $fieldset->id ) ) {
 				continue;
 			}
 
@@ -479,7 +479,7 @@ class COF_Meta_Box {
 			global $wpdb;
 			$all_fields = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM {$wpdb->prefix}cof_fields WHERE fieldset_id = %d",
+					"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE fieldset_id = %d",
 					$fieldset->id
 				)
 			);
@@ -835,7 +835,7 @@ class COF_Meta_Box {
 			'term_id'  => 0,
 		);
 
-		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
+		$fieldsets = COFLD_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
 		if ( empty( $fieldsets ) ) {
 			return;
@@ -843,11 +843,11 @@ class COF_Meta_Box {
 
 		foreach ( $fieldsets as $fieldset ) {
 			echo '<div class="form-field cof-taxonomy-fieldset cof-meta-box">';
-			echo '<h3 class="cof-fieldset-title">' . esc_html( $fieldset->title ) . '</h3>';
+			echo '<h3 class="cofld-fieldset-title">' . esc_html( $fieldset->title ) . '</h3>';
 
-			wp_nonce_field( 'cof_save_term_' . $fieldset->id, 'cof_term_nonce_' . $fieldset->id );
+			wp_nonce_field( 'cofld_save_term_' . $fieldset->id, 'cofld_term_nonce_' . $fieldset->id );
 
-			echo '<div class="cof-fields-container">';
+			echo '<div class="cofld-fields-container">';
 			$this->render_term_fields( $fieldset->id, 0 );
 			echo '</div>';
 
@@ -868,7 +868,7 @@ class COF_Meta_Box {
 			'term_id'  => $term->term_id,
 		);
 
-		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
+		$fieldsets = COFLD_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
 		if ( empty( $fieldsets ) ) {
 			return;
@@ -877,17 +877,17 @@ class COF_Meta_Box {
 		foreach ( $fieldsets as $fieldset ) {
 			echo '<tr class="form-field cof-taxonomy-fieldset-row">';
 			echo '<th scope="row" colspan="2">';
-			echo '<h3 class="cof-fieldset-title" style="margin: 0; padding: 10px 0;">' . esc_html( $fieldset->title ) . '</h3>';
+			echo '<h3 class="cofld-fieldset-title" style="margin: 0; padding: 10px 0;">' . esc_html( $fieldset->title ) . '</h3>';
 			echo '</th>';
 			echo '</tr>';
 
 			echo '<tr class="form-field">';
 			echo '<td colspan="2">';
 
-			wp_nonce_field( 'cof_save_term_' . $fieldset->id, 'cof_term_nonce_' . $fieldset->id );
+			wp_nonce_field( 'cofld_save_term_' . $fieldset->id, 'cofld_term_nonce_' . $fieldset->id );
 
-			echo '<div class="cof-meta-box">';
-			echo '<div class="cof-fields-container">';
+			echo '<div class="cofld-meta-box">';
+			echo '<div class="cofld-fields-container">';
 			$this->render_term_fields( $fieldset->id, $term->term_id );
 			echo '</div>';
 			echo '</div>';
@@ -910,7 +910,7 @@ class COF_Meta_Box {
 		// Get ROOT-LEVEL fields only (no parent_id).
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}cof_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
+				"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
 				$fieldset_id
 			)
 		);
@@ -966,7 +966,7 @@ class COF_Meta_Box {
 		$wrapper_class = isset( $wrapper_config['class'] ) ? sanitize_html_class( $wrapper_config['class'] ) : '';
 		$wrapper_id    = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 
-		echo '<div class="cof-field-wrapper cof-field-wrapper--width-' . intval( $wrapper_width );
+		echo '<div class="cofld-field-wrapper cof-field-wrapper--width-' . intval( $wrapper_width );
 		if ( $wrapper_class ) {
 			echo ' ' . esc_attr( $wrapper_class );
 		}
@@ -985,25 +985,25 @@ class COF_Meta_Box {
 
 		// Label.
 		if ( ! empty( $field->label ) ) {
-			echo '<div class="cof-field-label">';
+			echo '<div class="cofld-field-label">';
 			echo '<label for="' . esc_attr( $meta_key ) . '">';
 			echo esc_html( $field->label );
 			if ( ! empty( $settings['required'] ) || ! empty( $field->required ) ) {
-				echo '<span class="cof-field-required" aria-label="required">*</span>';
+				echo '<span class="cofld-field-required" aria-label="required">*</span>';
 			}
 			echo '</label>';
 			echo '</div>';
 		}
 
 		// Input.
-		echo '<div class="cof-field-input">';
+		echo '<div class="cofld-field-input">';
 		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, $term_id, 'term' );
 		echo '</div>';
 
 		// Instructions.
 		$instructions = $settings['instructions'] ?? ( $field->instructions ?? '' );
 		if ( ! empty( $instructions ) ) {
-			echo '<p class="cof-field-description">' . wp_kses_post( $instructions ) . '</p>';
+			echo '<p class="cofld-field-description">' . wp_kses_post( $instructions ) . '</p>';
 		}
 
 		echo '</div>';
@@ -1017,18 +1017,23 @@ class COF_Meta_Box {
 	 * @param int $tt_id   Term taxonomy ID.
 	 */
 	public function save_taxonomy_fields( $term_id, $tt_id ) {
+		// Verify user has permission to edit this term.
+		if ( ! current_user_can( 'edit_term', $term_id ) ) {
+			return;
+		}
+
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldsets = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}cof_fieldsets WHERE status = %s",
+				"SELECT * FROM {$wpdb->prefix}cofld_fieldsets WHERE status = %s",
 				'active'
 			)
 		);
 
 		foreach ( $fieldsets as $fieldset ) {
-			$nonce_key = 'cof_term_nonce_' . $fieldset->id;
+			$nonce_key = 'cofld_term_nonce_' . $fieldset->id;
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( ! isset( $_POST[ $nonce_key ] ) ) {
@@ -1037,14 +1042,14 @@ class COF_Meta_Box {
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is immediately verified.
 			$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) );
-			if ( ! wp_verify_nonce( $nonce, 'cof_save_term_' . $fieldset->id ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'cofld_save_term_' . $fieldset->id ) ) {
 				continue;
 			}
 
 			// Get ALL fields including sub-fields for saving.
 			$all_fields = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM {$wpdb->prefix}cof_fields WHERE fieldset_id = %d",
+					"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE fieldset_id = %d",
 					$fieldset->id
 				)
 			);
@@ -1226,7 +1231,7 @@ class COF_Meta_Box {
 			'user_id'    => $user_id,
 		);
 
-		$fieldsets = COF_Location_Manager::instance()->get_fieldsets_for_context( $context );
+		$fieldsets = COFLD_Location_Manager::instance()->get_fieldsets_for_context( $context );
 
 		if ( empty( $fieldsets ) ) {
 			return;
@@ -1237,10 +1242,10 @@ class COF_Meta_Box {
 			echo '<table class="form-table cof-user-fieldset" role="presentation">';
 			echo '<tr><td colspan="2">';
 
-			wp_nonce_field( 'cof_save_user_' . $fieldset->id, 'cof_user_nonce_' . $fieldset->id );
+			wp_nonce_field( 'cofld_save_user_' . $fieldset->id, 'cofld_user_nonce_' . $fieldset->id );
 
-			echo '<div class="cof-meta-box">';
-			echo '<div class="cof-fields-container">';
+			echo '<div class="cofld-meta-box">';
+			echo '<div class="cofld-fields-container">';
 			$this->render_user_profile_fields( $fieldset->id, $user_id );
 			echo '</div>';
 			echo '</div>';
@@ -1263,7 +1268,7 @@ class COF_Meta_Box {
 		// Get ROOT-LEVEL fields only.
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}cof_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
+				"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE fieldset_id = %d AND (parent_id IS NULL OR parent_id = 0) ORDER BY menu_order ASC",
 				$fieldset_id
 			)
 		);
@@ -1319,7 +1324,7 @@ class COF_Meta_Box {
 		$wrapper_class = isset( $wrapper_config['class'] ) ? sanitize_html_class( $wrapper_config['class'] ) : '';
 		$wrapper_id    = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 
-		echo '<div class="cof-field-wrapper cof-field-wrapper--width-' . intval( $wrapper_width );
+		echo '<div class="cofld-field-wrapper cof-field-wrapper--width-' . intval( $wrapper_width );
 		if ( $wrapper_class ) {
 			echo ' ' . esc_attr( $wrapper_class );
 		}
@@ -1338,25 +1343,25 @@ class COF_Meta_Box {
 
 		// Label.
 		if ( ! empty( $field->label ) ) {
-			echo '<div class="cof-field-label">';
+			echo '<div class="cofld-field-label">';
 			echo '<label for="' . esc_attr( $meta_key ) . '">';
 			echo esc_html( $field->label );
 			if ( ! empty( $settings['required'] ) || ! empty( $field->required ) ) {
-				echo '<span class="cof-field-required" aria-label="required">*</span>';
+				echo '<span class="cofld-field-required" aria-label="required">*</span>';
 			}
 			echo '</label>';
 			echo '</div>';
 		}
 
 		// Input.
-		echo '<div class="cof-field-input">';
+		echo '<div class="cofld-field-input">';
 		$this->render_input( $field, $value, $meta_key, $meta_key, $settings, $user_id, 'user' );
 		echo '</div>';
 
 		// Instructions.
 		$instructions = $settings['instructions'] ?? ( $field->instructions ?? '' );
 		if ( ! empty( $instructions ) ) {
-			echo '<p class="cof-field-description">' . wp_kses_post( $instructions ) . '</p>';
+			echo '<p class="cofld-field-description">' . wp_kses_post( $instructions ) . '</p>';
 		}
 
 		echo '</div>';
@@ -1378,13 +1383,13 @@ class COF_Meta_Box {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldsets = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}cof_fieldsets WHERE status = %s",
+				"SELECT * FROM {$wpdb->prefix}cofld_fieldsets WHERE status = %s",
 				'active'
 			)
 		);
 
 		foreach ( $fieldsets as $fieldset ) {
-			$nonce_key = 'cof_user_nonce_' . $fieldset->id;
+			$nonce_key = 'cofld_user_nonce_' . $fieldset->id;
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( ! isset( $_POST[ $nonce_key ] ) ) {
@@ -1393,14 +1398,14 @@ class COF_Meta_Box {
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is immediately verified.
 			$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) );
-			if ( ! wp_verify_nonce( $nonce, 'cof_save_user_' . $fieldset->id ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'cofld_save_user_' . $fieldset->id ) ) {
 				continue;
 			}
 
 			// Get ALL fields including sub-fields for saving.
 			$all_fields = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM {$wpdb->prefix}cof_fields WHERE fieldset_id = %d",
+					"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE fieldset_id = %d",
 					$fieldset->id
 				)
 			);

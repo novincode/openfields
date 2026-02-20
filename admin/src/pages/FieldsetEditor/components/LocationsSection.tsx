@@ -3,7 +3,7 @@
  * 
  * Handles location rules for where the fieldset should appear.
  * Fetches actual templates, categories, and post formats from WordPress
- * via the localized `window.openfieldsAdmin` data OR the REST API.
+ * via the localized `window.cofldAdmin` data OR the REST API.
  *
  * @package OpenFields
  */
@@ -43,13 +43,13 @@ export function LocationsSection({
 	// Load location options from WordPress localized data or REST API
 	useEffect(() => {
 		// Page templates: from localized data or REST API
-		const wpTemplates = window.openfieldsAdmin?.pageTemplates;
+		const wpTemplates = window.cofldAdmin?.pageTemplates;
 		if (wpTemplates && wpTemplates.length > 0) {
 			setPageTemplates(wpTemplates);
 		} else {
 			// Fallback: fetch from REST API
-			const restUrl = window.openfieldsAdmin?.restUrl || '/wp-json/codeideal-open-fields/v1';
-			const nonce = window.openfieldsAdmin?.nonce || '';
+			const restUrl = window.cofldAdmin?.restUrl || '/wp-json/codeideal-open-fields/v1';
+			const nonce = window.cofldAdmin?.nonce || '';
 			fetch(`${restUrl}/locations/types`, {
 				headers: { 'X-WP-Nonce': nonce },
 			})
@@ -81,13 +81,13 @@ export function LocationsSection({
 		}
 
 		// Categories: from localized data
-		const wpCategories = window.openfieldsAdmin?.categories;
+		const wpCategories = window.cofldAdmin?.categories;
 		if (wpCategories && wpCategories.length > 0) {
 			setCategories(wpCategories);
 		}
 
 		// Post formats: from localized data
-		const wpFormats = window.openfieldsAdmin?.postFormats;
+		const wpFormats = window.cofldAdmin?.postFormats;
 		if (wpFormats && wpFormats.length > 0) {
 			setPostFormats(wpFormats);
 		}
@@ -161,21 +161,21 @@ export function LocationsSection({
 		switch (ruleType) {
 			case 'post_type':
 				return (
-					window.openfieldsAdmin?.postTypes || [
+					window.cofldAdmin?.postTypes || [
 						{ name: 'post', label: 'Post' },
 						{ name: 'page', label: 'Page' },
 					]
 				);
 			case 'taxonomy':
 				return (
-					window.openfieldsAdmin?.taxonomies || [
+					window.cofldAdmin?.taxonomies || [
 						{ name: 'category', label: 'Category' },
 						{ name: 'post_tag', label: 'Tag' },
 					]
 				);
 			case 'user_role':
 				return (
-					window.openfieldsAdmin?.userRoles || [
+					window.cofldAdmin?.userRoles || [
 						{ name: 'administrator', label: 'Administrator' },
 						{ name: 'editor', label: 'Editor' },
 						{ name: 'author', label: 'Author' },

@@ -5,7 +5,7 @@
  */
 
 /* Radio Group Layout - Base */
-.cof-radio-group {
+.cofld-radio-group {
 	border: none !important;
 	padding: 0 !important;
 	margin: 0 !important;
@@ -13,7 +13,7 @@
 	gap: 8px;
 }
 
-.cof-radio-group label {
+.cofld-radio-group label {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -22,29 +22,29 @@
 	font-weight: normal;
 }
 
-.cof-radio-group input[type="radio"] {
+.cofld-radio-group input[type="radio"] {
 	margin: 0;
 	cursor: pointer;
 	flex-shrink: 0;
 }
 
 /* Radio Vertical Layout (default) */
-.cof-radio-vertical {
+.cofld-radio-vertical {
 	flex-direction: column !important;
 }
 
 /* Radio Horizontal Layout */
-.cof-radio-horizontal {
+.cofld-radio-horizontal {
 	flex-direction: row !important;
 	flex-wrap: wrap;
 }
 
-.cof-radio-horizontal label {
+.cofld-radio-horizontal label {
 	margin-right: 16px;
 }
 
 /* Checkbox Group Layout - Base */
-.cof-checkbox-group {
+.cofld-checkbox-group {
 	border: none !important;
 	padding: 0 !important;
 	margin: 0 !important;
@@ -52,7 +52,7 @@
 	gap: 8px;
 }
 
-.cof-checkbox-group label {
+.cofld-checkbox-group label {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -61,28 +61,28 @@
 	font-weight: normal;
 }
 
-.cof-checkbox-group input[type="checkbox"] {
+.cofld-checkbox-group input[type="checkbox"] {
 	margin: 0;
 	cursor: pointer;
 	flex-shrink: 0;
 }
 
 /* Checkbox Vertical Layout (default) */
-.cof-checkbox-vertical {
+.cofld-checkbox-vertical {
 	flex-direction: column !important;
 }
 
 /* Checkbox Horizontal Layout */
-.cof-checkbox-horizontal {
+.cofld-checkbox-horizontal {
 	flex-direction: row !important;
 	flex-wrap: wrap;
 }
 
-.cof-checkbox-horizontal label {
+.cofld-checkbox-horizontal label {
 	margin-right: 16px;
 }
 
-.cof-checkbox-group label {
+.cofld-checkbox-group label {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -91,18 +91,18 @@
 	font-weight: normal;
 }
 
-.cof-checkbox-group input[type="checkbox"] {
+.cofld-checkbox-group input[type="checkbox"] {
 	margin: 0;
 	cursor: pointer;
 	flex-shrink: 0;
 }
 
 /* Horizontal layout */
-.cof-checkbox-horizontal {
+.cofld-checkbox-horizontal {
 	flex-direction: row;
 	flex-wrap: wrap;
 }
 
-.cof-checkbox-horizontal label {
+.cofld-checkbox-horizontal label {
 	margin-right: 16px;
 }

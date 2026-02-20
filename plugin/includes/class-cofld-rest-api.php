@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_REST_API {
+class COFLD_REST_API {
 
 	/**
 	 * REST namespace.
@@ -28,7 +28,7 @@ class COF_REST_API {
 	/**
 	 * Instance.
 	 *
-	 * @var COF_REST_API|null
+	 * @var COFLD_REST_API|null
 	 */
 	private static $instance = null;
 
@@ -36,7 +36,7 @@ class COF_REST_API {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_REST_API
+	 * @return COFLD_REST_API
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -282,7 +282,7 @@ class COF_REST_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'search_users' ),
-				'permission_callback' => array( $this, 'check_edit_permission' ),
+				'permission_callback' => array( $this, 'check_list_users_permission' ),
 				'args'                => array(
 					's'        => array(
 						'type'              => 'string',
@@ -335,7 +335,7 @@ class COF_REST_API {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_user_roles' ),
-				'permission_callback' => array( $this, 'check_edit_permission' ),
+				'permission_callback' => array( $this, 'check_list_users_permission' ),
 			)
 		);
 
@@ -367,7 +367,7 @@ class COF_REST_API {
 	public function check_admin_permission() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
-				'cof_rest_forbidden',
+				'cofld_rest_forbidden',
 				__( 'You do not have permission to access this resource.', 'codeideal-open-fields' ),
 				array( 'status' => 403 )
 			);
@@ -384,7 +384,26 @@ class COF_REST_API {
 	public function check_edit_permission() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
-				'cof_rest_forbidden',
+				'cofld_rest_forbidden',
+				__( 'You do not have permission to access this resource.', 'codeideal-open-fields' ),
+				array( 'status' => 403 )
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Check permission for user-related endpoints (searching users, listing roles).
+	 *
+	 * Requires the 'list_users' capability since these endpoints expose user data.
+	 *
+	 * @since  1.0.0
+	 * @return bool|WP_Error
+	 */
+	public function check_list_users_permission() {
+		if ( ! current_user_can( 'list_users' ) ) {
+			return new WP_Error(
+				'cofld_rest_forbidden',
 				__( 'You do not have permission to access this resource.', 'codeideal-open-fields' ),
 				array( 'status' => 403 )
 			);
@@ -402,7 +421,7 @@ class COF_REST_API {
 	public function get_fieldsets( $request ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'cof_fieldsets';
+		$table = $wpdb->prefix . 'cofld_fieldsets';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldsets = $wpdb->get_results(
@@ -427,7 +446,7 @@ class COF_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'cof_fieldsets';
+		$table = $wpdb->prefix . 'cofld_fieldsets';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
@@ -437,14 +456,14 @@ class COF_REST_API {
 
 		if ( ! $fieldset ) {
 			return new WP_Error(
-				'cof_not_found',
+				'cofld_not_found',
 				__( 'Fieldset not found.', 'codeideal-open-fields' ),
 				array( 'status' => 404 )
 			);
 		}
 
 		// Get fields.
-		$fields_table       = $wpdb->prefix . 'cof_fields';
+		$fields_table       = $wpdb->prefix . 'cofld_fields';
 		$fieldset['fields'] = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$fields_table} WHERE fieldset_id = %d ORDER BY menu_order ASC",
@@ -469,7 +488,7 @@ class COF_REST_API {
 	public function create_fieldset( $request ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'cof_fieldsets';
+		$table = $wpdb->prefix . 'cofld_fieldsets';
 		$now   = current_time( 'mysql' );
 
 		// Ensure settings is always an array (not a JSON string that would be double-encoded)
@@ -495,7 +514,7 @@ class COF_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'cof_create_failed',
+				'cofld_create_failed',
 				__( 'Failed to create fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
@@ -517,7 +536,7 @@ class COF_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'cof_fieldsets';
+		$table = $wpdb->prefix . 'cofld_fieldsets';
 		
 		// Get all parameters from the request (merges URL params, query params, and JSON body)
 		$params = $request->get_params();
@@ -576,7 +595,7 @@ class COF_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'cof_update_failed',
+				'cofld_update_failed',
 				__( 'Failed to update fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
@@ -588,7 +607,7 @@ class COF_REST_API {
 				$this->save_location_groups( $id, $location_groups );
 			} else {
 				// Clear locations if settings provided but no groups
-				$locations_table = $wpdb->prefix . 'cof_locations';
+				$locations_table = $wpdb->prefix . 'cofld_locations';
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
 			}
@@ -610,23 +629,23 @@ class COF_REST_API {
 		$id = absint( $request['id'] );
 
 		// Delete fields first.
-		$fields_table = $wpdb->prefix . 'cof_fields';
+		$fields_table = $wpdb->prefix . 'cofld_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete( $fields_table, array( 'fieldset_id' => $id ) );
 
 		// Delete locations.
-		$locations_table = $wpdb->prefix . 'cof_locations';
+		$locations_table = $wpdb->prefix . 'cofld_locations';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete( $locations_table, array( 'fieldset_id' => $id ) );
 
 		// Delete fieldset.
-		$table = $wpdb->prefix . 'cof_fieldsets';
+		$table = $wpdb->prefix . 'cofld_fieldsets';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->delete( $table, array( 'id' => $id ) );
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'cof_delete_failed',
+				'cofld_delete_failed',
 				__( 'Failed to delete fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
@@ -648,7 +667,7 @@ class COF_REST_API {
 		$id = absint( $request['id'] );
 
 		// Get the fieldset to duplicate
-		$table = $wpdb->prefix . 'cof_fieldsets';
+		$table = $wpdb->prefix . 'cofld_fieldsets';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
 			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
@@ -657,7 +676,7 @@ class COF_REST_API {
 
 		if ( ! $fieldset ) {
 			return new WP_Error(
-				'cof_fieldset_not_found',
+				'cofld_fieldset_not_found',
 				__( 'Fieldset not found.', 'codeideal-open-fields' ),
 				array( 'status' => 404 )
 			);
@@ -682,7 +701,7 @@ class COF_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'cof_duplicate_failed',
+				'cofld_duplicate_failed',
 				__( 'Failed to duplicate fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
@@ -691,7 +710,7 @@ class COF_REST_API {
 		$new_fieldset_id = $wpdb->insert_id;
 
 		// Duplicate fields
-		$fields_table = $wpdb->prefix . 'cof_fields';
+		$fields_table = $wpdb->prefix . 'cofld_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
 			$wpdb->prepare( "SELECT * FROM {$fields_table} WHERE fieldset_id = %d", $id ),
@@ -711,7 +730,7 @@ class COF_REST_API {
 		}
 
 		// Duplicate locations
-		$locations_table = $wpdb->prefix . 'cof_locations';
+		$locations_table = $wpdb->prefix . 'cofld_locations';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$locations = $wpdb->get_results(
 			$wpdb->prepare( "SELECT * FROM {$locations_table} WHERE fieldset_id = %d", $id ),
@@ -750,7 +769,7 @@ class COF_REST_API {
 		global $wpdb;
 
 		$fieldset_id = absint( $request['fieldset_id'] );
-		$table       = $wpdb->prefix . 'cof_fields';
+		$table       = $wpdb->prefix . 'cofld_fields';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
@@ -777,14 +796,14 @@ class COF_REST_API {
 	public function create_field( $request ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'cof_fields';
+		$table = $wpdb->prefix . 'cofld_fields';
 		$now   = current_time( 'mysql' );
 
 		// Sanitize and validate field name (becomes meta key).
 		$field_name = sanitize_key( $request['name'] );
 		if ( empty( $field_name ) ) {
 			return new WP_Error(
-				'cof_invalid_field_name',
+				'cofld_invalid_field_name',
 				__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
@@ -802,7 +821,7 @@ class COF_REST_API {
 
 		if ( $existing > 0 ) {
 			return new WP_Error(
-				'cof_duplicate_field_name',
+				'cofld_duplicate_field_name',
 				__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
@@ -836,7 +855,7 @@ class COF_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'cof_create_failed',
+				'cofld_create_failed',
 				__( 'Failed to create field.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
@@ -861,7 +880,7 @@ class COF_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'cof_fields';
+		$table = $wpdb->prefix . 'cofld_fields';
 		
 		// Get all parameters from the request (merges URL params, query params, and JSON body)
 		$params = $request->get_params();
@@ -882,7 +901,7 @@ class COF_REST_API {
 			
 			if ( empty( $new_name ) ) {
 				return new WP_Error(
-					'cof_invalid_field_name',
+					'cofld_invalid_field_name',
 					__( 'Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores.', 'codeideal-open-fields' ),
 					array( 'status' => 400 )
 				);
@@ -905,7 +924,7 @@ class COF_REST_API {
 
 				if ( $duplicate > 0 ) {
 					return new WP_Error(
-						'cof_duplicate_field_name',
+						'cofld_duplicate_field_name',
 						__( 'A field with this name already exists in this fieldset. Field names must be unique within a fieldset.', 'codeideal-open-fields' ),
 						array( 'status' => 400 )
 					);
@@ -964,7 +983,7 @@ class COF_REST_API {
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'cof_update_failed',
+				'cofld_update_failed',
 				__( 'Failed to update field.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
@@ -994,14 +1013,14 @@ class COF_REST_API {
 		global $wpdb;
 
 		$id    = absint( $request['id'] );
-		$table = $wpdb->prefix . 'cof_fields';
+		$table = $wpdb->prefix . 'cofld_fields';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->delete( $table, array( 'id' => $id ) );
 
 		if ( false === $result ) {
 			return new WP_Error(
-				'cof_delete_failed',
+				'cofld_delete_failed',
 				__( 'Failed to delete field.', 'codeideal-open-fields' ),
 				array( 'status' => 500 )
 			);
@@ -1022,7 +1041,7 @@ class COF_REST_API {
 
 		if ( ! is_array( $fields ) ) {
 			return new WP_Error(
-				'cof_invalid_data',
+				'cofld_invalid_data',
 				__( 'Invalid fields data.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
@@ -1051,7 +1070,7 @@ class COF_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_field_types( $request ) {
-		$field_types = COF_Field_Registry::instance()->get_field_types_for_admin();
+		$field_types = COFLD_Field_Registry::instance()->get_field_types_for_admin();
 		return rest_ensure_response( $field_types );
 	}
 
@@ -1066,7 +1085,7 @@ class COF_REST_API {
 		global $wpdb;
 		
 		$fieldset_id = absint( $request['id'] );
-		$table = $wpdb->prefix . 'cof_fieldsets';
+		$table = $wpdb->prefix . 'cofld_fieldsets';
 		
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
@@ -1076,14 +1095,14 @@ class COF_REST_API {
 		
 		if ( ! $fieldset ) {
 			return new WP_Error(
-				'cof_fieldset_not_found',
+				'cofld_fieldset_not_found',
 				__( 'Fieldset not found.', 'codeideal-open-fields' ),
 				array( 'status' => 404 )
 			);
 		}
 
 		// Get fields
-		$fields_table = $wpdb->prefix . 'cof_fields';
+		$fields_table = $wpdb->prefix . 'cofld_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(
@@ -1109,7 +1128,7 @@ class COF_REST_API {
 		}
 
 		// Get locations
-		$locations_table = $wpdb->prefix . 'cof_locations';
+		$locations_table = $wpdb->prefix . 'cofld_locations';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$locations = $wpdb->get_results(
 			$wpdb->prepare(
@@ -1130,7 +1149,7 @@ class COF_REST_API {
 		}
 
 		$export_data = array(
-			'version'  => COF_VERSION,
+			'version'  => COFLD_VERSION,
 			'exported' => current_time( 'mysql' ),
 			'fieldset' => array(
 				'title'       => $fieldset['title'],
@@ -1160,7 +1179,7 @@ class COF_REST_API {
 
 		if ( ! isset( $import_data['fieldset'] ) ) {
 			return new WP_Error(
-				'cof_invalid_import',
+				'cofld_invalid_import',
 				__( 'Invalid import data.', 'codeideal-open-fields' ),
 				array( 'status' => 400 )
 			);
@@ -1217,7 +1236,7 @@ class COF_REST_API {
 	private function update_locations( $fieldset_id, $locations ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'cof_locations';
+		$table = $wpdb->prefix . 'cofld_locations';
 
 		// Delete existing locations.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -1261,7 +1280,7 @@ class COF_REST_API {
 		global $wpdb;
 
 
-		$table = $wpdb->prefix . 'cof_locations';
+		$table = $wpdb->prefix . 'cofld_locations';
 
 		// Delete existing locations.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -1521,7 +1540,7 @@ class COF_REST_API {
 
 		// Get locations if not already present
 		if ( ! isset( $fieldset['locations'] ) ) {
-			$locations_table = $wpdb->prefix . 'cof_locations';
+			$locations_table = $wpdb->prefix . 'cofld_locations';
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$fieldset['locations'] = $wpdb->get_results(
 				$wpdb->prepare(
@@ -1543,7 +1562,7 @@ class COF_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_location_types( $request ) {
-		$manager = COF_Location_Manager::instance();
+		$manager = COFLD_Location_Manager::instance();
 		$types   = $manager->get_location_types_for_api();
 
 		return rest_ensure_response( $types );
@@ -1927,11 +1946,11 @@ class COF_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_settings( $request ) {
-		$settings = get_option( 'cof_settings', array() );
+		$settings = get_option( 'cofld_settings', array() );
 
 		// Ensure defaults.
 		$defaults = array(
-			'version'           => COF_VERSION,
+			'version'           => COFLD_VERSION,
 			'enable_rest_api'   => true,
 			'show_admin_column' => true,
 			'delete_data'       => false,
@@ -1950,7 +1969,7 @@ class COF_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function update_settings( $request ) {
-		$current_settings = get_option( 'cof_settings', array() );
+		$current_settings = get_option( 'cofld_settings', array() );
 		$params           = $request->get_params();
 
 		// Only update allowed settings.
@@ -1962,7 +1981,7 @@ class COF_REST_API {
 			}
 		}
 
-		update_option( 'cof_settings', $current_settings );
+		update_option( 'cofld_settings', $current_settings );
 
 		return rest_ensure_response( $current_settings );
 	}

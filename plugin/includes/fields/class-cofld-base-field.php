@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-abstract class COF_Base_Field {
+abstract class COFLD_Base_Field {
 
 	/**
 	 * Field configuration.
@@ -233,14 +233,14 @@ abstract class COF_Base_Field {
 	 */
 	protected function get_wrapper_attributes() {
 		$wrapper = $this->get_config( 'wrapper_config' );
-		$classes = array( 'cof-field', 'cof-field-' . static::get_type() );
+		$classes = array( 'cofld-field', 'cofld-field-' . static::get_type() );
 
 		if ( ! empty( $wrapper['class'] ) ) {
 			$classes[] = $wrapper['class'];
 		}
 
 		if ( $this->get_config( 'required' ) ) {
-			$classes[] = 'cof-required';
+			$classes[] = 'cofld-required';
 		}
 
 		$attrs = array(
@@ -303,11 +303,11 @@ abstract class COF_Base_Field {
 			return '';
 		}
 
-		$html = '<label class="cof-label" for="' . esc_attr( $this->get_input_id() ) . '">';
+		$html = '<label class="cofld-label" for="' . esc_attr( $this->get_input_id() ) . '">';
 		$html .= esc_html( $label );
 
 		if ( $this->get_config( 'required' ) ) {
-			$html .= ' <span class="cof-required-indicator">*</span>';
+			$html .= ' <span class="cofld-required-indicator">*</span>';
 		}
 
 		$html .= '</label>';
@@ -328,7 +328,7 @@ abstract class COF_Base_Field {
 			return '';
 		}
 
-		return '<p class="cof-instructions">' . wp_kses_post( $instructions ) . '</p>';
+		return '<p class="cofld-instructions">' . wp_kses_post( $instructions ) . '</p>';
 	}
 
 	/**
@@ -338,7 +338,7 @@ abstract class COF_Base_Field {
 	 * @return string
 	 */
 	protected function get_input_id() {
-		return 'cof-' . $this->get_config( 'name' );
+		return 'cofld-' . $this->get_config( 'name' );
 	}
 
 	/**

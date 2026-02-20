@@ -22,31 +22,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'COF_VERSION', '0.2' );
-define( 'COF_PLUGIN_FILE', __FILE__ );
-define( 'COF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'COF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'COF_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'COFLD_VERSION', '0.2' );
+define( 'COFLD_PLUGIN_FILE', __FILE__ );
+define( 'COFLD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'COFLD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'COFLD_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Require the installer class first (needed for activation hook).
-require_once COF_PLUGIN_DIR . 'includes/class-cof-installer.php';
+require_once COFLD_PLUGIN_DIR . 'includes/class-cofld-installer.php';
 
 // Require the main plugin class.
-require_once COF_PLUGIN_DIR . 'includes/class-cof.php';
+require_once COFLD_PLUGIN_DIR . 'includes/class-cofld.php';
 
 /**
  * Get the main plugin instance.
  *
  * @since 1.0.0
- * @return COF_Plugin
+ * @return COFLD_Plugin
  */
-function cof() {
-	return COF_Plugin::instance();
+function cofld() {
+	return COFLD_Plugin::instance();
 }
 
 // Register activation/deactivation hooks.
-register_activation_hook( __FILE__, array( 'COF_Installer', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'COF_Installer', 'deactivate' ) );
+register_activation_hook( __FILE__, array( 'COFLD_Installer', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'COFLD_Installer', 'deactivate' ) );
 
 // Initialize the plugin.
-add_action( 'plugins_loaded', 'cof' );
+add_action( 'plugins_loaded', 'cofld' );

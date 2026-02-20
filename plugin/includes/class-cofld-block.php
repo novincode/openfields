@@ -16,19 +16,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Register the Codeideal Open Fields display block.
  */
-class COF_Block {
+class COFLD_Block {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var COF_Block
+	 * @var COFLD_Block
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return COF_Block
+	 * @return COFLD_Block
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -53,9 +53,9 @@ class COF_Block {
 			return;
 		}
 
-		register_block_type( 'cof/field', array(
+		register_block_type( 'cofld/field', array(
 			'api_version'     => 2,
-			'editor_script'   => 'cof-block-editor',
+			'editor_script'   => 'cofld-block-editor',
 			'render_callback' => array( $this, 'render_block' ),
 			'attributes'      => array(
 				'fieldName'   => array(
@@ -87,22 +87,22 @@ class COF_Block {
 	 */
 	public function enqueue_editor_assets() {
 		wp_enqueue_script(
-			'cof-block-editor',
-			COF_PLUGIN_URL . 'assets/admin/js/block-editor.js',
+			'cofld-block-editor',
+			COFLD_PLUGIN_URL . 'assets/admin/js/block-editor.js',
 			array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-i18n', 'wp-server-side-render' ),
-			COF_VERSION,
+			COFLD_VERSION,
 			true
 		);
 
-		wp_localize_script( 'cof-block-editor', 'cofBlock', array(
+		wp_localize_script( 'cofld-block-editor', 'cofldBlock', array(
 			'fields' => $this->get_available_fields(),
 		) );
 
 		wp_enqueue_style(
-			'cof-block-editor',
-			COF_PLUGIN_URL . 'assets/admin/css/block-editor.css',
+			'cofld-block-editor',
+			COFLD_PLUGIN_URL . 'assets/admin/css/block-editor.css',
 			array(),
-			COF_VERSION
+			COFLD_VERSION
 		);
 	}
 
@@ -114,8 +114,8 @@ class COF_Block {
 	private function get_available_fields() {
 		global $wpdb;
 
-		$fields_table    = $wpdb->prefix . 'cof_fields';
-		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
+		$fields_table    = $wpdb->prefix . 'cofld_fields';
+		$fieldsets_table = $wpdb->prefix . 'cofld_fieldsets';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, derived from $wpdb->prefix.
 		$fields = $wpdb->get_results(
@@ -158,14 +158,14 @@ class COF_Block {
 		}
 
 		// Get the field value.
-		$value = function_exists( 'get_field' ) ? get_field( $field_name ) : cof_get_field_raw( $field_name );
+		$value = function_exists( 'get_field' ) ? get_field( $field_name ) : cofld_get_field_raw( $field_name );
 
 		if ( empty( $value ) && ! is_numeric( $value ) ) {
 			return '';
 		}
 
 		// Build output.
-		$classes = 'cof-block cof-field-' . esc_attr( $field_name );
+		$classes = 'cofld-block cof-field-' . esc_attr( $field_name );
 		if ( ! empty( $class_name ) ) {
 			$classes .= ' ' . esc_attr( $class_name );
 		}
@@ -174,11 +174,11 @@ class COF_Block {
 
 		// Show label if enabled.
 		if ( $show_label && ! empty( $field_label ) ) {
-			$output .= '<span class="cof-block-label">' . esc_html( $field_label ) . '</span>';
+			$output .= '<span class="cofld-block-label">' . esc_html( $field_label ) . '</span>';
 		}
 
 		// Format the value.
-		$output .= '<div class="cof-block-value">';
+		$output .= '<div class="cofld-block-value">';
 		$output .= $this->format_value( $value, $format );
 		$output .= '</div>';
 
@@ -244,4 +244,4 @@ class COF_Block {
 }
 
 // Initialize.
-COF_Block::instance();
+COFLD_Block::instance();

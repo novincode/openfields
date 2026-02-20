@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Storage_Manager {
+class COFLD_Storage_Manager {
 
 	/**
 	 * Instance.
 	 *
-	 * @var COF_Storage_Manager|null
+	 * @var COFLD_Storage_Manager|null
 	 */
 	private static $instance = null;
 
@@ -39,7 +39,7 @@ class COF_Storage_Manager {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_Storage_Manager
+	 * @return COFLD_Storage_Manager
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -206,7 +206,7 @@ class COF_Storage_Manager {
 		global $wpdb;
 
 		// Get fieldset.
-		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
+		$fieldsets_table = $wpdb->prefix . 'cofld_fieldsets';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fieldset = $wpdb->get_row(
 			$wpdb->prepare(
@@ -220,7 +220,7 @@ class COF_Storage_Manager {
 		}
 
 		// Get fields.
-		$fields_table = $wpdb->prefix . 'cof_fields';
+		$fields_table = $wpdb->prefix . 'cofld_fields';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$fields = $wpdb->get_results(
 			$wpdb->prepare(

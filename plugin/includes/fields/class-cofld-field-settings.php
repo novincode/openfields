@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Field_Settings {
+class COFLD_Field_Settings {
 
 	/**
 	 * Field type configurations - defines how each field type should render

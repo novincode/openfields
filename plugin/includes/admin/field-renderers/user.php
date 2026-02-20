@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function cof_render_user_field( $field, $value, $field_id, $field_name, $settings ) {
+function cofld_render_user_field( $field, $value, $field_id, $field_name, $settings ) {
 	$multiple   = ! empty( $settings['multiple'] );
 	$allow_null = ! empty( $settings['allow_null'] );
 	$roles      = $settings['role'] ?? array();
@@ -65,7 +65,7 @@ function cof_render_user_field( $field, $value, $field_id, $field_name, $setting
 
 	?>
 	<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_string is pre-escaped above. ?>
-	<div class="cof-user-field" <?php echo $data_string; ?>>
+	<div class="cofld-user-field" <?php echo $data_string; ?>>
 		<?php if ( $multiple ) : ?>
 			<input type="hidden" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( implode( ',', array_column( $selected_users, 'id' ) ) ); ?>" />
 		<?php else : ?>
@@ -73,12 +73,12 @@ function cof_render_user_field( $field, $value, $field_id, $field_name, $setting
 		<?php endif; ?>
 
 		<!-- Selected items display -->
-		<div class="cof-selected-items">
+		<div class="cofld-selected-items">
 			<?php foreach ( $selected_users as $user ) : ?>
-				<div class="cof-selected-item" data-id="<?php echo esc_attr( $user['id'] ); ?>">
-					<img src="<?php echo esc_url( $user['avatar'] ); ?>" alt="" class="cof-user-avatar" />
-					<span class="cof-item-title"><?php echo esc_html( $user['display_name'] ); ?></span>
-					<button type="button" class="cof-remove-item" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
+				<div class="cofld-selected-item" data-id="<?php echo esc_attr( $user['id'] ); ?>">
+					<img src="<?php echo esc_url( $user['avatar'] ); ?>" alt="" class="cofld-user-avatar" />
+					<span class="cofld-item-title"><?php echo esc_html( $user['display_name'] ); ?></span>
+					<button type="button" class="cofld-remove-item" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
 						<span class="dashicons dashicons-no-alt"></span>
 					</button>
 				</div>
@@ -86,18 +86,18 @@ function cof_render_user_field( $field, $value, $field_id, $field_name, $setting
 		</div>
 
 		<!-- Search input -->
-		<div class="cof-search-container">
+		<div class="cofld-search-container">
 			<input 
 				type="text" 
-				class="cof-search-input" 
+				class="cofld-search-input" 
 				placeholder="<?php esc_attr_e( 'Search users...', 'codeideal-open-fields' ); ?>"
 				autocomplete="off"
 			/>
-			<div class="cof-search-results"></div>
+			<div class="cofld-search-results"></div>
 		</div>
 	</div>
 	<?php
 }
 
 // Register the renderer.
-add_action( 'cof_render_field_user', 'cof_render_user_field', 10, 5 );
+add_action( 'cofld_render_field_user', 'cofld_render_user_field', 10, 5 );

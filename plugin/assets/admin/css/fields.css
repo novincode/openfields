@@ -47,12 +47,12 @@
    Meta Box Container
    ============================================================================ */
 
-.cof-meta-box {
+.cofld-meta-box {
 	padding: var(--of-spacing-md);
 	background: #fff;
 }
 
-.cof-meta-box-title {
+.cofld-meta-box-title {
 	font-size: 14px;
 	font-weight: 600;
 	color: var(--of-text);
@@ -61,7 +61,7 @@
 	border-bottom: 1px solid var(--of-border-light);
 }
 
-.cof-fieldset-description {
+.cofld-fieldset-description {
 	font-size: 13px;
 	color: var(--of-text-secondary);
 	margin: 0 0 var(--of-spacing-lg) 0;
@@ -75,14 +75,14 @@
    Field Wrapper - Layout & Spacing
    ============================================================================ */
 
-.cof-fields-container {
+.cofld-fields-container {
 	display: flex;
 	flex-wrap: wrap;
 	gap: var(--of-spacing-lg);
 	margin: 0;
 }
 
-.cof-field-wrapper {
+.cofld-field-wrapper {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
@@ -96,14 +96,14 @@
    Label & Description
    ============================================================================ */
 
-.cof-field-label {
+.cofld-field-label {
 	margin-bottom: var(--of-spacing-sm);
 	display: flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.cof-field-label label {
+.cofld-field-label label {
 	display: block;
 	font-size: 13px;
 	font-weight: 500;
@@ -113,18 +113,18 @@
 	cursor: pointer;
 }
 
-.cof-field-label label:hover {
+.cofld-field-label label:hover {
 	color: var(--of-primary);
 }
 
-.cof-field-required {
+.cofld-field-required {
 	color: var(--of-error);
 	font-weight: bold;
 	font-size: 12px;
 	line-height: 1;
 }
 
-.cof-field-description {
+.cofld-field-description {
 	margin: var(--of-spacing-sm) 0 0 0;
 	font-size: 12px;
 	color: var(--of-text-secondary);
@@ -136,24 +136,24 @@
    Field Input Container
    ============================================================================ */
 
-.cof-field-input {
+.cofld-field-input {
 	position: relative;
 }
 
-.cof-field-input input[type="text"],
-.cof-field-input input[type="email"],
-.cof-field-input input[type="tel"],
-.cof-field-input input[type="url"],
-.cof-field-input input[type="number"],
-.cof-field-input input[type="date"],
-.cof-field-input input[type="time"],
-.cof-field-input input[type="datetime-local"],
-.cof-field-input input[type="month"],
-.cof-field-input input[type="week"],
-.cof-field-input input[type="password"],
-.cof-field-input input[type="search"],
-.cof-field-input textarea,
-.cof-field-input select {
+.cofld-field-input input[type="text"],
+.cofld-field-input input[type="email"],
+.cofld-field-input input[type="tel"],
+.cofld-field-input input[type="url"],
+.cofld-field-input input[type="number"],
+.cofld-field-input input[type="date"],
+.cofld-field-input input[type="time"],
+.cofld-field-input input[type="datetime-local"],
+.cofld-field-input input[type="month"],
+.cofld-field-input input[type="week"],
+.cofld-field-input input[type="password"],
+.cofld-field-input input[type="search"],
+.cofld-field-input textarea,
+.cofld-field-input select {
 	width: 100%;
 	padding: 8px 12px;
 	border: 1px solid var(--of-border);
@@ -166,27 +166,27 @@
 	box-sizing: border-box;
 }
 
-.cof-field-input input::placeholder,
-.cof-field-input textarea::placeholder {
+.cofld-field-input input::placeholder,
+.cofld-field-input textarea::placeholder {
 	color: #999;
 }
 
-.cof-field-input input:focus,
-.cof-field-input textarea:focus,
-.cof-field-input select:focus {
+.cofld-field-input input:focus,
+.cofld-field-input textarea:focus,
+.cofld-field-input select:focus {
 	outline: none;
 	border-color: var(--of-primary);
 	box-shadow: 0 0 0 1px var(--of-focus-color);
 }
 
-.cof-field-input textarea {
+.cofld-field-input textarea {
 	min-height: 100px;
 	resize: vertical;
 	font-family: 'Courier New', monospace;
 	line-height: 1.5;
 }
 
-.cof-field-input select {
+.cofld-field-input select {
 	cursor: pointer;
 	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
 	background-repeat: no-repeat;
@@ -197,9 +197,9 @@
 }
 
 /* Disabled states */
-.cof-field-input input:disabled,
-.cof-field-input textarea:disabled,
-.cof-field-input select:disabled {
+.cofld-field-input input:disabled,
+.cofld-field-input textarea:disabled,
+.cofld-field-input select:disabled {
 	background-color: var(--of-disabled-bg);
 	color: var(--of-disabled);
 	cursor: not-allowed;
@@ -207,14 +207,14 @@
 }
 
 /* Error states */
-.cof-field-wrapper.is-error .cof-field-input input,
-.cof-field-wrapper.is-error .cof-field-input textarea,
-.cof-field-wrapper.is-error .cof-field-input select {
+.cofld-field-wrapper.is-error .cofld-field-input input,
+.cofld-field-wrapper.is-error .cofld-field-input textarea,
+.cofld-field-wrapper.is-error .cofld-field-input select {
 	border-color: var(--of-error);
 	background-color: var(--of-error-bg);
 }
 
-.cof-field-error-message {
+.cofld-field-error-message {
 	display: block;
 	margin: var(--of-spacing-sm) 0 0 0;
 	padding: 8px 12px;
@@ -231,7 +231,7 @@
    ============================================================================ */
 
 /* COMPLETELY hide the actual checkbox - not just display:none */
-.cof-switch-checkbox {
+.cofld-switch-checkbox {
 	position: absolute;
 	opacity: 0;
 	width: 0;
@@ -242,7 +242,7 @@
 }
 
 /* The label container - grid with 2 equal columns */
-.cof-switch-container {
+.cofld-switch-container {
 	position: relative;
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
@@ -259,7 +259,7 @@
 }
 
 /* Text divs in the grid */
-.cof-switch-container div {
+.cofld-switch-container div {
 	padding: 8px 10px;
 	text-align: center;
 	z-index: 1;
@@ -270,17 +270,17 @@
 }
 
 /* Default state: OFF/left side visible (white text on gray), ON/right side hidden (gray on gray) */
-.cof-switch-checkbox:not(:checked) + .cof-switch-container div:first-child {
+.cofld-switch-checkbox:not(:checked) + .cofld-switch-container div:first-child {
 	color: #999;
 }
 
-.cof-switch-checkbox:not(:checked) + .cof-switch-container div:last-child {
+.cofld-switch-checkbox:not(:checked) + .cofld-switch-container div:last-child {
 	color: #000;
 	opacity: 0.3;
 }
 
 /* Sliding thumb - the white background */
-.cof-switch-container::after {
+.cofld-switch-container::after {
 	content: '';
 	position: absolute;
 	left: 2px;
@@ -295,34 +295,34 @@
 }
 
 /* CHECKED state: shift thumb to right, WordPress blue background, swap visibility */
-.cof-switch-checkbox:checked + .cof-switch-container {
+.cofld-switch-checkbox:checked + .cofld-switch-container {
 	background: #0073aa;
 	border-color: #0073aa;
 }
 
-.cof-switch-checkbox:checked + .cof-switch-container::after {
+.cofld-switch-checkbox:checked + .cofld-switch-container::after {
 	left: calc(50% + 2px);
 }
 
 /* When checked: OFF/left text hidden (blue on blue), ON/right text visible (white) */
-.cof-switch-checkbox:checked + .cof-switch-container div:first-child {
+.cofld-switch-checkbox:checked + .cofld-switch-container div:first-child {
 	color: #999999;
 	opacity: 0.6;
 }
 
-.cof-switch-checkbox:checked + .cof-switch-container div:last-child {
+.cofld-switch-checkbox:checked + .cofld-switch-container div:last-child {
 	color: #0073aa;
 	opacity: 1;
 }
 
 /* Focus state for accessibility */
-.cof-switch-checkbox:focus + .cof-switch-container {
+.cofld-switch-checkbox:focus + .cofld-switch-container {
 	outline: 2px solid #0073aa;
 	outline-offset: 2px;
 }
 
 /* Disabled state */
-.cof-switch-checkbox:disabled + .cof-switch-container {
+.cofld-switch-checkbox:disabled + .cofld-switch-container {
 	opacity: 0.5;
 	cursor: not-allowed;
 	background: #ccc;
@@ -330,12 +330,12 @@
 }
 
 /* Active focus ring (visible keyboard navigation) */
-.cof-switch-checkbox:focus-visible + .cof-switch-container {
+.cofld-switch-checkbox:focus-visible + .cofld-switch-container {
 	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 /* Switch label descriptor (optional text after switch) */
-.cof-switch-descriptor {
+.cofld-switch-descriptor {
 	font-size: 12px;
 	color: var(--of-text-secondary);
 	margin-left: var(--of-spacing-sm);
@@ -345,23 +345,23 @@
    Checkbox & Radio Groups
    ============================================================================ */
 
-.cof-checkbox-group,
-.cof-radio-group {
+.cofld-checkbox-group,
+.cofld-radio-group {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.cof-checkbox-item,
-.cof-radio-item {
+.cofld-checkbox-item,
+.cofld-radio-item {
 	display: flex;
 	align-items: center;
 	gap: var(--of-spacing-sm);
 	cursor: pointer;
 }
 
-.cof-checkbox-input,
-.cof-radio-input {
+.cofld-checkbox-input,
+.cofld-radio-input {
 	width: 16px;
 	height: 16px;
 	margin: 0;
@@ -372,8 +372,8 @@
 	accent-color: var(--of-primary);
 }
 
-.cof-checkbox-label,
-.cof-radio-label {
+.cofld-checkbox-label,
+.cofld-radio-label {
 	font-size: 13px;
 	color: var(--of-text);
 	cursor: pointer;
@@ -382,8 +382,8 @@
 	user-select: none;
 }
 
-.cof-checkbox-item:hover .cof-checkbox-label,
-.cof-radio-item:hover .cof-radio-label {
+.cofld-checkbox-item:hover .cofld-checkbox-label,
+.cofld-radio-item:hover .cofld-radio-label {
 	color: var(--of-primary);
 }
 
@@ -391,19 +391,19 @@
    File & Image Fields
    ============================================================================ */
 
-.cof-file-field,
-.cof-image-field {
+.cofld-file-field,
+.cofld-image-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.cof-file-upload {
+.cofld-file-upload {
 	position: relative;
 	display: inline-block;
 }
 
-.cof-file-upload input[type="file"] {
+.cofld-file-upload input[type="file"] {
 	position: absolute;
 	opacity: 0;
 	width: 0;
@@ -411,7 +411,7 @@
 	cursor: pointer;
 }
 
-.cof-file-upload-button {
+.cofld-file-upload-button {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-sm);
@@ -426,18 +426,18 @@
 	transition: var(--of-transition);
 }
 
-.cof-file-upload-button:hover {
+.cofld-file-upload-button:hover {
 	background-color: var(--of-bg-hover);
 	border-color: var(--of-primary);
 	color: var(--of-primary);
 }
 
-.cof-file-upload-button:focus {
+.cofld-file-upload-button:focus {
 	outline: none;
 	box-shadow: 0 0 0 1px var(--of-focus-color);
 }
 
-.cof-image-preview {
+.cofld-image-preview {
 	width: 100px;
 	height: 100px;
 	border: 1px solid var(--of-border);
@@ -450,13 +450,13 @@
 	flex-shrink: 0;
 }
 
-.cof-image-preview img {
+.cofld-image-preview img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
 
-.cof-file-name {
+.cofld-file-name {
 	font-size: 12px;
 	color: var(--of-text-secondary);
 	word-break: break-all;
@@ -469,16 +469,16 @@
    Conditional Logic
    ============================================================================ */
 
-.cof-field-wrapper[data-conditional-logic] {
+.cofld-field-wrapper[data-conditional-logic] {
 	transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 /* Hidden by JS - use display:none for reliable hiding */
-.cof-field-wrapper[data-conditional-status="hidden"] {
+.cofld-field-wrapper[data-conditional-status="hidden"] {
 	display: none !important;
 }
 
-.cof-field-wrapper[data-conditional-status="visible"] {
+.cofld-field-wrapper[data-conditional-status="visible"] {
 	display: block;
 	opacity: 1;
 	visibility: visible;
@@ -490,19 +490,19 @@
    ============================================================================ */
 
 @media (max-width: 782px) {
-	.cof-field-wrapper--width-50,
-	.cof-field-wrapper--width-33,
-	.cof-field-wrapper--width-25 {
+	.cofld-field-wrapper--width-50,
+	.cofld-field-wrapper--width-33,
+	.cofld-field-wrapper--width-25 {
 		width: 100%;
 	}
 
-	.cof-fields-container {
+	.cofld-fields-container {
 		gap: var(--of-spacing-md);
 	}
 
-	.cof-field-input input,
-	.cof-field-input textarea,
-	.cof-field-input select {
+	.cofld-field-input input,
+	.cofld-field-input textarea,
+	.cofld-field-input select {
 		font-size: 16px; /* Prevents zoom on iOS */
 	}
 }
@@ -517,7 +517,7 @@
 }
 
 /* Screen reader only text */
-.cof-sr-only {
+.cofld-sr-only {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -533,34 +533,34 @@
    Utility Classes
    ============================================================================ */
 
-.cof-field--hidden {
+.cofld-field--hidden {
 	display: none;
 }
 
-.cof-field--disabled {
+.cofld-field--disabled {
 	opacity: 0.6;
 	pointer-events: none;
 }
 
-.cof-field-hint {
+.cofld-field-hint {
 	font-size: 11px;
 	color: var(--of-text-secondary);
 	margin-top: 4px;
 	font-style: italic;
 }
 
-.cof-field-success {
+.cofld-field-success {
 	border-color: var(--of-success) !important;
 	background-color: #efe !important;
 }
 
-.cof-field-loading {
+.cofld-field-loading {
 	position: relative;
 	opacity: 0.6;
 	pointer-events: none;
 }
 
-.cof-field-loading::after {
+.cofld-field-loading::after {
 	content: '';
 	position: absolute;
 	top: 50%;
@@ -584,13 +584,13 @@
    Input with Icon (Email, URL, etc.)
    ============================================================================ */
 
-.cof-input-with-icon {
+.cofld-input-with-icon {
 	position: relative;
 	display: flex;
 	align-items: stretch;
 }
 
-.cof-input-icon {
+.cofld-input-icon {
 	position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
@@ -605,24 +605,24 @@
 	font-size: 16px;
 }
 
-.cof-input-icon-left .cof-input-icon {
+.cofld-input-icon-left .cofld-input-icon {
 	left: 10px;
 }
 
-.cof-input-icon-right .cof-input-icon {
+.cofld-input-icon-right .cofld-input-icon {
 	right: 10px;
 }
 
-.cof-input-icon-left .cof-input-has-icon {
+.cofld-input-icon-left .cofld-input-has-icon {
 	padding-left: 36px !important;
 }
 
-.cof-input-icon-right .cof-input-has-icon {
+.cofld-input-icon-right .cofld-input-has-icon {
 	padding-right: 36px !important;
 }
 
 /* Icon color changes on focus */
-.cof-input-with-icon:focus-within .cof-input-icon {
+.cofld-input-with-icon:focus-within .cofld-input-icon {
 	color: var(--of-primary);
 }
 
@@ -631,30 +631,30 @@
    ============================================================================ */
 
 /* Valid input */
-.cof-field-input input.is-valid,
-.cof-field-input textarea.is-valid,
-.cof-field-input select.is-valid {
+.cofld-field-input input.is-valid,
+.cofld-field-input textarea.is-valid,
+.cofld-field-input select.is-valid {
 	border-color: var(--of-success);
 }
 
-.cof-input-with-icon:has(input.is-valid) .cof-input-icon {
+.cofld-input-with-icon:has(input.is-valid) .cofld-input-icon {
 	color: var(--of-success);
 }
 
 /* Invalid input */
-.cof-field-input input.is-invalid,
-.cof-field-input textarea.is-invalid,
-.cof-field-input select.is-invalid {
+.cofld-field-input input.is-invalid,
+.cofld-field-input textarea.is-invalid,
+.cofld-field-input select.is-invalid {
 	border-color: var(--of-error);
 	background-color: var(--of-error-bg);
 }
 
-.cof-input-with-icon:has(input.is-invalid) .cof-input-icon {
+.cofld-input-with-icon:has(input.is-invalid) .cofld-input-icon {
 	color: var(--of-error);
 }
 
 /* Validation message */
-.cof-validation-message {
+.cofld-validation-message {
 	display: none;
 	margin: var(--of-spacing-xs) 0 0 0;
 	padding: var(--of-spacing-xs) var(--of-spacing-sm);
@@ -663,13 +663,13 @@
 	line-height: 1.4;
 }
 
-.cof-validation-message.is-error {
+.cofld-validation-message.is-error {
 	display: block;
 	color: var(--of-error);
 	background-color: var(--of-error-bg);
 }
 
-.cof-validation-message.is-success {
+.cofld-validation-message.is-success {
 	display: block;
 	color: var(--of-success);
 	background-color: #e8f5e9;
@@ -679,13 +679,13 @@
    Image Field
    ============================================================================ */
 
-.cof-image-field {
+.cofld-image-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.cof-image-preview {
+.cofld-image-preview {
 	position: relative;
 	border: 2px dashed var(--of-border);
 	border-radius: var(--of-radius);
@@ -698,16 +698,16 @@
 	transition: var(--of-transition);
 }
 
-.cof-image-preview.has-image {
+.cofld-image-preview.has-image {
 	border-style: solid;
 	padding: var(--of-spacing-sm);
 }
 
-.cof-image-preview:hover {
+.cofld-image-preview:hover {
 	border-color: var(--of-primary-light);
 }
 
-.cof-image-thumb {
+.cofld-image-thumb {
 	max-width: 200px;
 	max-height: 200px;
 	width: auto;
@@ -716,7 +716,7 @@
 	object-fit: contain;
 }
 
-.cof-image-info {
+.cofld-image-info {
 	position: absolute;
 	bottom: var(--of-spacing-sm);
 	left: var(--of-spacing-sm);
@@ -731,7 +731,7 @@
 	text-overflow: ellipsis;
 }
 
-.cof-image-placeholder {
+.cofld-image-placeholder {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -739,31 +739,31 @@
 	color: var(--of-text-secondary);
 }
 
-.cof-image-placeholder .dashicons {
+.cofld-image-placeholder .dashicons {
 	font-size: 48px;
 	width: 48px;
 	height: 48px;
 	opacity: 0.5;
 }
 
-.cof-image-actions {
+.cofld-image-actions {
 	display: flex;
 	gap: var(--of-spacing-sm);
 }
 
-.cof-image-actions .button {
+.cofld-image-actions .button {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.cof-image-actions .dashicons {
+.cofld-image-actions .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.cof-image-actions .hidden {
+.cofld-image-actions .hidden {
 	display: none !important;
 }
 
@@ -771,20 +771,20 @@
    File Field
    ============================================================================ */
 
-.cof-file-field {
+.cofld-file-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.cof-file-info {
+.cofld-file-info {
 	border: 1px solid var(--of-border);
 	border-radius: var(--of-radius);
 	padding: var(--of-spacing-md);
 	background: var(--of-bg);
 }
 
-.cof-file-info.no-file {
+.cofld-file-info.no-file {
 	border-style: dashed;
 	min-height: 80px;
 	display: flex;
@@ -792,13 +792,13 @@
 	justify-content: center;
 }
 
-.cof-file-preview {
+.cofld-file-preview {
 	display: flex;
 	align-items: center;
 	gap: var(--of-spacing-md);
 }
 
-.cof-file-icon {
+.cofld-file-icon {
 	font-size: 36px;
 	width: 36px;
 	height: 36px;
@@ -806,12 +806,12 @@
 	flex-shrink: 0;
 }
 
-.cof-file-details {
+.cofld-file-details {
 	flex: 1;
 	min-width: 0;
 }
 
-.cof-file-name {
+.cofld-file-name {
 	display: block;
 	font-weight: 500;
 	color: var(--of-primary);
@@ -819,11 +819,11 @@
 	word-break: break-word;
 }
 
-.cof-file-name:hover {
+.cofld-file-name:hover {
 	text-decoration: underline;
 }
 
-.cof-file-meta {
+.cofld-file-meta {
 	display: flex;
 	gap: var(--of-spacing-sm);
 	margin-top: var(--of-spacing-xs);
@@ -831,7 +831,7 @@
 	color: var(--of-text-secondary);
 }
 
-.cof-file-type {
+.cofld-file-type {
 	background: var(--of-border-light);
 	padding: 2px 6px;
 	border-radius: 3px;
@@ -840,7 +840,7 @@
 	font-size: 10px;
 }
 
-.cof-file-placeholder {
+.cofld-file-placeholder {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -848,31 +848,31 @@
 	color: var(--of-text-secondary);
 }
 
-.cof-file-placeholder .dashicons {
+.cofld-file-placeholder .dashicons {
 	font-size: 36px;
 	width: 36px;
 	height: 36px;
 	opacity: 0.5;
 }
 
-.cof-file-actions {
+.cofld-file-actions {
 	display: flex;
 	gap: var(--of-spacing-sm);
 }
 
-.cof-file-actions .button {
+.cofld-file-actions .button {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.cof-file-actions .dashicons {
+.cofld-file-actions .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.cof-file-actions .hidden {
+.cofld-file-actions .hidden {
 	display: none !important;
 }
 
@@ -880,13 +880,13 @@
    Gallery Field
    ============================================================================ */
 
-.cof-gallery-field {
+.cofld-gallery-field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-md);
 }
 
-.cof-gallery-grid {
+.cofld-gallery-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 	gap: var(--of-spacing-sm);
@@ -897,11 +897,11 @@
 	min-height: 120px;
 }
 
-.cof-gallery-grid.no-images {
+.cofld-gallery-grid.no-images {
 	display: none;
 }
 
-.cof-gallery-item {
+.cofld-gallery-item {
 	position: relative;
 	aspect-ratio: 1;
 	border-radius: var(--of-radius);
@@ -910,27 +910,27 @@
 	transition: var(--of-transition);
 }
 
-.cof-gallery-item:hover {
+.cofld-gallery-item:hover {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.cof-gallery-item.is-dragging {
+.cofld-gallery-item.is-dragging {
 	opacity: 0.5;
 	cursor: grabbing;
 }
 
-.cof-gallery-thumb {
+.cofld-gallery-thumb {
 	width: 100%;
 	height: 100%;
 }
 
-.cof-gallery-thumb img {
+.cofld-gallery-thumb img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
 
-.cof-gallery-item-actions {
+.cofld-gallery-item-actions {
 	position: absolute;
 	top: 4px;
 	right: 4px;
@@ -938,11 +938,11 @@
 	transition: opacity 0.2s;
 }
 
-.cof-gallery-item:hover .cof-gallery-item-actions {
+.cofld-gallery-item:hover .cofld-gallery-item-actions {
 	opacity: 1;
 }
 
-.cof-gallery-item-remove {
+.cofld-gallery-item-remove {
 	background: rgba(220, 53, 69, 0.9);
 	color: #fff;
 	border: none;
@@ -957,18 +957,18 @@
 	transition: var(--of-transition);
 }
 
-.cof-gallery-item-remove:hover {
+.cofld-gallery-item-remove:hover {
 	background: #dc3545;
 	transform: scale(1.1);
 }
 
-.cof-gallery-item-remove .dashicons {
+.cofld-gallery-item-remove .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.cof-gallery-item-drag {
+.cofld-gallery-item-drag {
 	position: absolute;
 	bottom: 4px;
 	left: 4px;
@@ -980,17 +980,17 @@
 	padding: 2px;
 }
 
-.cof-gallery-item:hover .cof-gallery-item-drag {
+.cofld-gallery-item:hover .cofld-gallery-item-drag {
 	opacity: 1;
 }
 
-.cof-gallery-item-drag .dashicons {
+.cofld-gallery-item-drag .dashicons {
 	font-size: 14px;
 	width: 14px;
 	height: 14px;
 }
 
-.cof-gallery-add-item {
+.cofld-gallery-add-item {
 	aspect-ratio: 1;
 	border: 2px dashed var(--of-border);
 	border-radius: var(--of-radius);
@@ -1000,12 +1000,12 @@
 	transition: var(--of-transition);
 }
 
-.cof-gallery-add-item:hover {
+.cofld-gallery-add-item:hover {
 	border-color: var(--of-primary);
 	background: rgba(0, 115, 170, 0.05);
 }
 
-.cof-gallery-add {
+.cofld-gallery-add {
 	background: none;
 	border: none;
 	cursor: pointer;
@@ -1018,22 +1018,22 @@
 	transition: var(--of-transition);
 }
 
-.cof-gallery-add:hover {
+.cofld-gallery-add:hover {
 	color: var(--of-primary);
 }
 
-.cof-gallery-add .dashicons {
+.cofld-gallery-add .dashicons {
 	font-size: 24px;
 	width: 24px;
 	height: 24px;
 }
 
-.cof-gallery-add-text {
+.cofld-gallery-add-text {
 	font-size: 11px;
 	font-weight: 500;
 }
 
-.cof-gallery-placeholder {
+.cofld-gallery-placeholder {
 	border: 2px dashed var(--of-border);
 	border-radius: var(--of-radius);
 	padding: var(--of-spacing-xl);
@@ -1045,7 +1045,7 @@
 	text-align: center;
 }
 
-.cof-gallery-placeholder .dashicons {
+.cofld-gallery-placeholder .dashicons {
 	font-size: 48px;
 	width: 48px;
 	height: 48px;
@@ -1053,23 +1053,23 @@
 	opacity: 0.5;
 }
 
-.cof-gallery-placeholder-text {
+.cofld-gallery-placeholder-text {
 	color: var(--of-text-secondary);
 }
 
-.cof-gallery-select {
+.cofld-gallery-select {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--of-spacing-xs);
 }
 
-.cof-gallery-select .dashicons {
+.cofld-gallery-select .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.cof-gallery-limits {
+.cofld-gallery-limits {
 	font-size: 12px;
 	color: var(--of-text-secondary);
 	text-align: center;
@@ -1081,7 +1081,7 @@
    Taxonomy Term Fields
    ============================================================================ */
 
-.cof-taxonomy-fieldset {
+.cofld-taxonomy-fieldset {
 margin: var(--of-spacing-lg) 0;
 padding: var(--of-spacing-lg);
 background: #fff;
@@ -1089,7 +1089,7 @@ border: 1px solid var(--of-border);
 border-radius: var(--of-radius);
 }
 
-.cof-taxonomy-fieldset .cof-fieldset-title {
+.cofld-taxonomy-fieldset .cofld-fieldset-title {
 margin: 0 0 var(--of-spacing-lg) 0;
 padding-bottom: var(--of-spacing-md);
 border-bottom: 1px solid var(--of-border-light);
@@ -1097,23 +1097,23 @@ font-size: 14px;
 font-weight: 600;
 }
 
-.cof-taxonomy-fieldset-row .cof-fieldset-title {
+.cofld-taxonomy-fieldset-row .cofld-fieldset-title {
 font-size: 14px;
 font-weight: 600;
 color: var(--of-text);
 }
 
 /* Add form (non-table layout) */
-.cof-taxonomy-fieldset .cof-field-wrapper {
+.cofld-taxonomy-fieldset .cofld-field-wrapper {
 margin-bottom: var(--of-spacing-lg);
 }
 
 /* Edit form (table layout) */
-.cof-field-row .cof-field-wrapper {
+.cofld-field-row .cofld-field-wrapper {
 margin: 0;
 }
 
-.cof-field-row .cof-fields-row {
+.cofld-field-row .cofld-fields-row {
 margin: 0;
 }
 
@@ -1121,14 +1121,14 @@ margin: 0;
    User Profile Fields
    ============================================================================ */
 
-.cof-user-fieldset {
+.cofld-user-fieldset {
 margin: var(--of-spacing-lg) 0;
 }
 
-.cof-user-field-row .cof-field-wrapper {
+.cofld-user-field-row .cofld-field-wrapper {
 margin: 0;
 }
 
-.cof-user-field-row .cof-fields-row {
+.cofld-user-field-row .cofld-fields-row {
 margin: 0;
 }

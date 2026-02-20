@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Installer {
+class COFLD_Installer {
 
 	/**
 	 * Database version.
@@ -38,14 +38,14 @@ class COF_Installer {
 		self::set_version();
 
 		// Set transient for activation redirect.
-		set_transient( 'cof_activation_redirect', 1, 30 );
+		set_transient( 'cofld_activation_redirect', 1, 30 );
 
 		/**
 		 * Fires after plugin activation.
 		 *
 		 * @since 1.0.0
 		 */
-		do_action( 'cof/activated' );
+		do_action( 'cofld/activated' );
 	}
 
 	/**
@@ -55,14 +55,14 @@ class COF_Installer {
 	 */
 	public static function deactivate() {
 		// Delete activation redirect transient.
-		delete_transient( 'cof_activation_redirect' );
+		delete_transient( 'cofld_activation_redirect' );
 
 		/**
 		 * Fires after plugin deactivation.
 		 *
 		 * @since 1.0.0
 		 */
-		do_action( 'cof/deactivated' );
+		do_action( 'cofld/deactivated' );
 	}
 
 	/**
@@ -76,7 +76,7 @@ class COF_Installer {
 		$charset_collate = $wpdb->get_charset_collate();
 
 		// Fieldsets table.
-		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
+		$fieldsets_table = $wpdb->prefix . 'cofld_fieldsets';
 		$fieldsets_sql   = "CREATE TABLE {$fieldsets_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			title varchar(255) NOT NULL,
@@ -95,7 +95,7 @@ class COF_Installer {
 		) {$charset_collate};";
 
 		// Fields table.
-		$fields_table = $wpdb->prefix . 'cof_fields';
+		$fields_table = $wpdb->prefix . 'cofld_fields';
 		$fields_sql   = "CREATE TABLE {$fields_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			fieldset_id bigint(20) unsigned NOT NULL,
@@ -123,7 +123,7 @@ class COF_Installer {
 		) {$charset_collate};";
 
 		// Location rules table.
-		$locations_table = $wpdb->prefix . 'cof_locations';
+		$locations_table = $wpdb->prefix . 'cofld_locations';
 		$locations_sql   = "CREATE TABLE {$locations_table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			fieldset_id bigint(20) unsigned NOT NULL,
@@ -144,7 +144,7 @@ class COF_Installer {
 		dbDelta( $locations_sql );
 
 		// Store the DB version.
-		update_option( 'cof_db_version', self::DB_VERSION );
+		update_option( 'cofld_db_version', self::DB_VERSION );
 	}
 
 	/**
@@ -154,13 +154,13 @@ class COF_Installer {
 	 */
 	public static function create_options() {
 		$default_options = array(
-			'version'           => COF_VERSION,
+			'version'           => COFLD_VERSION,
 			'enable_rest_api'   => true,
 			'show_admin_column' => true,
 			'delete_data'       => false,
 		);
 
-		add_option( 'cof_settings', $default_options );
+		add_option( 'cofld_settings', $default_options );
 	}
 
 	/**
@@ -169,7 +169,7 @@ class COF_Installer {
 	 * @since 1.0.0
 	 */
 	public static function set_version() {
-		update_option( 'cof_version', COF_VERSION );
+		update_option( 'cofld_version', COFLD_VERSION );
 	}
 
 	/**
@@ -179,7 +179,7 @@ class COF_Installer {
 	 * @return bool
 	 */
 	public static function needs_db_update() {
-		$current_db_version = get_option( 'cof_db_version', '0' );
+		$current_db_version = get_option( 'cofld_db_version', '0' );
 		return version_compare( $current_db_version, self::DB_VERSION, '<' );
 	}
 
@@ -204,9 +204,9 @@ class COF_Installer {
 		global $wpdb;
 
 		return array(
-			'fieldsets' => $wpdb->prefix . 'cof_fieldsets',
-			'fields'    => $wpdb->prefix . 'cof_fields',
-			'locations' => $wpdb->prefix . 'cof_locations',
+			'fieldsets' => $wpdb->prefix . 'cofld_fieldsets',
+			'fields'    => $wpdb->prefix . 'cofld_fields',
+			'locations' => $wpdb->prefix . 'cofld_locations',
 		);
 	}
 

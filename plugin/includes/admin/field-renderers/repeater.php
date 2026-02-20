@@ -32,13 +32,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param int    $object_id   Object ID (post, term, or user ID).
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  */
-function cof_render_repeater_field( $field, $value, $field_id, $base_name, $settings, $object_id, $object_type = 'post' ) {
+function cofld_render_repeater_field( $field, $value, $field_id, $base_name, $settings, $object_id, $object_type = 'post' ) {
 	global $wpdb;
 
 	// Get sub-fields for this repeater.
 	$sub_fields = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT * FROM {$wpdb->prefix}cof_fields WHERE parent_id = %d ORDER BY menu_order ASC",
+			"SELECT * FROM {$wpdb->prefix}cofld_fields WHERE parent_id = %d ORDER BY menu_order ASC",
 			$field->id
 		)
 	);
@@ -60,7 +60,7 @@ function cof_render_repeater_field( $field, $value, $field_id, $base_name, $sett
 		$row_count = absint( $value );
 	} else {
 		// Detect from existing meta.
-		$row_count = cof_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type );
+		$row_count = cofld_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type );
 	}
 
 	// Ensure minimum.
@@ -71,7 +71,7 @@ function cof_render_repeater_field( $field, $value, $field_id, $base_name, $sett
 	$unique_id = 'repeater-' . sanitize_key( $base_name ) . '-' . wp_rand( 1000, 9999 );
 	?>
 	<div 
-		class="cof-repeater"
+		class="cofld-repeater"
 		id="<?php echo esc_attr( $unique_id ); ?>"
 		data-name="<?php echo esc_attr( $base_name ); ?>"
 		data-min="<?php echo esc_attr( $min ); ?>"
@@ -83,24 +83,24 @@ function cof_render_repeater_field( $field, $value, $field_id, $base_name, $sett
 			type="hidden" 
 			name="<?php echo esc_attr( $base_name ); ?>" 
 			value="<?php echo esc_attr( $row_count ); ?>"
-			class="cof-repeater-count"
+			class="cofld-repeater-count"
 		/>
 
 		<!-- Rows -->
-		<div class="cof-repeater-rows" data-layout="<?php echo esc_attr( $layout ); ?>">
+		<div class="cofld-repeater-rows" data-layout="<?php echo esc_attr( $layout ); ?>">
 			<?php
 			for ( $i = 0; $i < $row_count; $i++ ) {
-				cof_render_repeater_row( $field, $sub_fields, $i, $base_name, $layout, $object_id, $object_type, false );
+				cofld_render_repeater_row( $field, $sub_fields, $i, $base_name, $layout, $object_id, $object_type, false );
 			}
 			?>
 		</div>
 
 		<!-- Add Button -->
-		<div class="cof-repeater-footer">
+		<div class="cofld-repeater-footer">
 			<button 
 				type="button" 
-				class="button cof-repeater-add"
-				<?php echo ( $max > 0 && $row_count >= $max ) ? 'disabled' : ''; ?>
+				class="button cofld-repeater-add"
+				<?php echo esc_attr( ( $max > 0 && $row_count >= $max ) ? 'disabled' : '' ); ?>
 			>
 				<span class="dashicons dashicons-plus-alt2"></span>
 				<?php echo esc_html( $button_label ); ?>
@@ -108,8 +108,8 @@ function cof_render_repeater_field( $field, $value, $field_id, $base_name, $sett
 		</div>
 
 		<!-- Template for JS -->
-		<template class="cof-repeater-template">
-			<?php cof_render_repeater_row( $field, $sub_fields, '{{INDEX}}', $base_name, $layout, $object_id, $object_type, true ); ?>
+		<template class="cofld-repeater-template">
+			<?php cofld_render_repeater_row( $field, $sub_fields, '{{INDEX}}', $base_name, $layout, $object_id, $object_type, true ); ?>
 		</template>
 	</div>
 	<?php
@@ -127,28 +127,28 @@ function cof_render_repeater_field( $field, $value, $field_id, $base_name, $sett
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @param bool   $is_template Whether rendering as template.
  */
-function cof_render_repeater_row( $field, $sub_fields, $index, $base_name, $layout, $object_id, $object_type = 'post', $is_template = false ) {
+function cofld_render_repeater_row( $field, $sub_fields, $index, $base_name, $layout, $object_id, $object_type = 'post', $is_template = false ) {
 	$row_num = is_numeric( $index ) ? ( $index + 1 ) : '';
 	?>
-	<div class="cof-repeater-row" data-index="<?php echo esc_attr( $index ); ?>">
-		<div class="cof-repeater-row-handle">
+	<div class="cofld-repeater-row" data-index="<?php echo esc_attr( $index ); ?>">
+		<div class="cofld-repeater-row-handle">
 			<span class="dashicons dashicons-menu"></span>
-			<span class="cof-repeater-row-index"><?php echo esc_html( $row_num ); ?></span>
+			<span class="cofld-repeater-row-index"><?php echo esc_html( $row_num ); ?></span>
 		</div>
 
-		<div class="cof-repeater-row-content">
+		<div class="cofld-repeater-row-content">
 			<?php
 			foreach ( $sub_fields as $sub_field ) {
-				cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type, $is_template );
+				cofld_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type, $is_template );
 			}
 			?>
 		</div>
 
-		<div class="cof-repeater-row-actions">
-			<button type="button" class="cof-repeater-row-toggle" title="<?php esc_attr_e( 'Collapse', 'codeideal-open-fields' ); ?>">
+		<div class="cofld-repeater-row-actions">
+			<button type="button" class="cofld-repeater-row-toggle" title="<?php esc_attr_e( 'Collapse', 'codeideal-open-fields' ); ?>">
 				<span class="dashicons dashicons-arrow-up-alt2"></span>
 			</button>
-			<button type="button" class="cof-repeater-row-remove" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
+			<button type="button" class="cofld-repeater-row-remove" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
 				<span class="dashicons dashicons-trash"></span>
 			</button>
 		</div>
@@ -166,7 +166,7 @@ function cof_render_repeater_row( $field, $sub_fields, $index, $base_name, $layo
  * @param string $parent_name    Parent repeater name.
  * @return string Raw sub-field name.
  */
-function cof_get_raw_subfield_name( $sub_field_name, $parent_name ) {
+function cofld_get_raw_subfield_name( $sub_field_name, $parent_name ) {
 	// If the sub-field name starts with parent name + underscore, strip it.
 	$prefix = $parent_name . '_';
 	if ( strpos( $sub_field_name, $prefix ) === 0 ) {
@@ -185,7 +185,7 @@ function cof_get_raw_subfield_name( $sub_field_name, $parent_name ) {
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @param bool   $is_template Whether rendering as template.
  */
-function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type = 'post', $is_template = false ) {
+function cofld_render_repeater_subfield( $sub_field, $index, $base_name, $object_id, $object_type = 'post', $is_template = false ) {
 	// Parse field_config for field-specific settings (choices, layout, etc.)
 	$field_settings = array();
 	if ( ! empty( $sub_field->field_config ) ) {
@@ -205,7 +205,7 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
 
 	// Get the raw sub-field name (without parent prefix that DB might have).
 	// The database stores sub-fields as "parent_subfield", we need just "subfield".
-	$raw_name = cof_get_raw_subfield_name( $sub_field->name, $base_name );
+	$raw_name = cofld_get_raw_subfield_name( $sub_field->name, $base_name );
 
 	// Build the full field name: base_index_subfield
 	// Meta format: repeater_0_subfield (no prefix)
@@ -254,7 +254,7 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
 	$wrapper_id = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 	
 	// Build wrapper classes
-	$classes = array( 'cof-repeater-subfield' );
+	$classes = array( 'cofld-repeater-subfield' );
 	if ( $wrapper_class ) {
 		$classes[] = $wrapper_class;
 	}
@@ -288,7 +288,7 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
 	echo '>';
 
 	if ( ! empty( $sub_field->label ) ) {
-		echo '<label class="cof-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';
+		echo '<label class="cofld-repeater-subfield-label" for="' . esc_attr( $field_id ) . '">';
 		echo esc_html( $sub_field->label );
 		if ( ! empty( $sub_field->required ) ) {
 			echo '<span class="required">*</span>';
@@ -296,8 +296,8 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
 		echo '</label>';
 	}
 
-	echo '<div class="cof-repeater-subfield-input">';
-	cof_render_field_input( $sub_field, $value, $field_id, $full_name, $field_settings, $object_id, $object_type, $is_template, $base_name );
+	echo '<div class="cofld-repeater-subfield-input">';
+	cofld_render_field_input( $sub_field, $value, $field_id, $full_name, $field_settings, $object_id, $object_type, $is_template, $base_name );
 	echo '</div>';
 
 	if ( ! empty( $sub_field->instructions ) ) {
@@ -310,7 +310,7 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
 /**
  * Unified field input renderer.
  *
- * Delegates to the centralized COF_Field_Renderer class for consistency.
+ * Delegates to the centralized COFLD_Field_Renderer class for consistency.
  *
  * @param object $field       Field database object.
  * @param mixed  $value       Current value.
@@ -322,7 +322,7 @@ function cof_render_repeater_subfield( $sub_field, $index, $base_name, $object_i
  * @param bool   $is_template Whether rendering as template.
  * @param string $parent_name Parent repeater name for nested repeaters.
  */
-function cof_render_field_input( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type = 'post', $is_template = false, $parent_name = '' ) {
+function cofld_render_field_input( $field, $value, $field_id, $full_name, $settings, $object_id, $object_type = 'post', $is_template = false, $parent_name = '' ) {
 	// Use the centralized field renderer.
 	$context = array(
 		'object_id'   => $object_id,
@@ -337,7 +337,7 @@ function cof_render_field_input( $field, $value, $field_id, $full_name, $setting
 		return;
 	}
 
-	cof_render_field( $field, $value, $field_id, $full_name, $settings, $context );
+	cofld_render_field( $field, $value, $field_id, $full_name, $settings, $context );
 }
 
 /**
@@ -349,7 +349,7 @@ function cof_render_field_input( $field, $value, $field_id, $full_name, $setting
  * @param string $object_type Object type: 'post', 'term', or 'user'.
  * @return int
  */
-function cof_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type = 'post' ) {
+function cofld_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_type = 'post' ) {
 	if ( ! $object_id || empty( $sub_fields ) ) {
 		return 0;
 	}
@@ -375,7 +375,7 @@ function cof_detect_repeater_rows( $object_id, $base_name, $sub_fields, $object_
 
 	// Use first sub-field for detection.
 	// Get raw name without parent prefix.
-	$first_sub_raw = cof_get_raw_subfield_name( $sub_fields[0]->name, $base_name );
+	$first_sub_raw = cofld_get_raw_subfield_name( $sub_fields[0]->name, $base_name );
 
 	// Pattern: {base}_{index}_{subfield} (no prefix)
 	$keys = $wpdb->get_col(

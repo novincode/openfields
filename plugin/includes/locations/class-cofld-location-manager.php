@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Location_Manager {
+class COFLD_Location_Manager {
 
 	/**
 	 * Instance.
 	 *
-	 * @var COF_Location_Manager|null
+	 * @var COFLD_Location_Manager|null
 	 */
 	private static $instance = null;
 
@@ -38,7 +38,7 @@ class COF_Location_Manager {
 	 * Get instance.
 	 *
 	 * @since  1.0.0
-	 * @return COF_Location_Manager
+	 * @return COFLD_Location_Manager
 	 */
 	public static function instance() {
 		if ( is_null( self::$instance ) ) {
@@ -244,8 +244,8 @@ class COF_Location_Manager {
 	public function get_fieldsets_for_context( $context ) {
 		global $wpdb;
 
-		$fieldsets_table = $wpdb->prefix . 'cof_fieldsets';
-		$locations_table = $wpdb->prefix . 'cof_locations';
+		$fieldsets_table = $wpdb->prefix . 'cofld_fieldsets';
+		$locations_table = $wpdb->prefix . 'cofld_locations';
 
 		// Get all active fieldsets.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -619,7 +619,7 @@ class COF_Location_Manager {
 		 * @since 1.0.0
 		 * @param array $pages Registered options pages.
 		 */
-		$pages = apply_filters( 'cof_options_pages', array() );
+		$pages = apply_filters( 'cofld_options_pages', array() );
 
 		$options = array();
 		foreach ( $pages as $slug => $title ) {

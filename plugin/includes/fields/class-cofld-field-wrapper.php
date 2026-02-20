@@ -26,12 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class COF_Field_Wrapper {
+class COFLD_Field_Wrapper {
 
 	/**
 	 * Field instance.
 	 *
-	 * @var COF_Base_Field
+	 * @var COFLD_Base_Field
 	 */
 	private $field;
 
@@ -60,7 +60,7 @@ class COF_Field_Wrapper {
 	 * Constructor.
 	 *
 	 * @since 1.0.0
-	 * @param COF_Base_Field $field       Field instance.
+	 * @param COFLD_Base_Field $field       Field instance.
 	 * @param mixed                 $value       Current field value.
 	 * @param string                $field_name  Field name/ID.
 	 * @param string                $meta_prefix Meta prefix for database storage (empty for cross-plugin compatibility).
@@ -89,7 +89,7 @@ class COF_Field_Wrapper {
 		$wrapper_id = isset( $wrapper_config['id'] ) ? sanitize_html_class( $wrapper_config['id'] ) : '';
 
 		// Build wrapper HTML.
-		$html = '<div class="cof-field-wrapper';
+		$html = '<div class="cofld-field-wrapper';
 		if ( $wrapper_class ) {
 			$html .= ' ' . $wrapper_class;
 		}
@@ -122,13 +122,13 @@ class COF_Field_Wrapper {
 		$html .= $this->render_label();
 
 		// Render the field itself.
-		$html .= '<div class="cof-field-input">';
+		$html .= '<div class="cofld-field-input">';
 		$html .= $this->field->render( $this->value );
 		$html .= '</div>';
 
 		// Render description if present.
 		if ( ! empty( $config['instructions'] ) ) {
-			$html .= '<p class="cof-field-description">' . wp_kses_post( $config['instructions'] ) . '</p>';
+			$html .= '<p class="cofld-field-description">' . wp_kses_post( $config['instructions'] ) . '</p>';
 		}
 
 		$html .= '</div>';
@@ -151,12 +151,12 @@ class COF_Field_Wrapper {
 			return '';
 		}
 
-		$html = '<div class="cof-field-label">';
+		$html = '<div class="cofld-field-label">';
 		$html .= '<label for="' . esc_attr( $this->meta_prefix . $this->field_name ) . '">';
 		$html .= esc_html( $label );
 
 		if ( $required ) {
-			$html .= '<span class="cof-field-required" aria-label="required">*</span>';
+			$html .= '<span class="cofld-field-required" aria-label="required">*</span>';
 		}
 
 		$html .= '</label>';

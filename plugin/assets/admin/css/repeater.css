@@ -12,7 +12,7 @@
    CSS Custom Properties
    ========================================================================== */
 
-.cof-repeater {
+.cofld-repeater {
 	--of-border-color: #c3c4c7;
 	--of-border-radius: 4px;
 	--of-spacing-xs: 4px;
@@ -28,13 +28,13 @@
    Repeater Container
    ========================================================================== */
 
-.cof-repeater {
+.cofld-repeater {
 	box-sizing: border-box;
 }
 
-.cof-repeater *,
-.cof-repeater *::before,
-.cof-repeater *::after {
+.cofld-repeater *,
+.cofld-repeater *::before,
+.cofld-repeater *::after {
 	box-sizing: border-box;
 }
 
@@ -42,7 +42,7 @@
    Rows Container
    ========================================================================== */
 
-.cof-repeater-rows {
+.cofld-repeater-rows {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-sm);
@@ -52,7 +52,7 @@
    Single Row
    ========================================================================== */
 
-.cof-repeater-row {
+.cofld-repeater-row {
 	display: flex;
 	align-items: stretch;
 	background: var(--of-row-bg);
@@ -62,11 +62,11 @@
 	transition: box-shadow var(--of-transition), opacity var(--of-transition), transform var(--of-transition);
 }
 
-.cof-repeater-row:hover {
+.cofld-repeater-row:hover {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.cof-repeater-row.is-dragging {
+.cofld-repeater-row.is-dragging {
 	opacity: 0.5;
 }
 
@@ -74,7 +74,7 @@
    Row Handle
    ========================================================================== */
 
-.cof-repeater-row-handle {
+.cofld-repeater-row-handle {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -89,21 +89,21 @@
 	user-select: none;
 }
 
-.cof-repeater-row-handle:hover {
+.cofld-repeater-row-handle:hover {
 	background: #f0f0f1;
 }
 
-.cof-repeater-row-handle:active {
+.cofld-repeater-row-handle:active {
 	cursor: grabbing;
 }
 
-.cof-repeater-row-handle .dashicons {
+.cofld-repeater-row-handle .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.cof-repeater-row-index {
+.cofld-repeater-row-index {
 	font-size: 11px;
 	font-weight: 500;
 	color: #787c82;
@@ -113,7 +113,7 @@
    Row Content
    ========================================================================== */
 
-.cof-repeater-row-content {
+.cofld-repeater-row-content {
 	flex: 1;
 	display: flex;
 	flex-wrap: wrap;
@@ -123,7 +123,7 @@
 }
 
 /* Collapsed state */
-.cof-repeater-row.is-collapsed .cof-repeater-row-content {
+.cofld-repeater-row.is-collapsed .cofld-repeater-row-content {
 	display: none;
 }
 
@@ -131,7 +131,7 @@
    Row Actions
    ========================================================================== */
 
-.cof-repeater-row-actions {
+.cofld-repeater-row-actions {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
@@ -140,7 +140,7 @@
 	background: #f6f7f7;
 }
 
-.cof-repeater-row-actions button {
+.cofld-repeater-row-actions button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -156,23 +156,23 @@
 	transition: background var(--of-transition), color var(--of-transition);
 }
 
-.cof-repeater-row-actions button:hover {
+.cofld-repeater-row-actions button:hover {
 	background: #dcdcde;
 	color: #1d2327;
 }
 
-.cof-repeater-row-actions button:disabled {
+.cofld-repeater-row-actions button:disabled {
 	opacity: 0.4;
 	cursor: not-allowed;
 }
 
-.cof-repeater-row-actions button .dashicons {
+.cofld-repeater-row-actions button .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
 }
 
-.cof-repeater-row-remove:hover {
+.cofld-repeater-row-remove:hover {
 	color: #d63638 !important;
 }
 
@@ -180,7 +180,7 @@
    Subfields
    ========================================================================== */
 
-.cof-repeater-subfield {
+.cofld-repeater-subfield {
 	display: flex;
 	flex-direction: column;
 	gap: var(--of-spacing-xs);
@@ -192,18 +192,18 @@
 	width: var(--of-field-width, 100%);
 }
 
-.cof-repeater-subfield-label {
+.cofld-repeater-subfield-label {
 	font-weight: 500;
 	font-size: 13px;
 	color: #1e1e1e;
 }
 
-.cof-repeater-subfield-label .required {
+.cofld-repeater-subfield-label .required {
 	color: #d63638;
 	margin-left: 2px;
 }
 
-.cof-repeater-subfield .description {
+.cofld-repeater-subfield .description {
 	margin: 4px 0 0;
 	font-size: 12px;
 	color: #646970;
@@ -213,17 +213,17 @@
    Footer / Add Button
    ========================================================================== */
 
-.cof-repeater-footer {
+.cofld-repeater-footer {
 	margin-top: var(--of-spacing-sm);
 }
 
-.cof-repeater-add {
+.cofld-repeater-add {
 	display: inline-flex !important;
 	align-items: center;
 	gap: 4px;
 }
 
-.cof-repeater-add .dashicons {
+.cofld-repeater-add .dashicons {
 	font-size: 16px;
 	width: 16px;
 	height: 16px;
@@ -233,7 +233,7 @@
    Drag Placeholder
    ========================================================================== */
 
-.cof-repeater-placeholder {
+.cofld-repeater-placeholder {
 	border: 2px dashed #c3c4c7;
 	border-radius: var(--of-border-radius);
 	background: #f6f7f7;
@@ -244,7 +244,7 @@
    Nested Repeaters
    ========================================================================== */
 
-.cof-repeater .cof-repeater {
+.cofld-repeater .cofld-repeater {
 	margin-top: var(--of-spacing-xs);
 	padding: var(--of-spacing-sm);
 	background: #f9f9f9;
@@ -252,7 +252,7 @@
 	border-radius: var(--of-border-radius);
 }
 
-.cof-repeater .cof-repeater .cof-repeater-row {
+.cofld-repeater .cofld-repeater .cofld-repeater-row {
 	background: #fff;
 }
 
@@ -261,27 +261,27 @@
    ========================================================================== */
 
 /* Table layout - respects width but no wrapping */
-[data-layout="table"] .cof-repeater-row-content {
+[data-layout="table"] .cofld-repeater-row-content {
 	flex-wrap: nowrap;
 	gap: 8px;
 }
 
-[data-layout="table"] .cof-repeater-subfield {
+[data-layout="table"] .cofld-repeater-subfield {
 	flex-shrink: 0;
 }
 
-[data-layout="table"] .cof-repeater-subfield-label {
+[data-layout="table"] .cofld-repeater-subfield-label {
 	font-size: 12px;
 }
 
 /* Row layout - inline, respects width */
-[data-layout="row"] .cof-repeater-row-content {
+[data-layout="row"] .cofld-repeater-row-content {
 	flex-wrap: nowrap;
 	align-items: flex-end;
 	gap: 8px;
 }
 
-[data-layout="row"] .cof-repeater-subfield {
+[data-layout="row"] .cofld-repeater-subfield {
 	flex-shrink: 0;
 }
 
@@ -292,20 +292,20 @@
 @media screen and (max-width: 782px) {
 
 
-	.cof-repeater-subfield {
+	.cofld-repeater-subfield {
 		flex: 0 0 100% !important;
 		max-width: 100% !important;
 	}
 }
 
 /* Switch field in repeater uses the same grid-based styling from fields.css
-   No overrides needed - inherits from .cof-switch-checkbox and .cof-switch-container */
+   No overrides needed - inherits from .cofld-switch-checkbox and .cofld-switch-container */
 
 /* ==========================================================================
    Media Preview in Repeater
    ========================================================================== */
 
-.cof-repeater-subfield .cof-media-preview {
+.cofld-repeater-subfield .cofld-media-preview {
 	max-width: 80px;
 	height: auto;
 	margin-bottom: 8px;

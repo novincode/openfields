@@ -7,8 +7,8 @@
 import type { Fieldset, Field, LocationType } from '../types';
 
 const getConfig = () => ({
-	apiUrl: window.openfieldsAdmin?.restUrl || '/wp-json/openfields/v1',
-	nonce: window.openfieldsAdmin?.nonce || '',
+	apiUrl: window.cofldAdmin?.restUrl || '/wp-json/openfields/v1',
+	nonce: window.cofldAdmin?.nonce || '',
 });
 
 /**

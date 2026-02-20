@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function cof_render_gallery_field( $field, $value, $field_id, $field_name, $settings ) {
+function cofld_render_gallery_field( $field, $value, $field_id, $field_name, $settings ) {
 	// Normalize value to array.
 	$attachment_ids = array();
 	if ( is_array( $value ) ) {
@@ -45,7 +45,7 @@ function cof_render_gallery_field( $field, $value, $field_id, $field_name, $sett
 
 	$has_images = ! empty( $attachment_ids );
 	?>
-	<div class="cof-gallery-field" 
+	<div class="cofld-gallery-field" 
 		 data-field-type="gallery"
 		 data-library="<?php echo esc_attr( $library ); ?>"
 		 data-min="<?php echo esc_attr( $min ); ?>"
@@ -58,10 +58,10 @@ function cof_render_gallery_field( $field, $value, $field_id, $field_name, $sett
 			   id="<?php echo esc_attr( $field_id ); ?>" 
 			   name="<?php echo esc_attr( $field_name ); ?>" 
 			   value="<?php echo esc_attr( implode( ',', $attachment_ids ) ); ?>"
-			   class="cof-gallery-value" />
+			   class="cofld-gallery-value" />
 
 		<!-- Gallery preview grid -->
-		<div class="cof-gallery-grid <?php echo $has_images ? 'has-images' : 'no-images'; ?>">
+		<div class="cofld-gallery-grid <?php echo esc_attr( $has_images ? 'has-images' : 'no-images' ); ?>">
 			<?php if ( $has_images ) : ?>
 				<?php foreach ( $attachment_ids as $attachment_id ) : ?>
 					<?php
@@ -71,16 +71,16 @@ function cof_render_gallery_field( $field, $value, $field_id, $field_name, $sett
 						continue;
 					}
 					?>
-					<div class="cof-gallery-item" data-attachment-id="<?php echo esc_attr( $attachment_id ); ?>">
-						<div class="cof-gallery-thumb">
+					<div class="cofld-gallery-item" data-attachment-id="<?php echo esc_attr( $attachment_id ); ?>">
+						<div class="cofld-gallery-thumb">
 							<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" />
 						</div>
-						<div class="cof-gallery-item-actions">
-							<button type="button" class="cof-gallery-item-remove" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
+						<div class="cofld-gallery-item-actions">
+							<button type="button" class="cofld-gallery-item-remove" title="<?php esc_attr_e( 'Remove', 'codeideal-open-fields' ); ?>">
 								<span class="dashicons dashicons-no-alt"></span>
 							</button>
 						</div>
-						<div class="cof-gallery-item-drag" title="<?php esc_attr_e( 'Drag to reorder', 'codeideal-open-fields' ); ?>">
+						<div class="cofld-gallery-item-drag" title="<?php esc_attr_e( 'Drag to reorder', 'codeideal-open-fields' ); ?>">
 							<span class="dashicons dashicons-move"></span>
 						</div>
 					</div>
@@ -88,20 +88,20 @@ function cof_render_gallery_field( $field, $value, $field_id, $field_name, $sett
 			<?php endif; ?>
 
 			<!-- Add button (shown inside grid) -->
-			<div class="cof-gallery-add-item">
-				<button type="button" class="cof-gallery-add" title="<?php esc_attr_e( 'Add Images', 'codeideal-open-fields' ); ?>">
+			<div class="cofld-gallery-add-item">
+				<button type="button" class="cofld-gallery-add" title="<?php esc_attr_e( 'Add Images', 'codeideal-open-fields' ); ?>">
 					<span class="dashicons dashicons-plus-alt2"></span>
-					<span class="cof-gallery-add-text"><?php esc_html_e( 'Add', 'codeideal-open-fields' ); ?></span>
+					<span class="cofld-gallery-add-text"><?php esc_html_e( 'Add', 'codeideal-open-fields' ); ?></span>
 				</button>
 			</div>
 		</div>
 
 		<?php if ( ! $has_images ) : ?>
 		<!-- Empty state placeholder -->
-		<div class="cof-gallery-placeholder">
+		<div class="cofld-gallery-placeholder">
 			<span class="dashicons dashicons-images-alt2"></span>
-			<span class="cof-gallery-placeholder-text"><?php esc_html_e( 'No images selected', 'codeideal-open-fields' ); ?></span>
-			<button type="button" class="button cof-gallery-select">
+			<span class="cofld-gallery-placeholder-text"><?php esc_html_e( 'No images selected', 'codeideal-open-fields' ); ?></span>
+			<button type="button" class="button cofld-gallery-select">
 				<span class="dashicons dashicons-upload"></span>
 				<?php esc_html_e( 'Add Images', 'codeideal-open-fields' ); ?>
 			</button>
@@ -110,7 +110,7 @@ function cof_render_gallery_field( $field, $value, $field_id, $field_name, $sett
 
 		<!-- Limits display -->
 		<?php if ( $min > 0 || $max > 0 ) : ?>
-		<div class="cof-gallery-limits">
+		<div class="cofld-gallery-limits">
 			<?php
 			$count = count( $attachment_ids );
 			if ( $min > 0 && $max > 0 ) {
@@ -144,4 +144,4 @@ function cof_render_gallery_field( $field, $value, $field_id, $field_name, $sett
 }
 
 // Register the renderer.
-add_action( 'cof_render_field_gallery', 'cof_render_gallery_field', 10, 5 );
+add_action( 'cofld_render_field_gallery', 'cofld_render_gallery_field', 10, 5 );

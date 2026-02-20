@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $field_name Field HTML name.
  * @param array  $settings   Field settings.
  */
-function cof_render_image_field( $field, $value, $field_id, $field_name, $settings ) {
+function cofld_render_image_field( $field, $value, $field_id, $field_name, $settings ) {
 	$attachment_id  = absint( $value );
 	$preview_size   = isset( $settings['preview_size'] ) ? $settings['preview_size'] : 'medium';
 	$library        = isset( $settings['library'] ) ? $settings['library'] : 'all';
@@ -45,7 +45,7 @@ function cof_render_image_field( $field, $value, $field_id, $field_name, $settin
 
 	$has_image = ! empty( $image_url );
 	?>
-	<div class="cof-image-field" 
+	<div class="cofld-image-field" 
 		 data-field-type="image"
 		 data-library="<?php echo esc_attr( $library ); ?>"
 		 data-min-width="<?php echo esc_attr( $min_width ); ?>"
@@ -58,38 +58,38 @@ function cof_render_image_field( $field, $value, $field_id, $field_name, $settin
 			   id="<?php echo esc_attr( $field_id ); ?>" 
 			   name="<?php echo esc_attr( $field_name ); ?>" 
 			   value="<?php echo esc_attr( $attachment_id ); ?>"
-			   class="cof-image-value" />
+			   class="cofld-image-value" />
 
 		<!-- Preview container -->
-		<div class="cof-image-preview <?php echo $has_image ? 'has-image' : 'no-image'; ?>">
+		<div class="cofld-image-preview <?php echo esc_attr( $has_image ? 'has-image' : 'no-image' ); ?>">
 			<?php if ( $has_image ) : ?>
 				<img src="<?php echo esc_url( $image_url ); ?>" 
 					 alt="<?php echo esc_attr( $image_alt ); ?>" 
-					 class="cof-image-thumb" />
-				<div class="cof-image-info">
-					<span class="cof-image-name"><?php echo esc_html( $image_name ); ?></span>
+					 class="cofld-image-thumb" />
+				<div class="cofld-image-info">
+					<span class="cofld-image-name"><?php echo esc_html( $image_name ); ?></span>
 				</div>
 			<?php else : ?>
-				<div class="cof-image-placeholder">
+				<div class="cofld-image-placeholder">
 					<span class="dashicons dashicons-format-image"></span>
-					<span class="cof-image-placeholder-text"><?php esc_html_e( 'No image selected', 'codeideal-open-fields' ); ?></span>
+					<span class="cofld-image-placeholder-text"><?php esc_html_e( 'No image selected', 'codeideal-open-fields' ); ?></span>
 				</div>
 			<?php endif; ?>
 		</div>
 
 		<!-- Action buttons -->
-		<div class="cof-image-actions">
-			<button type="button" class="button cof-image-select <?php echo $has_image ? 'hidden' : ''; ?>">
+		<div class="cofld-image-actions">
+			<button type="button" class="button cofld-image-select <?php echo esc_attr( $has_image ? 'hidden' : '' ); ?>">
 				<span class="dashicons dashicons-upload"></span>
 				<?php esc_html_e( 'Select Image', 'codeideal-open-fields' ); ?>
 			</button>
 			
-			<button type="button" class="button cof-image-change <?php echo $has_image ? '' : 'hidden'; ?>">
+			<button type="button" class="button cofld-image-change <?php echo esc_attr( $has_image ? '' : 'hidden' ); ?>">
 				<span class="dashicons dashicons-edit"></span>
 				<?php esc_html_e( 'Change', 'codeideal-open-fields' ); ?>
 			</button>
 			
-			<button type="button" class="button cof-image-remove <?php echo $has_image ? '' : 'hidden'; ?>">
+			<button type="button" class="button cofld-image-remove <?php echo esc_attr( $has_image ? '' : 'hidden' ); ?>">
 				<span class="dashicons dashicons-trash"></span>
 				<?php esc_html_e( 'Remove', 'codeideal-open-fields' ); ?>
 			</button>
@@ -99,4 +99,4 @@ function cof_render_image_field( $field, $value, $field_id, $field_name, $settin
 }
 
 // Register the renderer.
-add_action( 'cof_render_field_image', 'cof_render_image_field', 10, 5 );
+add_action( 'cofld_render_field_image', 'cofld_render_image_field', 10, 5 );

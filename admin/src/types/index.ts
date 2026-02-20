@@ -211,7 +211,7 @@ export interface WPUser {
 // Global Window Extension
 declare global {
 	interface Window {
-		openfieldsAdmin: {
+		cofldAdmin: {
 			restUrl: string;
 			nonce: string;
 			adminUrl: string;

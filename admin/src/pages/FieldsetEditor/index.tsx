@@ -98,7 +98,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 
 	// Handle back navigation with unsaved changes check
 	const handleBackClick = useCallback(() => {
-		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
+		const adminUrl = window.cofldAdmin?.adminUrl || '/wp-admin/';
 		const backUrl = `${adminUrl}admin.php?page=codeideal-open-fields`;
 		
 		if (unsavedChanges) {

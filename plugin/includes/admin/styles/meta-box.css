@@ -4,39 +4,39 @@
  * @package OpenFields
  */
 
-.cof-meta-box {
+.cofld-meta-box {
 	padding: 10px 0;
 }
 
-.cof-field {
+.cofld-field {
 	margin-bottom: 20px;
 }
 
-.cof-field-label {
+.cofld-field-label {
 	margin-bottom: 8px;
 }
 
-.cof-field-label label {
+.cofld-field-label label {
 	display: block;
 	font-weight: 600;
 	margin-bottom: 4px;
 }
 
-.cof-field-input {
+.cofld-field-input {
 	width: 100%;
 }
 
-.cof-field-input input[type="text"],
-.cof-field-input input[type="email"],
-.cof-field-input input[type="url"],
-.cof-field-input input[type="number"],
-.cof-field-input textarea,
-.cof-field-input select {
+.cofld-field-input input[type="text"],
+.cofld-field-input input[type="email"],
+.cofld-field-input input[type="url"],
+.cofld-field-input input[type="number"],
+.cofld-field-input textarea,
+.cofld-field-input select {
 	width: 100%;
 	box-sizing: border-box;
 }
 
-.cof-field-description {
+.cofld-field-description {
 	font-size: 12px;
 	color: #666;
 	margin-top: 4px;
@@ -44,20 +44,20 @@
 }
 
 /* Switch field styling */
-.cof-switch-wrapper {
+.cofld-switch-wrapper {
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
 	cursor: pointer;
 }
 
-.cof-switch-input {
+.cofld-switch-input {
 	margin: 0;
 	width: auto;
 	cursor: pointer;
 }
 
-.cof-switch-toggle {
+.cofld-switch-toggle {
 	display: inline-block;
 	width: 40px;
 	height: 24px;
@@ -68,11 +68,11 @@
 	background-color: #d1d5db;
 }
 
-.cof-switch-toggle.active {
+.cofld-switch-toggle.active {
 	background-color: #10b981;
 }
 
-.cof-switch-toggle::after {
+.cofld-switch-toggle::after {
 	content: '';
 	display: inline-block;
 	position: absolute;
@@ -85,12 +85,12 @@
 	transition: all 0.3s;
 }
 
-.cof-switch-toggle.active::after {
+.cofld-switch-toggle.active::after {
 	right: 2px;
 	left: auto;
 }
 
-.cof-switch-label {
+.cofld-switch-label {
 	display: inline-block;
 	min-width: 30px;
 	cursor: pointer;

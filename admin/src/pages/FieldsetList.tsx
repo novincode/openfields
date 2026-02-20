@@ -164,12 +164,12 @@ export default function FieldsetList() {
 	};
 
 	const navigateToEdit = (id: number) => {
-		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
+		const adminUrl = window.cofldAdmin?.adminUrl || '/wp-admin/';
 		window.location.href = `${adminUrl}admin.php?page=codeideal-open-fields&action=edit&id=${id}`;
 	};
 
 	const navigateToNew = () => {
-		const adminUrl = window.openfieldsAdmin?.adminUrl || '/wp-admin/';
+		const adminUrl = window.cofldAdmin?.adminUrl || '/wp-admin/';
 		window.location.href = `${adminUrl}admin.php?page=codeideal-open-fields&action=new`;
 	};
 
