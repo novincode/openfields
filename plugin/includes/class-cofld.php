@@ -92,6 +92,9 @@ final class COFLD_Plugin {
 	private function init_hooks() {
 		add_action( 'init', array( $this, 'init' ), 0 );
 
+		// Check for database updates (e.g. table prefix migration).
+		COFLD_Installer::maybe_update_db();
+
 		// Initialize REST API early - rest_api_init fires before init on REST requests.
 		COFLD_REST_API::instance();
 	}

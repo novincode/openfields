@@ -23,9 +23,11 @@ class COFLD_Installer {
 	/**
 	 * Database version.
 	 *
+	 * Bump this when the DB schema changes or a migration is needed.
+	 *
 	 * @var string
 	 */
-	const DB_VERSION = '1.0.0';
+	const DB_VERSION = '1.1.0';
 
 	/**
 	 * Activate the plugin.
@@ -190,7 +192,63 @@ class COFLD_Installer {
 	 */
 	public static function maybe_update_db() {
 		if ( self::needs_db_update() ) {
+			self::migrate_table_prefix();
+			self::migrate_option_keys();
 			self::create_tables();
+		}
+	}
+
+	/**
+	 * Migrate database tables from old `cof_` prefix to `cofld_`.
+	 *
+	 * Runs once during the 1.0.0 → 1.1.0 DB upgrade. If the old tables exist
+	 * and the new ones do not, this renames them in-place to preserve data.
+	 *
+	 * @since 0.3.0
+	 */
+	private static function migrate_table_prefix() {
+		global $wpdb;
+
+		$old_tables = array(
+			$wpdb->prefix . 'cof_fieldsets' => $wpdb->prefix . 'cofld_fieldsets',
+			$wpdb->prefix . 'cof_fields'    => $wpdb->prefix . 'cofld_fields',
+			$wpdb->prefix . 'cof_locations'  => $wpdb->prefix . 'cofld_locations',
+		);
+
+		foreach ( $old_tables as $old_name => $new_name ) {
+			// Only rename if old table exists and new one doesn't.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$old_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_name ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$new_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_name ) );
+
+			if ( $old_exists && ! $new_exists ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$wpdb->query( "RENAME TABLE `{$old_name}` TO `{$new_name}`" );
+			}
+		}
+	}
+
+	/**
+	 * Migrate option keys from old `cof_` prefix to `cofld_`.
+	 *
+	 * @since 0.3.0
+	 */
+	private static function migrate_option_keys() {
+		global $wpdb;
+
+		$old_options = array(
+			'cof_settings'   => 'cofld_settings',
+			'cof_version'    => 'cofld_version',
+			'cof_db_version' => 'cofld_db_version',
+		);
+
+		foreach ( $old_options as $old_key => $new_key ) {
+			$old_value = get_option( $old_key );
+			if ( false !== $old_value && false === get_option( $new_key ) ) {
+				update_option( $new_key, $old_value );
+				delete_option( $old_key );
+			}
 		}
 	}
 

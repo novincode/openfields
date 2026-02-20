@@ -59,7 +59,7 @@ class COFLD_Assets {
 	 */
 	public function admin_scripts( $hook ) {
 		// Only load on Codeideal Open Fields admin pages.
-		if ( ! $this->is_cof_admin_page( $hook ) ) {
+		if ( ! $this->is_cofld_admin_page( $hook ) ) {
 			return;
 		}
 
@@ -189,7 +189,7 @@ class COFLD_Assets {
 	 * @param  string $hook Current admin page hook.
 	 * @return bool
 	 */
-	private function is_cof_admin_page( $hook ) {
+	private function is_cofld_admin_page( $hook ) {
 		$cofld_pages = array(
 			'toplevel_page_codeideal-open-fields',
 			'open-fields_page_codeideal-open-fields-settings',
