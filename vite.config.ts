@@ -1,9 +1,27 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import fs from 'fs';
+
+const sourceBanner = '/*! Codeideal Open Fields - Source: https://github.com/novincode/openfields/tree/main/admin/src - Build: pnpm run build */\n';
+
+function bannerPlugin() {
+  return {
+    name: 'banner',
+    writeBundle(_options: any, bundle: Record<string, any>) {
+      for (const [fileName] of Object.entries(bundle)) {
+        if (fileName.endsWith('.js')) {
+          const filePath = path.resolve(__dirname, 'plugin/assets/admin', fileName);
+          const content = fs.readFileSync(filePath, 'utf-8');
+          fs.writeFileSync(filePath, sourceBanner + content);
+        }
+      }
+    },
+  };
+}
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), bannerPlugin()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './admin/src'),

@@ -17,17 +17,19 @@ Codeideal Open Fields is a powerful, lightweight, and 100% open-source custom fi
 
 = Source Code & Build Instructions =
 
-The admin interface JavaScript (`assets/admin/js/admin.js`) is built from uncompressed React/TypeScript source code included in the development repository.
+The admin interface JavaScript (`assets/admin/js/admin.js`) and CSS (`assets/admin/css/admin.css`) are compiled from uncompressed source code. All other JavaScript and CSS files in the plugin are uncompressed and human-readable.
 
-**Source files:** The full uncompressed source is available at [https://github.com/codeideal/openfields](https://github.com/codeideal/openfields) in the `admin/src/` directory.
+**Public source repository:** [https://github.com/novincode/openfields](https://github.com/novincode/openfields)
+
+**Source files location:** The uncompressed React/TypeScript source for the admin JS is in [`admin/src/`](https://github.com/novincode/openfields/tree/main/admin/src). The uncompressed CSS source for `admin.css` is in [`admin/src/styles/`](https://github.com/novincode/openfields/tree/main/admin/src/styles). All other JavaScript and CSS files in `assets/admin/js/` and `assets/admin/css/` (except `admin.js` and `admin.css`) are already human-readable and uncompressed.
 
 **To build from source:**
 
-1. Clone the repository: `git clone https://github.com/codeideal/openfields.git`
+1. Clone the repository: `git clone https://github.com/novincode/openfields.git`
 2. Install dependencies: `pnpm install`
-3. Build the admin JS: `pnpm run build`
+3. Build the admin JS/CSS: `pnpm run build`
 
-The build output is placed in `plugin/assets/admin/js/admin.js`. All other CSS and JavaScript files in the plugin are uncompressed and human-readable.
+The build uses Vite and TypeScript. Output is placed in `plugin/assets/admin/js/admin.js` and `plugin/assets/admin/css/admin.css`.
 
 = Key Features =
 
