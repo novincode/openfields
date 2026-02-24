@@ -4,7 +4,7 @@ Donate link: https://openfields.codeideal.com/support
 Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -128,6 +128,14 @@ Standard WordPress meta is used, so Elementor, Bricks, Beaver Builder, and other
 
 == Changelog ==
 
+= 0.4.1 =
+* Added: Full internationalization (i18n) support — all admin UI strings are now translatable
+* Added: RTL (right-to-left) language support — admin interface works correctly in RTL languages like Arabic, Hebrew, and Farsi
+* Added: Translation-ready React admin, Gutenberg block, and relational fields
+* Fixed: Block editor strings now use the correct text domain
+* Fixed: wp_set_script_translations() for all JavaScript handles
+* Improved: Logical CSS properties for direction-neutral styling
+
 = 0.4.0 =
 * Fixed: Duplicate Gutenberg block (cofld/field vs openfields/field) — now registers a single "Open Fields" block
 * Updated: Tested with WordPress 6.9.1
@@ -148,6 +156,9 @@ Standard WordPress meta is used, so Elementor, Bricks, Beaver Builder, and other
 * Initial release
 
 == Upgrade Notice ==
+
+= 0.4.1 =
+Full i18n and RTL support. Translate the plugin into your language at translate.wordpress.org.
 
 = 0.4.0 =
 Fixes duplicate block registration. Updated for WordPress 6.9 compatibility.
