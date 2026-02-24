@@ -49,7 +49,7 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 						placeholder="0"
 					/>
 					<p className="text-xs text-muted-foreground">
-						Minimum number of rows required
+						{__('Minimum number of rows required', 'codeideal-open-fields')}
 					</p>
 				</div>
 				<div className="space-y-2">
@@ -60,10 +60,10 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 						min={0}
 						value={max}
 						onChange={(e) => handleChange('max', parseInt(e.target.value, 10) || 0)}
-						placeholder="0 (unlimited)"
+						placeholder={__('0 (unlimited)', 'codeideal-open-fields')}
 					/>
 					<p className="text-xs text-muted-foreground">
-						Maximum allowed (0 = unlimited)
+						{__('Maximum allowed (0 = unlimited)', 'codeideal-open-fields')}
 					</p>
 				</div>
 			</div>
@@ -76,7 +76,7 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 					onValueChange={(value) => handleChange('layout', value)}
 				>
 					<SelectTrigger id="repeater-layout">
-						<SelectValue placeholder="Select layout" />
+						<SelectValue placeholder={__('Select layout', 'codeideal-open-fields')} />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value="table">{__('Table', 'codeideal-open-fields')}</SelectItem>
@@ -85,7 +85,7 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 					</SelectContent>
 				</Select>
 				<p className="text-xs text-muted-foreground">
-					How repeater rows should be displayed
+					{__('How repeater rows should be displayed', 'codeideal-open-fields')}
 				</p>
 			</div>
 
@@ -100,16 +100,14 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 					placeholder={__('Add Row', 'codeideal-open-fields')}
 				/>
 				<p className="text-xs text-muted-foreground">
-					Text displayed on the add row button
+					{__('Text displayed on the add row button', 'codeideal-open-fields')}
 				</p>
 			</div>
 
 			{/* Sub-fields Note */}
 			<div className="rounded-md bg-muted p-3">
 				<p className="text-sm text-muted-foreground">
-					<strong>{__('Sub-fields:', 'codeideal-open-fields')}</strong> Add sub-fields by clicking the "Add Field" button
-					inside this repeater in the field list above. Sub-fields will be repeated
-					for each row.
+					<strong>{__('Sub-fields:', 'codeideal-open-fields')}</strong> {__('Add sub-fields by clicking the "Add Field" button inside this repeater in the field list above. Sub-fields will be repeated for each row.', 'codeideal-open-fields')}
 				</p>
 			</div>
 		</div>

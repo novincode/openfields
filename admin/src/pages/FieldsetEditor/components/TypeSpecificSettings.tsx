@@ -9,6 +9,7 @@
  */
 
 import { fieldRegistry } from '../../../lib/field-registry';
+import { __ } from '@wordpress/i18n';
 import { GeneralFieldSettings } from '../../../fields/GeneralFieldSettings';
 import type { Field } from '../../../types';
 
@@ -28,7 +29,7 @@ export function TypeSpecificSettings({
 		<>
 			{/* General Settings - Apply to ALL fields */}
 			<div className="border-t pt-4">
-				<h4 className="text-sm font-medium mb-3">General Settings</h4>
+				<h4 className="text-sm font-medium mb-3">{__('General Settings', 'codeideal-open-fields')}</h4>
 				<GeneralFieldSettings
 					field={field}
 					onSettingsChange={onSettingsChange}

@@ -75,7 +75,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
           disabled={loading}
         >
           <SelectTrigger>
-            <SelectValue placeholder={loading ? "Loading..." : "Select post type"} />
+            <SelectValue placeholder={loading ? __('Loading...', 'codeideal-open-fields') : __('Select post type', 'codeideal-open-fields')} />
           </SelectTrigger>
           <SelectContent>
             {postTypes.map((type) => (
@@ -86,7 +86,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Select which post type to search from
+          {__('Select which post type to search from', 'codeideal-open-fields')}
         </p>
       </div>
 
@@ -95,7 +95,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
         <div className="space-y-0.5">
           <Label>{__('Select Multiple', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Allow selecting multiple posts
+            {__('Allow selecting multiple posts', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch
@@ -112,7 +112,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
           onValueChange={(value) => updateSetting('return_format', value)}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select return format" />
+            <SelectValue placeholder={__('Select return format', 'codeideal-open-fields')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="object">{__('Post Object', 'codeideal-open-fields')}</SelectItem>
@@ -120,7 +120,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Format of the value returned by get_field()
+          {__('Format of the value returned by get_field()', 'codeideal-open-fields')}
         </p>
       </div>
 
@@ -129,7 +129,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
         <div className="space-y-0.5">
           <Label>{__('Allow Null', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Allow empty value
+            {__('Allow empty value', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch

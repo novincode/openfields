@@ -109,7 +109,7 @@ export function MoveFieldDialog({ field, allFields, maxDepth }: MoveFieldDialogP
                         onValueChange={setSelectedParent}
                     >
                         <SelectTrigger id="move-location" className="mt-2">
-                            <SelectValue placeholder="Select location" />
+                            <SelectValue placeholder={__('Select location', 'codeideal-open-fields')} />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="_root">

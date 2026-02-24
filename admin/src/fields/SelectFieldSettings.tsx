@@ -101,7 +101,7 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 						onValueChange={(value) => onSettingsChange({ layout: value })}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select layout" />
+							<SelectValue placeholder={__('Select layout', 'codeideal-open-fields')} />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="vertical">{__('Vertical', 'codeideal-open-fields')}</SelectItem>
@@ -162,7 +162,7 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 					onValueChange={(value) => onSettingsChange({ return_format: value })}
 				>
 					<SelectTrigger id={`return-format-${field.id}`}>
-						<SelectValue placeholder="Select format" />
+						<SelectValue placeholder={__('Select format', 'codeideal-open-fields')} />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value="value">{__('Value', 'codeideal-open-fields')}</SelectItem>

@@ -70,7 +70,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
           disabled={loading}
         >
           <SelectTrigger>
-            <SelectValue placeholder={loading ? "Loading..." : "Select taxonomy"} />
+            <SelectValue placeholder={loading ? __('Loading...', 'codeideal-open-fields') : __('Select taxonomy', 'codeideal-open-fields')} />
           </SelectTrigger>
           <SelectContent>
             {taxonomies.map((tax) => (
@@ -81,7 +81,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Select which taxonomy to choose terms from
+          {__('Select which taxonomy to choose terms from', 'codeideal-open-fields')}
         </p>
       </div>
 
@@ -93,7 +93,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
           onValueChange={(value) => updateSetting('field_type', value)}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select appearance" />
+            <SelectValue placeholder={__('Select appearance', 'codeideal-open-fields')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="select">{__('Dropdown', 'codeideal-open-fields')}</SelectItem>
@@ -102,7 +102,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          How the field should be displayed
+          {__('How the field should be displayed', 'codeideal-open-fields')}
         </p>
       </div>
 
@@ -112,7 +112,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
           <div className="space-y-0.5">
             <Label>{__('Select Multiple', 'codeideal-open-fields')}</Label>
             <p className="text-xs text-muted-foreground">
-              Allow selecting multiple terms
+              {__('Allow selecting multiple terms', 'codeideal-open-fields')}
             </p>
           </div>
           <Switch
@@ -130,7 +130,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
           onValueChange={(value) => updateSetting('return_format', value)}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select return format" />
+            <SelectValue placeholder={__('Select return format', 'codeideal-open-fields')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="id">{__('Term ID', 'codeideal-open-fields')}</SelectItem>
@@ -138,7 +138,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Format of the value returned by get_field()
+          {__('Format of the value returned by get_field()', 'codeideal-open-fields')}
         </p>
       </div>
 
@@ -147,7 +147,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
         <div className="space-y-0.5">
           <Label>{__('Save Terms', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Connect selected terms to the post
+            {__('Connect selected terms to the post', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch
@@ -161,7 +161,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
         <div className="space-y-0.5">
           <Label>{__('Load Terms', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Load value from the post's terms
+            {__('Load value from the post\'s terms', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch

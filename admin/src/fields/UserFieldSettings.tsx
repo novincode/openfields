@@ -70,7 +70,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
           disabled={loading}
         >
           <SelectTrigger>
-            <SelectValue placeholder={loading ? "Loading..." : "All Roles"} />
+            <SelectValue placeholder={loading ? __('Loading...', 'codeideal-open-fields') : __('All Roles', 'codeideal-open-fields')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">{__('All Roles', 'codeideal-open-fields')}</SelectItem>
@@ -82,7 +82,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Filter users by role (leave empty for all)
+          {__('Filter users by role (leave empty for all)', 'codeideal-open-fields')}
         </p>
       </div>
 
@@ -91,7 +91,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
         <div className="space-y-0.5">
           <Label>{__('Select Multiple', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Allow selecting multiple users
+            {__('Allow selecting multiple users', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch
@@ -108,7 +108,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
           onValueChange={(value) => updateSetting('return_format', value)}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select return format" />
+            <SelectValue placeholder={__('Select return format', 'codeideal-open-fields')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="array">{__('User Array', 'codeideal-open-fields')}</SelectItem>
@@ -117,7 +117,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          Format of the value returned by get_field()
+          {__('Format of the value returned by get_field()', 'codeideal-open-fields')}
         </p>
       </div>
 
@@ -126,7 +126,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
         <div className="space-y-0.5">
           <Label>{__('Allow Null', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Allow empty value
+            {__('Allow empty value', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch

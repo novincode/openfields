@@ -4,7 +4,7 @@ Donate link: https://openfields.codeideal.com/support
 Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

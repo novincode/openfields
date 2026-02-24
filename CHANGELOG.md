@@ -8,7 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ---
+## [0.4.2] - 2026-02-24
 
+### Fixed
+- **i18n: Complete POT file** — POT now includes all 373 translatable strings (PHP + JS), up from 154 (PHP-only). Fixed by increasing PHP memory limit for WP-CLI JS parser.
+- **i18n: Unwrapped strings** — Wrapped 30+ remaining hardcoded strings in field settings (descriptions, placeholders, loading states) with `__()`.
+
+### Added
+- `pnpm i18n:pot` — Regenerate the POT file (PHP + JS) in one command
+- `pnpm i18n:audit` — Scan source files for potentially unwrapped strings
+- `pnpm i18n:audit:strict` — Same audit, exits 1 on findings (CI mode)
+- New animated plugin logo as WordPress.org icon
+
+### Changed
+- Plugin icon updated on WordPress.org (extracted from animated logo)
+
+---
 ## [0.3.0] - 2026-02-20
 
 ### Security

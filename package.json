@@ -1,6 +1,6 @@
 {
   "name": "openfields",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "type": "module",
   "description": "Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive interface.",
   "author": "Codeideal",
@@ -18,6 +18,9 @@
     "format": "prettier --write \"admin/src/**/*.{ts,tsx,css}\"",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "i18n:pot": "bash scripts/i18n-pot.sh",
+    "i18n:audit": "tsx scripts/i18n-audit.ts",
+    "i18n:audit:strict": "tsx scripts/i18n-audit.ts --strict",
     "release": "tsx scripts/release.ts",
     "release:svn": "tsx scripts/release.ts --svn",
     "release:github": "tsx scripts/release.ts --github",

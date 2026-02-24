@@ -201,7 +201,7 @@ export function CopyFieldDialog({
 							onValueChange={setSelectedFieldsetId}
 						>
 							<SelectTrigger className="mt-1">
-								<SelectValue placeholder="Select fieldset..." />
+								<SelectValue placeholder={__('Select fieldset...', 'codeideal-open-fields')} />
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="current">

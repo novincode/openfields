@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Codeideal Open Fields 0.4.1\n"
+"Project-Id-Version: Codeideal Open Fields 0.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-24T12:25:33+00:00\n"
+"POT-Creation-Date: 2026-02-24T13:53:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: codeideal-open-fields\n"
@@ -41,12 +41,14 @@ msgstr ""
 
 #: includes/admin/class-cofld-admin.php:61
 #: includes/admin/class-cofld-admin.php:62
+#: assets/admin/js/block-editor.js:52
 msgid "Open Fields"
 msgstr ""
 
 #: includes/admin/class-cofld-admin.php:73
 #: includes/admin/class-cofld-admin.php:74
 #: includes/admin/class-cofld-admin.php:166
+#: assets/admin/js/admin.js:279
 msgid "Field Groups"
 msgstr ""
 
@@ -55,6 +57,7 @@ msgid "Loading Open Fields..."
 msgstr ""
 
 #: includes/admin/class-cofld-admin.php:167
+#: assets/admin/js/admin.js:279
 msgid "Settings"
 msgstr ""
 
@@ -87,6 +90,8 @@ msgstr ""
 #: includes/admin/field-renderers/post-object.php:81
 #: includes/admin/field-renderers/repeater.php:151
 #: includes/admin/field-renderers/user.php:81
+#: assets/admin/js/relational-fields.js:294
+#: assets/admin/js/relational-fields.js:332
 msgid "Remove"
 msgstr ""
 
@@ -165,6 +170,7 @@ msgstr ""
 
 #: includes/admin/field-renderers/repeater.php:55
 #: includes/fields/class-cofld-field-registry.php:303
+#: assets/admin/js/admin.js:279
 msgid "Add Row"
 msgstr ""
 
@@ -215,10 +221,13 @@ msgid "Save"
 msgstr ""
 
 #: includes/class-cofld-assets.php:436
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "Cancel"
 msgstr ""
 
 #: includes/class-cofld-assets.php:437
+#: assets/admin/js/admin.js:273
 msgid "Delete"
 msgstr ""
 
@@ -227,6 +236,7 @@ msgid "Are you sure?"
 msgstr ""
 
 #: includes/class-cofld-assets.php:439
+#: assets/admin/js/admin.js:279
 msgid "Saving..."
 msgstr ""
 
@@ -239,10 +249,12 @@ msgid "Error"
 msgstr ""
 
 #: includes/class-cofld-assets.php:442
+#: assets/admin/js/admin.js:279
 msgid "Add Field"
 msgstr ""
 
 #: includes/class-cofld-assets.php:443
+#: assets/admin/js/block-editor.js:87
 msgid "Field Settings"
 msgstr ""
 
@@ -251,6 +263,7 @@ msgid "No fields yet. Drag a field type to get started."
 msgstr ""
 
 #: includes/class-cofld-assets.php:445
+#: assets/admin/js/admin.js:279
 msgid "Copy Field"
 msgstr ""
 
@@ -334,6 +347,7 @@ msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:74
 #: includes/fields/class-cofld-field-registry.php:103
+#: assets/admin/js/admin.js:279
 msgid "Max Length"
 msgstr ""
 
@@ -356,6 +370,7 @@ msgid "Multi-line text area."
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:98
+#: assets/admin/js/admin.js:279
 msgid "Rows"
 msgstr ""
 
@@ -376,6 +391,7 @@ msgid "Maximum"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:127
+#: assets/admin/js/admin.js:279
 msgid "Step"
 msgstr ""
 
@@ -392,6 +408,7 @@ msgid "URL input with validation."
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:160
+#: assets/admin/js/block-editor.js:47
 msgid "Link"
 msgstr ""
 
@@ -400,6 +417,7 @@ msgid "Link with URL, text, and target options."
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:167
+#: assets/admin/js/admin.js:279
 msgid "Show Link Text"
 msgstr ""
 
@@ -420,6 +438,7 @@ msgstr ""
 #: includes/fields/class-cofld-field-registry.php:187
 #: includes/fields/class-cofld-field-registry.php:211
 #: includes/fields/class-cofld-field-registry.php:239
+#: assets/admin/js/admin.js:279
 msgid "Choices"
 msgstr ""
 
@@ -430,6 +449,7 @@ msgstr ""
 #: includes/fields/class-cofld-field-registry.php:197
 #: includes/fields/class-cofld-field-registry.php:338
 #: includes/fields/class-cofld-field-registry.php:428
+#: assets/admin/js/admin.js:279
 msgid "Allow Null"
 msgstr ""
 
@@ -445,16 +465,19 @@ msgstr ""
 #: includes/fields/class-cofld-field-registry.php:244
 #: includes/fields/class-cofld-field-registry.php:292
 #: includes/fields/class-cofld-field-registry.php:572
+#: assets/admin/js/admin.js:279
 msgid "Layout"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:218
 #: includes/fields/class-cofld-field-registry.php:246
+#: assets/admin/js/admin.js:279
 msgid "Vertical"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:219
 #: includes/fields/class-cofld-field-registry.php:247
+#: assets/admin/js/admin.js:279
 msgid "Horizontal"
 msgstr ""
 
@@ -464,6 +487,7 @@ msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:232
 #: includes/fields/class-cofld-field-registry.php:361
+#: assets/admin/js/admin.js:279
 msgid "Checkbox"
 msgstr ""
 
@@ -480,20 +504,24 @@ msgid "True/False toggle switch."
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:262
+#: assets/admin/js/admin.js:279
 msgid "On Text"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:263
 #: includes/fields/class-cofld-field-renderer.php:415
+#: assets/admin/js/admin.js:279
 msgid "Yes"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:267
+#: assets/admin/js/admin.js:279
 msgid "Off Text"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:268
 #: includes/fields/class-cofld-field-renderer.php:416
+#: assets/admin/js/admin.js:279
 msgid "No"
 msgstr ""
 
@@ -506,32 +534,40 @@ msgid "Repeatable group of sub-fields."
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:282
+#: assets/admin/js/admin.js:279
 msgid "Minimum Rows"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:287
+#: assets/admin/js/admin.js:279
 msgid "Maximum Rows"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:294
+#: assets/admin/js/admin.js:279
 msgid "Table"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:295
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "Block"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:296
+#: assets/admin/js/admin.js:279
 msgid "Row"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:302
+#: assets/admin/js/admin.js:279
 msgid "Button Label"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:310
 #: includes/fields/class-cofld-field-registry.php:331
 #: includes/fields/class-cofld-field-registry.php:468
+#: assets/admin/js/admin.js:279
 msgid "Post Object"
 msgstr ""
 
@@ -542,12 +578,15 @@ msgstr ""
 #: includes/fields/class-cofld-field-registry.php:317
 #: includes/fields/class-cofld-field-registry.php:442
 #: includes/locations/class-cofld-location-manager.php:69
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "Post Type"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:324
 #: includes/fields/class-cofld-field-registry.php:368
 #: includes/fields/class-cofld-field-registry.php:413
+#: assets/admin/js/admin.js:279
 msgid "Select Multiple"
 msgstr ""
 
@@ -555,17 +594,21 @@ msgstr ""
 #: includes/fields/class-cofld-field-registry.php:373
 #: includes/fields/class-cofld-field-registry.php:418
 #: includes/fields/class-cofld-field-registry.php:466
+#: assets/admin/js/admin.js:279
 msgid "Return Format"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:332
 #: includes/fields/class-cofld-field-registry.php:469
+#: assets/admin/js/admin.js:279
 msgid "Post ID"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:345
 #: includes/fields/class-cofld-field-registry.php:352
 #: includes/locations/class-cofld-location-manager.php:109
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "Taxonomy"
 msgstr ""
 
@@ -574,18 +617,22 @@ msgid "Select taxonomy terms."
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:358
+#: assets/admin/js/admin.js:279
 msgid "Appearance"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:362
+#: assets/admin/js/admin.js:279
 msgid "Radio Buttons"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:375
+#: assets/admin/js/admin.js:279
 msgid "Term Object"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:376
+#: assets/admin/js/admin.js:279
 msgid "Term ID"
 msgstr ""
 
@@ -610,18 +657,22 @@ msgid "Select users from a searchable dropdown."
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:406
+#: assets/admin/js/admin.js:279
 msgid "Filter by Role"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:420
+#: assets/admin/js/admin.js:279
 msgid "User Object"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:421
+#: assets/admin/js/admin.js:279
 msgid "User ID"
 msgstr ""
 
 #: includes/fields/class-cofld-field-registry.php:422
+#: assets/admin/js/admin.js:279
 msgid "User Array"
 msgstr ""
 
@@ -670,21 +721,913 @@ msgid "Date & Time"
 msgstr ""
 
 #: includes/locations/class-cofld-location-manager.php:79
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "Page Template"
 msgstr ""
 
 #: includes/locations/class-cofld-location-manager.php:89
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "Post Category"
 msgstr ""
 
 #: includes/locations/class-cofld-location-manager.php:99
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "Post Format"
 msgstr ""
 
 #: includes/locations/class-cofld-location-manager.php:119
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
 msgid "User Role"
 msgstr ""
 
 #: includes/locations/class-cofld-location-manager.php:129
+#: assets/admin/js/admin.js:273
 msgid "Options Page"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Page Type"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Page"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Post"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Post Taxonomy"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Post Status"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Attachment"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "User Form"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Nav Menu"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Nav Menu Item"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Widget"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Comment"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Field group deleted successfully"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Failed to delete field group"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Field group duplicated successfully"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Failed to duplicate field group"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "No location rules"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "or"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "more"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Search field groups..."
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Filter by location"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "All locations"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Add Field Group"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "No matching field groups"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "No field groups yet"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Try adjusting your search or filter"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Get started by creating your first field group to add custom fields to your content."
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Create Field Group"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "fields"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Edit"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Duplicate"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Delete Field Group"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Are you sure you want to delete"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "This action cannot be undone."
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Title"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Key"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Location"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+#: assets/admin/js/admin.js:279
+msgid "Fields"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Status"
+msgstr ""
+
+#: assets/admin/js/admin.js:273
+msgid "Actions"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "is equal to"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "is not equal to"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "contains"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "is empty"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "is not empty"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Conditional Logic"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Show this field if conditions match"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select field"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Operator"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Value"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Remove rule"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Add OR Group"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Required"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Make this field mandatory"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Instructions"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Help text shown below the field"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "General Settings"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Copy a field to"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "The copied field will have a new ID and name."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Copy from"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select fieldset..."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Current Fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Current"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select field to copy"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Loading..."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "No fields available in this fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Sub-fields of"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "No sub-fields yet"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Add Sub-field"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Add Sub-field to"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Choose the type of field you want to add"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Max depth reached"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Copy from other field"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Field moved to"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Move field"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Move Field"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Move to"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select location"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Root Level"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Field and"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "sub-field(s) removed (will be deleted when you click Save Changes)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Field removed (will be deleted when you click Save Changes)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Label required"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "sub-fields"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "sub-field"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Conditional"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Field label and name cannot be empty"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Field Label"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Enter field label"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Field Name"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Wrapper Settings"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Width"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "CSS Class"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Sub-fields"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "added (will be saved when you click Save Changes)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "copied to root level"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select Field Type"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Active"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Enable or disable this fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Fieldset Slug"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Used for programmatic access. Must be unique."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Description"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Optional description for this fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Location Rules"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Show this fieldset when the following rules match"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select type"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select value"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Add AND rule"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Add OR rule group"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "This slug is already used by another fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Slug can only contain lowercase letters, numbers, and underscores"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Slug is required"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "New Fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Failed to create fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Fieldset title is required"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Fieldset saved successfully"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Failed to save fieldset"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Back to Field Groups"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Enter fieldset title"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Save Changes"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Unsaved Changes"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Stay on Page"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Leave Page"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Fieldset not found"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+#, js-format
+msgid "Successfully imported %d field group(s)."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+#, js-format
+msgid "(%d failed)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Successfully imported 1 field group."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+#, js-format
+msgid "Import failed: %s"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Unknown error"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Export"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Export all field groups as a JSON file"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Download all your field groups, including fields and settings, as a portable JSON file that can be imported into another site."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Exporting..."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Export Field Groups"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Import"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Import field groups from a JSON file"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Upload a previously exported JSON file to import field groups. Existing groups with the same key will be skipped."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Importing..."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Choose File"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Failed to load settings"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Settings saved successfully"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Failed to save settings"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Data Management"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Control how OpenFields handles your data"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Keep Plugin Data After Uninstall"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "When enabled, your field groups and saved data will be preserved even if you uninstall the plugin. Disable this only if you want to completely remove all OpenFields data."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Save Settings"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Placeholder"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Enter placeholder text"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "0 = unlimited"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Default Value"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Default text"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Min"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Max"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Field Type Settings"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow Multiple Selections"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow Empty Value"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Show Toggle All"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select layout"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "No choices added yet"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Add Choice"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select format"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+#: assets/admin/js/block-editor.js:96
+msgid "Label"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Both (Array)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Off"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "On"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Minimum number of rows required"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "0 (unlimited)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Maximum allowed (0 = unlimited)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "How repeater rows should be displayed"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Text displayed on the add row button"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Sub-fields:"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Add sub-fields by clicking the \"Add Field\" button inside this repeater in the field list above. Sub-fields will be repeated for each row."
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select post type"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select which post type to search from"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow selecting multiple posts"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select return format"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Format of the value returned by get_field()"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow empty value"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select taxonomy"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select which taxonomy to choose terms from"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Select appearance"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Dropdown"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "How the field should be displayed"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow selecting multiple terms"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Save Terms"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Connect selected terms to the post"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Load Terms"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Load value from the post's terms"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "All Roles"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Filter users by role (leave empty for all)"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow selecting multiple users"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow entering custom link text"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Show Target Option"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Allow selecting \"Open in new tab\""
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Import / Export"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "OpenFields"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Open Source Custom Fields Management"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Support this project"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "Support"
+msgstr ""
+
+#: assets/admin/js/admin.js:279
+msgid "This plugin is free and will be free, your support will keep it going."
+msgstr ""
+
+#: assets/admin/js/block-editor.js:24
+msgid "Ungrouped"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:33
+msgid "— Select a field —"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:45
+msgid "Plain Text"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:46
+msgid "HTML"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:48
+msgid "Image"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:53
+msgid "Display a custom field value."
+msgstr ""
+
+#: assets/admin/js/block-editor.js:89
+msgid "Field"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:93
+msgid "Type: "
+msgstr ""
+
+#: assets/admin/js/block-editor.js:99
+msgid "Label shown above the field value."
+msgstr ""
+
+#: assets/admin/js/block-editor.js:102
+msgid "Show Label"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:107
+msgid "Format"
+msgstr ""
+
+#: assets/admin/js/block-editor.js:111
+msgid "How to display the field value."
+msgstr ""
+
+#: assets/admin/js/block-editor.js:126
+msgid "No value found for this field."
+msgstr ""
+
+#: assets/admin/js/block-editor.js:134
+msgid "Select a field from the sidebar."
+msgstr ""
+
+#: assets/admin/js/relational-fields.js:100
+#: assets/admin/js/relational-fields.js:170
+msgid "Searching..."
+msgstr ""
+
+#: assets/admin/js/relational-fields.js:124
+#: assets/admin/js/relational-fields.js:198
+msgid "Search failed"
+msgstr ""
+
+#: assets/admin/js/relational-fields.js:221
+msgid "No results found"
+msgstr ""
+
+#: assets/admin/js/relational-fields.js:246
+msgid "No users found"
 msgstr ""
