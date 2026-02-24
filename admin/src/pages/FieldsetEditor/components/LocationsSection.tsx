@@ -310,7 +310,7 @@ export function LocationsSection({
 								onClick={() => handleAddRule(groupIndex)}
 								className="mt-2"
 							>
-								<Plus className="h-3 w-3 mr-1" />
+								<Plus className="h-3 w-3 me-1" />
 								{__('Add AND rule', 'codeideal-open-fields')}
 							</Button>
 						</div>
@@ -324,7 +324,7 @@ export function LocationsSection({
 					size="sm"
 					onClick={handleAddGroup}
 				>
-					<Plus className="h-3 w-3 mr-1" />
+					<Plus className="h-3 w-3 me-1" />
 					{__('Add OR rule group', 'codeideal-open-fields')}
 				</Button>
 			</Card>

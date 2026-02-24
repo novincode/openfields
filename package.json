@@ -70,6 +70,7 @@
     "@vitejs/plugin-react": "^4.3.0",
     "@vitest/ui": "^2.1.0",
     "@wordpress/env": "^10.0.0",
+    "@wordpress/i18n": "^6.13.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",

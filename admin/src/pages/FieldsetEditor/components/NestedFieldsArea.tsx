@@ -161,7 +161,7 @@ export function NestedFieldsArea({
 	};
 	
 	return (
-		<div className="mt-3 ml-4 pl-4 border-l-2 border-dashed border-gray-300">
+		<div className="mt-3 ms-4 ps-4 border-s-2 border-dashed border-gray-300">
 			<div className="text-xs text-gray-500 mb-2 font-medium">
 				{__('Sub-fields of', 'codeideal-open-fields')} {parentField.label}
 			</div>
@@ -227,7 +227,7 @@ export function NestedFieldsArea({
 												key={ft.type}
 												onClick={() => handleFieldTypeSelect(ft.type)}
 												disabled={isDisabled}
-												className={`p-3 border rounded-lg text-left transition-colors ${
+												className={`p-3 border rounded-lg text-start transition-colors ${
 													isDisabled 
 														? 'opacity-50 cursor-not-allowed bg-gray-50'
 														: 'hover:border-blue-500 hover:bg-blue-50'

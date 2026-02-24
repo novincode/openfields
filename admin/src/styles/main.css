@@ -114,11 +114,15 @@
 }
 
 .openfields-switch__slider {
-	@apply absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform;
+	@apply absolute start-0.5 h-5 w-5 rounded-full bg-white transition-transform;
 }
 
 .openfields-switch input:checked+.openfields-switch__slider {
-	@apply translate-x-5;
+	transform: translateX(1.25rem);
+}
+
+[dir="rtl"] .openfields-switch input:checked+.openfields-switch__slider {
+	transform: translateX(-1.25rem);
 }
 
 /* Image/File field */

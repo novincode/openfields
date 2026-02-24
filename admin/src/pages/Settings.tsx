@@ -108,10 +108,10 @@ export default function Settings() {
 					<Button onClick={handleSave} disabled={isSaving}>
 						{isSaving ? (
 							<>
-								<RefreshCw className="h-4 w-4 mr-2 animate-spin" />{__('Saving...', 'codeideal-open-fields')}</>
+								<RefreshCw className="h-4 w-4 me-2 animate-spin" />{__('Saving...',  'codeideal-open-fields')}</>
 						) : (
 							<>
-								<Save className="h-4 w-4 mr-2" />{__('Save Settings', 'codeideal-open-fields')}</>
+								<Save className="h-4 w-4 me-2" />{__('Save Settings',  'codeideal-open-fields')}</>
 						)}
 					</Button>
 				</div>

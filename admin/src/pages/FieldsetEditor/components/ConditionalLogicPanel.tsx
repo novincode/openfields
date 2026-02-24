@@ -251,7 +251,7 @@ export function ConditionalLogicPanel({
 									onClick={() => handleAddRule(groupIndex)}
 									className="text-xs"
 								>
-									<Plus className="h-3 w-3 mr-1" />
+									<Plus className="h-3 w-3 me-1" />
 									AND
 								</Button>
 								
@@ -276,7 +276,7 @@ export function ConditionalLogicPanel({
 						onClick={handleAddGroup}
 						className="w-full"
 					>
-						<Plus className="h-3 w-3 mr-1" />
+						<Plus className="h-3 w-3 me-1" />
 						{__('Add OR Group', 'codeideal-open-fields')}
 					</Button>
 				</div>

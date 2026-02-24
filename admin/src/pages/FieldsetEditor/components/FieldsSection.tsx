@@ -188,7 +188,7 @@ export function FieldsSection() {
 										<button
 											key={ft.type}
 											onClick={() => handleFieldTypeSelect(ft.type)}
-											className="p-3 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+											className="p-3 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-start"
 										>
 											<div className="font-medium text-sm">{ft.label}</div>
 											{ft.description && (

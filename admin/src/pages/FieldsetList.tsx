@@ -229,13 +229,13 @@ export default function FieldsetList() {
 				<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
 					{/* Search */}
 					<div className="relative w-full sm:w-64">
-						<Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+						<Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
 						<Input
 							type="text"
 							placeholder={__('Search field groups...', 'codeideal-open-fields')}
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							className="pl-9"
+							className="ps-9"
 						/>
 					</div>
 
@@ -256,7 +256,7 @@ export default function FieldsetList() {
 							<PopoverContent className="w-48 p-2">
 								<button
 									onClick={() => setLocationFilter('')}
-									className={`w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
+									className={`w-full text-start px-3 py-2 text-sm rounded hover:bg-gray-100 ${
 										!locationFilter ? 'bg-gray-100 font-medium' : ''
 									}`}
 								>
@@ -266,7 +266,7 @@ export default function FieldsetList() {
 									<button
 										key={type}
 										onClick={() => setLocationFilter(type)}
-										className={`w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
+										className={`w-full text-start px-3 py-2 text-sm rounded hover:bg-gray-100 ${
 											locationFilter === type ? 'bg-gray-100 font-medium' : ''
 										}`}
 									>
@@ -279,7 +279,7 @@ export default function FieldsetList() {
 				</div>
 
 				<Button onClick={navigateToNew} className="w-full sm:w-auto">
-					<Plus className="h-4 w-4 mr-2" />
+					<Plus className="h-4 w-4 me-2" />
 					{__('Add Field Group', 'codeideal-open-fields')}
 				</Button>
 			</div>
@@ -309,7 +309,7 @@ export default function FieldsetList() {
 					</p>
 					{!searchTerm && !locationFilter && (
 						<Button onClick={navigateToNew}>
-							<Plus className="h-4 w-4 mr-2" />
+							<Plus className="h-4 w-4 me-2" />
 						{__('Create Field Group', 'codeideal-open-fields')}
 						</Button>
 					)}
@@ -410,13 +410,13 @@ export default function FieldsetList() {
 						<table className="w-full">
 							<thead className="bg-gray-50 border-b">
 								<tr>
-									<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+									<th className="text-start text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
 									{__('Title', 'codeideal-open-fields')}
 								</th>
-								<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+								<th className="text-start text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
 									{__('Key', 'codeideal-open-fields')}
 								</th>
-								<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+								<th className="text-start text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
 									{__('Location', 'codeideal-open-fields')}
 								</th>
 								<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
@@ -425,7 +425,7 @@ export default function FieldsetList() {
 								<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
 									{__('Status', 'codeideal-open-fields')}
 								</th>
-								<th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-24">
+								<th className="text-end text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-24">
 									{__('Actions', 'codeideal-open-fields')}
 									</th>
 								</tr>
@@ -466,7 +466,7 @@ export default function FieldsetList() {
 												</span>
 											)}
 										</td>
-										<td className="px-4 py-3 text-right">
+										<td className="px-4 py-3 text-end">
 											<div
 												className="flex items-center justify-end gap-1"
 												onClick={(e) => e.stopPropagation()}

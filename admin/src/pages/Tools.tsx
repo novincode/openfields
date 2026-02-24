@@ -120,10 +120,10 @@ export default function Tools() {
 						<Button onClick={handleExport} disabled={isExporting}>
 							{isExporting ? (
 								<>
-									<RefreshCw className="h-4 w-4 mr-2 animate-spin" />{__('Exporting...', 'codeideal-open-fields')}</>
+									<RefreshCw className="h-4 w-4 me-2 animate-spin" />{__('Exporting...',  'codeideal-open-fields')}</>
 							) : (
 								<>
-									<Download className="h-4 w-4 mr-2" />{__('Export Field Groups', 'codeideal-open-fields')}</>
+									<Download className="h-4 w-4 me-2" />{__('Export Field Groups',  'codeideal-open-fields')}</>
 							)}
 						</Button>
 					</CardContent>
@@ -153,10 +153,10 @@ export default function Tools() {
 								<label htmlFor="import-file" className="cursor-pointer">
 									{isImporting ? (
 										<>
-											<RefreshCw className="h-4 w-4 mr-2 animate-spin" />{__('Importing...', 'codeideal-open-fields')}</>
+											<RefreshCw className="h-4 w-4 me-2 animate-spin" />{__('Importing...',  'codeideal-open-fields')}</>
 									) : (
 										<>
-											<Upload className="h-4 w-4 mr-2" />{__('Choose File', 'codeideal-open-fields')}</>
+											<Upload className="h-4 w-4 me-2" />{__('Choose File',  'codeideal-open-fields')}</>
 									)}
 								</label>
 							</Button>

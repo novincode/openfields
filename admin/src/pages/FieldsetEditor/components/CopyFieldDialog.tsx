@@ -61,7 +61,7 @@ function FieldTreeItem({
 		<div>
 			<button
 				onClick={() => onSelect(field)}
-				className={`w-full text-left px-3 py-2 hover:bg-gray-100 rounded flex items-center gap-2 transition-colors`}
+				className={`w-full text-start px-3 py-2 hover:bg-gray-100 rounded flex items-center gap-2 transition-colors`}
 				style={{ paddingLeft: `${12 + depth * 20}px` }}
 			>
 				{hasChildren && <ChevronRight className="h-3 w-3 text-gray-400" />}
@@ -224,7 +224,7 @@ export function CopyFieldDialog({
 						<div className="mt-1 border rounded-md">
 							{isLoadingFieldsets || isLoadingFields ? (
 								<div className="flex items-center justify-center py-8 text-gray-500">
-									<Loader2 className="h-5 w-5 animate-spin mr-2" />
+									<Loader2 className="h-5 w-5 animate-spin me-2" />
 									{__('Loading...', 'codeideal-open-fields')}
 								</div>
 							) : displayFields.length === 0 ? (

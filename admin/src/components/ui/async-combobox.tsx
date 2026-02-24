@@ -179,11 +179,11 @@ export function AsyncCombobox({
       return (
         <div className="flex flex-wrap gap-1">
           {selectedValues.map(val => (
-            <Badge key={val} variant="secondary" className="pr-1">
+            <Badge key={val} variant="secondary" className="pe-1">
               {getLabel(val)}
               <button
                 type="button"
-                className="ml-1 rounded-full hover:bg-muted"
+                className="ms-1 rounded-full hover:bg-muted"
                 onClick={(e) => handleRemove(e, val)}
               >
                 <X className="h-3 w-3" />
@@ -212,7 +212,7 @@ export function AsyncCombobox({
           )}
         >
           {renderTriggerContent()}
-          <div className="flex items-center gap-1 shrink-0 ml-2">
+          <div className="flex items-center gap-1 shrink-0 ms-2">
             {clearable && selectedValues.length > 0 && (
               <X
                 className="h-4 w-4 opacity-50 hover:opacity-100 cursor-pointer"
@@ -235,7 +235,7 @@ export function AsyncCombobox({
           <CommandList>
             {loading && (
               <div className="flex items-center justify-center py-6 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="h-4 w-4 animate-spin me-2" />
                 {loadingText}
               </div>
             )}
@@ -256,13 +256,13 @@ export function AsyncCombobox({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "me-2 h-4 w-4",
                         selectedValues.includes(option.value)
                           ? "opacity-100"
                           : "opacity-0"
                       )}
                     />
-                    {option.icon && <span className="mr-2">{option.icon}</span>}
+                    {option.icon && <span className="me-2">{option.icon}</span>}
                     <div className="flex flex-col">
                       <span>{option.label}</span>
                       {option.description && (

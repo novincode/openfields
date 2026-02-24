@@ -150,7 +150,7 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 						onClick={handleAddChoice}
 						className="w-full mt-2"
 					>
-						<Plus className="h-3 w-3 mr-1" />{__('Add Choice', 'codeideal-open-fields')}</Button>
+						<Plus className="h-3 w-3 me-1" />{__('Add Choice', 'codeideal-open-fields')}</Button>
 				</div>
 			</div>
 

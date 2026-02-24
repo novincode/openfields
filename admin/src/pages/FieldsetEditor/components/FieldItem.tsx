@@ -229,7 +229,7 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                         >
                             <GripVertical className="h-4 w-4" />
                         </button>
-                        <CollapsibleTrigger className="flex-1 flex items-center justify-between gap-2 text-left">
+                        <CollapsibleTrigger className="flex-1 flex items-center justify-between gap-2 text-start">
                             <div className="flex-1">
                                 <div className="font-medium text-sm flex items-center gap-2 flex-wrap">
                                     {field.label || (
@@ -240,13 +240,13 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                                     </Badge>
                                     {fieldCanHaveChildren && (
                                         <Badge variant="secondary" className="text-xs">
-                                            <Layers className="h-3 w-3 mr-1" />
+                                            <Layers className="h-3 w-3 me-1" />
                                             {childCount} {childCount !== 1 ? __('sub-fields', 'codeideal-open-fields') : __('sub-field', 'codeideal-open-fields')}
                                         </Badge>
                                     )}
                                     {hasConditionalLogic && (
                                         <Badge variant="secondary" className="text-xs">
-                                            <Filter className="h-3 w-3 mr-1" />
+                                            <Filter className="h-3 w-3 me-1" />
                                             {__('Conditional', 'codeideal-open-fields')}
                                         </Badge>
                                     )}

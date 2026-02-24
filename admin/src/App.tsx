@@ -111,7 +111,7 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 	];
 
 	return (
-		<div className="openfields-main-layout -ml-5 -mr-2.5">
+		<div className="openfields-main-layout -ms-5 -me-2.5">
 			{/* Header */}
 			<header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
 				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
