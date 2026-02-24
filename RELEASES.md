@@ -1,188 +1,133 @@
-# 🚀 OpenFields - Quick Release Guide
+# Release Guide
 
-**For releasing OpenFields to users**
+How to release Codeideal Open Fields to users.
 
 ---
 
-## The Super Simple Release Process
+## Quick Release (Interactive CLI)
 
-### Step 1: Update Version
 ```bash
-cd openfields
-pnpm version patch    # or 'minor' for new features, 'major' for big changes
+pnpm release
 ```
 
-This updates `package.json` automatically.
+This opens an interactive prompt where you choose:
+- **WordPress.org** (SVN → trunk + tagged version)
+- **GitHub** (git tag → Actions → Release page)
+- **Both**
 
-### Step 2: Push with Tag
-```bash
-git push origin main --tags
-```
-
-### Done! 🎉
-
-**GitHub Actions automatically:**
-- ✅ Builds the plugin
-- ✅ Creates a ZIP file
-- ✅ Uploads to [Releases page](https://github.com/novincode/openfields/releases)
-- ✅ Generates release notes
+That's it. The CLI handles building, versioning, zipping, and deploying.
 
 ---
 
-## For Users
-
-They download from the [Releases page](https://github.com/novincode/openfields/releases):
-
-1. Click the latest release
-2. Download `openfields-X.X.X.zip`
-3. Upload to WordPress → Plugins → Add New → Upload
-4. Click Install & Activate
-
-**No coding needed!** 👍
-
----
-
-## Version Bumping Guide
+## CLI Flags (Non-Interactive)
 
 ```bash
-# Bug fixes & small improvements → patch
-pnpm version patch    # v0.1.0 → v0.1.1
-
-# New features, backwards compatible → minor
-pnpm version minor    # v0.1.1 → v0.2.0
-
-# Breaking changes → major
-pnpm version major    # v0.2.0 → v1.0.0
+pnpm release:svn       # WordPress.org only
+pnpm release:github    # GitHub only
+pnpm release:all       # Both targets
+pnpm release:dry       # Dry-run (build + preview, no commits)
 ```
 
 ---
 
-## What GitHub Actions Does
+## Step-by-Step: New Version Release
 
-### On Every Tag Push
+### 1. Bump the version
 
-**File:** `.github/workflows/release.yml`
+```bash
+pnpm version patch    # 0.3.0 → 0.3.1 (bug fixes)
+pnpm version minor    # 0.3.0 → 0.4.0 (new features)
+pnpm version major    # 0.3.0 → 1.0.0 (breaking changes)
+```
 
-1. Checks out code
-2. Installs Node dependencies
-3. Runs `pnpm run build:plugin:release`
-4. Creates GitHub Release
-5. Uploads ZIP file to release
+This updates `package.json` automatically and creates a git commit + tag.
 
-**Result:** Your plugin is instantly downloadable! 🎁
+### 2. Push code to GitHub
 
-### On Every Push
+```bash
+git push origin main
+```
 
-**File:** `.github/workflows/build.yml`
+### 3. Release
 
-1. Runs TypeScript type checking
-2. Runs ESLint linting
-3. Builds the plugin
-4. Saves build artifacts
+```bash
+pnpm release
+```
 
-**Result:** Catches errors early! ✅
+Select your targets and confirm. Done.
 
 ---
 
-## Testing Before Release
+## What Happens Under the Hood
 
-```bash
-# Build locally
-pnpm run build:plugin:release
+### Build Phase (always runs first)
+1. Syncs version from `package.json` → `codeideal-open-fields.php`
+2. Builds admin React/TypeScript app via Vite
+3. Creates distributable ZIP in `dist/`
 
-# Test in WordPress
-# Upload dist/openfields-X.X.X.zip
-# Test in admin
+### WordPress.org SVN Deploy
+1. Updates local SVN working copy (`.svn-repo/`)
+2. Syncs all plugin files to `trunk/`
+3. Creates a version tag via `svn cp trunk tags/X.Y.Z`
+4. Commits everything to `https://plugins.svn.wordpress.org/codeideal-open-fields/`
+5. Update appears on wordpress.org within ~15 minutes
 
-# If all good, push tags:
-git tag v0.2.0
-git push origin --tags
-```
+### GitHub Release
+1. Creates an annotated git tag `vX.Y.Z`
+2. Pushes tag to origin
+3. GitHub Actions (`.github/workflows/release.yml`) builds and creates a Release with the ZIP attached
 
 ---
 
-## Common Commands
+## Configuration
 
-```bash
-# See what changed
-git status
-git diff
-
-# Make a commit
-git add .
-git commit -m "feat: Add new feature"
-
-# Update version
-pnpm version patch
-
-# Push to GitHub (triggers release)
-git push origin main --tags
-
-# Check release status
-# Visit: https://github.com/novincode/openfields/actions
-```
+| Item | Location |
+|---|---|
+| SVN credentials | `.env` (`SVN_PASSWORD=...`) |
+| SVN username | `shayancode` |
+| SVN working copy | `.svn-repo/` (git-ignored) |
+| SVN repository | `https://plugins.svn.wordpress.org/codeideal-open-fields/` |
+| Plugin version source | `package.json` → `version` |
+| Release script | `scripts/release.ts` |
+| Build script | `scripts/build.sh` |
+| GitHub Actions | `.github/workflows/release.yml` |
 
 ---
 
 ## Troubleshooting
 
-### GitHub Actions Failed?
+### SVN commit fails with "Access forbidden"
+- Check your SVN password at https://profiles.wordpress.org/me/profile/edit/group/3/?screen=svn-password
+- Ensure `.env` has the correct `SVN_PASSWORD`
+- Username is `shayancode` (case-sensitive)
+
+### Plugin not showing on WordPress.org after deploy
+- WordPress.org rebuilds ZIPs after each SVN commit — can take up to 15 minutes
+- Check https://wordpress.org/plugins/codeideal-open-fields/ after waiting
+
+### GitHub Actions failed
 - Check https://github.com/novincode/openfields/actions
-- Click failed workflow to see error
-- Common issues:
-  - Build errors → `pnpm run build` locally first
-  - Type errors → `pnpm run type-check` locally
-  - Lint errors → `pnpm run lint:fix` locally
+- Common issues: build errors, type errors, lint errors
+- Test locally first: `pnpm release:dry`
 
-### Need to Redo a Release?
+### Need to redo a release
 ```bash
-# Delete tag locally
-git tag -d v0.2.0
+# Delete the git tag
+git tag -d v0.3.1
+git push origin --delete v0.3.1
 
-# Delete on GitHub
-git push origin --delete v0.2.0
-
-# Create again
-pnpm version patch
-git push origin main --tags
-```
-
-### Want to Test Workflow?
-```bash
-# Build locally
-pnpm run build:plugin:release
-
-# Check files
-ls -la dist/
+# Fix the issue, then re-release
+pnpm release
 ```
 
 ---
 
 ## Release Checklist
 
-Before pushing:
-
-- [ ] `git pull` - Get latest changes
-- [ ] Code review of your changes
-- [ ] `pnpm run build:plugin:release` - Build successfully
-- [ ] Test in WordPress locally
-- [ ] `pnpm version patch` - Update version
-- [ ] `git push origin main --tags` - Push tag
-- [ ] Wait for Actions to complete (1-2 min)
-- [ ] Check [Releases page](https://github.com/novincode/openfields/releases)
-- [ ] Download ZIP to verify
-
----
-
-## Need Help?
-
-- **Build errors?** → See [docs/BUILD.md](./docs/BUILD.md)
-- **Contributing?** → See [CONTRIBUTING.md](./CONTRIBUTING.md)
-- **Documentation?** → See [docs/INDEX.md](./docs/INDEX.md)
-- **GitHub Actions?** → Check `.github/workflows/`
-
----
-
-That's it! Simple, automated, and professional. 🎉
-
-Made with ❤️ by the OpenFields team
+- [ ] `git pull origin main` — get latest
+- [ ] Review your changes
+- [ ] `pnpm release:dry` — dry-run to verify everything builds
+- [ ] `pnpm version patch` (or minor/major) — bump version
+- [ ] `pnpm release` — deploy
+- [ ] Verify on [WordPress.org](https://wordpress.org/plugins/codeideal-open-fields/)
+- [ ] Verify on [GitHub Releases](https://github.com/novincode/openfields/releases)

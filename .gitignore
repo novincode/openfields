@@ -39,6 +39,9 @@ wp-content/
 wordpress/
 .wp-env-home/
 
+# SVN (WordPress.org deployment)
+.svn-repo/
+
 # Misc
 *.zip
 *.tar.gz
