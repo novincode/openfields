@@ -34,7 +34,12 @@ export default defineConfig({
       input: {
         admin: path.resolve(__dirname, 'admin/src/main.tsx'),
       },
+      external: ['@wordpress/i18n'],
       output: {
+        format: 'iife',
+        globals: {
+          '@wordpress/i18n': 'wp.i18n',
+        },
         entryFileNames: 'js/[name].js',
         chunkFileNames: 'js/[name].[hash].js',
         assetFileNames: (assetInfo) => {

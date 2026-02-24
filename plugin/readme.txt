@@ -1,6 +1,6 @@
 === Codeideal Open Fields ===
 Contributors: shayancode
-Donate link: https://codeideal.com
+Donate link: https://openfields.codeideal.com/support
 Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9

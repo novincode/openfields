@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { Field } from "@/types";
@@ -22,9 +23,9 @@ export function LinkFieldSettings({ field, onSettingsChange }: LinkFieldSettings
       {/* Show Link Text */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Show Link Text</Label>
+          <Label>{__('Show Link Text', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Allow entering custom link text
+            {__('Allow entering custom link text', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch
@@ -36,9 +37,9 @@ export function LinkFieldSettings({ field, onSettingsChange }: LinkFieldSettings
       {/* Show Target */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Show Target Option</Label>
+          <Label>{__('Show Target Option', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
-            Allow selecting "Open in new tab"
+            {__('Allow selecting "Open in new tab"', 'codeideal-open-fields')}
           </p>
         </div>
         <Switch

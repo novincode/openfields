@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { __ } from '@wordpress/i18n';
 import { useFieldsetStore } from '../../../stores/fieldset-store';
 import { useUIStore } from '../../../stores/ui-store';
 import { Button } from '../../../components/ui/button';
@@ -121,7 +122,7 @@ export function FieldsSection() {
 		}, null);
 
 		setDrawerOpen(false);
-		showToast('success', `${fieldLabel} added (will be saved when you click Save Changes)`);
+		showToast('success', `${fieldLabel} ${__('added (will be saved when you click Save Changes)', 'codeideal-open-fields')}`);
 	};
 
 	// Handle copying a field from another location
@@ -131,12 +132,12 @@ export function FieldsSection() {
 			...copiedField,
 			parent_id: null, // Ensure it goes to root
 		}, null);
-		showToast('success', `${copiedField.label} copied to root level`);
+		showToast('success', `${copiedField.label} ${__('copied to root level', 'codeideal-open-fields')}`);
 	};
 
 	return (
 		<div className="mb-8">
-			<h2 className="text-lg font-semibold mb-4">Fields</h2>
+			<h2 className="text-lg font-semibold mb-4">{__('Fields', 'codeideal-open-fields')}</h2>
 
 			{/* Field List with DnD - ROOT LEVEL ONLY */}
 			<DndContext
@@ -166,14 +167,14 @@ export function FieldsSection() {
 				<DrawerTrigger asChild>
 					<button className="w-full mt-4 p-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-gray-600">
 						<Plus className="h-5 w-5" />
-						<span>Add Field</span>
+						<span>{__('Add Field', 'codeideal-open-fields')}</span>
 					</button>
 				</DrawerTrigger>
 				<DrawerContent>
 					<DrawerHeader>
-						<DrawerTitle>Select Field Type</DrawerTitle>
+						<DrawerTitle>{__('Select Field Type', 'codeideal-open-fields')}</DrawerTitle>
 						<DrawerDescription>
-							Choose the type of field you want to add
+							{__('Choose the type of field you want to add', 'codeideal-open-fields')}
 						</DrawerDescription>
 					</DrawerHeader>
 					<ScrollArea className="h-96 px-6">
@@ -203,7 +204,7 @@ export function FieldsSection() {
 					</ScrollArea>
 					<DrawerFooter>
 						<DrawerClose asChild>
-							<Button variant="outline">Cancel</Button>
+							<Button variant="outline">{__('Cancel', 'codeideal-open-fields')}</Button>
 						</DrawerClose>
 					</DrawerFooter>
 				</DrawerContent>
@@ -215,7 +216,7 @@ export function FieldsSection() {
 				className="w-full mt-2 p-3 border border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-gray-600"
 			>
 				<Copy className="h-4 w-4" />
-				<span>Copy from other field</span>
+				<span>{__('Copy from other field', 'codeideal-open-fields')}</span>
 			</button>
 			
 			{currentFieldset && (

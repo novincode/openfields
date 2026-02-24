@@ -7,6 +7,7 @@
  * @package OpenFields
  */
 
+import { __ } from '@wordpress/i18n';
 import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import {
@@ -38,7 +39,7 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 			{/* Min/Max Rows */}
 			<div className="grid grid-cols-2 gap-4">
 				<div className="space-y-2">
-					<Label htmlFor="repeater-min">Minimum Rows</Label>
+					<Label htmlFor="repeater-min">{__('Minimum Rows', 'codeideal-open-fields')}</Label>
 					<Input
 						id="repeater-min"
 						type="number"
@@ -52,7 +53,7 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 					</p>
 				</div>
 				<div className="space-y-2">
-					<Label htmlFor="repeater-max">Maximum Rows</Label>
+					<Label htmlFor="repeater-max">{__('Maximum Rows', 'codeideal-open-fields')}</Label>
 					<Input
 						id="repeater-max"
 						type="number"
@@ -69,7 +70,7 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 
 			{/* Layout */}
 			<div className="space-y-2">
-				<Label htmlFor="repeater-layout">Layout</Label>
+				<Label htmlFor="repeater-layout">{__('Layout', 'codeideal-open-fields')}</Label>
 				<Select
 					value={layout}
 					onValueChange={(value) => handleChange('layout', value)}
@@ -78,9 +79,9 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 						<SelectValue placeholder="Select layout" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="table">Table</SelectItem>
-						<SelectItem value="block">Block</SelectItem>
-						<SelectItem value="row">Row</SelectItem>
+						<SelectItem value="table">{__('Table', 'codeideal-open-fields')}</SelectItem>
+						<SelectItem value="block">{__('Block', 'codeideal-open-fields')}</SelectItem>
+						<SelectItem value="row">{__('Row', 'codeideal-open-fields')}</SelectItem>
 					</SelectContent>
 				</Select>
 				<p className="text-xs text-muted-foreground">
@@ -90,13 +91,13 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 
 			{/* Button Label */}
 			<div className="space-y-2">
-				<Label htmlFor="repeater-button">Button Label</Label>
+				<Label htmlFor="repeater-button">{__('Button Label', 'codeideal-open-fields')}</Label>
 				<Input
 					id="repeater-button"
 					type="text"
 					value={buttonLabel}
 					onChange={(e) => handleChange('button_label', e.target.value)}
-					placeholder="Add Row"
+					placeholder={__('Add Row', 'codeideal-open-fields')}
 				/>
 				<p className="text-xs text-muted-foreground">
 					Text displayed on the add row button
@@ -106,7 +107,7 @@ export function RepeaterFieldSettings({ field, onSettingsChange }: FieldSettings
 			{/* Sub-fields Note */}
 			<div className="rounded-md bg-muted p-3">
 				<p className="text-sm text-muted-foreground">
-					<strong>Sub-fields:</strong> Add sub-fields by clicking the "Add Field" button
+					<strong>{__('Sub-fields:', 'codeideal-open-fields')}</strong> Add sub-fields by clicking the "Add Field" button
 					inside this repeater in the field list above. Sub-fields will be repeated
 					for each row.
 				</p>

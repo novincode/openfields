@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
     Dialog,
     DialogContent,
@@ -80,7 +81,7 @@ export function MoveFieldDialog({ field, allFields, maxDepth }: MoveFieldDialogP
             ? allFields.find(f => String(f.id) === selectedParent)?.label || 'parent'
             : 'root level';
         
-        showToast('success', `Field moved to ${targetLabel}`);
+        showToast('success', `${__('Field moved to', 'codeideal-open-fields')} ${targetLabel}`);
         setOpen(false);
     };
 
@@ -89,20 +90,20 @@ export function MoveFieldDialog({ field, allFields, maxDepth }: MoveFieldDialogP
             <DialogTrigger asChild>
                 <button
                     className="p-1 text-gray-400 hover:text-blue-600"
-                    title="Move field"
+                    title={__('Move field', 'codeideal-open-fields')}
                 >
                     <MoveVertical className="h-4 w-4" />
                 </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Move Field</DialogTitle>
+                    <DialogTitle>{__('Move Field', 'codeideal-open-fields')}</DialogTitle>
                     <DialogDescription>
                         Move "{field.label || field.name}" to a different location.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">
-                    <Label htmlFor="move-location">Move to</Label>
+                    <Label htmlFor="move-location">{__('Move to', 'codeideal-open-fields')}</Label>
                     <Select
                         value={selectedParent}
                         onValueChange={setSelectedParent}
@@ -112,7 +113,7 @@ export function MoveFieldDialog({ field, allFields, maxDepth }: MoveFieldDialogP
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="_root">
-                                Root Level
+                                {__('Root Level', 'codeideal-open-fields')}
                             </SelectItem>
                             {potentialParents.map((parent) => (
                                 <SelectItem key={parent.id} value={String(parent.id)}>
@@ -124,13 +125,13 @@ export function MoveFieldDialog({ field, allFields, maxDepth }: MoveFieldDialogP
                 </div>
                 <div className="flex justify-end gap-2">
                     <Button variant="outline" onClick={() => setOpen(false)}>
-                        Cancel
+                        {__('Cancel', 'codeideal-open-fields')}
                     </Button>
                     <Button 
                         onClick={handleMove}
                         disabled={selectedParent === (field.parent_id ? String(field.parent_id) : '_root')}
                     >
-                        Move Field
+                        {__('Move Field', 'codeideal-open-fields')}
                     </Button>
                 </div>
             </DialogContent>

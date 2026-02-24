@@ -21,7 +21,7 @@
 
 	// Group fields by fieldset.
 	const groupedFields = availableFields.reduce( ( groups, field ) => {
-		const group = field.fieldset || __( 'Ungrouped', 'openfields' );
+		const group = field.fieldset || __( 'Ungrouped', 'codeideal-open-fields' );
 		if ( ! groups[ group ] ) {
 			groups[ group ] = [];
 		}
@@ -30,7 +30,7 @@
 	}, {} );
 
 	// Create options for SelectControl.
-	const fieldOptions = [ { value: '', label: __( '— Select a field —', 'openfields' ) } ];
+	const fieldOptions = [ { value: '', label: __( '— Select a field —', 'codeideal-open-fields' ) } ];
 	Object.keys( groupedFields ).forEach( ( group ) => {
 		groupedFields[ group ].forEach( ( field ) => {
 			fieldOptions.push( {
@@ -42,10 +42,10 @@
 
 	// Format options.
 	const formatOptions = [
-		{ value: 'text', label: __( 'Plain Text', 'openfields' ) },
-		{ value: 'html', label: __( 'HTML', 'openfields' ) },
-		{ value: 'link', label: __( 'Link', 'openfields' ) },
-		{ value: 'image', label: __( 'Image', 'openfields' ) },
+		{ value: 'text', label: __( 'Plain Text', 'codeideal-open-fields' ) },
+		{ value: 'html', label: __( 'HTML', 'codeideal-open-fields' ) },
+		{ value: 'link', label: __( 'Link', 'codeideal-open-fields' ) },
+		{ value: 'image', label: __( 'Image', 'codeideal-open-fields' ) },
 	];
 
 	registerBlockType( 'cofld/field', {
@@ -53,7 +53,7 @@
 		description: __( 'Display a custom field value.', 'codeideal-open-fields' ),
 		category: 'widgets',
 		icon: 'forms',
-		keywords: [ 'field', 'custom', 'meta', 'acf', 'openfields', 'open fields' ],
+		keywords: [ 'field', 'custom', 'meta', 'acf', 'codeideal-open-fields', 'open fields' ],
 		supports: {
 			html: false,
 			align: true,
@@ -84,31 +84,31 @@
 					{},
 					el(
 						PanelBody,
-						{ title: __( 'Field Settings', 'openfields' ), initialOpen: true },
+						{ title: __( 'Field Settings', 'codeideal-open-fields' ), initialOpen: true },
 						el( SelectControl, {
-							label: __( 'Field', 'openfields' ),
+							label: __( 'Field', 'codeideal-open-fields' ),
 							value: fieldName,
 							options: fieldOptions,
 							onChange: onFieldChange,
-							help: selectedField ? __( 'Type: ', 'openfields' ) + selectedField.type : '',
+							help: selectedField ? __( 'Type: ', 'codeideal-open-fields' ) + selectedField.type : '',
 						} ),
 						el( TextControl, {
-							label: __( 'Label', 'openfields' ),
+							label: __( 'Label', 'codeideal-open-fields' ),
 							value: fieldLabel,
 							onChange: ( value ) => setAttributes( { fieldLabel: value } ),
-							help: __( 'Label shown above the field value.', 'openfields' ),
+							help: __( 'Label shown above the field value.', 'codeideal-open-fields' ),
 						} ),
 						el( ToggleControl, {
-							label: __( 'Show Label', 'openfields' ),
+							label: __( 'Show Label', 'codeideal-open-fields' ),
 							checked: showLabel,
 							onChange: ( value ) => setAttributes( { showLabel: value } ),
 						} ),
 						el( SelectControl, {
-							label: __( 'Format', 'openfields' ),
+							label: __( 'Format', 'codeideal-open-fields' ),
 							value: format,
 							options: formatOptions,
 							onChange: ( value ) => setAttributes( { format: value } ),
-							help: __( 'How to display the field value.', 'openfields' ),
+							help: __( 'How to display the field value.', 'codeideal-open-fields' ),
 						} )
 					)
 				),
@@ -123,7 +123,7 @@
 									return el(
 										'div',
 										{ className: 'cofld-block-placeholder cofld-block-empty' },
-										__( 'No value found for this field.', 'openfields' )
+										__( 'No value found for this field.', 'codeideal-open-fields' )
 									);
 								},
 						  } )
@@ -131,7 +131,7 @@
 								'div',
 								{ className: 'cofld-block-placeholder' },
 								el( 'span', { className: 'dashicons dashicons-forms' } ),
-								el( 'p', {}, __( 'Select a field from the sidebar.', 'openfields' ) )
+								el( 'p', {}, __( 'Select a field from the sidebar.', 'codeideal-open-fields' ) )
 						  )
 				)
 			);

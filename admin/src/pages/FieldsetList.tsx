@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState, useMemo } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	Plus,
 	Copy,
@@ -56,25 +57,25 @@ interface FieldsetWithMeta extends Fieldset {
 
 // Map location params to human-readable labels
 const LOCATION_LABELS: Record<string, string> = {
-	post_type: 'Post Type',
-	page_template: 'Page Template',
-	page_type: 'Page Type',
-	page: 'Page',
-	post: 'Post',
-	post_category: 'Post Category',
-	post_taxonomy: 'Post Taxonomy',
-	post_status: 'Post Status',
-	post_format: 'Post Format',
-	taxonomy: 'Taxonomy',
-	attachment: 'Attachment',
-	user_form: 'User Form',
-	user_role: 'User Role',
-	options_page: 'Options Page',
-	block: 'Block',
-	nav_menu: 'Nav Menu',
-	nav_menu_item: 'Nav Menu Item',
-	widget: 'Widget',
-	comment: 'Comment',
+	post_type: __('Post Type', 'codeideal-open-fields'),
+	page_template: __('Page Template', 'codeideal-open-fields'),
+	page_type: __('Page Type', 'codeideal-open-fields'),
+	page: __('Page', 'codeideal-open-fields'),
+	post: __('Post', 'codeideal-open-fields'),
+	post_category: __('Post Category', 'codeideal-open-fields'),
+	post_taxonomy: __('Post Taxonomy', 'codeideal-open-fields'),
+	post_status: __('Post Status', 'codeideal-open-fields'),
+	post_format: __('Post Format', 'codeideal-open-fields'),
+	taxonomy: __('Taxonomy', 'codeideal-open-fields'),
+	attachment: __('Attachment', 'codeideal-open-fields'),
+	user_form: __('User Form', 'codeideal-open-fields'),
+	user_role: __('User Role', 'codeideal-open-fields'),
+	options_page: __('Options Page', 'codeideal-open-fields'),
+	block: __('Block', 'codeideal-open-fields'),
+	nav_menu: __('Nav Menu', 'codeideal-open-fields'),
+	nav_menu_item: __('Nav Menu Item', 'codeideal-open-fields'),
+	widget: __('Widget', 'codeideal-open-fields'),
+	comment: __('Comment', 'codeideal-open-fields'),
 };
 
 export default function FieldsetList() {
@@ -146,20 +147,20 @@ export default function FieldsetList() {
 	const handleDelete = async (id: number) => {
 		try {
 			await deleteFieldset(id);
-			toast.success('Field group deleted successfully');
+			toast.success(__('Field group deleted successfully', 'codeideal-open-fields'));
 		} catch (error) {
 			console.error('Delete error:', error);
-			toast.error('Failed to delete field group');
+			toast.error(__('Failed to delete field group', 'codeideal-open-fields'));
 		}
 	};
 
 	const handleDuplicate = async (id: number) => {
 		try {
 			await duplicateFieldset(id);
-			toast.success('Field group duplicated successfully');
+			toast.success(__('Field group duplicated successfully', 'codeideal-open-fields'));
 		} catch (error) {
 			console.error('Duplicate error:', error);
-			toast.error('Failed to duplicate field group');
+			toast.error(__('Failed to duplicate field group', 'codeideal-open-fields'));
 		}
 	};
 
@@ -176,7 +177,7 @@ export default function FieldsetList() {
 	// Get location summary for a fieldset
 	const getLocationSummary = (locations?: LocationRule[]) => {
 		if (!locations || locations.length === 0) {
-			return <span className="text-gray-400 italic">No location rules</span>;
+			return <span className="text-gray-400 italic">{__('No location rules', 'codeideal-open-fields')}</span>;
 		}
 
 		// Group by group_id
@@ -193,7 +194,7 @@ export default function FieldsetList() {
 			<div className="flex flex-wrap gap-1">
 				{groupArray.slice(0, 2).map((group, idx) => (
 					<span key={idx} className="inline-flex items-center gap-1">
-						{idx > 0 && <span className="text-gray-400 text-xs mx-1">or</span>}
+						{idx > 0 && <span className="text-gray-400 text-xs mx-1">{__('or', 'codeideal-open-fields')}</span>}
 						{group.slice(0, 2).map((loc, locIdx) => (
 							<Badge key={locIdx} variant="secondary" className="text-xs font-normal">
 								{LOCATION_LABELS[loc.param] || loc.param}:{' '}
@@ -207,7 +208,7 @@ export default function FieldsetList() {
 					</span>
 				))}
 				{groupArray.length > 2 && (
-					<span className="text-xs text-gray-500">+{groupArray.length - 2} more</span>
+					<span className="text-xs text-gray-500">+{groupArray.length - 2} {__('more', 'codeideal-open-fields')}</span>
 				)}
 			</div>
 		);
@@ -231,7 +232,7 @@ export default function FieldsetList() {
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
 						<Input
 							type="text"
-							placeholder="Search field groups..."
+							placeholder={__('Search field groups...', 'codeideal-open-fields')}
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 							className="pl-9"
@@ -247,7 +248,7 @@ export default function FieldsetList() {
 									<span className="truncate">
 										{locationFilter
 											? LOCATION_LABELS[locationFilter] || locationFilter
-											: 'Filter by location'}
+											: __('Filter by location', 'codeideal-open-fields')}
 									</span>
 									<ChevronDown className="h-3 w-3 flex-shrink-0" />
 								</Button>
@@ -259,7 +260,7 @@ export default function FieldsetList() {
 										!locationFilter ? 'bg-gray-100 font-medium' : ''
 									}`}
 								>
-									All locations
+									{__('All locations', 'codeideal-open-fields')}
 								</button>
 								{locationTypes.map((type) => (
 									<button
@@ -279,7 +280,7 @@ export default function FieldsetList() {
 
 				<Button onClick={navigateToNew} className="w-full sm:w-auto">
 					<Plus className="h-4 w-4 mr-2" />
-					Add Field Group
+					{__('Add Field Group', 'codeideal-open-fields')}
 				</Button>
 			</div>
 
@@ -298,18 +299,18 @@ export default function FieldsetList() {
 					</div>
 					<h3 className="text-lg font-medium text-gray-900 mb-2">
 						{searchTerm || locationFilter
-							? 'No matching field groups'
-							: 'No field groups yet'}
+							? __('No matching field groups', 'codeideal-open-fields')
+							: __('No field groups yet', 'codeideal-open-fields')}
 					</h3>
 					<p className="text-gray-500 mb-6 max-w-sm mx-auto">
 						{searchTerm || locationFilter
-							? 'Try adjusting your search or filter'
-							: 'Get started by creating your first field group to add custom fields to your content.'}
+							? __('Try adjusting your search or filter', 'codeideal-open-fields')
+							: __('Get started by creating your first field group to add custom fields to your content.', 'codeideal-open-fields')}
 					</p>
 					{!searchTerm && !locationFilter && (
 						<Button onClick={navigateToNew}>
 							<Plus className="h-4 w-4 mr-2" />
-							Create Field Group
+						{__('Create Field Group', 'codeideal-open-fields')}
 						</Button>
 					)}
 				</div>
@@ -339,7 +340,7 @@ export default function FieldsetList() {
 											)}
 										</div>
 										<div className="flex items-center gap-2 text-sm text-gray-500">
-											<span>{fieldCounts[fieldset.id] ?? 0} fields</span>
+											<span>{fieldCounts[fieldset.id] ?? 0} {__('fields', 'codeideal-open-fields')}</span>
 										</div>
 										<div className="mt-2">
 											{getLocationSummary(fieldset.locations)}
@@ -362,37 +363,37 @@ export default function FieldsetList() {
 												className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded hover:bg-gray-100"
 											>
 												<Edit className="h-4 w-4" />
-												Edit
+												{__('Edit', 'codeideal-open-fields')}
 											</button>
 											<button
 												onClick={() => handleDuplicate(fieldset.id)}
 												className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded hover:bg-gray-100"
 											>
 												<Copy className="h-4 w-4" />
-												Duplicate
+												{__('Duplicate', 'codeideal-open-fields')}
 											</button>
 											<AlertDialog>
 												<AlertDialogTrigger asChild>
 													<button className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded hover:bg-gray-100 text-red-600">
 														<Trash2 className="h-4 w-4" />
-														Delete
+													{__('Delete', 'codeideal-open-fields')}
 													</button>
 												</AlertDialogTrigger>
 												<AlertDialogContent>
 													<AlertDialogHeader>
-														<AlertDialogTitle>Delete Field Group</AlertDialogTitle>
-														<AlertDialogDescription>
-															Are you sure you want to delete "{fieldset.title}"?
-															This action cannot be undone.
-														</AlertDialogDescription>
-													</AlertDialogHeader>
-													<AlertDialogFooter>
-														<AlertDialogCancel>Cancel</AlertDialogCancel>
-														<AlertDialogAction
-															className="bg-red-600 hover:bg-red-700"
-															onClick={() => handleDelete(fieldset.id)}
-														>
-															Delete
+													<AlertDialogTitle>{__('Delete Field Group', 'codeideal-open-fields')}</AlertDialogTitle>
+													<AlertDialogDescription>
+														{__('Are you sure you want to delete', 'codeideal-open-fields')} "{fieldset.title}"?
+														{__('This action cannot be undone.', 'codeideal-open-fields')}
+													</AlertDialogDescription>
+												</AlertDialogHeader>
+												<AlertDialogFooter>
+													<AlertDialogCancel>{__('Cancel', 'codeideal-open-fields')}</AlertDialogCancel>
+													<AlertDialogAction
+														className="bg-red-600 hover:bg-red-700"
+														onClick={() => handleDelete(fieldset.id)}
+													>
+														{__('Delete', 'codeideal-open-fields')}
 														</AlertDialogAction>
 													</AlertDialogFooter>
 												</AlertDialogContent>
@@ -410,22 +411,22 @@ export default function FieldsetList() {
 							<thead className="bg-gray-50 border-b">
 								<tr>
 									<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
-										Title
-									</th>
-									<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
-										Key
-									</th>
-									<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
-										Location
-									</th>
-									<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
-										Fields
-									</th>
-									<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
-										Status
-									</th>
-									<th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-24">
-										Actions
+									{__('Title', 'codeideal-open-fields')}
+								</th>
+								<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+									{__('Key', 'codeideal-open-fields')}
+								</th>
+								<th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3">
+									{__('Location', 'codeideal-open-fields')}
+								</th>
+								<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
+									{__('Fields', 'codeideal-open-fields')}
+								</th>
+								<th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-20">
+									{__('Status', 'codeideal-open-fields')}
+								</th>
+								<th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-4 py-3 w-24">
+									{__('Actions', 'codeideal-open-fields')}
 									</th>
 								</tr>
 							</thead>
@@ -475,7 +476,7 @@ export default function FieldsetList() {
 													size="icon"
 													className="h-8 w-8"
 													onClick={() => navigateToEdit(fieldset.id)}
-													title="Edit"
+													title={__('Edit', 'codeideal-open-fields')}
 												>
 													<Edit className="h-4 w-4" />
 												</Button>
@@ -484,7 +485,7 @@ export default function FieldsetList() {
 													size="icon"
 													className="h-8 w-8"
 													onClick={() => handleDuplicate(fieldset.id)}
-													title="Duplicate"
+													title={__('Duplicate', 'codeideal-open-fields')}
 												>
 													<Copy className="h-4 w-4" />
 												</Button>
@@ -494,26 +495,26 @@ export default function FieldsetList() {
 															variant="ghost"
 															size="icon"
 															className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-															title="Delete"
+															title={__('Delete', 'codeideal-open-fields')}
 														>
 															<Trash2 className="h-4 w-4" />
 														</Button>
 													</AlertDialogTrigger>
 													<AlertDialogContent>
 														<AlertDialogHeader>
-															<AlertDialogTitle>Delete Field Group</AlertDialogTitle>
+															<AlertDialogTitle>{__('Delete Field Group', 'codeideal-open-fields')}</AlertDialogTitle>
 															<AlertDialogDescription>
-																Are you sure you want to delete "{fieldset.title}"?
-																This action cannot be undone.
+																{__('Are you sure you want to delete', 'codeideal-open-fields')} "{fieldset.title}"?
+																{__('This action cannot be undone.', 'codeideal-open-fields')}
 															</AlertDialogDescription>
 														</AlertDialogHeader>
 														<AlertDialogFooter>
-															<AlertDialogCancel>Cancel</AlertDialogCancel>
+															<AlertDialogCancel>{__('Cancel', 'codeideal-open-fields')}</AlertDialogCancel>
 															<AlertDialogAction
 																className="bg-red-600 hover:bg-red-700"
 																onClick={() => handleDelete(fieldset.id)}
 															>
-																Delete
+																{__('Delete', 'codeideal-open-fields')}
 															</AlertDialogAction>
 														</AlertDialogFooter>
 													</AlertDialogContent>

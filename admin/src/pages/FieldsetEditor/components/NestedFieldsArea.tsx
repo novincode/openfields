@@ -8,6 +8,7 @@
  */
 
 import { useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	DndContext,
 	closestCenter,
@@ -162,7 +163,7 @@ export function NestedFieldsArea({
 	return (
 		<div className="mt-3 ml-4 pl-4 border-l-2 border-dashed border-gray-300">
 			<div className="text-xs text-gray-500 mb-2 font-medium">
-				Sub-fields of {parentField.label}
+				{__('Sub-fields of', 'codeideal-open-fields')} {parentField.label}
 			</div>
 			
 			{/* Scoped drag context for this level */}
@@ -191,7 +192,7 @@ export function NestedFieldsArea({
 			{/* Empty state */}
 			{childFields.length === 0 && (
 				<div className="text-sm text-gray-400 italic py-2">
-					No sub-fields yet
+					{__('No sub-fields yet', 'codeideal-open-fields')}
 				</div>
 			)}
 			
@@ -200,14 +201,14 @@ export function NestedFieldsArea({
 				<DrawerTrigger asChild>
 					<button className="w-full mt-2 p-3 border-2 border-dashed border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-gray-500 text-sm">
 						<Plus className="h-4 w-4" />
-						<span>Add Sub-field</span>
+						<span>{__('Add Sub-field', 'codeideal-open-fields')}</span>
 					</button>
 				</DrawerTrigger>
 				<DrawerContent>
 					<DrawerHeader>
-						<DrawerTitle>Add Sub-field to {parentField.label}</DrawerTitle>
+						<DrawerTitle>{__('Add Sub-field to', 'codeideal-open-fields')} {parentField.label}</DrawerTitle>
 						<DrawerDescription>
-							Choose the type of field you want to add
+							{__('Choose the type of field you want to add', 'codeideal-open-fields')}
 						</DrawerDescription>
 					</DrawerHeader>
 					<ScrollArea className="h-96 px-6">
@@ -240,7 +241,7 @@ export function NestedFieldsArea({
 												)}
 												{isDisabled && (
 													<div className="text-xs text-red-500 mt-1">
-														Max depth reached
+														{__('Max depth reached', 'codeideal-open-fields')}
 													</div>
 												)}
 											</button>
@@ -252,7 +253,7 @@ export function NestedFieldsArea({
 					</ScrollArea>
 					<DrawerFooter>
 						<DrawerClose asChild>
-							<Button variant="outline">Cancel</Button>
+							<Button variant="outline">{__('Cancel', 'codeideal-open-fields')}</Button>
 						</DrawerClose>
 					</DrawerFooter>
 				</DrawerContent>
@@ -264,7 +265,7 @@ export function NestedFieldsArea({
 				className="w-full mt-2 p-2 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-gray-500 text-sm"
 			>
 				<Copy className="h-4 w-4" />
-				<span>Copy from other field</span>
+				<span>{__('Copy from other field', 'codeideal-open-fields')}</span>
 			</button>
 			
 			{currentFieldset && (

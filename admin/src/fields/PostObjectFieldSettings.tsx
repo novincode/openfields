@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -67,7 +68,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
     <div className="space-y-4">
       {/* Post Type Selection */}
       <div className="space-y-2">
-        <Label>Post Type</Label>
+        <Label>{__('Post Type', 'codeideal-open-fields')}</Label>
         <Select
           value={postTypeValue}
           onValueChange={(value) => updateSetting('post_type', value)}
@@ -92,7 +93,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
       {/* Multiple Selection */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Select Multiple</Label>
+          <Label>{__('Select Multiple', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
             Allow selecting multiple posts
           </p>
@@ -105,7 +106,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
 
       {/* Return Format */}
       <div className="space-y-2">
-        <Label>Return Format</Label>
+        <Label>{__('Return Format', 'codeideal-open-fields')}</Label>
         <Select
           value={settings.return_format as string || 'object'}
           onValueChange={(value) => updateSetting('return_format', value)}
@@ -114,8 +115,8 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
             <SelectValue placeholder="Select return format" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="object">Post Object</SelectItem>
-            <SelectItem value="id">Post ID</SelectItem>
+            <SelectItem value="object">{__('Post Object', 'codeideal-open-fields')}</SelectItem>
+            <SelectItem value="id">{__('Post ID', 'codeideal-open-fields')}</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
@@ -126,7 +127,7 @@ export function PostObjectFieldSettings({ field, onSettingsChange }: PostObjectF
       {/* Allow Null */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Allow Null</Label>
+          <Label>{__('Allow Null', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
             Allow empty value
           </p>

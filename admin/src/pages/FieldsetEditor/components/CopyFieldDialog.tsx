@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
+import { __ } from '@wordpress/i18n';
 import {
 	Dialog,
 	DialogContent,
@@ -184,17 +185,17 @@ export function CopyFieldDialog({
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						<Copy className="h-5 w-5" />
-						Copy Field
+						{__('Copy Field', 'codeideal-open-fields')}
 					</DialogTitle>
 					<DialogDescription>
-						Copy a field to {targetLabel}. The copied field will have a new ID and name.
+						{__('Copy a field to', 'codeideal-open-fields')} {targetLabel}. {__('The copied field will have a new ID and name.', 'codeideal-open-fields')}
 					</DialogDescription>
 				</DialogHeader>
 				
 				<div className="space-y-4">
 					{/* Fieldset Selector */}
 					<div>
-						<Label>Copy from</Label>
+						<Label>{__('Copy from', 'codeideal-open-fields')}</Label>
 						<Select
 							value={selectedFieldsetId}
 							onValueChange={setSelectedFieldsetId}
@@ -204,7 +205,7 @@ export function CopyFieldDialog({
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="current">
-									{currentFieldset?.title || 'Current Fieldset'} (Current)
+									{currentFieldset?.title || __('Current Fieldset', 'codeideal-open-fields')} ({__('Current', 'codeideal-open-fields')})
 								</SelectItem>
 								{fieldsets
 									.filter(fs => fs.id !== currentFieldsetId)
@@ -219,16 +220,16 @@ export function CopyFieldDialog({
 					
 					{/* Field Tree */}
 					<div>
-						<Label>Select field to copy</Label>
+						<Label>{__('Select field to copy', 'codeideal-open-fields')}</Label>
 						<div className="mt-1 border rounded-md">
 							{isLoadingFieldsets || isLoadingFields ? (
 								<div className="flex items-center justify-center py-8 text-gray-500">
 									<Loader2 className="h-5 w-5 animate-spin mr-2" />
-									Loading...
+									{__('Loading...', 'codeideal-open-fields')}
 								</div>
 							) : displayFields.length === 0 ? (
 								<div className="text-center py-8 text-gray-500 text-sm">
-									No fields available in this fieldset
+									{__('No fields available in this fieldset', 'codeideal-open-fields')}
 								</div>
 							) : (
 								<ScrollArea className="h-64">

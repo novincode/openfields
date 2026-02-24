@@ -10,6 +10,8 @@
 (function() {
 	'use strict';
 
+	const { __ } = wp.i18n;
+
 	// Debounce utility.
 	function debounce(fn, delay) {
 		let timer = null;
@@ -95,7 +97,7 @@
 				return;
 			}
 
-			resultsContainer.innerHTML = '<div class="cofld-search-loading">Searching...</div>';
+			resultsContainer.innerHTML = '<div class="cofld-search-loading">' + __('Searching...', 'codeideal-open-fields') + '</div>';
 			resultsContainer.classList.add('active');
 
 			try {
@@ -119,7 +121,7 @@
 					resultsContainer.classList.remove('active');
 				});
 			} catch (error) {
-				resultsContainer.innerHTML = '<div class="cofld-search-error">Search failed</div>';
+				resultsContainer.innerHTML = '<div class="cofld-search-error">' + __('Search failed', 'codeideal-open-fields') + '</div>';
 			}
 		}, 300);
 
@@ -165,7 +167,7 @@
 				return;
 			}
 
-			resultsContainer.innerHTML = '<div class="cofld-search-loading">Searching...</div>';
+			resultsContainer.innerHTML = '<div class="cofld-search-loading">' + __('Searching...', 'codeideal-open-fields') + '</div>';
 			resultsContainer.classList.add('active');
 
 			try {
@@ -193,7 +195,7 @@
 					resultsContainer.classList.remove('active');
 				});
 			} catch (error) {
-				resultsContainer.innerHTML = '<div class="cofld-search-error">Search failed</div>';
+				resultsContainer.innerHTML = '<div class="cofld-search-error">' + __('Search failed', 'codeideal-open-fields') + '</div>';
 			}
 		}, 300);
 
@@ -216,7 +218,7 @@
 	 */
 	function renderSearchResults(posts, container, onSelect) {
 		if (!posts.length) {
-			container.innerHTML = '<div class="cofld-search-empty">No results found</div>';
+			container.innerHTML = '<div class="cofld-search-empty">' + __('No results found', 'codeideal-open-fields') + '</div>';
 			return;
 		}
 
@@ -241,7 +243,7 @@
 	 */
 	function renderUserResults(users, container, onSelect) {
 		if (!users.length) {
-			container.innerHTML = '<div class="cofld-search-empty">No users found</div>';
+			container.innerHTML = '<div class="cofld-search-empty">' + __('No users found', 'codeideal-open-fields') + '</div>';
 			return;
 		}
 
@@ -289,7 +291,7 @@
 		item.innerHTML = `
 			<span class="cofld-item-title">${escapeHtml(post.title)}</span>
 			<span class="cofld-item-type">${escapeHtml(post.type_label)}</span>
-			<button type="button" class="cofld-remove-item" title="Remove">
+			<button type="button" class="cofld-remove-item" title="${__('Remove', 'codeideal-open-fields')}">
 				<span class="dashicons dashicons-no-alt"></span>
 			</button>
 		`;
@@ -327,7 +329,7 @@
 		item.innerHTML = `
 			<img src="${escapeHtml(user.avatar)}" alt="" class="cofld-user-avatar" />
 			<span class="cofld-item-title">${escapeHtml(user.display_name)}</span>
-			<button type="button" class="cofld-remove-item" title="Remove">
+			<button type="button" class="cofld-remove-item" title="${__('Remove', 'codeideal-open-fields')}">
 				<span class="dashicons dashicons-no-alt"></span>
 			</button>
 		`;

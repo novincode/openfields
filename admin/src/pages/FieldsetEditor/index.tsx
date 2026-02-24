@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { __ } from '@wordpress/i18n';
 import { ArrowLeft } from 'lucide-react';
 import { useFieldsetStore } from '../../stores/fieldset-store';
 import { useUIStore } from '../../stores/ui-store';
@@ -65,18 +66,18 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	
 	// Check for slug uniqueness
 	const slugError = useMemo(() => {
-		if (!slug.trim()) return 'Slug is required';
+		if (!slug.trim()) return __('Slug is required', 'codeideal-open-fields');
 		
 		// Check against other fieldsets (exclude current)
 		const isDuplicate = fieldsets.some(
 			fs => fs.field_key === slug && fs.id !== currentFieldset?.id
 		);
 		
-		if (isDuplicate) return 'This slug is already used by another fieldset';
+		if (isDuplicate) return __('This slug is already used by another fieldset', 'codeideal-open-fields');
 		
 		// Validate slug format
 		if (!/^[a-z0-9_]+$/.test(slug)) {
-			return 'Slug can only contain lowercase letters, numbers, and underscores';
+			return __('Slug can only contain lowercase letters, numbers, and underscores', 'codeideal-open-fields');
 		}
 		
 		return null;
@@ -131,10 +132,10 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 				await fetchFieldset(fieldsetId);
 			} else if (isNew) {
 				try {
-					const newFieldset = await createFieldset({ title: 'New Fieldset' });
+					const newFieldset = await createFieldset({ title: __('New Fieldset', 'codeideal-open-fields') });
 					window.location.href = `admin.php?page=codeideal-open-fields&action=edit&id=${newFieldset.id}`;
 				} catch {
-					showToast('error', 'Failed to create fieldset');
+					showToast('error', __('Failed to create fieldset', 'codeideal-open-fields'));
 				}
 			}
 			setInitialized(true);
@@ -191,7 +192,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 		if (!currentFieldset) return;
 
 		if (!title.trim()) {
-			showToast('error', 'Fieldset title is required');
+			showToast('error', __('Fieldset title is required', 'codeideal-open-fields'));
 			return;
 		}
 		
@@ -218,10 +219,10 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			await saveAllChanges();
 
 			setUnsavedChanges(false);
-			showToast('success', 'Fieldset saved successfully');
+			showToast('success', __('Fieldset saved successfully', 'codeideal-open-fields'));
 		} catch (error) {
 			console.error('Save error:', error);
-			showToast('error', 'Failed to save fieldset');
+			showToast('error', __('Failed to save fieldset', 'codeideal-open-fields'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -231,7 +232,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	if (!initialized) {
 		return (
 			<div className="flex items-center justify-center h-64">
-				<p className="text-gray-500">Loading...</p>
+				<p className="text-gray-500">{__('Loading...', 'codeideal-open-fields')}</p>
 			</div>
 		);
 	}
@@ -240,7 +241,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 	if (!currentFieldset) {
 		return (
 			<div className="flex items-center justify-center h-64">
-				<p className="text-gray-500">Fieldset not found</p>
+				<p className="text-gray-500">{__('Fieldset not found', 'codeideal-open-fields')}</p>
 			</div>
 		);
 	}
@@ -256,14 +257,14 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 							size="icon"
 							onClick={handleBackClick}
 							className="flex-shrink-0"
-							title="Back to Field Groups"
+							title={__('Back to Field Groups', 'codeideal-open-fields')}
 						>
 							<ArrowLeft className="h-4 w-4" />
 						</Button>
 						<Input
 							value={title}
 							onChange={(e) => handleTitleChange(e.target.value)}
-							placeholder="Enter fieldset title"
+							placeholder={__('Enter fieldset title', 'codeideal-open-fields')}
 							className="text-lg sm:text-2xl font-bold border-none shadow-none focus-visible:ring-0 px-0 flex-1 min-w-0"
 						/>
 					</div>
@@ -272,7 +273,7 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 							onClick={handleSave}
 							disabled={isSaving || !unsavedChanges}
 						>
-							{isSaving ? 'Saving...' : 'Save Changes'}
+							{isSaving ? __('Saving...', 'codeideal-open-fields') : __('Save Changes', 'codeideal-open-fields')}
 						</Button>
 					</div>
 				</div>
@@ -305,18 +306,17 @@ export function FieldsetEditor({ fieldsetId, isNew }: FieldsetEditorProps) {
 			<AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+						<AlertDialogTitle>{__('Unsaved Changes', 'codeideal-open-fields')}</AlertDialogTitle>
 						<AlertDialogDescription>
-							You have unsaved changes. Are you sure you want to leave this page? 
-							Your changes will be lost.
+							{__('You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost.', 'codeideal-open-fields')}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel onClick={cancelLeave}>
-							Stay on Page
+							{__('Stay on Page', 'codeideal-open-fields')}
 						</AlertDialogCancel>
 						<AlertDialogAction onClick={confirmLeave}>
-							Leave Page
+							{__('Leave Page', 'codeideal-open-fields')}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

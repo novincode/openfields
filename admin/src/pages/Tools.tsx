@@ -4,6 +4,7 @@
  * @package OpenFields
  */
 
+import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 import { Download, Upload, RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -14,6 +15,7 @@ export default function Tools() {
 	const [isExporting, setIsExporting] = useState(false);
 	const [isImporting, setIsImporting] = useState(false);
 	const [importResult, setImportResult] = useState<string | null>(null);
+	const [importIsError, setImportIsError] = useState(false);
 
 	const handleExport = async () => {
 		setIsExporting(true);
@@ -58,6 +60,7 @@ export default function Tools() {
 
 		setIsImporting(true);
 		setImportResult(null);
+		setImportIsError(false);
 
 		try {
 			const text = await file.text();
@@ -78,19 +81,20 @@ export default function Tools() {
 					}
 				}
 
-				let message = `Successfully imported ${importedCount} field group(s).`;
+				let message = sprintf(__('Successfully imported %d field group(s).', 'codeideal-open-fields'), importedCount);
 				if (failedCount > 0) {
-					message += ` (${failedCount} failed)`;
+					message += ' ' + sprintf(__('(%d failed)', 'codeideal-open-fields'), failedCount);
 				}
 				setImportResult(message);
 			} else {
 				// Handle single export format
 				await fieldsetApi.import(data);
-				setImportResult(`Successfully imported 1 field group.`);
+				setImportResult(__('Successfully imported 1 field group.', 'codeideal-open-fields'));
 			}
 		} catch (error) {
+			setImportIsError(true);
 			setImportResult(
-				`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+				sprintf(__('Import failed: %s', 'codeideal-open-fields'), error instanceof Error ? error.message : __('Unknown error', 'codeideal-open-fields'))
 			);
 		} finally {
 			setIsImporting(false);
@@ -106,29 +110,20 @@ export default function Tools() {
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
-							<Download className="h-5 w-5" />
-							Export
-						</CardTitle>
-						<CardDescription>
-							Export all field groups as a JSON file
-						</CardDescription>
+							<Download className="h-5 w-5" />{__('Export', 'codeideal-open-fields')}</CardTitle>
+						<CardDescription>{__('Export all field groups as a JSON file', 'codeideal-open-fields')}</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<p className="text-sm text-gray-600 mb-4">
-							Download all your field groups, including fields and settings,
-							as a portable JSON file that can be imported into another site.
+						{__('Download all your field groups, including fields and settings, as a portable JSON file that can be imported into another site.', 'codeideal-open-fields')}
 						</p>
 						<Button onClick={handleExport} disabled={isExporting}>
 							{isExporting ? (
 								<>
-									<RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-									Exporting...
-								</>
+									<RefreshCw className="h-4 w-4 mr-2 animate-spin" />{__('Exporting...', 'codeideal-open-fields')}</>
 							) : (
 								<>
-									<Download className="h-4 w-4 mr-2" />
-									Export Field Groups
-								</>
+									<Download className="h-4 w-4 mr-2" />{__('Export Field Groups', 'codeideal-open-fields')}</>
 							)}
 						</Button>
 					</CardContent>
@@ -138,17 +133,12 @@ export default function Tools() {
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
-							<Upload className="h-5 w-5" />
-							Import
-						</CardTitle>
-						<CardDescription>
-							Import field groups from a JSON file
-						</CardDescription>
+							<Upload className="h-5 w-5" />{__('Import', 'codeideal-open-fields')}</CardTitle>
+						<CardDescription>{__('Import field groups from a JSON file', 'codeideal-open-fields')}</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<p className="text-sm text-gray-600 mb-4">
-							Upload a previously exported JSON file to import field groups.
-							Existing groups with the same key will be skipped.
+						{__('Upload a previously exported JSON file to import field groups. Existing groups with the same key will be skipped.', 'codeideal-open-fields')}
 						</p>
 						<div>
 							<input
@@ -163,14 +153,10 @@ export default function Tools() {
 								<label htmlFor="import-file" className="cursor-pointer">
 									{isImporting ? (
 										<>
-											<RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-											Importing...
-										</>
+											<RefreshCw className="h-4 w-4 mr-2 animate-spin" />{__('Importing...', 'codeideal-open-fields')}</>
 									) : (
 										<>
-											<Upload className="h-4 w-4 mr-2" />
-											Choose File
-										</>
+											<Upload className="h-4 w-4 mr-2" />{__('Choose File', 'codeideal-open-fields')}</>
 									)}
 								</label>
 							</Button>
@@ -178,7 +164,7 @@ export default function Tools() {
 						{importResult && (
 							<p
 								className={`mt-4 text-sm ${
-									importResult.includes('failed')
+									importIsError
 										? 'text-red-600'
 										: 'text-green-600'
 								}`}

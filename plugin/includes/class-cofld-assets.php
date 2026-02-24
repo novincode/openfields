@@ -67,7 +67,7 @@ class COFLD_Assets {
 		wp_enqueue_script(
 			'cofld-admin',
 			COFLD_PLUGIN_URL . 'assets/admin/js/admin.js',
-			array(),
+			array( 'wp-i18n' ),
 			COFLD_VERSION,
 			true
 		);

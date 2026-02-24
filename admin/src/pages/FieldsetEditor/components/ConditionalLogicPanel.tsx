@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Switch } from '../../../components/ui/switch';
@@ -29,11 +30,11 @@ interface ConditionalLogicPanelProps {
 }
 
 const CONDITION_OPERATORS = [
-	{ value: '==', label: 'is equal to' },
-	{ value: '!=', label: 'is not equal to' },
-	{ value: 'contains', label: 'contains' },
-	{ value: 'empty', label: 'is empty' },
-	{ value: 'not_empty', label: 'is not empty' },
+	{ value: '==', label: __('is equal to', 'codeideal-open-fields') },
+	{ value: '!=', label: __('is not equal to', 'codeideal-open-fields') },
+	{ value: 'contains', label: __('contains', 'codeideal-open-fields') },
+	{ value: 'empty', label: __('is empty', 'codeideal-open-fields') },
+	{ value: 'not_empty', label: __('is not empty', 'codeideal-open-fields') },
 ];
 
 export function ConditionalLogicPanel({
@@ -151,14 +152,14 @@ export function ConditionalLogicPanel({
 	return (
 		<div className="border-t pt-4">
 			<div className="flex items-center justify-between mb-3">
-				<h4 className="text-sm font-medium">Conditional Logic</h4>
+				<h4 className="text-sm font-medium">{__('Conditional Logic', 'codeideal-open-fields')}</h4>
 				<Switch checked={enabled} onCheckedChange={handleToggle} />
 			</div>
 
 			{enabled && (
 				<div className="space-y-3">
 					<p className="text-xs text-gray-600">
-						Show this field if conditions match
+						{__('Show this field if conditions match', 'codeideal-open-fields')}
 					</p>
 
 					{ruleGroups.map((group, groupIndex) => (
@@ -186,7 +187,7 @@ export function ConditionalLogicPanel({
 											onValueChange={(value) => handleUpdateRule(groupIndex, ruleIndex, 'field', value)}
 										>
 											<SelectTrigger className="w-[140px]">
-												<SelectValue placeholder="Select field" />
+												<SelectValue placeholder={__('Select field', 'codeideal-open-fields')} />
 											</SelectTrigger>
 										<SelectContent>
 											{otherFields.map((f) => (
@@ -205,7 +206,7 @@ export function ConditionalLogicPanel({
 											}
 										>
 											<SelectTrigger className="w-[130px]">
-												<SelectValue placeholder="Operator" />
+												<SelectValue placeholder={__('Operator', 'codeideal-open-fields')} />
 											</SelectTrigger>
 											<SelectContent>
 												{CONDITION_OPERATORS.map((op) => (
@@ -223,7 +224,7 @@ export function ConditionalLogicPanel({
 												onChange={(e) =>
 													handleUpdateRule(groupIndex, ruleIndex, 'value', e.target.value)
 												}
-												placeholder="Value"
+												placeholder={__('Value', 'codeideal-open-fields')}
 												className="w-[100px]"
 											/>
 										)}
@@ -233,7 +234,7 @@ export function ConditionalLogicPanel({
 											type="button"
 											onClick={() => handleDeleteRule(groupIndex, ruleIndex)}
 											className="p-1 text-gray-400 hover:text-red-600"
-											title="Remove rule"
+											title={__('Remove rule', 'codeideal-open-fields')}
 										>
 											<X className="h-4 w-4" />
 										</button>
@@ -276,7 +277,7 @@ export function ConditionalLogicPanel({
 						className="w-full"
 					>
 						<Plus className="h-3 w-3 mr-1" />
-						Add OR Group
+						{__('Add OR Group', 'codeideal-open-fields')}
 					</Button>
 				</div>
 			)}

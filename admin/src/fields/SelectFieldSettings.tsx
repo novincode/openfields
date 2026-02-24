@@ -6,6 +6,7 @@
  * @package OpenFields
  */
 
+import { __ } from '@wordpress/i18n';
 import { Plus, X } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -55,15 +56,13 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 
 	return (
 		<div className="space-y-4 border-t pt-4">
-			<h4 className="text-sm font-medium">Field Type Settings</h4>
+			<h4 className="text-sm font-medium">{__('Field Type Settings', 'codeideal-open-fields')}</h4>
 			
 			{/* Toggle Options */}
 			<div className="space-y-3">
 				{isSelect && (
 					<div className="flex items-center justify-between">
-						<Label htmlFor={`multiple-${field.id}`} className="text-sm font-normal">
-							Allow Multiple Selections
-						</Label>
+						<Label htmlFor={`multiple-${field.id}`} className="text-sm font-normal">{__('Allow Multiple Selections', 'codeideal-open-fields')}</Label>
 						<Switch
 							id={`multiple-${field.id}`}
 							checked={(field.settings?.multiple as boolean) || false}
@@ -73,9 +72,7 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 				)}
 				
 				<div className="flex items-center justify-between">
-					<Label htmlFor={`allow-null-${field.id}`} className="text-sm font-normal">
-						Allow Empty Value
-					</Label>
+					<Label htmlFor={`allow-null-${field.id}`} className="text-sm font-normal">{__('Allow Empty Value', 'codeideal-open-fields')}</Label>
 					<Switch
 						id={`allow-null-${field.id}`}
 						checked={(field.settings?.allow_null as boolean) || false}
@@ -85,9 +82,7 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 				
 				{isCheckbox && (
 					<div className="flex items-center justify-between">
-						<Label htmlFor={`toggle-all-${field.id}`} className="text-sm font-normal">
-							Show Toggle All
-						</Label>
+						<Label htmlFor={`toggle-all-${field.id}`} className="text-sm font-normal">{__('Show Toggle All', 'codeideal-open-fields')}</Label>
 						<Switch
 							id={`toggle-all-${field.id}`}
 							checked={(field.settings?.toggle_all as boolean) || false}
@@ -100,7 +95,7 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 			{/* Layout option for radio/checkbox */}
 			{!isSelect && (
 				<div className="space-y-2">
-					<Label>Layout</Label>
+					<Label>{__('Layout', 'codeideal-open-fields')}</Label>
 					<Select
 						value={(field.settings?.layout as string) || 'vertical'}
 						onValueChange={(value) => onSettingsChange({ layout: value })}
@@ -109,8 +104,8 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 							<SelectValue placeholder="Select layout" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="vertical">Vertical</SelectItem>
-							<SelectItem value="horizontal">Horizontal</SelectItem>
+							<SelectItem value="vertical">{__('Vertical', 'codeideal-open-fields')}</SelectItem>
+							<SelectItem value="horizontal">{__('Horizontal', 'codeideal-open-fields')}</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
@@ -118,12 +113,10 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 
 			{/* Choices editor */}
 			<div className="space-y-2">
-				<Label>Choices</Label>
+				<Label>{__('Choices', 'codeideal-open-fields')}</Label>
 				<div className="space-y-2 bg-gray-50 p-3 rounded-lg">
 					{choices.length === 0 && (
-						<p className="text-sm text-gray-500 text-center py-2">
-							No choices added yet
-						</p>
+						<p className="text-sm text-gray-500 text-center py-2">{__('No choices added yet', 'codeideal-open-fields')}</p>
 					)}
 					{choices.map((choice, index) => (
 						<div key={index} className="flex items-center gap-2">
@@ -157,15 +150,13 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 						onClick={handleAddChoice}
 						className="w-full mt-2"
 					>
-						<Plus className="h-3 w-3 mr-1" />
-						Add Choice
-					</Button>
+						<Plus className="h-3 w-3 mr-1" />{__('Add Choice', 'codeideal-open-fields')}</Button>
 				</div>
 			</div>
 
 			{/* Return format */}
 			<div className="space-y-2">
-				<Label htmlFor={`return-format-${field.id}`}>Return Format</Label>
+				<Label htmlFor={`return-format-${field.id}`}>{__('Return Format', 'codeideal-open-fields')}</Label>
 				<Select
 					value={(field.settings?.return_format as string) || 'value'}
 					onValueChange={(value) => onSettingsChange({ return_format: value })}
@@ -174,9 +165,9 @@ export function SelectFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 						<SelectValue placeholder="Select format" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="value">Value</SelectItem>
-						<SelectItem value="label">Label</SelectItem>
-						<SelectItem value="array">Both (Array)</SelectItem>
+						<SelectItem value="value">{__('Value', 'codeideal-open-fields')}</SelectItem>
+						<SelectItem value="label">{__('Label', 'codeideal-open-fields')}</SelectItem>
+						<SelectItem value="array">{__('Both (Array)', 'codeideal-open-fields')}</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>

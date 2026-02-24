@@ -4,6 +4,7 @@
  * @package OpenFields
  */
 
+import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { Save, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -30,7 +31,7 @@ export default function Settings() {
 			setSettings(data);
 		} catch (error) {
 			console.error('Failed to load settings:', error);
-			toast.error('Failed to load settings');
+			toast.error(__('Failed to load settings', 'codeideal-open-fields'));
 		} finally {
 			setIsLoading(false);
 		}
@@ -47,10 +48,10 @@ export default function Settings() {
 				show_admin_column: settings.show_admin_column,
 			});
 			setHasChanges(false);
-			toast.success('Settings saved successfully');
+			toast.success(__('Settings saved successfully', 'codeideal-open-fields'));
 		} catch (error) {
 			console.error('Failed to save settings:', error);
-			toast.error('Failed to save settings');
+			toast.error(__('Failed to save settings', 'codeideal-open-fields'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -72,9 +73,7 @@ export default function Settings() {
 
 	if (!settings) {
 		return (
-			<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-				Failed to load settings
-			</div>
+			<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{__('Failed to load settings', 'codeideal-open-fields')}</div>
 		);
 	}
 
@@ -83,20 +82,15 @@ export default function Settings() {
 			{/* Data Settings */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Data Management</CardTitle>
-					<CardDescription>
-						Control how OpenFields handles your data
-					</CardDescription>
+					<CardTitle>{__('Data Management', 'codeideal-open-fields')}</CardTitle>
+					<CardDescription>{__('Control how OpenFields handles your data', 'codeideal-open-fields')}</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					<div className="flex items-center justify-between">
 						<div className="space-y-0.5">
-							<Label htmlFor="preserve-data" className="text-base font-medium">
-								Keep Plugin Data After Uninstall
-							</Label>
+							<Label htmlFor="preserve-data" className="text-base font-medium">{__('Keep Plugin Data After Uninstall', 'codeideal-open-fields')}</Label>
 							<p className="text-sm text-muted-foreground">
-								When enabled, your field groups and saved data will be preserved even if you uninstall the plugin. 
-								Disable this only if you want to completely remove all OpenFields data.
+								{__('When enabled, your field groups and saved data will be preserved even if you uninstall the plugin. Disable this only if you want to completely remove all OpenFields data.', 'codeideal-open-fields')}
 							</p>
 						</div>
 						<Switch
@@ -114,14 +108,10 @@ export default function Settings() {
 					<Button onClick={handleSave} disabled={isSaving}>
 						{isSaving ? (
 							<>
-								<RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-								Saving...
-							</>
+								<RefreshCw className="h-4 w-4 mr-2 animate-spin" />{__('Saving...', 'codeideal-open-fields')}</>
 						) : (
 							<>
-								<Save className="h-4 w-4 mr-2" />
-								Save Settings
-							</>
+								<Save className="h-4 w-4 mr-2" />{__('Save Settings', 'codeideal-open-fields')}</>
 						)}
 					</Button>
 				</div>

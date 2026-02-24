@@ -9,6 +9,7 @@
  * @package OpenFields
  */
 
+import { __ } from '@wordpress/i18n';
 import type { FieldSettingsProps } from '../lib/field-registry';
 import { Switch } from '../components/ui/switch';
 import { Label } from '../components/ui/label';
@@ -23,10 +24,10 @@ export function GeneralFieldSettings({ field, onSettingsChange }: FieldSettingsP
 			<div className="flex items-center justify-between">
 				<div className="space-y-0.5">
 					<Label htmlFor={`required-${field.id}`} className="text-sm font-medium">
-						Required
+						{__('Required', 'codeideal-open-fields')}
 					</Label>
 					<p className="text-xs text-muted-foreground">
-						Make this field mandatory
+						{__('Make this field mandatory', 'codeideal-open-fields')}
 					</p>
 				</div>
 				<Switch
@@ -39,7 +40,7 @@ export function GeneralFieldSettings({ field, onSettingsChange }: FieldSettingsP
 			{/* Instructions */}
 			<div>
 				<Label htmlFor={`instructions-${field.id}`} className="text-sm font-medium">
-					Instructions
+					{__('Instructions', 'codeideal-open-fields')}
 				</Label>
 				<textarea
 					id={`instructions-${field.id}`}
@@ -47,7 +48,7 @@ export function GeneralFieldSettings({ field, onSettingsChange }: FieldSettingsP
 					onChange={(e) => onSettingsChange({ instructions: e.target.value })}
 					className="w-full mt-1 px-3 py-2 border rounded-md text-sm resize-none"
 					rows={2}
-					placeholder="Help text shown below the field"
+					placeholder={__('Help text shown below the field', 'codeideal-open-fields')}
 				/>
 			</div>
 		</div>

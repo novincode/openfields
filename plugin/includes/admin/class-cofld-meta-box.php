@@ -165,9 +165,16 @@ class COFLD_Meta_Box {
 		wp_enqueue_script(
 			'cofld-relational',
 			plugin_dir_url( COFLD_PLUGIN_FILE ) . 'assets/admin/js/relational-fields.js',
-			array( 'cofld-fields' ),
+			array( 'cofld-fields', 'wp-i18n' ),
 			COFLD_VERSION,
 			true
+		);
+
+		// Set script translations for relational fields.
+		wp_set_script_translations(
+			'cofld-relational',
+			'codeideal-open-fields',
+			plugin_dir_path( COFLD_PLUGIN_FILE ) . 'languages'
 		);
 
 		// Localize script with any necessary data.

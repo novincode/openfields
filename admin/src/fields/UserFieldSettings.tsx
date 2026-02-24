@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -62,7 +63,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
     <div className="space-y-4">
       {/* Role Filter */}
       <div className="space-y-2">
-        <Label>Filter by Role</Label>
+        <Label>{__('Filter by Role', 'codeideal-open-fields')}</Label>
         <Select
           value={String(settings.role || '__all__')}
           onValueChange={(value) => updateSetting('role', value)}
@@ -72,7 +73,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
             <SelectValue placeholder={loading ? "Loading..." : "All Roles"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All Roles</SelectItem>
+            <SelectItem value="__all__">{__('All Roles', 'codeideal-open-fields')}</SelectItem>
             {roles.map((role) => (
               <SelectItem key={role.value} value={role.value}>
                 {role.label}
@@ -88,7 +89,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
       {/* Multiple Selection */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Select Multiple</Label>
+          <Label>{__('Select Multiple', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
             Allow selecting multiple users
           </p>
@@ -101,7 +102,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
 
       {/* Return Format */}
       <div className="space-y-2">
-        <Label>Return Format</Label>
+        <Label>{__('Return Format', 'codeideal-open-fields')}</Label>
         <Select
           value={String(settings.return_format || 'array')}
           onValueChange={(value) => updateSetting('return_format', value)}
@@ -110,9 +111,9 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
             <SelectValue placeholder="Select return format" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="array">User Array</SelectItem>
-            <SelectItem value="object">User Object</SelectItem>
-            <SelectItem value="id">User ID</SelectItem>
+            <SelectItem value="array">{__('User Array', 'codeideal-open-fields')}</SelectItem>
+            <SelectItem value="object">{__('User Object', 'codeideal-open-fields')}</SelectItem>
+            <SelectItem value="id">{__('User ID', 'codeideal-open-fields')}</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
@@ -123,7 +124,7 @@ export function UserFieldSettings({ field, onSettingsChange }: UserFieldSettings
       {/* Allow Null */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Allow Null</Label>
+          <Label>{__('Allow Null', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
             Allow empty value
           </p>

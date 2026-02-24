@@ -105,6 +105,13 @@ class COFLD_Block {
 			array(),
 			COFLD_VERSION
 		);
+
+		// Set script translations for the block editor.
+		wp_set_script_translations(
+			'cofld-block-editor',
+			'codeideal-open-fields',
+			COFLD_PLUGIN_DIR . 'languages'
+		);
 	}
 
 	/**

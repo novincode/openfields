@@ -4,6 +4,7 @@
  * @package OpenFields
  */
 
+import { __ } from '@wordpress/i18n';
 import type { FieldSettingsProps } from '../lib/field-registry';
 
 export function NumberFieldSettings({ field, onSettingsChange }: FieldSettingsProps) {
@@ -11,7 +12,7 @@ export function NumberFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 		<div className="space-y-3">
 			<div className="grid grid-cols-3 gap-3">
 				<div>
-					<label className="block text-sm text-gray-600 mb-1">Min</label>
+					<label className="block text-sm text-gray-600 mb-1">{__('Min', 'codeideal-open-fields')}</label>
 					<input
 						type="number"
 						value={(field.settings?.min as number) ?? ''}
@@ -24,7 +25,7 @@ export function NumberFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 					/>
 				</div>
 				<div>
-					<label className="block text-sm text-gray-600 mb-1">Max</label>
+					<label className="block text-sm text-gray-600 mb-1">{__('Max', 'codeideal-open-fields')}</label>
 					<input
 						type="number"
 						value={(field.settings?.max as number) ?? ''}
@@ -37,7 +38,7 @@ export function NumberFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 					/>
 				</div>
 				<div>
-					<label className="block text-sm text-gray-600 mb-1">Step</label>
+					<label className="block text-sm text-gray-600 mb-1">{__('Step', 'codeideal-open-fields')}</label>
 					<input
 						type="number"
 						value={(field.settings?.step as number) || 1}
@@ -49,17 +50,17 @@ export function NumberFieldSettings({ field, onSettingsChange }: FieldSettingsPr
 				</div>
 			</div>
 			<div>
-				<label className="block text-sm text-gray-600 mb-1">Placeholder</label>
+				<label className="block text-sm text-gray-600 mb-1">{__('Placeholder', 'codeideal-open-fields')}</label>
 				<input
 					type="text"
 					value={(field.settings?.placeholder as string) || ''}
 					onChange={(e) => onSettingsChange({ placeholder: e.target.value })}
 					className="w-full px-3 py-2 border rounded-md text-sm"
-					placeholder="Enter placeholder text"
+					placeholder={__('Enter placeholder text', 'codeideal-open-fields')}
 				/>
 			</div>
 			<div>
-				<label className="block text-sm text-gray-600 mb-1">Default Value</label>
+				<label className="block text-sm text-gray-600 mb-1">{__('Default Value', 'codeideal-open-fields')}</label>
 				<input
 					type="number"
 					value={(field.settings?.default_value as number) ?? ''}

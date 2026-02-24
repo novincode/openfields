@@ -4,6 +4,7 @@
  * @package OpenFields
  */
 
+import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Heart, ExternalLink, List, Settings as SettingsIcon, Download } from 'lucide-react';
@@ -104,9 +105,9 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 	}, []);
 
 	const tabs = [
-		{ id: 'fieldsets' as const, label: 'Field Groups', icon: List },
-		{ id: 'settings' as const, label: 'Settings', icon: SettingsIcon },
-		{ id: 'tools' as const, label: 'Import / Export', icon: Download },
+		{ id: 'fieldsets' as const, label: __('Field Groups', 'codeideal-open-fields'), icon: List },
+		{ id: 'settings' as const, label: __('Settings', 'codeideal-open-fields'), icon: SettingsIcon },
+		{ id: 'tools' as const, label: __('Import / Export', 'codeideal-open-fields'), icon: Download },
 	];
 
 	return (
@@ -115,12 +116,8 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 			<header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
 				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 					<div>
-						<h1 className="text-xl font-bold text-gray-900">
-							OpenFields
-						</h1>
-						<p className="text-sm text-gray-500 mt-0.5">
-							Open Source Custom Fields Management
-						</p>
+						<h1 className="text-xl font-bold text-gray-900">{__('OpenFields', 'codeideal-open-fields')}</h1>
+						<p className="text-sm text-gray-500 mt-0.5">{__('Open Source Custom Fields Management', 'codeideal-open-fields')}</p>
 					</div>
 					<a
 						href="https://openfields.codeideal.com/support"
@@ -129,14 +126,12 @@ function MainLayout({ initialTab }: MainLayoutProps) {
 						className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-medium text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
 					>
 						<Heart className="h-4 w-4" />
-						<span className="hidden sm:inline">Support this project</span>
-						<span className="sm:hidden">Support</span>
+						<span className="hidden sm:inline">{__('Support this project', 'codeideal-open-fields')}</span>
+						<span className="sm:hidden">{__('Support', 'codeideal-open-fields')}</span>
 						<ExternalLink className="h-3 w-3" />
 					</a>
 				</div>
-				<p className="text-xs text-gray-400 mt-2">
-					This plugin is free and will be free, your support will keep it going.
-				</p>
+				<p className="text-xs text-gray-400 mt-2">{__('This plugin is free and will be free, your support will keep it going.', 'codeideal-open-fields')}</p>
 			</header>
 
 			{/* Tabs */}

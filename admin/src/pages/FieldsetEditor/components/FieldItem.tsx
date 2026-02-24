@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { __ } from '@wordpress/i18n';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useFieldsetStore, canHaveChildren } from '../../../stores/fieldset-store';
@@ -201,10 +202,10 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
     const handleDelete = () => {
         if (childCount > 0) {
             deleteFieldLocal(String(field.id));
-            showToast('success', `Field and ${childCount} sub-field(s) removed (will be deleted when you click Save Changes)`);
+            showToast('success', `${__('Field and', 'codeideal-open-fields')} ${childCount} ${__('sub-field(s) removed (will be deleted when you click Save Changes)', 'codeideal-open-fields')}`);
         } else {
             deleteFieldLocal(String(field.id));
-            showToast('success', 'Field removed (will be deleted when you click Save Changes)');
+            showToast('success', __('Field removed (will be deleted when you click Save Changes)', 'codeideal-open-fields'));
         }
     };
 
@@ -232,7 +233,7 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                             <div className="flex-1">
                                 <div className="font-medium text-sm flex items-center gap-2 flex-wrap">
                                     {field.label || (
-                                        <span className="text-red-500">Label required</span>
+                                        <span className="text-red-500">{__('Label required', 'codeideal-open-fields')}</span>
                                     )}
                                     <Badge variant="outline" className="text-xs">
                                         {field.type}
@@ -240,13 +241,13 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                                     {fieldCanHaveChildren && (
                                         <Badge variant="secondary" className="text-xs">
                                             <Layers className="h-3 w-3 mr-1" />
-                                            {childCount} sub-field{childCount !== 1 ? 's' : ''}
+                                            {childCount} {childCount !== 1 ? __('sub-fields', 'codeideal-open-fields') : __('sub-field', 'codeideal-open-fields')}
                                         </Badge>
                                     )}
                                     {hasConditionalLogic && (
                                         <Badge variant="secondary" className="text-xs">
                                             <Filter className="h-3 w-3 mr-1" />
-                                            Conditional
+                                            {__('Conditional', 'codeideal-open-fields')}
                                         </Badge>
                                     )}
                                 </div>
@@ -276,26 +277,26 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                         <div className="px-3 pb-3 space-y-4 border-t pt-3">
                             {hasError && (
                                 <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                                    Field label and name cannot be empty
+                                    {__('Field label and name cannot be empty', 'codeideal-open-fields')}
                                 </div>
                             )}
 
                             {/* Basic Settings */}
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <Label htmlFor={`label-${field.id}`}>Field Label</Label>
+                                    <Label htmlFor={`label-${field.id}`}>{__('Field Label', 'codeideal-open-fields')}</Label>
                                     <Input
                                         id={`label-${field.id}`}
                                         value={label}
                                         onChange={(e) => handleLabelChange(e.target.value)}
                                         onBlur={handleLabelBlur}
-                                        placeholder="Enter field label"
+                                        placeholder={__('Enter field label', 'codeideal-open-fields')}
                                         className={hasError && !label.trim() ? 'border-red-500' : ''}
                                     />
                                 </div>
                                 <div>
                                     <Label htmlFor={`name-${field.id}`}>
-                                        Field Name
+                                        {__('Field Name', 'codeideal-open-fields')}
                                     </Label>
                                     <Input
                                         id={`name-${field.id}`}
@@ -314,11 +315,11 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
 
                             {/* Wrapper Settings */}
                             <div className="border-t pt-4">
-                                <h4 className="text-sm font-medium mb-3">Wrapper Settings</h4>
+                                <h4 className="text-sm font-medium mb-3">{__('Wrapper Settings', 'codeideal-open-fields')}</h4>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <div className="flex justify-between items-center mb-2">
-                                            <Label htmlFor={`width-${field.id}`}>Width</Label>
+                                            <Label htmlFor={`width-${field.id}`}>{__('Width', 'codeideal-open-fields')}</Label>
                                             <span className="text-sm font-medium text-primary">{wrapperWidth}%</span>
                                         </div>
                                         <Slider
@@ -332,7 +333,7 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor={`class-${field.id}`}>CSS Class</Label>
+                                        <Label htmlFor={`class-${field.id}`}>{__('CSS Class', 'codeideal-open-fields')}</Label>
                                         <Input
                                             id={`class-${field.id}`}
                                             value={wrapperClass}
@@ -362,7 +363,7 @@ export function FieldItem({ field, allFields, depth = 0, maxDepth = 3 }: FieldIt
                                 <div className="border-t pt-4">
                                     <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
                                         <Layers className="h-4 w-4" />
-                                        Sub-fields
+                                        {__('Sub-fields', 'codeideal-open-fields')}
                                     </h4>
                                     <NestedFieldsArea
                                         parentField={field}

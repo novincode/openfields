@@ -1,15 +1,690 @@
-# OpenFields WordPress Plugin
-# Copyright (C) OpenFields Contributors
-# This file is distributed under the GPL-2.0-or-later license.
-
+# Copyright (C) 2026 Codeideal
+# This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenFields 1.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/novincode/openfields/issues\n"
-"POT-Creation-Date: 2024-01-01 00:00:00+00:00\n"
+"Project-Id-Version: Codeideal Open Fields 0.4.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/plugin\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-02-24T12:06:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: codeideal-open-fields\n"
+
+#. Plugin Name of the plugin
+#: codeideal-open-fields.php
+msgid "Codeideal Open Fields"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: codeideal-open-fields.php
+msgid "https://openfields.codeideal.com"
+msgstr ""
+
+#. Description of the plugin
+#: codeideal-open-fields.php
+msgid "Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive interface."
+msgstr ""
+
+#. Author of the plugin
+#: codeideal-open-fields.php
+msgid "Codeideal"
+msgstr ""
+
+#. Author URI of the plugin
+#: codeideal-open-fields.php
+msgid "https://codeideal.com"
+msgstr ""
+
+#: includes/admin/class-cofld-admin.php:61
+#: includes/admin/class-cofld-admin.php:62
+msgid "Open Fields"
+msgstr ""
+
+#: includes/admin/class-cofld-admin.php:73
+#: includes/admin/class-cofld-admin.php:74
+#: includes/admin/class-cofld-admin.php:166
+msgid "Field Groups"
+msgstr ""
+
+#: includes/admin/class-cofld-admin.php:93
+msgid "Loading Open Fields..."
+msgstr ""
+
+#: includes/admin/class-cofld-admin.php:167
+msgid "Settings"
+msgstr ""
+
+#: includes/admin/class-cofld-meta-box.php:267
+msgid "No fields configured."
+msgstr ""
+
+#: includes/admin/field-renderers/file.php:99
+#: includes/admin/field-renderers/link.php:89
+msgid "Open in new tab"
+msgstr ""
+
+#: includes/admin/field-renderers/file.php:115
+msgid "No file selected"
+msgstr ""
+
+#: includes/admin/field-renderers/file.php:124
+#: includes/class-cofld-assets.php:176
+msgid "Select File"
+msgstr ""
+
+#: includes/admin/field-renderers/file.php:129
+#: includes/admin/field-renderers/image.php:89
+msgid "Change"
+msgstr ""
+
+#: includes/admin/field-renderers/file.php:134
+#: includes/admin/field-renderers/gallery.php:79
+#: includes/admin/field-renderers/image.php:94
+#: includes/admin/field-renderers/post-object.php:81
+#: includes/admin/field-renderers/repeater.php:151
+#: includes/admin/field-renderers/user.php:81
+msgid "Remove"
+msgstr ""
+
+#: includes/admin/field-renderers/gallery.php:83
+msgid "Drag to reorder"
+msgstr ""
+
+#: includes/admin/field-renderers/gallery.php:92
+#: includes/admin/field-renderers/gallery.php:106
+msgid "Add Images"
+msgstr ""
+
+#: includes/admin/field-renderers/gallery.php:94
+msgid "Add"
+msgstr ""
+
+#: includes/admin/field-renderers/gallery.php:103
+msgid "No images selected"
+msgstr ""
+
+#. translators: %1$d: current count, %2$d: min, %3$d: max
+#: includes/admin/field-renderers/gallery.php:119
+#, php-format
+msgid "%1$d images selected (min: %2$d, max: %3$d)"
+msgstr ""
+
+#. translators: %1$d: current count, %2$d: min
+#: includes/admin/field-renderers/gallery.php:127
+#, php-format
+msgid "%1$d images selected (min: %2$d)"
+msgstr ""
+
+#. translators: %1$d: current count, %2$d: max
+#: includes/admin/field-renderers/gallery.php:134
+#, php-format
+msgid "%1$d images selected (max: %2$d)"
+msgstr ""
+
+#: includes/admin/field-renderers/group.php:42
+msgid "No sub-fields configured for this group."
+msgstr ""
+
+#: includes/admin/field-renderers/image.php:75
+msgid "No image selected"
+msgstr ""
+
+#: includes/admin/field-renderers/image.php:84
+#: includes/class-cofld-assets.php:174
+msgid "Select Image"
+msgstr ""
+
+#: includes/admin/field-renderers/link.php:49
+#: includes/fields/class-cofld-field-registry.php:152
+msgid "URL"
+msgstr ""
+
+#: includes/admin/field-renderers/link.php:57
+msgid "https://example.com"
+msgstr ""
+
+#: includes/admin/field-renderers/link.php:65
+msgid "Link Text"
+msgstr ""
+
+#: includes/admin/field-renderers/link.php:73
+msgid "Link text"
+msgstr ""
+
+#: includes/admin/field-renderers/post-object.php:93
+msgid "Search..."
+msgstr ""
+
+#: includes/admin/field-renderers/repeater.php:47
+msgid "No sub-fields configured for this repeater."
+msgstr ""
+
+#: includes/admin/field-renderers/repeater.php:55
+#: includes/fields/class-cofld-field-registry.php:303
+msgid "Add Row"
+msgstr ""
+
+#: includes/admin/field-renderers/repeater.php:148
+msgid "Collapse"
+msgstr ""
+
+#: includes/admin/field-renderers/taxonomy.php:33
+#: includes/class-cofld-rest-api.php:1751
+msgid "Invalid taxonomy."
+msgstr ""
+
+#: includes/admin/field-renderers/taxonomy.php:104
+msgid "— None —"
+msgstr ""
+
+#: includes/admin/field-renderers/taxonomy.php:136
+msgid "— Select —"
+msgstr ""
+
+#: includes/admin/field-renderers/user.php:93
+msgid "Search users..."
+msgstr ""
+
+#: includes/api/functions.php:46
+msgid "Codeideal Open Fields - Compatibility Notice"
+msgstr ""
+
+#: includes/api/functions.php:47
+msgid "Another custom fields plugin has been detected. Codeideal Open Fields stores data using standard WordPress meta, so both plugins can coexist. You can use either API to retrieve field values."
+msgstr ""
+
+#: includes/class-cofld-assets.php:175
+msgid "Use this image"
+msgstr ""
+
+#: includes/class-cofld-assets.php:177
+msgid "Use this file"
+msgstr ""
+
+#: includes/class-cofld-assets.php:321
+#: includes/locations/class-cofld-location-manager.php:486
+msgid "Default Template"
+msgstr ""
+
+#: includes/class-cofld-assets.php:435
+msgid "Save"
+msgstr ""
+
+#: includes/class-cofld-assets.php:436
+msgid "Cancel"
+msgstr ""
+
+#: includes/class-cofld-assets.php:437
+msgid "Delete"
+msgstr ""
+
+#: includes/class-cofld-assets.php:438
+msgid "Are you sure?"
+msgstr ""
+
+#: includes/class-cofld-assets.php:439
+msgid "Saving..."
+msgstr ""
+
+#: includes/class-cofld-assets.php:440
+msgid "Saved!"
+msgstr ""
+
+#: includes/class-cofld-assets.php:441
+msgid "Error"
+msgstr ""
+
+#: includes/class-cofld-assets.php:442
+msgid "Add Field"
+msgstr ""
+
+#: includes/class-cofld-assets.php:443
+msgid "Field Settings"
+msgstr ""
+
+#: includes/class-cofld-assets.php:444
+msgid "No fields yet. Drag a field type to get started."
+msgstr ""
+
+#: includes/class-cofld-assets.php:445
+msgid "Copy Field"
+msgstr ""
+
+#: includes/class-cofld-assets.php:446
+msgid "Paste Field"
+msgstr ""
+
+#: includes/class-cofld-assets.php:447
+msgid "Duplicate Field"
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:371
+#: includes/class-cofld-rest-api.php:388
+#: includes/class-cofld-rest-api.php:407
+msgid "You do not have permission to access this resource."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:460
+#: includes/class-cofld-rest-api.php:680
+#: includes/class-cofld-rest-api.php:1099
+msgid "Fieldset not found."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:518
+msgid "Failed to create fieldset."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:599
+msgid "Failed to update fieldset."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:649
+msgid "Failed to delete fieldset."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:705
+msgid "Failed to duplicate fieldset."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:807
+#: includes/class-cofld-rest-api.php:905
+msgid "Field name is required and must contain only lowercase letters, numbers, hyphens, and underscores."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:825
+#: includes/class-cofld-rest-api.php:928
+msgid "A field with this name already exists in this fieldset. Field names must be unique within a fieldset."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:859
+msgid "Failed to create field."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:987
+msgid "Failed to update field."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:1024
+msgid "Failed to delete field."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:1045
+msgid "Invalid fields data."
+msgstr ""
+
+#: includes/class-cofld-rest-api.php:1183
+msgid "Invalid import data."
+msgstr ""
+
+#: includes/class-cofld.php:169
+msgid "Unserializing instances of this class is forbidden."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:67
+msgid "Text"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:68
+msgid "Single line text input."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:74
+#: includes/fields/class-cofld-field-registry.php:103
+msgid "Max Length"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:79
+#: includes/fields/class-cofld-field-registry.php:132
+msgid "Prepend"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:84
+#: includes/fields/class-cofld-field-registry.php:137
+msgid "Append"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:91
+msgid "Textarea"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:92
+msgid "Multi-line text area."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:98
+msgid "Rows"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:110
+msgid "Number"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:111
+msgid "Numeric input field."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:117
+msgid "Minimum"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:122
+msgid "Maximum"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:127
+msgid "Step"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:144
+msgid "Email"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:145
+msgid "Email address input."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:153
+msgid "URL input with validation."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:160
+msgid "Link"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:161
+msgid "Link with URL, text, and target options."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:167
+msgid "Show Link Text"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:172
+msgid "Show Target"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:180
+#: includes/fields/class-cofld-field-registry.php:360
+#: includes/fields/class-cofld-field-renderer.php:334
+msgid "Select"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:181
+msgid "Dropdown select field."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:187
+#: includes/fields/class-cofld-field-registry.php:211
+#: includes/fields/class-cofld-field-registry.php:239
+msgid "Choices"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:192
+msgid "Allow Multiple"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:197
+#: includes/fields/class-cofld-field-registry.php:338
+#: includes/fields/class-cofld-field-registry.php:428
+msgid "Allow Null"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:204
+msgid "Radio"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:205
+msgid "Radio button group."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:216
+#: includes/fields/class-cofld-field-registry.php:244
+#: includes/fields/class-cofld-field-registry.php:292
+#: includes/fields/class-cofld-field-registry.php:572
+msgid "Layout"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:218
+#: includes/fields/class-cofld-field-registry.php:246
+msgid "Vertical"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:219
+#: includes/fields/class-cofld-field-registry.php:247
+msgid "Horizontal"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:225
+msgid "Allow Other"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:232
+#: includes/fields/class-cofld-field-registry.php:361
+msgid "Checkbox"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:233
+msgid "Checkbox group."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:255
+msgid "Switch"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:256
+msgid "True/False toggle switch."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:262
+msgid "On Text"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:263
+#: includes/fields/class-cofld-field-renderer.php:415
+msgid "Yes"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:267
+msgid "Off Text"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:268
+#: includes/fields/class-cofld-field-renderer.php:416
+msgid "No"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:274
+msgid "Repeater"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:275
+msgid "Repeatable group of sub-fields."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:282
+msgid "Minimum Rows"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:287
+msgid "Maximum Rows"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:294
+msgid "Table"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:295
+msgid "Block"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:296
+msgid "Row"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:302
+msgid "Button Label"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:310
+#: includes/fields/class-cofld-field-registry.php:331
+#: includes/fields/class-cofld-field-registry.php:468
+msgid "Post Object"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:311
+msgid "Select posts from a searchable dropdown."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:317
+#: includes/fields/class-cofld-field-registry.php:442
+#: includes/locations/class-cofld-location-manager.php:69
+msgid "Post Type"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:324
+#: includes/fields/class-cofld-field-registry.php:368
+#: includes/fields/class-cofld-field-registry.php:413
+msgid "Select Multiple"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:329
+#: includes/fields/class-cofld-field-registry.php:373
+#: includes/fields/class-cofld-field-registry.php:418
+#: includes/fields/class-cofld-field-registry.php:466
+msgid "Return Format"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:332
+#: includes/fields/class-cofld-field-registry.php:469
+msgid "Post ID"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:345
+#: includes/fields/class-cofld-field-registry.php:352
+#: includes/locations/class-cofld-location-manager.php:109
+msgid "Taxonomy"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:346
+msgid "Select taxonomy terms."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:358
+msgid "Appearance"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:362
+msgid "Radio Buttons"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:375
+msgid "Term Object"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:376
+msgid "Term ID"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:382
+msgid "Allow Add Term"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:387
+msgid "Load Value from Post Terms"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:392
+msgid "Connect Selected Terms to Post"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:399
+msgid "User"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:400
+msgid "Select users from a searchable dropdown."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:406
+msgid "Filter by Role"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:420
+msgid "User Object"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:421
+msgid "User ID"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:422
+msgid "User Array"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:435
+msgid "Relationship"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:436
+msgid "A dual-column interface to select multiple posts."
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:449
+msgid "Filter by Taxonomy"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:456
+msgid "Minimum Posts"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:461
+msgid "Maximum Posts"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:566
+msgid "Basic"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:567
+msgid "Choice"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:568
+msgid "Content"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:569
+msgid "Media"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:570
+msgid "Relational"
+msgstr ""
+
+#: includes/fields/class-cofld-field-registry.php:571
+msgid "Date & Time"
+msgstr ""
+
+#: includes/locations/class-cofld-location-manager.php:79
+msgid "Page Template"
+msgstr ""
+
+#: includes/locations/class-cofld-location-manager.php:89
+msgid "Post Category"
+msgstr ""
+
+#: includes/locations/class-cofld-location-manager.php:99
+msgid "Post Format"
+msgstr ""
+
+#: includes/locations/class-cofld-location-manager.php:119
+msgid "User Role"
+msgstr ""
+
+#: includes/locations/class-cofld-location-manager.php:129
+msgid "Options Page"
+msgstr ""

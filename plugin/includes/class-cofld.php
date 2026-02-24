@@ -105,6 +105,13 @@ final class COFLD_Plugin {
 	 * @since 1.0.0
 	 */
 	public function init() {
+		// Load text domain for translations.
+		load_plugin_textdomain(
+			'codeideal-open-fields',
+			false,
+			dirname( plugin_basename( COFLD_PLUGIN_DIR . 'codeideal-open-fields.php' ) ) . '/languages'
+		);
+
 		// Initialize components.
 		COFLD_Assets::instance();
 		COFLD_Field_Registry::instance();

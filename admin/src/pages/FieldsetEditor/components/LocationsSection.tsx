@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { __ } from '@wordpress/i18n';
 import { Button } from '../../../components/ui/button';
 import { Card } from '../../../components/ui/card';
 import {
@@ -196,10 +197,10 @@ export function LocationsSection({
 
 	return (
 		<div className="mb-8">
-			<h2 className="text-lg font-semibold mb-4">Location Rules</h2>
+			<h2 className="text-lg font-semibold mb-4">{__('Location Rules', 'codeideal-open-fields')}</h2>
 			<Card className="p-4">
 				<p className="text-sm text-gray-600 mb-4">
-					Show this fieldset when the following rules match
+					{__('Show this fieldset when the following rules match', 'codeideal-open-fields')}
 				</p>
 
 				{locationGroups.map((group, groupIndex) => (
@@ -234,21 +235,21 @@ export function LocationsSection({
 											}
 										>
 											<SelectTrigger className="w-[160px]">
-												<SelectValue placeholder="Select type" />
+												<SelectValue placeholder={__('Select type', 'codeideal-open-fields')} />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="post_type">Post Type</SelectItem>
+												<SelectItem value="post_type">{__('Post Type', 'codeideal-open-fields')}</SelectItem>
 												<SelectItem value="page_template">
-													Page Template
+													{__('Page Template', 'codeideal-open-fields')}
 												</SelectItem>
 												<SelectItem value="post_category">
-													Post Category
+													{__('Post Category', 'codeideal-open-fields')}
 												</SelectItem>
 												<SelectItem value="post_format">
-													Post Format
+													{__('Post Format', 'codeideal-open-fields')}
 												</SelectItem>
-												<SelectItem value="taxonomy">Taxonomy</SelectItem>
-												<SelectItem value="user_role">User Role</SelectItem>
+												<SelectItem value="taxonomy">{__('Taxonomy', 'codeideal-open-fields')}</SelectItem>
+												<SelectItem value="user_role">{__('User Role', 'codeideal-open-fields')}</SelectItem>
 											</SelectContent>
 										</Select>
 
@@ -263,8 +264,8 @@ export function LocationsSection({
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="==">is equal to</SelectItem>
-												<SelectItem value="!=">is not equal to</SelectItem>
+												<SelectItem value="==">{__('is equal to', 'codeideal-open-fields')}</SelectItem>
+												<SelectItem value="!=">{__('is not equal to', 'codeideal-open-fields')}</SelectItem>
 											</SelectContent>
 										</Select>
 
@@ -276,7 +277,7 @@ export function LocationsSection({
 											}
 										>
 											<SelectTrigger className="flex-1">
-												<SelectValue placeholder="Select value" />
+												<SelectValue placeholder={__('Select value', 'codeideal-open-fields')} />
 											</SelectTrigger>
 											<SelectContent>
 												{getValueOptions(rule.type).map((opt) => (
@@ -310,7 +311,7 @@ export function LocationsSection({
 								className="mt-2"
 							>
 								<Plus className="h-3 w-3 mr-1" />
-								Add AND rule
+								{__('Add AND rule', 'codeideal-open-fields')}
 							</Button>
 						</div>
 					</div>
@@ -324,7 +325,7 @@ export function LocationsSection({
 					onClick={handleAddGroup}
 				>
 					<Plus className="h-3 w-3 mr-1" />
-					Add OR rule group
+					{__('Add OR rule group', 'codeideal-open-fields')}
 				</Button>
 			</Card>
 		</div>

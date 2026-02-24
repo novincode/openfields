@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -62,7 +63,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
     <div className="space-y-4">
       {/* Taxonomy Selection */}
       <div className="space-y-2">
-        <Label>Taxonomy</Label>
+        <Label>{__('Taxonomy', 'codeideal-open-fields')}</Label>
         <Select
           value={String(settings.taxonomy || 'category')}
           onValueChange={(value) => updateSetting('taxonomy', value)}
@@ -86,7 +87,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
 
       {/* Appearance / Field Type */}
       <div className="space-y-2">
-        <Label>Appearance</Label>
+        <Label>{__('Appearance', 'codeideal-open-fields')}</Label>
         <Select
           value={(settings.field_type as string) || 'select'}
           onValueChange={(value) => updateSetting('field_type', value)}
@@ -95,9 +96,9 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
             <SelectValue placeholder="Select appearance" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="select">Dropdown</SelectItem>
-            <SelectItem value="checkbox">Checkbox</SelectItem>
-            <SelectItem value="radio">Radio Buttons</SelectItem>
+            <SelectItem value="select">{__('Dropdown', 'codeideal-open-fields')}</SelectItem>
+            <SelectItem value="checkbox">{__('Checkbox', 'codeideal-open-fields')}</SelectItem>
+            <SelectItem value="radio">{__('Radio Buttons', 'codeideal-open-fields')}</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
@@ -109,7 +110,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
       {(settings.field_type === 'select' || !settings.field_type) && (
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <Label>Select Multiple</Label>
+            <Label>{__('Select Multiple', 'codeideal-open-fields')}</Label>
             <p className="text-xs text-muted-foreground">
               Allow selecting multiple terms
             </p>
@@ -123,7 +124,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
 
       {/* Return Format */}
       <div className="space-y-2">
-        <Label>Return Format</Label>
+        <Label>{__('Return Format', 'codeideal-open-fields')}</Label>
         <Select
           value={(settings.return_format as string) || 'id'}
           onValueChange={(value) => updateSetting('return_format', value)}
@@ -132,8 +133,8 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
             <SelectValue placeholder="Select return format" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="id">Term ID</SelectItem>
-            <SelectItem value="object">Term Object</SelectItem>
+            <SelectItem value="id">{__('Term ID', 'codeideal-open-fields')}</SelectItem>
+            <SelectItem value="object">{__('Term Object', 'codeideal-open-fields')}</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
@@ -144,7 +145,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
       {/* Save Terms */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Save Terms</Label>
+          <Label>{__('Save Terms', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
             Connect selected terms to the post
           </p>
@@ -158,7 +159,7 @@ export function TaxonomyFieldSettings({ field, onSettingsChange }: TaxonomyField
       {/* Load Terms */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label>Load Terms</Label>
+          <Label>{__('Load Terms', 'codeideal-open-fields')}</Label>
           <p className="text-xs text-muted-foreground">
             Load value from the post's terms
           </p>
