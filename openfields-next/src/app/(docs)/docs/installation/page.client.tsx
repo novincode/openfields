@@ -43,7 +43,7 @@ export default function InstallationPageClient() {
 			<section className="space-y-4">
 				<h2 className="text-xl font-semibold">Manual Installation</h2>
 				<ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-					<li>Download the plugin from <a href="https://github.com/novincode/openfields/releases" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">GitHub Releases</a></li>
+					<li>Download the plugin from <a href="https://wordpress.org/plugins/codeideal-open-fields/" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">WordPress.org</a> or <a href="https://github.com/novincode/openfields/releases" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">GitHub Releases</a></li>
 					<li>Upload the <code className="bg-muted px-1.5 py-0.5 rounded text-sm">openfields</code> folder to <code className="bg-muted px-1.5 py-0.5 rounded text-sm">/wp-content/plugins/</code></li>
 					<li>Activate through the Plugins menu in WordPress</li>
 				</ol>

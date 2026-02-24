@@ -55,8 +55,11 @@ export function DownloadSection() {
 						<p className="text-sm text-muted-foreground mb-4 flex-1">
 							Install directly from your WordPress dashboard.
 						</p>
-						<Button variant="secondary" className="w-full" disabled>
-							<span>Coming Soon</span>
+						<Button variant="secondary" className="w-full" asChild>
+							<a href={DOWNLOAD_LINKS.wordpress} target="_blank" rel="noopener noreferrer">
+								<span>Install from WordPress.org</span>
+								<RiArrowRightLine className="size-4" />
+							</a>
 						</Button>
 					</div>
 				</div>

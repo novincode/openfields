@@ -1,6 +1,6 @@
 {
   "name": "openfields",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "description": "Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive interface.",
   "author": "Codeideal",

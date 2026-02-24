@@ -48,12 +48,12 @@
 		{ value: 'image', label: __( 'Image', 'openfields' ) },
 	];
 
-	registerBlockType( 'openfields/field', {
-		title: __( 'OpenFields Field', 'openfields' ),
-		description: __( 'Display a custom field value.', 'openfields' ),
+	registerBlockType( 'cofld/field', {
+		title: __( 'Open Fields', 'codeideal-open-fields' ),
+		description: __( 'Display a custom field value.', 'codeideal-open-fields' ),
 		category: 'widgets',
 		icon: 'forms',
-		keywords: [ 'field', 'custom', 'meta', 'acf', 'openfields' ],
+		keywords: [ 'field', 'custom', 'meta', 'acf', 'openfields', 'open fields' ],
 		supports: {
 			html: false,
 			align: true,
@@ -117,7 +117,7 @@
 					blockProps,
 					fieldName
 						? el( ServerSideRender, {
-								block: 'openfields/field',
+								block: 'cofld/field',
 								attributes: attributes,
 								EmptyResponsePlaceholder: function() {
 									return el(

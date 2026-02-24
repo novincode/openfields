@@ -55,6 +55,7 @@ class COFLD_Block {
 
 		register_block_type( 'cofld/field', array(
 			'api_version'     => 2,
+			'title'           => 'Open Fields',
 			'editor_script'   => 'cofld-block-editor',
 			'render_callback' => array( $this, 'render_block' ),
 			'attributes'      => array(

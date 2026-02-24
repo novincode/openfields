@@ -4,145 +4,150 @@ Donate link: https://codeideal.com
 Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive, developer-friendly interface.
+A free, modern custom fields plugin for WordPress. Build field groups with a visual editor — no code required.
 
 == Description ==
 
-Codeideal Open Fields is a powerful, lightweight, and 100% open-source custom fields plugin for WordPress. Add custom fields to posts, pages, custom post types, taxonomies, and users with an intuitive, modern interface for creating field groups and managing custom data.
+**Codeideal Open Fields** lets you add custom fields to posts, pages, custom post types, taxonomies, and users. The admin interface is built with React and TypeScript — fast, responsive, and intuitive.
 
-= Source Code & Build Instructions =
+All features are free. No premium tier. No locked functionality.
 
-The admin interface JavaScript (`assets/admin/js/admin.js`) and CSS (`assets/admin/css/admin.css`) are compiled from uncompressed source code. All other JavaScript and CSS files in the plugin are uncompressed and human-readable.
+= Quick Start =
 
-**Public source repository:** [https://github.com/novincode/openfields](https://github.com/novincode/openfields)
+`get_field( 'my_field' )` — retrieve any field value.
 
-**Source files location:** The uncompressed React/TypeScript source for the admin JS is in [`admin/src/`](https://github.com/novincode/openfields/tree/main/admin/src). The uncompressed CSS source for `admin.css` is in [`admin/src/styles/`](https://github.com/novincode/openfields/tree/main/admin/src/styles). All other JavaScript and CSS files in `assets/admin/js/` and `assets/admin/css/` (except `admin.js` and `admin.css`) are already human-readable and uncompressed.
+`the_field( 'my_field' )` — echo a field value directly.
 
-**To build from source:**
+= Template Examples =
 
-1. Clone the repository: `git clone https://github.com/novincode/openfields.git`
-2. Install dependencies: `pnpm install`
-3. Build the admin JS/CSS: `pnpm run build`
+**Simple field:**
 
-The build uses Vite and TypeScript. Output is placed in `plugin/assets/admin/js/admin.js` and `plugin/assets/admin/css/admin.css`.
+    <?php echo esc_html( get_field( 'subtitle' ) ); ?>
 
-= Key Features =
+**Repeater loop:**
 
-* **Modern Interface** - Built with React for a smooth, intuitive user experience
-* **Multiple Field Types** - Text, textarea, number, email, URL, select, checkbox, radio, switch, date, time, color picker, image, file, gallery, WYSIWYG editor, link, post object, taxonomy, user, repeater, and group fields
-* **Flexible Locations** - Assign field groups to specific post types, page templates, taxonomies, or users
-* **Repeater Fields** - Create repeatable sets of fields for dynamic content
-* **Group Fields** - Organize related fields into collapsible groups
-* **Standards Compatible** - Uses standard WordPress meta storage for maximum compatibility
-* **Developer Friendly** - Clean codebase with hooks and filters for customization
-* **Lightweight** - No bloat, only what you need
-* **100% Free** - All features available, no premium version
+    <?php while ( have_rows( 'team_members' ) ) : the_row(); ?>
+        <h3><?php the_sub_field( 'name' ); ?></h3>
+        <p><?php the_sub_field( 'role' ); ?></p>
+    <?php endwhile; ?>
+
+**User field (with prefix):**
+
+    <?php echo esc_html( get_field( 'company', 'user_' . $user_id ) ); ?>
+
+Full API reference and guides: [openfields.codeideal.com/docs](https://openfields.codeideal.com/docs)
+
+= ACF-Compatible API =
+
+If you know ACF, you already know Open Fields. The template API uses the same function names:
+
+* `get_field()` / `the_field()`
+* `get_fields()` / `update_field()` / `delete_field()`
+* `have_rows()` / `the_row()` / `get_sub_field()` / `the_sub_field()`
+* `get_row()` / `get_rows()` / `reset_rows()` / `get_row_index()`
+* `get_field_object()` / `get_sub_field_object()`
+
+When ACF is also active, these wrappers are not loaded — no conflicts. Both plugins store data as standard WordPress meta, so they can coexist.
+
+Every function also has a prefixed version (e.g. `cofld_get_field()`) that is always available regardless of other plugins.
 
 = Field Types =
 
-* **Basic Fields**: Text, Textarea, Number, Email, URL, Password
-* **Choice Fields**: Select, Checkbox, Radio, Switch (Toggle)
-* **Date & Time**: Date Picker, Time Picker, DateTime Picker
-* **Media Fields**: Image, File, Gallery
-* **Content Fields**: WYSIWYG Editor, Link
-* **Relational Fields**: Post Object, Taxonomy, User
-* **Layout Fields**: Repeater, Group
+* **Basic:** Text, Textarea, Number, Email, URL, Password
+* **Choice:** Select, Checkbox, Radio, Switch
+* **Date & Time:** Date, Time, DateTime, Color Picker
+* **Media:** Image, File, Gallery
+* **Content:** WYSIWYG Editor, Link
+* **Relational:** Post Object, Taxonomy, User
+* **Layout:** Repeater, Group
 
 = Location Rules =
 
-Assign your field groups based on:
+Assign field groups to:
 
-* Post Type (posts, pages, custom post types)
-* Page Template
-* Post Status
-* Taxonomy Terms
-* User Role
-* And more...
+* Post types (including custom post types)
+* Page templates
+* Post status / format / category
+* Taxonomy terms
+* User roles
+
+= Source Code =
+
+The admin JS and CSS are compiled from TypeScript/React source. All other files are uncompressed.
+
+* **Source repo:** [github.com/novincode/openfields](https://github.com/novincode/openfields)
+* **Admin source:** [admin/src/](https://github.com/novincode/openfields/tree/main/admin/src)
+* **Build:** `pnpm install && pnpm build` (Vite + TypeScript)
 
 == Installation ==
 
-1. Upload the `codeideal-open-fields` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Open Fields in the admin menu to create your first field group
+1. Go to **Plugins → Add New** in your WordPress admin
+2. Search for **"Codeideal Open Fields"**
+3. Click **Install Now**, then **Activate**
+4. Go to **Open Fields** in the admin menu to create your first field group
+
+Or install manually:
+
+1. Download from [WordPress.org](https://wordpress.org/plugins/codeideal-open-fields/) or [GitHub Releases](https://github.com/novincode/openfields/releases)
+2. Upload the `codeideal-open-fields` folder to `/wp-content/plugins/`
+3. Activate through the Plugins menu
 
 == Frequently Asked Questions ==
 
-= Is Codeideal Open Fields free? =
+= Is this really 100% free? =
 
-Yes! Codeideal Open Fields is 100% free and open source. All features are available without any premium version.
+Yes. Every feature is free. No premium version, no upsells, no locked fields.
 
-= Can I migrate from other custom fields plugins? =
+= Can I use this alongside ACF? =
 
-Codeideal Open Fields uses standard WordPress post meta storage, making it compatible with data from other custom fields plugins. You may need to recreate your field groups manually.
+Yes. Both plugins store data as standard WordPress post meta. When ACF is active, Open Fields does not redefine ACF's functions — there are no conflicts.
 
-= Does Codeideal Open Fields work with custom post types? =
+= How do I get field values in my theme? =
 
-Yes! Codeideal Open Fields works with all post types, including custom post types created by other plugins or themes.
+Use `get_field( 'field_name' )` or the prefixed `cofld_get_field( 'field_name' )`. Works exactly like you'd expect.
 
-= Can I use Codeideal Open Fields with page builders? =
+= Does it work with custom post types? =
 
-Yes, Codeideal Open Fields stores data as standard WordPress post meta, making it compatible with most page builders and themes.
+Yes. Any public or private post type registered in WordPress.
 
-= How do I retrieve field values in my theme? =
+= What about page builders? =
 
-Use the standard WordPress functions like `get_post_meta()` or the helper function `get_field()`.
+Standard WordPress meta is used, so Elementor, Bricks, Beaver Builder, and others can read the data via their dynamic data features.
 
 == Screenshots ==
 
-1. Field Groups List - Manage all your custom field groups
-2. Field Group Editor - Create and configure fields with an intuitive interface
-3. Meta Box Display - See your custom fields on the post edit screen
-4. Repeater Fields - Add repeatable sets of fields
-5. Location Rules - Control where your fields appear
+1. Field group editor — visual drag-and-drop builder
+2. Field configuration — detailed settings for each field
+3. Location rules — control where fields appear
+4. Easy to use — clean, modern interface
 
 == Changelog ==
 
+= 0.4.0 =
+* Fixed: Duplicate Gutenberg block (cofld/field vs openfields/field) — now registers a single "Open Fields" block
+* Updated: Tested with WordPress 6.9.1
+* Improved: Plugin page with screenshots, banner, and icon on WordPress.org
+* Improved: readme.txt rewritten for clarity with code examples and docs links
+
 = 0.3.0 =
-* Security: REST API `/search/users` and `/options/roles` endpoints now require `list_users` capability instead of `edit_posts`
-* Security: Added `current_user_can( 'edit_term' )` capability check to taxonomy field save handler
-* Security: All bare `echo` output now wrapped in proper escaping functions (`esc_attr`, `esc_html`)
-* Changed: Plugin prefix renamed from `cof` (3 chars) to `cofld` (5 chars) to comply with WordPress.org prefix length requirements — affects all constants, functions, CSS classes, JS variables, database table names, hooks, and file names
-* Added: Source code documentation section in readme explaining where to find uncompressed source for built JS/CSS assets
-* Developer note: Database table names changed from `cof_fieldsets`, `cof_fields`, `cof_locations` to `cofld_fieldsets`, `cofld_fields`, `cofld_locations`
-* Developer note: All public API functions renamed (e.g. `cof_get_field` → `cofld_get_field`)
+* Security: REST API endpoints now require proper capabilities
+* Security: Added capability check to taxonomy save handler
+* Security: All output properly escaped
+* Changed: Plugin prefix renamed from cof to cofld (5+ chars per WordPress.org guidelines)
 
 = 0.2 =
-* Fixed: Page templates not fetched dynamically — now scans all public post types and block theme templates
-* Fixed: Template matching failure when default template is selected (value mismatch between WordPress API and stored rules)
-* Fixed: Fields not saving when fieldsets use template, category, or post format location rules
-* Fixed: Admin interface failed to load data (localized script variable name mismatch)
-* Fixed: Invalid menu icon (dashicons-forms does not exist)
-* Fixed: Meta box script localization targeting non-existent script handle
-* Fixed: Term and user default value logic overriding intentional "0" or empty values
-* Added: Dynamic page template options in location rule builder (fetched from WordPress, no longer hardcoded)
-* Added: Post Category and Post Format location rule types in admin UI
-* Added: Categories, post formats, and page templates provided to admin via localized data
-* Added: Plugin text domain loading for translation support
-* Added: Activation redirect transient for first-time setup experience
-* Added: Switch field renderer include (was missing)
-* Improved: Removed unnecessary flush_rewrite_rules on activation/deactivation
-* Improved: Removed phantom scheduled hook cleanup for non-existent cron event
-* Improved: Admin mount point ID aligned between PHP and React
-
-= 0.1.1 =
-* Rebranded to Codeideal Open Fields
-* Improved security and code quality
-* Various bug fixes
+* Fixed: Dynamic page template options, template matching, field saving, admin loading
+* Added: Post category/format location rules, activation redirect, switch renderer
 
 = 0.1.0 =
 * Initial release
-* Field types: text, textarea, number, email, URL, select, checkbox, radio, switch, date, time, datetime, color, image, file, gallery, WYSIWYG, link, post object, taxonomy, user, repeater, group
-* Location rules for post types, page templates, taxonomies, and users
-* Modern React-based admin interface
-* REST API for field group management
-* Developer hooks and filters
 
 == Upgrade Notice ==
 
-= 0.1.1 =
-Rebranded to Codeideal Open Fields with various improvements.
+= 0.4.0 =
+Fixes duplicate block registration. Updated for WordPress 6.9 compatibility.

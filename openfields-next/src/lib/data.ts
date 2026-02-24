@@ -104,7 +104,7 @@ export const SPONSOR_TIERS = [
 
 export const DOWNLOAD_LINKS = {
 	github: "https://github.com/novincode/openfields",
-	wordpress: "#", // Coming soon
+	wordpress: "https://wordpress.org/plugins/codeideal-open-fields/", // Live on WordPress.org
 	releases: "https://github.com/novincode/openfields/releases",
 } as const;
 
