@@ -328,6 +328,10 @@
 		// Initialize nested repeaters in the new row
 		this.initAllRepeaters(newRow);
 
+		// Dispatch event for other scripts to reinitialize their fields
+		const event = new CustomEvent('openfields:row:added', { detail: { row: newRow, repeater: repeater } });
+		document.dispatchEvent(event);
+
 		// Reindex and update
 		this.reindexRows(repeater);
 		this.updateState(repeater);

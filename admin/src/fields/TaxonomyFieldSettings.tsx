@@ -22,7 +22,7 @@ interface Taxonomy {
 }
 
 const getConfig = () => ({
-  apiUrl: window.cofldAdmin?.restUrl || '/wp-json/openfields/v1',
+  apiUrl: window.cofldAdmin?.restUrl || '/wp-json/codeideal-open-fields/v1',
   nonce: window.cofldAdmin?.nonce || '',
 });
 

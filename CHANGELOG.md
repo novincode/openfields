@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ---
+## [0.4.3] - 2025-04-25
+
+### Fixed
+- **Issue #4: User search REST API** — Fixed 404 errors when searching users in relational fields. Corrected REST namespace from `openfields/v1` to `codeideal-open-fields/v1` in JavaScript. Also relaxed permission check to allow editors (`edit_posts` capability) to search users, not just administrators.
+- **Issue #4: Post search REST API** — Fixed 404 errors when searching posts in relational fields. Corrected REST namespace from `openfields/v1` to `codeideal-open-fields/v1`.
+- **Issue #5: WYSIWYG editors in dynamic contexts** — WYSIWYG (TinyMCE) editors now properly initialize in repeater rows and conditionally shown groups. Added automatic editor initialization when new content is added dynamically.
+- **Issue #6: Media picker in dynamic contexts** — Media library buttons now work correctly in repeater rows and conditionally shown groups. Fixed by reinitializing media pickers when new rows are added.
+- **Issue #7: Post object searchable select in dynamic contexts** — Post object relational fields now properly initialize their searchable interface in repeater rows and conditionally shown groups.
+- **Dynamic field initialization** — Added centralized event system (`openfields:row:added`) that triggers when repeater rows are added, ensuring all field types (WYSIWYG, media pickers, relational fields) are properly initialized in dynamic contexts.
+
+### Changed
+- Improved field initialization architecture to support both classic editor and Gutenberg block editor
+- Enhanced repeater.js to dispatch custom events for better extensibility
+- Updated translation POT file with latest strings (373 translatable strings)
+
+---
 ## [0.4.2] - 2026-02-24
 
 ### Fixed

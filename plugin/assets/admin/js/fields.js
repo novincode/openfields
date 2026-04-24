@@ -286,6 +286,20 @@
 		 * Initialize the fields manager.
 		 */
 		init() {
+			this.initFields(document);
+		},
+
+		/**
+		 * Initialize fields within a container (for dynamic content).
+		 * 
+		 * @param {HTMLElement} container - The container to initialize fields in.
+		 */
+		initFields(container) {
+			// Only initialize if container has meta boxes or is inside one
+			if (!container.querySelector('.cofld-meta-box') && !container.closest('.cofld-meta-box')) {
+				return;
+			}
+
 			this.initSwitchFields();
 			this.initConditionalLogic();
 			this.initFileFields();
@@ -874,6 +888,7 @@
 			this.initImageFields();
 			this.initFileMediaFields();
 			this.initGalleryFields();
+			this.initWysiwygFields();
 			
 		},
 
@@ -1422,6 +1437,80 @@
 		},
 
 		/**
+		 * Initialize WYSIWYG editors (TinyMCE/Quicktags) in dynamic contexts.
+		 * 
+		 * This handles editors in repeater rows and conditionally shown groups.
+		 */
+		initWysiwygFields() {
+			// Only proceed if wp.editor is available
+			if (!window.wp || !window.wp.editor) {
+				return;
+			}
+
+			const wysiwygContainers = document.querySelectorAll('.wp-editor-wrap');
+			
+			wysiwygContainers.forEach(container => {
+				// Skip if already initialized
+				if (container.dataset.ofWysiwygInit) {
+					return;
+				}
+				container.dataset.ofWysiwygInit = 'true';
+
+				const textarea = container.querySelector('textarea.wp-editor-area');
+				if (!textarea || !textarea.id) {
+					return;
+				}
+
+				const editorId = textarea.id;
+
+				// Check if editor already exists
+				if (window.tinymce && window.tinymce.get(editorId)) {
+					// Editor already initialized, skip
+					return;
+				}
+
+				// Initialize the editor
+				// Get settings from global if available
+				const settings = window.tinyMCEPreInit && window.tinyMCEPreInit.mceInit && window.tinyMCEPreInit.mceInit[editorId] 
+					? window.tinyMCEPreInit.mceInit[editorId]
+					: {
+						theme: 'modern',
+						skin: 'lightgray',
+						language: 'en',
+						formats: {
+							alignleft: [
+								{selector: 'p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li', styles: {textAlign:'left'}},
+								{selector: 'img,table,dl.wp-caption', classes: 'alignleft'}
+							],
+							aligncenter: [
+								{selector: 'p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li', styles: {textAlign:'center'}},
+								{selector: 'img,table,dl.wp-caption', classes: 'aligncenter'}
+							],
+							alignright: [
+								{selector: 'p,h1,h2,h3,h4,h5,h6,td,th,div,ul,ol,li', styles: {textAlign:'right'}},
+								{selector: 'img,table,dl.wp-caption', classes: 'alignright'}
+							]
+						},
+						relative_urls: false,
+						remove_script_host: false,
+						convert_urls: false
+					};
+
+				// Use wp.editor.initialize if available (WordPress 4.8+)
+				if (window.wp.editor.initialize) {
+					try {
+						wp.editor.initialize(editorId, {
+							tinymce: settings,
+							quicktags: true
+						});
+					} catch (e) {
+						console.warn('[OpenFields] Could not initialize WYSIWYG editor:', editorId, e);
+					}
+				}
+			});
+		},
+
+		/**
 		 * Show error message on a field.
 		 *
 		 * @param {HTMLElement} container - The field container.
@@ -1540,6 +1629,16 @@
 				}
 			});
 		});
+	});
+
+	// Listen for repeater row additions and reinitialize fields
+	document.addEventListener('openfields:row:added', (e) => {
+		if (e.detail && e.detail.row) {
+			// Reinitialize all field types in the new row
+			setTimeout(() => {
+				FieldsManager.initFields(e.detail.row);
+			}, 50);
+		}
 	});
 
 	// Start observing once DOM is ready

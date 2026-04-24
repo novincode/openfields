@@ -101,7 +101,7 @@
 			resultsContainer.classList.add('active');
 
 			try {
-				const url = buildRestUrl('openfields/v1/search/posts', {
+				const url = buildRestUrl('codeideal-open-fields/v1/search/posts', {
 					s: query,
 					post_type: postTypes,
 					per_page: 10
@@ -179,7 +179,7 @@
 					params.role = roles;
 				}
 
-				const url = buildRestUrl('openfields/v1/search/users', params);
+				const url = buildRestUrl('codeideal-open-fields/v1/search/users', params);
 
 				const response = await fetch(url, {
 					headers: {

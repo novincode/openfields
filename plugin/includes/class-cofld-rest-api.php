@@ -401,7 +401,7 @@ class COFLD_REST_API {
 	 * @return bool|WP_Error
 	 */
 	public function check_list_users_permission() {
-		if ( ! current_user_can( 'list_users' ) ) {
+		if ( ! current_user_can( 'list_users' ) && ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'cofld_rest_forbidden',
 				__( 'You do not have permission to access this resource.', 'codeideal-open-fields' ),
