@@ -4,7 +4,7 @@ Donate link: https://openfields.codeideal.com/support
 Tags: custom fields, meta fields, field builder, post meta, custom meta
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 0.4.2
+Stable tag: 0.4.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -127,6 +127,15 @@ Standard WordPress meta is used, so Elementor, Bricks, Beaver Builder, and other
 4. Easy to use — clean, modern interface
 
 == Changelog ==
+
+= 0.4.3 =
+* Fixed: Resolved dynamic field initialization issues
+* Fixed: Corrected REST API namespace conflicts
+
+= 0.4.2 =
+* Added: Complete internationalization (373 translatable strings)
+* Added: New plugin icon for WordPress.org
+* Improved: i18n tooling and translation workflow
 
 = 0.4.1 =
 * Added: Full internationalization (i18n) support — all admin UI strings are now translatable
