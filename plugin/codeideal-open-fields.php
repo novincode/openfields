@@ -5,7 +5,7 @@
  * Description: Modern custom fields builder for WordPress. Create and manage custom field groups with an intuitive interface.
  * Version: 0.4.3
  * Requires at least: 6.0
- * Tested up to: 6.9
+ * Tested up to: 7.0
  * Requires PHP: 7.4
  * Author: Codeideal
  * Author URI: https://codeideal.com
